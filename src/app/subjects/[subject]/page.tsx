@@ -1,7 +1,6 @@
-import { cookies } from 'next/headers';
+import { auth } from '@/auth';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
-import { AUTH_COOKIE } from '@/lib/auth';
 import { getSubject } from '@/lib/content';
 import Navbar from '@/components/Navbar';
 import LessonCard from '@/components/LessonCard';
@@ -11,25 +10,21 @@ interface Props {
 }
 
 export default async function SubjectPage({ params }: Props) {
-  const { subject: subjectSlug } = await params;
+  const { subject: subjectParam } = await params;
+  const subjectSlug = decodeURIComponent(subjectParam);
 
-  const cookieStore = await cookies();
-  const session = cookieStore.get(AUTH_COOKIE);
+  const session = await auth();
   if (!session) redirect('/login');
-
-  let user: { username: string; name: string } | null = null;
-  try {
-    user = JSON.parse(session.value);
-  } catch {
-    redirect('/login');
-  }
 
   const subject = getSubject(subjectSlug);
   if (!subject) notFound();
 
   return (
     <div className="min-h-screen">
-      <Navbar userName={user?.name} />
+      <Navbar
+        userName={session.user?.name ?? undefined}
+        userImage={session.user?.image ?? undefined}
+      />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Breadcrumb */}
@@ -54,7 +49,6 @@ export default async function SubjectPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Divider */}
         <div className={`h-px bg-gradient-to-r ${subject.color} opacity-30 mb-8`} />
 
         {/* Lessons list */}
@@ -75,9 +69,9 @@ export default async function SubjectPage({ params }: Props) {
                 subjectSlug={subjectSlug}
                 slug={lesson.slug}
                 title={lesson.title}
-                hasVideo={!!lesson.video}
-                hasPdf={!!lesson.pdf}
-                imageCount={lesson.images.length}
+                hasVideo={lesson.hasVideo}
+                hasPdf={lesson.hasPdf}
+                imageCount={lesson.imageCount}
                 index={i}
               />
             ))}

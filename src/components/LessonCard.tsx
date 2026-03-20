@@ -21,7 +21,7 @@ export default function LessonCard({
 }: LessonCardProps) {
   return (
     <Link
-      href={`/subjects/${subjectSlug}/${slug}`}
+      href={`/subjects/${encodeURIComponent(subjectSlug)}/${encodeURIComponent(slug)}`}
       id={`lesson-${slug}`}
       className="group flex items-center gap-4 glass-card rounded-xl p-4 card-hover cursor-pointer"
       style={{ animationDelay: `${index * 60}ms` }}

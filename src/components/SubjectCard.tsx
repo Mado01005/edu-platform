@@ -11,7 +11,7 @@ interface SubjectCardProps {
 export default function SubjectCard({ slug, title, icon, color, lessonCount }: SubjectCardProps) {
   return (
     <Link
-      href={`/subjects/${slug}`}
+      href={`/subjects/${encodeURIComponent(slug)}`}
       id={`subject-${slug}`}
       className="group block glass-card rounded-2xl p-6 card-hover cursor-pointer"
     >

@@ -1,24 +1,40 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
+import Image from 'next/image';
 import { useState } from 'react';
 
 interface NavbarProps {
   userName?: string;
+  userImage?: string;
 }
 
-export default function Navbar({ userName }: NavbarProps) {
-  const router = useRouter();
+export default function Navbar({ userName, userImage }: NavbarProps) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   async function handleLogout() {
     setLoggingOut(true);
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/login');
-    router.refresh();
+    await signOut({ callbackUrl: '/login' });
   }
+
+  const initials = userName ? userName.charAt(0).toUpperCase() : '?';
+
+  const avatar = userImage ? (
+      <Image
+        src={userImage}
+        alt={userName ?? 'User'}
+        width={32}
+        height={32}
+        className="w-8 h-8 rounded-full object-cover"
+        referrerPolicy="no-referrer"
+      />
+    ) : (
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs">
+        {initials}
+      </div>
+    );
 
   return (
     <nav className="sticky top-0 z-50 glass-card border-b border-white/5 shadow-xl">
@@ -39,10 +55,8 @@ export default function Navbar({ userName }: NavbarProps) {
           <div className="hidden sm:flex items-center gap-4">
             {userName && (
               <div className="flex items-center gap-2 text-sm text-gray-400">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs">
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-                <span>{userName}</span>
+                {avatar}
+                <span className="max-w-[140px] truncate">{userName}</span>
               </div>
             )}
             <button
@@ -54,7 +68,7 @@ export default function Navbar({ userName }: NavbarProps) {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              {loggingOut ? 'Logging out...' : 'Logout'}
+              {loggingOut ? 'Signing out...' : 'Sign out'}
             </button>
           </div>
 
@@ -79,10 +93,8 @@ export default function Navbar({ userName }: NavbarProps) {
           <div className="sm:hidden pb-4 border-t border-white/5 pt-3 space-y-2">
             {userName && (
               <div className="flex items-center gap-2 text-sm text-gray-400 px-2 py-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs">
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-                <span>{userName}</span>
+                {avatar}
+                <span className="truncate">{userName}</span>
               </div>
             )}
             <button
@@ -93,7 +105,7 @@ export default function Navbar({ userName }: NavbarProps) {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              Logout
+              Sign out
             </button>
           </div>
         )}

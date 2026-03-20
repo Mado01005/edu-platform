@@ -1,20 +1,17 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Serve /content files via API route
-  async rewrites() {
-    return [
-      {
-        source: '/content-files/:path*',
-        destination: '/api/content/:path*',
-      },
-    ];
+  turbopack: {
+    root: __dirname,
   },
   images: {
-    // Allow all remote patterns (adjust for production)
-    remotePatterns: [],
-    // Unoptimized for local content files served via API
-    unoptimized: false,
+    remotePatterns: [
+      // Google profile images (lh3.googleusercontent.com)
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com',
+      },
+    ],
   },
 };
 

@@ -45,6 +45,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               sizes="(max-width: 640px) 50vw, 33vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               loading="lazy"
+              unoptimized={src.toLowerCase().match(/\.(heic|heif|dng)$/) !== null}
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
               <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,6 +101,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               className="object-contain"
               sizes="100vw"
               priority
+              unoptimized={images[lightboxIndex].toLowerCase().match(/\.(heic|heif|dng)$/) !== null}
             />
           </div>
 
