@@ -1,0 +1,1959 @@
+[
+  {
+    "slug": "academic-writing",
+    "title": "Academic Writing",
+    "lessons": [
+      {
+        "slug": "Week 1",
+        "title": "Week 1",
+        "subjectSlug": "academic-writing",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Paragraph-Writing(1).pdf",
+            "url": "/content/academic-writing/Week%201/Paragraph-Writing(1).pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Week 2",
+        "title": "Week 2",
+        "subjectSlug": "academic-writing",
+        "content": [
+          {
+            "type": "folder",
+            "name": "Session 1",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "pdf",
+                "name": "Introduction-to-Academic-Writing.pdf",
+                "url": "/content/academic-writing/Week%202/Session%201/Introduction-to-Academic-Writing.pdf"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "Session 2",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "pdf",
+                "name": "Paragraph-Unity-and-Coherence.pdf",
+                "url": "/content/academic-writing/Week%202/Session%202/Paragraph-Unity-and-Coherence.pdf"
+              }
+            ]
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Week 3",
+        "title": "Week 3",
+        "subjectSlug": "academic-writing",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Essay structure body & conclusion.pdf",
+            "url": "/content/academic-writing/Week%203/Essay%20structure%20body%20%26%20conclusion.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Essay structure Types of introductions + Writing effective thesis statements.pdf",
+            "url": "/content/academic-writing/Week%203/Essay%20structure%20Types%20of%20introductions%20%2B%20Writing%20effective%20thesis%20statements.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Week 4",
+        "title": "Week 4",
+        "subjectSlug": "academic-writing",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Punctuation.pdf",
+            "url": "/content/academic-writing/Week%204/Punctuation.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Week 5",
+        "title": "Week 5",
+        "subjectSlug": "academic-writing",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Paraphrasing.pdf",
+            "url": "/content/academic-writing/Week%205/Paraphrasing.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      }
+    ],
+    "icon": "✍️",
+    "color": "from-yellow-500 to-orange-600"
+  },
+  {
+    "slug": "calculus",
+    "title": "Calculus",
+    "lessons": [
+      {
+        "slug": "CALC 2 VIDS ",
+        "title": "CALC 2 VIDS ",
+        "subjectSlug": "calculus",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Calculus 2 - Basic Integration.mp4",
+            "url": "/content/calculus/CALC%202%20VIDS%20/Calculus%202%20-%20Basic%20Integration.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Indefinite Integral - Basic Integration Rules, Problems, Formulas, Trig Functions, Calculus.mp4",
+            "url": "/content/calculus/CALC%202%20VIDS%20/Indefinite%20Integral%20-%20Basic%20Integration%20Rules%2C%20Problems%2C%20Formulas%2C%20Trig%20Functions%2C%20Calculus.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Integration By Partial Fractions.mp4",
+            "url": "/content/calculus/CALC%202%20VIDS%20/Integration%20By%20Partial%20Fractions.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Integration By Parts.mp4",
+            "url": "/content/calculus/CALC%202%20VIDS%20/Integration%20By%20Parts.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Integration into Inverse trigonometric functions using Substitution.mp4",
+            "url": "/content/calculus/CALC%202%20VIDS%20/Integration%20into%20Inverse%20trigonometric%20functions%20using%20Substitution.mp4"
+          },
+          {
+            "type": "vimeo",
+            "name": "Lesson 1",
+            "vimeoId": "https://vimeo.com/1175497040"
+          },
+          {
+            "type": "vimeo",
+            "name": "Lesson 2",
+            "vimeoId": "https://vimeo.com/1175496842"
+          },
+          {
+            "type": "vimeo",
+            "name": "Lesson 3",
+            "vimeoId": "https://vimeo.com/1175496465"
+          },
+          {
+            "type": "vimeo",
+            "name": "lesson 4",
+            "vimeoId": "https://vimeo.com/1175498134"
+          },
+          {
+            "type": "vimeo",
+            "name": "lesson 5",
+            "vimeoId": "https://vimeo.com/1175497569"
+          },
+          {
+            "type": "vimeo",
+            "name": "Lesson 7 ",
+            "vimeoId": "https://vimeo.com/1175608786"
+          },
+          {
+            "type": "vimeo",
+            "name": "Lesson 8 ",
+            "vimeoId": "https://vimeo.com/1175611212"
+          },
+          {
+            "type": "vimeo",
+            "name": "Lessson 6",
+            "vimeoId": "https://vimeo.com/1175497218"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Numerical Integration Trapezoidal Rule.mp4",
+            "url": "/content/calculus/CALC%202%20VIDS%20/Numerical%20Integration%20Trapezoidal%20Rule.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Trigonometric Integrals.mp4",
+            "url": "/content/calculus/CALC%202%20VIDS%20/Trigonometric%20Integrals.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Trigonometric Substitution.mp4",
+            "url": "/content/calculus/CALC%202%20VIDS%20/Trigonometric%20Substitution.mp4"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": false,
+        "imageCount": 0
+      },
+      {
+        "slug": "Lectures",
+        "title": "Lectures",
+        "subjectSlug": "calculus",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lecture   (Reduction Formula).pdf",
+            "url": "/content/calculus/Lectures/lecture%20%20%20(Reduction%20Formula).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Lecture  (Int. by parts).pdf",
+            "url": "/content/calculus/Lectures/Lecture%20%20(Int.%20by%20parts).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Lecture  (partial fraction).pdf",
+            "url": "/content/calculus/Lectures/Lecture%20%20(partial%20fraction).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Lecture  (trig powers).pdf",
+            "url": "/content/calculus/Lectures/Lecture%20%20(trig%20powers).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lecture (Sheet 1 part I).pdf",
+            "url": "/content/calculus/Lectures/lecture%20(Sheet%201%20part%20I).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lecture (Sheet 1 part II).pdf",
+            "url": "/content/calculus/Lectures/lecture%20(Sheet%201%20part%20II).pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Sections",
+        "title": "Sections",
+        "subjectSlug": "calculus",
+        "content": [
+          {
+            "type": "folder",
+            "name": "Section 1",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "pdf",
+                "name": "M2 Section1 .pdf",
+                "url": "/content/calculus/Sections/Section%201/M2%20Section1%20.pdf"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "Section 2",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "pdf",
+                "name": "Section 2 .pdf",
+                "url": "/content/calculus/Sections/Section%202/Section%202%20.pdf"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "Section 3",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "pdf",
+                "name": "Section 3.pdf",
+                "url": "/content/calculus/Sections/Section%203/Section%203.pdf"
+              }
+            ]
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Math_II-BA124_s.pdf",
+            "url": "/content/calculus/Sections/Math_II-BA124_s.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      }
+    ],
+    "icon": "∫",
+    "color": "from-cyan-500 to-blue-600"
+  },
+  {
+    "slug": "chemistry",
+    "title": "Chemistry",
+    "lessons": [
+      {
+        "slug": "Finals",
+        "title": "Finals",
+        "subjectSlug": "chemistry",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Chemistry BA118  1st 2011-2012_e.pdf",
+            "url": "/content/chemistry/Finals/Chemistry%20BA118%20%201st%202011-2012_e.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Chemistry BA118  1st 2013-2014_e.pdf",
+            "url": "/content/chemistry/Finals/Chemistry%20BA118%20%201st%202013-2014_e.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Chemistry BA118  1st 2014-2015_e.pdf",
+            "url": "/content/chemistry/Finals/Chemistry%20BA118%20%201st%202014-2015_e.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Chemistry BA118  2nd 2011-2012_e.pdf",
+            "url": "/content/chemistry/Finals/Chemistry%20BA118%20%202nd%202011-2012_e.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Chemistry BA118  2nd 2013-2014_e.pdf",
+            "url": "/content/chemistry/Finals/Chemistry%20BA118%20%202nd%202013-2014_e.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Chemistry BA118 2nd 2014-2015_e.pdf",
+            "url": "/content/chemistry/Finals/Chemistry%20BA118%202nd%202014-2015_e.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Chemistry BA118_s.pdf",
+            "url": "/content/chemistry/Finals/Chemistry%20BA118_s.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Google drive",
+        "title": "Google drive",
+        "subjectSlug": "chemistry",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Answers MCQ_Revision final acad.pdf",
+            "url": "/content/chemistry/Google%20drive/Answers%20MCQ_Revision%20final%20acad.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Chapter I periodic_table1.pdf",
+            "url": "/content/chemistry/Google%20drive/Chapter%20I%20periodic_table1.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "ChapterII - Gases.pdf",
+            "url": "/content/chemistry/Google%20drive/ChapterII%20-%20Gases.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "chapterIII.pdf",
+            "url": "/content/chemistry/Google%20drive/chapterIII.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "chapterIV.pdf",
+            "url": "/content/chemistry/Google%20drive/chapterIV.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "chapterV.pdf",
+            "url": "/content/chemistry/Google%20drive/chapterV.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "chapterVI.pdf",
+            "url": "/content/chemistry/Google%20drive/chapterVI.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Cover Page.pdf",
+            "url": "/content/chemistry/Google%20drive/Cover%20Page.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Final Exam Answer Sheet Spring_2020.pdf",
+            "url": "/content/chemistry/Google%20drive/Final%20Exam%20Answer%20Sheet%20Spring_2020.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lab exp 6..pH.pdf",
+            "url": "/content/chemistry/Google%20drive/lab%20exp%206..pH.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lab exp2.pdf",
+            "url": "/content/chemistry/Google%20drive/lab%20exp2.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lab exp3.pdf",
+            "url": "/content/chemistry/Google%20drive/lab%20exp3.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lab exp4.pdf",
+            "url": "/content/chemistry/Google%20drive/lab%20exp4.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Lab Video 2020-03-18 at 16.10.46.mp4",
+            "url": "/content/chemistry/Google%20drive/Lab%20Video%202020-03-18%20at%2016.10.46.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Lab Video 2020-04-03 at 13.46.35.mp4",
+            "url": "/content/chemistry/Google%20drive/Lab%20Video%202020-04-03%20at%2013.46.35.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Lab Video 2020-04-12 at 16.47.22.mp4",
+            "url": "/content/chemistry/Google%20drive/Lab%20Video%202020-04-12%20at%2016.47.22.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "lecture 10 - Chapter V- Corrosion protection.mp4",
+            "url": "/content/chemistry/Google%20drive/lecture%2010%20-%20Chapter%20V-%20Corrosion%20protection.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Lecture 6 - ChapterII - Gases.mp4",
+            "url": "/content/chemistry/Google%20drive/Lecture%206%20-%20ChapterII%20-%20Gases.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Lecture 7- chapterIII.mp4",
+            "url": "/content/chemistry/Google%20drive/Lecture%207-%20chapterIII.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Lecture 8- chapterIII-IV.mp4",
+            "url": "/content/chemistry/Google%20drive/Lecture%208-%20chapterIII-IV.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "Lecture 9 - chapter IV.mp4",
+            "url": "/content/chemistry/Google%20drive/Lecture%209%20-%20chapter%20IV.mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Periodic table revision.pdf",
+            "url": "/content/chemistry/Google%20drive/Periodic%20table%20revision.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "revision final acad.pdf",
+            "url": "/content/chemistry/Google%20drive/revision%20final%20acad.pdf"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Photos",
+        "title": "Photos",
+        "subjectSlug": "chemistry",
+        "content": [
+          {
+            "type": "folder",
+            "name": "CHEM  LAB",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_0949.jpg",
+                "url": "/content/chemistry/Photos/CHEM%20%20LAB/IMG_0949.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8492.jpg",
+                "url": "/content/chemistry/Photos/CHEM%20%20LAB/IMG_8492.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8493.jpg",
+                "url": "/content/chemistry/Photos/CHEM%20%20LAB/IMG_8493.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8587.jpg",
+                "url": "/content/chemistry/Photos/CHEM%20%20LAB/IMG_8587.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8682.jpg",
+                "url": "/content/chemistry/Photos/CHEM%20%20LAB/IMG_8682.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8767.jpg",
+                "url": "/content/chemistry/Photos/CHEM%20%20LAB/IMG_8767.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8874.jpg",
+                "url": "/content/chemistry/Photos/CHEM%20%20LAB/IMG_8874.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "PHOTO-2026-03-08-20-55-01.jpg",
+                "url": "/content/chemistry/Photos/CHEM%20%20LAB/PHOTO-2026-03-08-20-55-01.jpg"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "CHEMISTRY LEC",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8497.jpg",
+                "url": "/content/chemistry/Photos/CHEMISTRY%20LEC/IMG_8497.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8685.jpg",
+                "url": "/content/chemistry/Photos/CHEMISTRY%20LEC/IMG_8685.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8768.jpg",
+                "url": "/content/chemistry/Photos/CHEMISTRY%20LEC/IMG_8768.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8876.jpg",
+                "url": "/content/chemistry/Photos/CHEMISTRY%20LEC/IMG_8876.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "PHOTO-2026-03-08-20-55-00.jpg",
+                "url": "/content/chemistry/Photos/CHEMISTRY%20LEC/PHOTO-2026-03-08-20-55-00.jpg"
+              }
+            ]
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": false,
+        "imageCount": 13
+      }
+    ],
+    "icon": "🧪",
+    "color": "from-green-500 to-teal-600"
+  },
+  {
+    "slug": "communication-skills",
+    "title": "Communication Skills",
+    "lessons": [
+      {
+        "slug": "Week 1",
+        "title": "Week 1",
+        "subjectSlug": "communication-skills",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Interpersonal Communication.pdf",
+            "url": "/content/communication-skills/Week%201/Interpersonal%20Communication.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Orientation to Comm Skills.pdf",
+            "url": "/content/communication-skills/Week%201/Orientation%20to%20Comm%20Skills.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Week 2",
+        "title": "Week 2",
+        "subjectSlug": "communication-skills",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Interpersonal Communication (part 2).pdf",
+            "url": "/content/communication-skills/Week%202/Interpersonal%20Communication%20(part%202).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "The 7cs of Communication.pdf",
+            "url": "/content/communication-skills/Week%202/The%207cs%20of%20Communication.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Week 3",
+        "title": "Week 3",
+        "subjectSlug": "communication-skills",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "general presentation skills ppt.pdf",
+            "url": "/content/communication-skills/Week%203/general%20presentation%20skills%20ppt.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "How to a hook an audience .pdf",
+            "url": "/content/communication-skills/Week%203/How%20to%20a%20hook%20an%20audience%20.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "How to hook an audience - Ace Study Guides (1080p, h264).mp4",
+            "url": "/content/communication-skills/Week%203/How%20to%20hook%20an%20audience%20-%20Ace%20Study%20Guides%20(1080p%2C%20h264).mp4"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Week 4",
+        "title": "Week 4",
+        "subjectSlug": "communication-skills",
+        "content": [
+          {
+            "type": "folder",
+            "name": "Session 1",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "pdf",
+                "name": "7th Week Pers Pres Guidelines, Suggested Topics & Criteria-1.pdf",
+                "url": "/content/communication-skills/Week%204/Session%201/7th%20Week%20Pers%20Pres%20Guidelines%2C%20Suggested%20Topics%20%26%20Criteria-1.pdf"
+              },
+              {
+                "type": "file",
+                "fileType": "pdf",
+                "name": "Comm & Present. Skills 7th Week Study Guide Ss Copy Sept. 2025 (1)-1.pdf",
+                "url": "/content/communication-skills/Week%204/Session%201/Comm%20%26%20Present.%20Skills%207th%20Week%20Study%20Guide%20Ss%20Copy%20Sept.%202025%20(1)-1.pdf"
+              },
+              {
+                "type": "file",
+                "fileType": "pdf",
+                "name": "Comm Skills 7th Week Exam Components Sept. 2025 (1)-1.pdf",
+                "url": "/content/communication-skills/Week%204/Session%201/Comm%20Skills%207th%20Week%20Exam%20Components%20Sept.%202025%20(1)-1.pdf"
+              }
+            ]
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "7th Week Pers Pres Guidelines, Suggested Topics & Criteria.pdf",
+            "url": "/content/communication-skills/Week%204/7th%20Week%20Pers%20Pres%20Guidelines%2C%20Suggested%20Topics%20%26%20Criteria.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "More on Persuasive Presentations.pdf",
+            "url": "/content/communication-skills/Week%204/More%20on%20Persuasive%20Presentations.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Week 5",
+        "title": "Week 5",
+        "subjectSlug": "communication-skills",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "More on Persuasive Presentations.pdf",
+            "url": "/content/communication-skills/Week%205/More%20on%20Persuasive%20Presentations.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      }
+    ],
+    "icon": "💬",
+    "color": "from-purple-500 to-pink-600"
+  },
+  {
+    "slug": "dynamics",
+    "title": "Dynamics",
+    "lessons": [
+      {
+        "slug": "Google Drive ",
+        "title": "Google Drive ",
+        "subjectSlug": "dynamics",
+        "content": [
+          {
+            "type": "folder",
+            "name": "rep1 rectilinear kinematics",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep1%20rectilinear%20kinematics/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep1%20rectilinear%20kinematics/zoom_1.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_2.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep1%20rectilinear%20kinematics/zoom_2.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_3.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep1%20rectilinear%20kinematics/zoom_3.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep10",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "ex6-15.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-15.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "ex6-15.png",
+                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-15.png"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "ex6-19.png",
+                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-19.png"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "ex6-26.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-26.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "ex6-26.png",
+                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-26.png"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "ex6-9.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-9.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep2 projectile",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep2%20projectile/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep2%20projectile/zoom_1.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_2.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep2%20projectile/zoom_2.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_3.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep2%20projectile/zoom_3.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep3, force and acc examples",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20force%20and%20acc%20examples/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_00.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20force%20and%20acc%20examples/zoom_00.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20force%20and%20acc%20examples/zoom_1.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep3, problems",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20problems/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20problems/zoom_1.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_2.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20problems/zoom_2.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_3.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20problems/zoom_3.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep4 Work and Energy",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep4%20Work%20and%20Energy/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep4%20Work%20and%20Energy/zoom_1.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_2.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep4%20Work%20and%20Energy/zoom_2.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_3.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep4%20Work%20and%20Energy/zoom_3.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep5 rotation",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_1.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_2.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_2.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_3.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_3.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_4.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_4.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep6 roller coaster",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "video1902196206.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/video1902196206.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "video2902196206.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/video2902196206.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0 .mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/zoom_0%20.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1 .mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/zoom_1%20.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_2 .mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/zoom_2%20.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep7 rel velocity",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "ex5-31.png",
+                "url": "/content/dynamics/Google%20Drive%20/rep7%20rel%20velocity/ex5-31.png"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "ex5-39.png",
+                "url": "/content/dynamics/Google%20Drive%20/rep7%20rel%20velocity/ex5-39.png"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep7%20rel%20velocity/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep7%20rel%20velocity/zoom_1.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep8 rel acc",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "rep8..png",
+                "url": "/content/dynamics/Google%20Drive%20/rep8%20rel%20acc/rep8..png"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "rep8.png",
+                "url": "/content/dynamics/Google%20Drive%20/rep8%20rel%20acc/rep8.png"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep8%20rel%20acc/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep8%20rel%20acc/zoom_1.mp4"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "rep9",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "6-4.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep9/6-4.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "ex6-4.png",
+                "url": "/content/dynamics/Google%20Drive%20/rep9/ex6-4.png"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_0.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep9/zoom_0.mp4"
+              },
+              {
+                "type": "file",
+                "fileType": "video",
+                "name": "zoom_1.mp4",
+                "url": "/content/dynamics/Google%20Drive%20/rep9/zoom_1.mp4"
+              }
+            ]
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "A1 syllabus Dynamics summer 2024 (1).pdf",
+            "url": "/content/dynamics/Google%20Drive%20/A1%20syllabus%20Dynamics%20summer%202024%20(1).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "zoom_0 (3).mp4",
+            "url": "/content/dynamics/Google%20Drive%20/zoom_0%20(3).mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "zoom_0 (4).mp4",
+            "url": "/content/dynamics/Google%20Drive%20/zoom_0%20(4).mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "zoom_0 (6).mp4",
+            "url": "/content/dynamics/Google%20Drive%20/zoom_0%20(6).mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "zoom_1 (3).mp4",
+            "url": "/content/dynamics/Google%20Drive%20/zoom_1%20(3).mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "zoom_1 (4).mp4",
+            "url": "/content/dynamics/Google%20Drive%20/zoom_1%20(4).mp4"
+          },
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "zoom_1 (6).mp4",
+            "url": "/content/dynamics/Google%20Drive%20/zoom_1%20(6).mp4"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": true,
+        "imageCount": 8
+      },
+      {
+        "slug": "Photos",
+        "title": "Photos",
+        "subjectSlug": "dynamics",
+        "content": [
+          {
+            "type": "folder",
+            "name": "DYNAMICS",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8397.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8397.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8470.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8470.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8481.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8481.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8482.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8482.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8566.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8566.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8576.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8576.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8655.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8655.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8663.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8663.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8665.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8665.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8753.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8753.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8856.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8856.jpeg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8857.jpeg",
+                "url": "/content/dynamics/Photos/DYNAMICS/IMG_8857.jpeg"
+              }
+            ]
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": false,
+        "imageCount": 12
+      },
+      {
+        "slug": "Report 1",
+        "title": "Report 1",
+        "subjectSlug": "dynamics",
+        "content": [
+          {
+            "type": "vimeo",
+            "name": "01",
+            "vimeoId": "https://vimeo.com/1174905023"
+          },
+          {
+            "type": "vimeo",
+            "name": "02",
+            "vimeoId": "https://vimeo.com/1174905165"
+          },
+          {
+            "type": "vimeo",
+            "name": "03",
+            "vimeoId": "https://vimeo.com/1174905481"
+          },
+          {
+            "type": "vimeo",
+            "name": "04",
+            "vimeoId": "https://vimeo.com/1174905663"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Rep_1_.pdf",
+            "url": "/content/dynamics/Report%201/Rep_1_.pdf"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Report 2",
+        "title": "Report 2",
+        "subjectSlug": "dynamics",
+        "content": [
+          {
+            "type": "vimeo",
+            "name": "01",
+            "vimeoId": "https://vimeo.com/1174907719"
+          },
+          {
+            "type": "vimeo",
+            "name": "02",
+            "vimeoId": "https://vimeo.com/1174907912"
+          },
+          {
+            "type": "vimeo",
+            "name": "03",
+            "vimeoId": "https://vimeo.com/1174908020"
+          },
+          {
+            "type": "vimeo",
+            "name": "04",
+            "vimeoId": "https://vimeo.com/1174908283"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Rep_2_.pdf",
+            "url": "/content/dynamics/Report%202/Rep_2_.pdf"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Report 3",
+        "title": "Report 3",
+        "subjectSlug": "dynamics",
+        "content": [
+          {
+            "type": "vimeo",
+            "name": "01",
+            "vimeoId": "https://vimeo.com/1174909342"
+          },
+          {
+            "type": "vimeo",
+            "name": "02",
+            "vimeoId": "https://vimeo.com/1174908936"
+          },
+          {
+            "type": "vimeo",
+            "name": "03",
+            "vimeoId": "https://vimeo.com/1174908936"
+          },
+          {
+            "type": "vimeo",
+            "name": "04",
+            "vimeoId": "https://vimeo.com/1174911632"
+          },
+          {
+            "type": "vimeo",
+            "name": "05",
+            "vimeoId": "https://vimeo.com/1174911800"
+          },
+          {
+            "type": "vimeo",
+            "name": "06",
+            "vimeoId": "https://vimeo.com/1174912016"
+          },
+          {
+            "type": "vimeo",
+            "name": "07",
+            "vimeoId": "https://vimeo.com/1174912250"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Rep3 Dyn, Force & Accel.pdf",
+            "url": "/content/dynamics/Report%203/Rep3%20Dyn%2C%20Force%20%26%20Accel.pdf"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Report 4",
+        "title": "Report 4",
+        "subjectSlug": "dynamics",
+        "content": [
+          {
+            "type": "vimeo",
+            "name": "01",
+            "vimeoId": "https://vimeo.com/1175575724"
+          },
+          {
+            "type": "vimeo",
+            "name": "02",
+            "vimeoId": "https://vimeo.com/1175575786"
+          },
+          {
+            "type": "vimeo",
+            "name": "03",
+            "vimeoId": "https://vimeo.com/1175575908"
+          },
+          {
+            "type": "vimeo",
+            "name": "04",
+            "vimeoId": "https://vimeo.com/1175576038"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Rep_4_.pdf",
+            "url": "/content/dynamics/Report%204/Rep_4_.pdf"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Report 5",
+        "title": "Report 5",
+        "subjectSlug": "dynamics",
+        "content": [
+          {
+            "type": "vimeo",
+            "name": "01",
+            "vimeoId": "https://vimeo.com/1175576193"
+          },
+          {
+            "type": "vimeo",
+            "name": "02",
+            "vimeoId": "https://vimeo.com/1175576287"
+          },
+          {
+            "type": "vimeo",
+            "name": "03",
+            "vimeoId": "https://vimeo.com/1175576322"
+          },
+          {
+            "type": "vimeo",
+            "name": "04",
+            "vimeoId": "https://vimeo.com/1175576512"
+          },
+          {
+            "type": "vimeo",
+            "name": "05",
+            "vimeoId": "https://vimeo.com/1175576691"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Rep_5_-1.pdf",
+            "url": "/content/dynamics/Report%205/Rep_5_-1.pdf"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Section",
+        "title": "Section",
+        "subjectSlug": "dynamics",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "image",
+            "name": "076a33ce-a73a-4e78-b544-d49832ae35d1 2.jpeg",
+            "url": "/content/dynamics/Section/076a33ce-a73a-4e78-b544-d49832ae35d1%202.jpeg"
+          },
+          {
+            "type": "file",
+            "fileType": "image",
+            "name": "076a33ce-a73a-4e78-b544-d49832ae35d1.jpeg",
+            "url": "/content/dynamics/Section/076a33ce-a73a-4e78-b544-d49832ae35d1.jpeg"
+          },
+          {
+            "type": "file",
+            "fileType": "image",
+            "name": "5a0d678d-93fb-40e5-a410-02bc2219ad61.jpeg",
+            "url": "/content/dynamics/Section/5a0d678d-93fb-40e5-a410-02bc2219ad61.jpeg"
+          },
+          {
+            "type": "file",
+            "fileType": "image",
+            "name": "78a174b9-b4be-4b46-8781-227030a9cd38.jpeg",
+            "url": "/content/dynamics/Section/78a174b9-b4be-4b46-8781-227030a9cd38.jpeg"
+          },
+          {
+            "type": "file",
+            "fileType": "image",
+            "name": "d657f838-e2b0-4842-ae9d-155f47a24e8c.jpeg",
+            "url": "/content/dynamics/Section/d657f838-e2b0-4842-ae9d-155f47a24e8c.jpeg"
+          },
+          {
+            "type": "file",
+            "fileType": "image",
+            "name": "f0ee77fe-e3e4-4796-9502-5b64211c0917.jpeg",
+            "url": "/content/dynamics/Section/f0ee77fe-e3e4-4796-9502-5b64211c0917.jpeg"
+          },
+          {
+            "type": "file",
+            "fileType": "image",
+            "name": "IMG_8838.jpeg",
+            "url": "/content/dynamics/Section/IMG_8838.jpeg"
+          },
+          {
+            "type": "file",
+            "fileType": "image",
+            "name": "IMG_8840.jpeg",
+            "url": "/content/dynamics/Section/IMG_8840.jpeg"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": false,
+        "imageCount": 8
+      }
+    ],
+    "icon": "⚙️",
+    "color": "from-orange-500 to-red-600"
+  },
+  {
+    "slug": "physics",
+    "title": "Physics 2",
+    "lessons": [
+      {
+        "slug": "Photos",
+        "title": "Photos",
+        "subjectSlug": "physics",
+        "content": [
+          {
+            "type": "folder",
+            "name": "PHY 2 LAB",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8477.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LAB/IMG_8477.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8478.JPG",
+                "url": "/content/physics/Photos/PHY%202%20LAB/IMG_8478.JPG"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8573.DNG",
+                "url": "/content/physics/Photos/PHY%202%20LAB/IMG_8573.DNG"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "PHY 2 LEC",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8509.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8509.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8514.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8514.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8516.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8516.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8617.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8617.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8703.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8703.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8784.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8784.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8786.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8786.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8892.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8892.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8893.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LEC/IMG_8893.jpg"
+              }
+            ]
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": false,
+        "imageCount": 12
+      },
+      {
+        "slug": "Physics files",
+        "title": "Physics files",
+        "subjectSlug": "physics",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "MCQ physics II (Eng).pdf",
+            "url": "/content/physics/Physics%20files/MCQ%20physics%20II%20(Eng).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Physics 2 (EBA1104-BA114)-Sheets.pdf",
+            "url": "/content/physics/Physics%20files/Physics%202%20(EBA1104-BA114)-Sheets.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "physics 2 sheet part 1.pdf",
+            "url": "/content/physics/Physics%20files/physics%202%20sheet%20part%201.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Section 1 (Temperature).pdf",
+            "url": "/content/physics/Physics%20files/Section%201%20(Temperature).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Section 2 (Specific heat and Latent heat).pdf",
+            "url": "/content/physics/Physics%20files/Section%202%20(Specific%20heat%20and%20Latent%20heat).pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Sections",
+        "title": "Sections",
+        "subjectSlug": "physics",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "sec 3.pdf",
+            "url": "/content/physics/Sections/sec%203.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "sec 6.pdf",
+            "url": "/content/physics/Sections/sec%206.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "sec-5.pdf",
+            "url": "/content/physics/Sections/sec-5.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "sec. 1.pdf",
+            "url": "/content/physics/Sections/sec.%201.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "sec2(2).pdf",
+            "url": "/content/physics/Sections/sec2(2).pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "sheet 3( no. 5&6).pdf",
+            "url": "/content/physics/Sections/sheet%203(%20no.%205%266).pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      }
+    ],
+    "icon": "⚛️",
+    "color": "from-blue-500 to-indigo-600"
+  },
+  {
+    "slug": "programming",
+    "title": "Programming",
+    "lessons": [
+      {
+        "slug": "Lectures",
+        "title": "Lectures",
+        "subjectSlug": "programming",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Lecture #1.pdf",
+            "url": "/content/programming/Lectures/Lecture%20%231.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Lecture #2.pdf",
+            "url": "/content/programming/Lectures/Lecture%20%232.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Lecture #3.pdf",
+            "url": "/content/programming/Lectures/Lecture%20%233.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lecture #4.pdf",
+            "url": "/content/programming/Lectures/lecture%20%234.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lecture #5.pdf",
+            "url": "/content/programming/Lectures/lecture%20%235.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lecture #6.pdf",
+            "url": "/content/programming/Lectures/lecture%20%236.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Lecture #7.pdf",
+            "url": "/content/programming/Lectures/Lecture%20%237.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "lecture #8.pdf",
+            "url": "/content/programming/Lectures/lecture%20%238.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Photos",
+        "title": "Photos",
+        "subjectSlug": "programming",
+        "content": [
+          {
+            "type": "folder",
+            "name": "Programming Lab",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8778.jpg",
+                "url": "/content/programming/Photos/Programming%20Lab/IMG_8778.jpg"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "PROGRAMMING LEC",
+            "children": [
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8468.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8468.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8504.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8504.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8563.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8563.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8564.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8564.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8651.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8651.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8652.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8652.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8653.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8653.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8743.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8743.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8744.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8744.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8745.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8745.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8833.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8833.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8834.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8834.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
+                "name": "IMG_8835.jpg",
+                "url": "/content/programming/Photos/PROGRAMMING%20LEC/IMG_8835.jpg"
+              }
+            ]
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": false,
+        "imageCount": 14
+      },
+      {
+        "slug": "Sections",
+        "title": "Sections",
+        "subjectSlug": "programming",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "section6example.cpp.pdf",
+            "url": "/content/programming/Sections/section6example.cpp.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "Sheet 1 - If Conditional and Switch.pdf",
+            "url": "/content/programming/Sections/Sheet%201%20-%20If%20Conditional%20and%20Switch.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "week#4.pptx.pdf",
+            "url": "/content/programming/Sections/week%234.pptx.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "week#5.pptx.pdf",
+            "url": "/content/programming/Sections/week%235.pptx.pdf"
+          },
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "week#6.pptx.pdf",
+            "url": "/content/programming/Sections/week%236.pptx.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "Textbook",
+        "title": "Textbook",
+        "subjectSlug": "programming",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "pdf",
+            "name": "startint out with C++.pdf",
+            "url": "/content/programming/Textbook/startint%20out%20with%20C%2B%2B.pdf"
+          }
+        ],
+        "hasVideo": false,
+        "hasPdf": true,
+        "imageCount": 0
+      },
+      {
+        "slug": "YT Vids",
+        "title": "YT Vids",
+        "subjectSlug": "programming",
+        "content": [
+          {
+            "type": "file",
+            "fileType": "video",
+            "name": "C++ Tutorial for Beginners - Learn C++ in 1 Hour.mp4",
+            "url": "/content/programming/YT%20Vids/C%2B%2B%20Tutorial%20for%20Beginners%20-%20Learn%20C%2B%2B%20in%201%20Hour.mp4"
+          },
+          {
+            "type": "vimeo",
+            "name": "Programming",
+            "vimeoId": "https://vimeo.com/1175495365"
+          }
+        ],
+        "hasVideo": true,
+        "hasPdf": false,
+        "imageCount": 0
+      }
+    ],
+    "icon": "💻",
+    "color": "from-violet-500 to-purple-600"
+  }
+]

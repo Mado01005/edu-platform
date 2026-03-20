@@ -1,7 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-
-const METADATA_PATH = path.join(process.cwd(), 'src', 'data', 'content-metadata.json');
+import subjectsMetadata from '../data/content-metadata.json';
 
 export interface ContentNode {
   type: 'file' | 'folder' | 'vimeo';
@@ -31,15 +28,7 @@ export interface SubjectMeta {
 }
 
 export function getAllSubjects(): SubjectMeta[] {
-  try {
-    if (fs.existsSync(METADATA_PATH)) {
-      const rawData = fs.readFileSync(METADATA_PATH, 'utf-8');
-      return JSON.parse(rawData);
-    }
-  } catch (error) {
-    console.error('Error loading metadata manifest:', error);
-  }
-  return [];
+  return subjectsMetadata as SubjectMeta[];
 }
 
 export function getSubject(slug: string): SubjectMeta | null {
