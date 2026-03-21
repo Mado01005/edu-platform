@@ -61,6 +61,12 @@ export default async function DashboardPage() {
             <p className="text-sm mt-2">
               Courses are currently syncing or none have been added yet. Use the <strong className="text-indigo-400">Admin Panel</strong> to create course folders.
             </p>
+            <div className="mt-8 text-xs text-gray-600 bg-white/5 inline-block p-4 rounded-xl text-left">
+              <p><strong>Vercel Connection Diagnostic:</strong></p>
+              <p>URL loaded: {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Yes' : '❌ No'}</p>
+              <p>Anon Key loaded: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Yes' : '❌ No'}</p>
+              <p>If you see ❌, you must add these to Vercel Settings &gt; Environment Variables, and click Redeploy.</p>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
