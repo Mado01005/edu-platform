@@ -14,6 +14,15 @@ export async function POST(req: Request) {
     const { data, error } = await supabaseAdmin.from('user_roles').upsert({ email, role: 'teacher' }).select().single();
     if (error) throw error;
     
+    // Auto-dispatch Native Inbox message to the newly promoted user
+    await supabaseAdmin.from('messages').insert({
+      sender_email: session.user.email || 'SYSTEM_ADMIN',
+      receiver_email: email,
+      subject: '🎓 Welcome to the Faculty! (Important)',
+      body: 'Congratulations!\n\nYou have been officially promoted to an Instructor.\n\nYou now have full clearance to access the Command Center and upload new educational content directly to the platform.\n\nClick the "Command Center" navigation button on your dashboard or navigate to /admin to begin configuring your modules.',
+      is_read: false
+    });
+    
     return NextResponse.json({ success: true, role: data });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

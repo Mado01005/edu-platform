@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import SubjectCard from '@/components/SubjectCard';
 import SupportTicketModal from '@/components/SupportTicketModal';
+import PromotionModal from '@/components/PromotionModal';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,22 @@ export default async function DashboardPage() {
   ]);
 
   const completedSet = new Set(completedLogs?.map(l => `${l.details?.subjectSlug}-${l.details?.lessonSlug}`));
+
+  // Check if they are a newly promoted instructor who hasn't acknowledged it yet
+  let showPromotionModal = false;
+  // @ts-ignore
+  if (session.user?.isAdmin) {
+    const { data: promoLog } = await supabaseAdmin
+      .from('activity_logs')
+      .select('id')
+      .eq('user_email', session.user.email || '')
+      .eq('action', 'Viewed Promotion Modal')
+      .limit(1);
+    
+    if (!promoLog || promoLog.length === 0) {
+      showPromotionModal = true;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(0,0,0,0))] relative overflow-hidden">
@@ -114,6 +131,7 @@ export default async function DashboardPage() {
           </div>
         )}
         <SupportTicketModal />
+        <PromotionModal open={showPromotionModal} userEmail={session.user?.email || ''} />
       </main>
       </div>
     </div>
