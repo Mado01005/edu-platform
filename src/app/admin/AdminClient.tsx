@@ -4,11 +4,15 @@ import { useState } from 'react';
 
 type AdminClientProps = {
   subjects: any[];
+  initialRoles?: any[];
 };
 
-export default function AdminClient({ subjects: initialSubjects }: AdminClientProps) {
+export default function AdminClient({ subjects: initialSubjects, initialRoles = [] }: AdminClientProps) {
   const [localSubjects, setLocalSubjects] = useState(initialSubjects);
-  const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'team'>('upload');
+  
+  const [teamRoles, setTeamRoles] = useState(initialRoles);
+  const [newTeacherEmail, setNewTeacherEmail] = useState('');
 
   // ================= UPLOAD / EMBED STATE =================
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
@@ -198,6 +202,7 @@ export default function AdminClient({ subjects: initialSubjects }: AdminClientPr
           <button onClick={() => setActiveTab('upload')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'upload' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Upload / Embed</button>
           <button onClick={() => setActiveTab('manage')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'manage' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Manage Syllabus</button>
           <button onClick={() => setActiveTab('broadcast')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'broadcast' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Broadcast</button>
+          <button onClick={() => setActiveTab('team')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'team' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Team Access</button>
         </div>
       </div>
 
@@ -344,6 +349,87 @@ export default function AdminClient({ subjects: initialSubjects }: AdminClientPr
                 alert('All banners deactivated!');
               }} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 px-6 py-2.5 rounded-lg text-sm font-bold shadow-md transition">Clear Banner</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'team' && (
+        <div className="space-y-6 fade-in">
+          <p className="text-sm text-gray-400 mb-2">Grant or explicitly revoke Administrative dashboard permissions to verified Google accounts.</p>
+          
+          {/* Add Teacher Form */}
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+              Invite Teacher
+            </h3>
+            <div className="flex gap-3">
+              <input 
+                type="email" 
+                placeholder="teacher@school.edu"
+                className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                value={newTeacherEmail}
+                onChange={e => setNewTeacherEmail(e.target.value)}
+                disabled={uploading}
+              />
+              <button 
+                onClick={async () => {
+                   if (!newTeacherEmail) return alert('Enter an email address');
+                   setUploading(true);
+                   try {
+                     const res = await fetch('/api/admin/roles', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: newTeacherEmail })});
+                     if (!res.ok) throw new Error(await res.text());
+                     const { role } = await res.json();
+                     setTeamRoles(prev => [...prev.filter(r => r.email !== role.email), role]);
+                     setNewTeacherEmail('');
+                     alert('Teacher permission granted! They can now log in and access this dashboard.');
+                   } catch(err: any) { alert(err.message); }
+                   setUploading(false);
+                }}
+                disabled={uploading}
+                className="bg-indigo-500 hover:bg-indigo-600 px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition disabled:opacity-50"
+              >
+                Grant Access
+              </button>
+            </div>
+          </div>
+
+          {/* Teacher Roster */}
+          <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/10 bg-black/20">
+              <h3 className="text-white font-semibold">Active Teachers ({teamRoles.length})</h3>
+            </div>
+            <ul className="divide-y divide-white/5">
+              {teamRoles.map(role => (
+                <li key={role.email} className="px-6 py-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:bg-white/5 transition">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold shrink-0">
+                       {role.email.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-white font-medium break-all">{role.email}</p>
+                      <p className="text-xs text-indigo-400 uppercase tracking-wider font-bold mt-0.5">{role.role}</p>
+                    </div>
+                  </div>
+                  <button 
+                     onClick={async () => {
+                       if (!confirm(`Revoke teaching access for ${role.email}?`)) return;
+                       try {
+                         const res = await fetch('/api/admin/roles', { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: role.email })});
+                         if (!res.ok) throw new Error(await res.text());
+                         setTeamRoles(prev => prev.filter(r => r.email !== role.email));
+                       } catch(err: any) { alert(err.message); }
+                     }}
+                     className="text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-lg text-sm font-medium transition shrink-0"
+                  >
+                    Revoke
+                  </button>
+                </li>
+              ))}
+              {teamRoles.length === 0 && (
+                <li className="px-6 py-8 text-center text-gray-500 text-sm">No external teachers have been granted access yet.</li>
+              )}
+            </ul>
           </div>
         </div>
       )}

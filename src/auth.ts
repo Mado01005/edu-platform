@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const ADMIN_EMAIL = 'abdallahsaad2150@gmail.com';
 
@@ -17,13 +18,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.isAdmin = user.email === ADMIN_EMAIL;
-      }
-      // If returning user, isAdmin should already be on the token if saved previously,
-      // but let's aggressively set it based on email just in case
-      if (token.email) {
-        token.isAdmin = token.email === ADMIN_EMAIL;
+      if (user && user.email) {
+        // This 'user' object is only present on the very first sign-in moment.
+        // We do our heavy database query here and 'bake' the result into the token forever.
+        const isMasterAdmin = user.email === ADMIN_EMAIL;
+        let isTeacher = false;
+        
+        if (!isMasterAdmin) {
+           const { data } = await supabaseAdmin.from('user_roles').select('role').eq('email', user.email).single();
+           if (data?.role === 'teacher' || data?.role === 'admin') isTeacher = true;
+        }
+        
+        token.isAdmin = isMasterAdmin || isTeacher;
       }
       return token;
     },
