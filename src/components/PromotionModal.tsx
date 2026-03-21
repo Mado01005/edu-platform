@@ -43,8 +43,8 @@ export default function PromotionModal({ open, userEmail }: PromotionModalProps)
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 fade-in">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
       
-      <div className="relative w-full max-w-2xl bg-[#05050A]/90 backdrop-blur-3xl border border-indigo-500/30 rounded-3xl p-8 sm:p-12 shadow-[0_0_100px_rgba(99,102,241,0.2)] overflow-hidden scale-in">
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600"></div>
+      <div className="relative w-full max-w-2xl max-h-[90vh] bg-[#05050A]/90 backdrop-blur-3xl border border-indigo-500/30 rounded-3xl p-6 sm:p-12 shadow-[0_0_100px_rgba(99,102,241,0.2)] overflow-y-auto custom-scrollbar scale-in">
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 sticky top-0 z-20"></div>
         <div className="absolute -top-[150px] -right-[150px] w-[300px] h-[300px] bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 text-center">

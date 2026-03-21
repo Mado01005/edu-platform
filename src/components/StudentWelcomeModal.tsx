@@ -45,13 +45,13 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
       <div className="absolute inset-0 bg-black/80 backdrop-blur-xl"></div>
       
       {/* Main Holographic Container */}
-      <div className="relative w-full max-w-3xl bg-[#05050A]/90 backdrop-blur-3xl border border-blue-500/30 rounded-[2rem] p-8 sm:p-12 shadow-[0_0_100px_rgba(59,130,246,0.15)] overflow-hidden scale-in">
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600"></div>
+      <div className="relative w-full max-w-3xl max-h-[90vh] bg-[#05050A]/90 backdrop-blur-3xl border border-blue-500/30 rounded-[2rem] p-6 sm:p-12 shadow-[0_0_100px_rgba(59,130,246,0.15)] overflow-y-auto custom-scrollbar scale-in">
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 sticky top-0 z-20"></div>
         <div className="absolute -bottom-[200px] -left-[200px] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10">
-          <div className="text-center mb-10">
-            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.4)] mb-6 border border-white/20 animate-pulse">
+          <div className="text-center mb-6 sm:mb-10">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.4)] mb-4 sm:mb-6 border border-white/20 animate-pulse">
               <svg className="w-10 h-10 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
