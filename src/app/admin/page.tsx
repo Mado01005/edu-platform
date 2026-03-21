@@ -16,12 +16,10 @@ export default async function AdminPage() {
   }
 
   // Fetch all concurrent Admin Data before rendering
-  const [subjects, { data: roles }, { data: logs }] = await Promise.all([
+  const [subjects, { data: roles }] = await Promise.all([
     getAllSubjects(),
-    supabaseAdmin.from('user_roles').select('*'),
-    supabaseAdmin.from('activity_logs').select('user_email').order('created_at', { ascending: false }).limit(500)
+    supabaseAdmin.from('user_roles').select('*')
   ]);
-  const activeLogins = Array.from(new Set(logs?.map(l => l.user_email).filter(Boolean)));
 
   return (
     <div className="min-h-screen bg-[#0A0A0B]">
@@ -35,7 +33,7 @@ export default async function AdminPage() {
         <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
         <p className="text-gray-400 mb-8">Manage courses, create lessons, and upload heavy files directly to cloud storage.</p>
         
-        <AdminClient subjects={subjects} initialRoles={roles || []} activeLogins={activeLogins} />
+        <AdminClient subjects={subjects} initialRoles={roles || []} />
         
         <AnalyticsPanel />
       </main>

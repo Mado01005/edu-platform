@@ -29,7 +29,8 @@ export async function DELETE(req: Request) {
     const { email } = await req.json();
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
-    const { error } = await supabaseAdmin.from('user_roles').delete().eq('email', email);
+    // Downgrade them back to 'student' so they remain in the platform's global registry
+    const { error } = await supabaseAdmin.from('user_roles').update({ role: 'student' }).eq('email', email);
     if (error) throw error;
     
     return NextResponse.json({ success: true });

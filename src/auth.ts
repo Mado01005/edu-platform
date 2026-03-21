@@ -26,7 +26,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         
         if (!isMasterAdmin) {
            const { data } = await supabaseAdmin.from('user_roles').select('role').eq('email', user.email).single();
-           if (data?.role === 'teacher' || data?.role === 'admin') isTeacher = true;
+           
+           let dbRole = data?.role;
+           if (!data) {
+             // This is their absolute first time logging into the platform! 
+             // We automatically register them into the database natively as a permanent 'student'
+             await supabaseAdmin.from('user_roles').insert({ email: user.email, role: 'student' });
+             dbRole = 'student';
+           }
+
+           if (dbRole === 'teacher' || dbRole === 'admin') isTeacher = true;
         }
         
         token.isAdmin = isMasterAdmin || isTeacher;

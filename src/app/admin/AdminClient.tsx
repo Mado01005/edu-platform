@@ -5,14 +5,16 @@ import { useState } from 'react';
 type AdminClientProps = {
   subjects: any[];
   initialRoles?: any[];
-  activeLogins?: string[];
 };
 
-export default function AdminClient({ subjects: initialSubjects, initialRoles = [], activeLogins = [] }: AdminClientProps) {
+export default function AdminClient({ subjects: initialSubjects, initialRoles = [] }: AdminClientProps) {
   const [localSubjects, setLocalSubjects] = useState(initialSubjects);
   const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'team'>('upload');
   
-  const [teamRoles, setTeamRoles] = useState(initialRoles);
+  const [allRoles, setAllRoles] = useState(initialRoles);
+  const teamRoles = allRoles.filter(r => r.role === 'teacher' || r.role === 'admin');
+  const activeLogins = allRoles.filter(r => r.role === 'student').map(r => r.email);
+
   const [newTeacherEmail, setNewTeacherEmail] = useState('');
 
   // ================= UPLOAD / EMBED STATE =================
@@ -381,7 +383,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                      const res = await fetch('/api/admin/roles', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: newTeacherEmail })});
                      if (!res.ok) throw new Error(await res.text());
                      const { role } = await res.json();
-                     setTeamRoles(prev => [...prev.filter(r => r.email !== role.email), role]);
+                     setAllRoles(prev => [...prev.filter(r => r.email !== role.email), role]);
                      setNewTeacherEmail('');
                      alert('Teacher permission granted! They can now log in and access this dashboard.');
                    } catch(err: any) { alert(err.message); }
@@ -399,7 +401,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
               <div className="mt-5 pt-4 border-t border-white/10">
                 <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-bold">Recent Platform Logins (Click to auto-fill):</p>
                 <div className="flex flex-wrap gap-2">
-                  {activeLogins.filter(e => !teamRoles.find(r => r.email === e)).map(email => (
+                  {activeLogins.filter(email => email).map(email => (
                     <button 
                       key={email}
                       type="button"
@@ -409,8 +411,8 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                       {email}
                     </button>
                   ))}
-                  {activeLogins.filter(e => !teamRoles.find(r => r.email === e)).length === 0 && (
-                    <span className="text-xs text-gray-500 italic">All recent users are already teachers.</span>
+                  {activeLogins.length === 0 && (
+                    <span className="text-xs text-gray-500 italic">No new students have logged into the platform yet since activation.</span>
                   )}
                 </div>
               </div>
