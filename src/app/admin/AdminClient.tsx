@@ -207,26 +207,71 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
   };
 
   return (
-    <div className="glass-card p-6 md:p-8 rounded-2xl max-w-4xl mx-auto border border-white/5 space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
-      {/* TABS HEADER */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
-        <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-          <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-          Admin Control Center
-        </h2>
-        <div className="flex gap-2">
-          <button onClick={() => setActiveTab('upload')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'upload' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Upload / Embed</button>
-          <button onClick={() => setActiveTab('manage')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'manage' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Manage Syllabus</button>
-          <button onClick={() => setActiveTab('inbox')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'inbox' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Inbox</button>
-          <button onClick={() => setActiveTab('broadcast')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'broadcast' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Broadcast</button>
-          <button onClick={() => setActiveTab('team')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'team' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Team Access</button>
+      {/* LEFT SIDEBAR NAVIGATION & HUD */}
+      <div className="lg:col-span-3 space-y-5 fade-in">
+        
+        {/* Navigation Sidebar */}
+        <div className="bg-black/40 backdrop-blur-3xl border border-white/10 rounded-2xl p-3 flex flex-col gap-1.5 shadow-2xl relative overflow-hidden">
+           <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+           <button onClick={() => setActiveTab('upload')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'upload' ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] shadow-indigo-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
+             <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+             Upload / Embed
+             {activeTab === 'upload' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>}
+           </button>
+
+           <button onClick={() => setActiveTab('manage')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'manage' ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] shadow-indigo-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
+             <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+             Manage Syllabus
+             {activeTab === 'manage' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>}
+           </button>
+
+           <button onClick={() => setActiveTab('inbox')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'inbox' ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] shadow-indigo-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
+             <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+             Student Inbox
+             {messages.filter(m => !m.is_read).length > 0 && <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-pulse">{messages.filter(m => !m.is_read).length}</span>}
+             {activeTab === 'inbox' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>}
+           </button>
+
+           <button onClick={() => setActiveTab('broadcast')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'broadcast' ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] shadow-indigo-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
+             <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+             Broadcast
+             {activeTab === 'broadcast' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>}
+           </button>
+
+           <button onClick={() => setActiveTab('team')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'team' ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] shadow-indigo-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
+             <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+             Team Access
+             {activeTab === 'team' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>}
+           </button>
         </div>
+
+        {/* Quick Stats HUD under sidebar */}
+        <div className="bg-black/40 backdrop-blur-3xl border border-white/10 rounded-2xl p-5 shadow-2xl space-y-3 relative overflow-hidden">
+           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]"></span> Live Telemetry</p>
+           
+           <div className="flex justify-between items-center bg-white/[0.03] border border-white/5 px-4 py-3 rounded-xl hover:bg-white/[0.06] transition-colors duration-300">
+             <span className="text-sm text-gray-300 font-medium">Active Courses</span>
+             <span className="text-xl font-black text-white drop-shadow-md">{localSubjects.length}</span>
+           </div>
+
+           <div className="flex justify-between items-center bg-white/[0.03] border border-white/5 px-4 py-3 rounded-xl hover:bg-white/[0.06] transition-colors duration-300">
+             <span className="text-sm text-gray-300 font-medium">Verified Staff</span>
+             <span className="text-xl font-black text-indigo-300 drop-shadow-md">{teamRoles.length}</span>
+           </div>
+        </div>
+
       </div>
 
-      {/* TABS CONTENT */}
+      {/* RIGHT MAIN CONTENT AREA */}
+      <div className="lg:col-span-9">
+        <div className="bg-[#05050A]/70 backdrop-blur-3xl border border-white/10 rounded-[2rem] p-7 md:p-10 shadow-2xl relative overflow-hidden min-h-[600px] slide-up">
+           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent opacity-40"></div>
+           
+           {/* TABS CONTENT */}
       {activeTab === 'upload' && (
         <form onSubmit={processUploadOrEmbed} className="space-y-6 fade-in">
           <div>
@@ -576,6 +621,8 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
         </div>
       )}
 
+        </div>
+      </div>
     </div>
   );
 }

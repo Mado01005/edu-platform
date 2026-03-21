@@ -22,21 +22,37 @@ export default async function AdminPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0B]">
-      <Navbar
-        userName={session.user?.name ?? undefined}
-        userImage={session.user?.image ?? undefined}
-        // @ts-ignore
-        isAdmin={session.user?.isAdmin}
-      />
-      <main className="max-w-4xl mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
-        <p className="text-gray-400 mb-8">Manage courses, create lessons, and upload heavy files directly to cloud storage.</p>
-        
-        <AdminClient subjects={subjects} initialRoles={roles || []} />
-        
-        <AnalyticsPanel />
-      </main>
+    <div className="min-h-screen bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.15),rgba(0,0,0,0))] relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
+      
+      <div className="relative z-10">
+        <Navbar
+          userName={session.user?.name ?? undefined}
+          userImage={session.user?.image ?? undefined}
+          // @ts-ignore
+          isAdmin={session.user?.isAdmin}
+        />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          
+          <div className="flex flex-col items-center mb-12 text-center fade-in">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[11px] font-bold uppercase tracking-widest mb-5 max-w-fit shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span> Systems Online
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-4 select-none">
+              Command Center
+            </h1>
+            <p className="text-gray-400 text-lg max-w-2xl font-medium">
+              Control the global syllabus hierarchy, process encrypted uploads, and monitor incoming student transmissions.
+            </p>
+          </div>
+          
+          <AdminClient subjects={subjects} initialRoles={roles || []} />
+          
+          <div className="mt-16 fade-in scale-in" style={{ animationDelay: '0.2s' }}>
+            <AnalyticsPanel />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
