@@ -5,9 +5,10 @@ import { useState } from 'react';
 type AdminClientProps = {
   subjects: any[];
   initialRoles?: any[];
+  activeLogins?: string[];
 };
 
-export default function AdminClient({ subjects: initialSubjects, initialRoles = [] }: AdminClientProps) {
+export default function AdminClient({ subjects: initialSubjects, initialRoles = [], activeLogins = [] }: AdminClientProps) {
   const [localSubjects, setLocalSubjects] = useState(initialSubjects);
   const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'team'>('upload');
   
@@ -392,6 +393,28 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                 Grant Access
               </button>
             </div>
+
+            {/* Recent Logins Auto-Fill Widget */}
+            {activeLogins && activeLogins.length > 0 && (
+              <div className="mt-5 pt-4 border-t border-white/10">
+                <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-bold">Recent Platform Logins (Click to auto-fill):</p>
+                <div className="flex flex-wrap gap-2">
+                  {activeLogins.filter(e => !teamRoles.find(r => r.email === e)).map(email => (
+                    <button 
+                      key={email}
+                      type="button"
+                      onClick={() => setNewTeacherEmail(email)}
+                      className="bg-white/5 hover:bg-indigo-500/20 hover:text-indigo-300 hover:border-indigo-500/30 border border-white/10 rounded-full px-3 py-1.5 text-xs text-gray-300 transition duration-200"
+                    >
+                      {email}
+                    </button>
+                  ))}
+                  {activeLogins.filter(e => !teamRoles.find(r => r.email === e)).length === 0 && (
+                    <span className="text-xs text-gray-500 italic">All recent users are already teachers.</span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Teacher Roster */}
