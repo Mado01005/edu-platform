@@ -1,6 +1,10 @@
 import { supabaseAdmin } from '@/lib/supabase';
+import { auth, ADMIN_EMAIL } from '@/auth';
 
 export default async function AnalyticsPanel() {
+  const session = await auth();
+  if (session?.user?.email !== ADMIN_EMAIL) return null;
+  
   // Fetch the latest 50 activity logs securely on the server
   const { data: logs, error } = await supabaseAdmin
     .from('activity_logs')
