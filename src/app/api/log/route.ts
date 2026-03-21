@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { ADMIN_EMAIL } from '@/auth';
 
 export async function POST(req: Request) {
   try {
@@ -26,6 +27,17 @@ export async function POST(req: Request) {
     if (error) {
       console.error('Activity log error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // WEBHOOK: If a brand new student just initialized their dashboard, autonomously alert the Master Admin!
+    if (action === 'Completed Student Onboarding') {
+      await supabaseAdmin.from('messages').insert({
+        sender_email: 'SYSTEM_ROBOT',
+        receiver_email: ADMIN_EMAIL,
+        subject: `[System Alert] ✨ New Student Registration: ${session.user.email}`,
+        body: `Access Code Accepted.\n\nA brand new student has successfully completed the first-boot onboarding sequence and is now exploring the platform.\n\nStudent Email: ${session.user.email}\nRegistry Name: ${session.user.name || 'Unknown User'}\nTimestamp: ${new Date().toLocaleString()}\n\nYou may now grant them Instructor privledges from the Admin Dashboard if necessary.`,
+        is_read: false
+      });
     }
 
     return NextResponse.json({ success: true });

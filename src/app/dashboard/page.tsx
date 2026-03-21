@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import SubjectCard from '@/components/SubjectCard';
 import SupportTicketModal from '@/components/SupportTicketModal';
 import PromotionModal from '@/components/PromotionModal';
+import StudentWelcomeModal from '@/components/StudentWelcomeModal';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,22 @@ export default async function DashboardPage() {
     
     if (!promoLog || promoLog.length === 0) {
       showPromotionModal = true;
+    }
+  }
+
+  // Check if they are a brand new Student who hasn't completed the First-Boot Onboarding
+  let showStudentWelcomeModal = false;
+  // @ts-ignore
+  if (!session.user?.isAdmin) {
+    const { data: welcomeLog } = await supabaseAdmin
+      .from('activity_logs')
+      .select('id')
+      .eq('user_email', session.user?.email || '')
+      .eq('action', 'Completed Student Onboarding')
+      .limit(1);
+    
+    if (!welcomeLog || welcomeLog.length === 0) {
+      showStudentWelcomeModal = true;
     }
   }
 
@@ -132,6 +149,7 @@ export default async function DashboardPage() {
         )}
         <SupportTicketModal />
         <PromotionModal open={showPromotionModal} userEmail={session.user?.email || ''} />
+        <StudentWelcomeModal open={showStudentWelcomeModal} userEmail={session.user?.email || ''} userName={session.user?.name || 'Student'} />
       </main>
       </div>
     </div>
