@@ -7,6 +7,7 @@ import SubjectCard from '@/components/SubjectCard';
 import SupportTicketModal from '@/components/SupportTicketModal';
 import PromotionModal from '@/components/PromotionModal';
 import StudentWelcomeModal from '@/components/StudentWelcomeModal';
+import DashboardLogger from '@/components/DashboardLogger';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,6 +57,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(0,0,0,0))] relative overflow-hidden">
+      <DashboardLogger />
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
       
       <div className="relative z-10">
