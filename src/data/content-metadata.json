@@ -121,36 +121,6 @@
         "subjectSlug": "calculus",
         "content": [
           {
-            "type": "file",
-            "fileType": "video",
-            "name": "Calculus 2 - Basic Integration.mp4",
-            "url": "/content/calculus/CALC%202%20VIDS%20/Calculus%202%20-%20Basic%20Integration.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Indefinite Integral - Basic Integration Rules, Problems, Formulas, Trig Functions, Calculus.mp4",
-            "url": "/content/calculus/CALC%202%20VIDS%20/Indefinite%20Integral%20-%20Basic%20Integration%20Rules%2C%20Problems%2C%20Formulas%2C%20Trig%20Functions%2C%20Calculus.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Integration By Partial Fractions.mp4",
-            "url": "/content/calculus/CALC%202%20VIDS%20/Integration%20By%20Partial%20Fractions.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Integration By Parts.mp4",
-            "url": "/content/calculus/CALC%202%20VIDS%20/Integration%20By%20Parts.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Integration into Inverse trigonometric functions using Substitution.mp4",
-            "url": "/content/calculus/CALC%202%20VIDS%20/Integration%20into%20Inverse%20trigonometric%20functions%20using%20Substitution.mp4"
-          },
-          {
             "type": "vimeo",
             "name": "Lesson 1",
             "vimeoId": "https://vimeo.com/1175497040"
@@ -189,24 +159,6 @@
             "type": "vimeo",
             "name": "Lessson 6",
             "vimeoId": "https://vimeo.com/1175497218"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Numerical Integration Trapezoidal Rule.mp4",
-            "url": "/content/calculus/CALC%202%20VIDS%20/Numerical%20Integration%20Trapezoidal%20Rule.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Trigonometric Integrals.mp4",
-            "url": "/content/calculus/CALC%202%20VIDS%20/Trigonometric%20Integrals.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Trigonometric Substitution.mp4",
-            "url": "/content/calculus/CALC%202%20VIDS%20/Trigonometric%20Substitution.mp4"
           }
         ],
         "hasVideo": true,
@@ -456,54 +408,6 @@
           },
           {
             "type": "file",
-            "fileType": "video",
-            "name": "Lab Video 2020-03-18 at 16.10.46.mp4",
-            "url": "/content/chemistry/Google%20drive/Lab%20Video%202020-03-18%20at%2016.10.46.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Lab Video 2020-04-03 at 13.46.35.mp4",
-            "url": "/content/chemistry/Google%20drive/Lab%20Video%202020-04-03%20at%2013.46.35.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Lab Video 2020-04-12 at 16.47.22.mp4",
-            "url": "/content/chemistry/Google%20drive/Lab%20Video%202020-04-12%20at%2016.47.22.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "lecture 10 - Chapter V- Corrosion protection.mp4",
-            "url": "/content/chemistry/Google%20drive/lecture%2010%20-%20Chapter%20V-%20Corrosion%20protection.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Lecture 6 - ChapterII - Gases.mp4",
-            "url": "/content/chemistry/Google%20drive/Lecture%206%20-%20ChapterII%20-%20Gases.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Lecture 7- chapterIII.mp4",
-            "url": "/content/chemistry/Google%20drive/Lecture%207-%20chapterIII.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Lecture 8- chapterIII-IV.mp4",
-            "url": "/content/chemistry/Google%20drive/Lecture%208-%20chapterIII-IV.mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "Lecture 9 - chapter IV.mp4",
-            "url": "/content/chemistry/Google%20drive/Lecture%209%20-%20chapter%20IV.mp4"
-          },
-          {
-            "type": "file",
             "fileType": "pdf",
             "name": "Periodic table revision.pdf",
             "url": "/content/chemistry/Google%20drive/Periodic%20table%20revision.pdf"
@@ -515,7 +419,7 @@
             "url": "/content/chemistry/Google%20drive/revision%20final%20acad.pdf"
           }
         ],
-        "hasVideo": true,
+        "hasVideo": false,
         "hasPdf": true,
         "imageCount": 0
       },
@@ -687,15 +591,9 @@
             "fileType": "pdf",
             "name": "How to a hook an audience .pdf",
             "url": "/content/communication-skills/Week%203/How%20to%20a%20hook%20an%20audience%20.pdf"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "How to hook an audience - Ace Study Guides (1080p, h264).mp4",
-            "url": "/content/communication-skills/Week%203/How%20to%20hook%20an%20audience%20-%20Ace%20Study%20Guides%20(1080p%2C%20h264).mp4"
           }
         ],
-        "hasVideo": true,
+        "hasVideo": false,
         "hasPdf": true,
         "imageCount": 0
       },
@@ -776,44 +674,8 @@
         "content": [
           {
             "type": "folder",
-            "name": "rep1 rectilinear kinematics",
-            "children": [
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep1%20rectilinear%20kinematics/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep1%20rectilinear%20kinematics/zoom_1.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_2.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep1%20rectilinear%20kinematics/zoom_2.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_3.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep1%20rectilinear%20kinematics/zoom_3.mp4"
-              }
-            ]
-          },
-          {
-            "type": "folder",
             "name": "rep10",
             "children": [
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "ex6-15.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-15.mp4"
-              },
               {
                 "type": "file",
                 "fileType": "image",
@@ -828,207 +690,9 @@
               },
               {
                 "type": "file",
-                "fileType": "video",
-                "name": "ex6-26.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-26.mp4"
-              },
-              {
-                "type": "file",
                 "fileType": "image",
                 "name": "ex6-26.png",
                 "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-26.png"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "ex6-9.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep10/ex6-9.mp4"
-              }
-            ]
-          },
-          {
-            "type": "folder",
-            "name": "rep2 projectile",
-            "children": [
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep2%20projectile/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep2%20projectile/zoom_1.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_2.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep2%20projectile/zoom_2.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_3.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep2%20projectile/zoom_3.mp4"
-              }
-            ]
-          },
-          {
-            "type": "folder",
-            "name": "rep3, force and acc examples",
-            "children": [
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20force%20and%20acc%20examples/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_00.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20force%20and%20acc%20examples/zoom_00.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20force%20and%20acc%20examples/zoom_1.mp4"
-              }
-            ]
-          },
-          {
-            "type": "folder",
-            "name": "rep3, problems",
-            "children": [
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20problems/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20problems/zoom_1.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_2.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20problems/zoom_2.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_3.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep3%2C%20problems/zoom_3.mp4"
-              }
-            ]
-          },
-          {
-            "type": "folder",
-            "name": "rep4 Work and Energy",
-            "children": [
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep4%20Work%20and%20Energy/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep4%20Work%20and%20Energy/zoom_1.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_2.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep4%20Work%20and%20Energy/zoom_2.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_3.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep4%20Work%20and%20Energy/zoom_3.mp4"
-              }
-            ]
-          },
-          {
-            "type": "folder",
-            "name": "rep5 rotation",
-            "children": [
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_1.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_2.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_2.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_3.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_3.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_4.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep5%20rotation/zoom_4.mp4"
-              }
-            ]
-          },
-          {
-            "type": "folder",
-            "name": "rep6 roller coaster",
-            "children": [
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "video1902196206.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/video1902196206.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "video2902196206.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/video2902196206.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0 .mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/zoom_0%20.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1 .mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/zoom_1%20.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_2 .mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep6%20roller%20coaster/zoom_2%20.mp4"
               }
             ]
           },
@@ -1047,18 +711,6 @@
                 "fileType": "image",
                 "name": "ex5-39.png",
                 "url": "/content/dynamics/Google%20Drive%20/rep7%20rel%20velocity/ex5-39.png"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep7%20rel%20velocity/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep7%20rel%20velocity/zoom_1.mp4"
               }
             ]
           },
@@ -1077,18 +729,6 @@
                 "fileType": "image",
                 "name": "rep8.png",
                 "url": "/content/dynamics/Google%20Drive%20/rep8%20rel%20acc/rep8.png"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep8%20rel%20acc/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep8%20rel%20acc/zoom_1.mp4"
               }
             ]
           },
@@ -1098,27 +738,9 @@
             "children": [
               {
                 "type": "file",
-                "fileType": "video",
-                "name": "6-4.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep9/6-4.mp4"
-              },
-              {
-                "type": "file",
                 "fileType": "image",
                 "name": "ex6-4.png",
                 "url": "/content/dynamics/Google%20Drive%20/rep9/ex6-4.png"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_0.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep9/zoom_0.mp4"
-              },
-              {
-                "type": "file",
-                "fileType": "video",
-                "name": "zoom_1.mp4",
-                "url": "/content/dynamics/Google%20Drive%20/rep9/zoom_1.mp4"
               }
             ]
           },
@@ -1127,45 +749,9 @@
             "fileType": "pdf",
             "name": "A1 syllabus Dynamics summer 2024 (1).pdf",
             "url": "/content/dynamics/Google%20Drive%20/A1%20syllabus%20Dynamics%20summer%202024%20(1).pdf"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "zoom_0 (3).mp4",
-            "url": "/content/dynamics/Google%20Drive%20/zoom_0%20(3).mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "zoom_0 (4).mp4",
-            "url": "/content/dynamics/Google%20Drive%20/zoom_0%20(4).mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "zoom_0 (6).mp4",
-            "url": "/content/dynamics/Google%20Drive%20/zoom_0%20(6).mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "zoom_1 (3).mp4",
-            "url": "/content/dynamics/Google%20Drive%20/zoom_1%20(3).mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "zoom_1 (4).mp4",
-            "url": "/content/dynamics/Google%20Drive%20/zoom_1%20(4).mp4"
-          },
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "zoom_1 (6).mp4",
-            "url": "/content/dynamics/Google%20Drive%20/zoom_1%20(6).mp4"
           }
         ],
-        "hasVideo": true,
+        "hasVideo": false,
         "hasPdf": true,
         "imageCount": 8
       },
@@ -1541,14 +1127,8 @@
               {
                 "type": "file",
                 "fileType": "image",
-                "name": "IMG_8478.jpg",
-                "url": "/content/physics/Photos/PHY%202%20LAB/IMG_8478.jpg"
-              },
-              {
-                "type": "file",
-                "fileType": "image",
-                "name": "IMG_8573.jpg",
-                "url": "/content/physics/Photos/PHY%202%20LAB/IMG_8573.jpg"
+                "name": "IMG_8478.JPG",
+                "url": "/content/physics/Photos/PHY%202%20LAB/IMG_8478.JPG"
               }
             ]
           },
@@ -1615,7 +1195,7 @@
         ],
         "hasVideo": false,
         "hasPdf": false,
-        "imageCount": 12
+        "imageCount": 11
       },
       {
         "slug": "Physics files",
@@ -1936,12 +1516,6 @@
         "title": "YT Vids",
         "subjectSlug": "programming",
         "content": [
-          {
-            "type": "file",
-            "fileType": "video",
-            "name": "C++ Tutorial for Beginners - Learn C++ in 1 Hour.mp4",
-            "url": "/content/programming/YT%20Vids/C%2B%2B%20Tutorial%20for%20Beginners%20-%20Learn%20C%2B%2B%20in%201%20Hour.mp4"
-          },
           {
             "type": "vimeo",
             "name": "Programming",
