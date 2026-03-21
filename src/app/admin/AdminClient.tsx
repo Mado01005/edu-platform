@@ -8,17 +8,66 @@ type AdminClientProps = {
 };
 
 export default function AdminClient({ subjects }: AdminClientProps) {
+  const [localSubjects, setLocalSubjects] = useState(subjects);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedLessonId, setSelectedLessonId] = useState('');
   
-  // We allow either selecting an existing lesson or creating a new one (future feature, for now just existing)
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
 
-  const activeSubject = subjects.find(s => s.id === selectedSubjectId);
+  const activeSubject = localSubjects.find(s => s.id === selectedSubjectId);
   const activeLessons = activeSubject?.lessons || [];
+
+  const handleCreateSubject = async () => {
+    const title = prompt('Enter the name of the new Subject (Math, Physics, etc.):');
+    if (!title) return;
+    const icon = prompt('Enter an emoji icon for this Subject (e.g. 📚, 🔬):') || '📁';
+    
+    try {
+      const res = await fetch('/api/admin/subjects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, icon, color: 'from-indigo-500 to-purple-500' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create subject');
+      const { subject } = data;
+      setLocalSubjects(prev => [...prev, subject]);
+      setSelectedSubjectId(subject.id);
+      setSelectedLessonId('');
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const handleCreateLesson = async () => {
+    if (!selectedSubjectId) return;
+    const title = prompt('Enter the name of the new Lesson / Folder:');
+    if (!title) return;
+    
+    try {
+      const res = await fetch('/api/admin/lessons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subjectId: selectedSubjectId, title })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create lesson');
+      const { lesson } = data;
+      
+      setLocalSubjects(prev => prev.map(s => {
+        if (s.id === selectedSubjectId) {
+          return { ...s, lessons: [...(s.lessons || []), lesson] };
+        }
+        return s;
+      }));
+      setSelectedLessonId(lesson.id);
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +84,6 @@ export default function AdminClient({ subjects }: AdminClientProps) {
       const subjectSlug = activeSubject.slug;
       const lessonSlug = activeLessons.find((l: any) => l.id === selectedLessonId)?.slug;
 
-      // 1. Get signed URL
       const initiateRes = await fetch('/api/admin/upload-initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,16 +100,14 @@ export default function AdminClient({ subjects }: AdminClientProps) {
       setProgress(30);
       setStatusMessage('Uploading to cloud storage...');
 
-      // 2. Upload directly to Supabase Storage using XMLHttpRequest to track progress
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', signedUrl, true);
-        // Supabase requires the exact content type
         xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
         
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
-            const percentComplete = Math.round((event.loaded / event.total) * 60) + 30; // Scale 30-90%
+            const percentComplete = Math.round((event.loaded / event.total) * 60) + 30;
             setProgress(percentComplete);
           }
         };
@@ -81,13 +127,11 @@ export default function AdminClient({ subjects }: AdminClientProps) {
       setProgress(90);
       setStatusMessage('Finalizing database records...');
 
-      // Determine basic file type for DB
       let fileType = 'unknown';
       if (file.type.startsWith('video/')) fileType = 'video';
       else if (file.type.startsWith('image/')) fileType = 'image';
       else if (file.type === 'application/pdf') fileType = 'pdf';
 
-      // 3. Mark upload as complete in Postgres DB
       const completeRes = await fetch('/api/admin/upload-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,7 +148,7 @@ export default function AdminClient({ subjects }: AdminClientProps) {
 
       setProgress(100);
       setStatusMessage('Upload complete! The file is now live.');
-      setFile(null); // Reset form
+      setFile(null); 
 
     } catch (err: any) {
       setStatusMessage(`Error: ${err.message}`);
@@ -120,44 +164,62 @@ export default function AdminClient({ subjects }: AdminClientProps) {
         <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
         </svg>
-        Direct Cloud Upload
+        Course Management & Uploads
       </h2>
 
       <form onSubmit={handleUpload} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-2">Select Subject</label>
-          <select 
-            className="w-full bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-            value={selectedSubjectId}
-            onChange={(e) => {
-              setSelectedSubjectId(e.target.value);
-              setSelectedLessonId(''); // reset lesson when subject changes
-            }}
-            disabled={uploading}
-          >
-            <option value="">-- Choose a Subject --</option>
-            {subjects.map(subject => (
-              <option key={subject.id} value={subject.id}>{subject.icon} {subject.title}</option>
-            ))}
-          </select>
+          <div className="flex gap-2">
+            <select 
+              className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              value={selectedSubjectId}
+              onChange={(e) => {
+                setSelectedSubjectId(e.target.value);
+                setSelectedLessonId(''); // reset lesson when subject changes
+              }}
+              disabled={uploading}
+            >
+              <option value="">-- Choose a Subject --</option>
+              {localSubjects.map(subject => (
+                <option key={subject.id} value={subject.id}>{subject.icon} {subject.title}</option>
+              ))}
+            </select>
+            <button 
+              type="button" 
+              onClick={handleCreateSubject}
+              className="px-4 py-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 rounded-xl font-medium transition"
+            >
+              + New
+            </button>
+          </div>
         </div>
 
         {selectedSubjectId && (
           <div className="fade-in">
             <label className="block text-sm font-medium text-gray-400 mb-2">Select Lesson</label>
-            <select 
-              className="w-full bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-              value={selectedLessonId}
-              onChange={(e) => setSelectedLessonId(e.target.value)}
-              disabled={uploading}
-            >
-              <option value="">-- Choose a Lesson --</option>
-              {activeLessons.map((lesson: any) => (
-                <option key={lesson.id} value={lesson.id}>{lesson.title}</option>
-              ))}
-            </select>
+            <div className="flex gap-2">
+              <select 
+                className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                value={selectedLessonId}
+                onChange={(e) => setSelectedLessonId(e.target.value)}
+                disabled={uploading}
+              >
+                <option value="">-- Choose a Lesson --</option>
+                {activeLessons.map((lesson: any) => (
+                  <option key={lesson.id} value={lesson.id}>{lesson.title}</option>
+                ))}
+              </select>
+              <button 
+                type="button" 
+                onClick={handleCreateLesson}
+                className="px-4 py-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 rounded-xl font-medium transition"
+              >
+                + New
+              </button>
+            </div>
             {activeLessons.length === 0 && (
-              <p className="text-yellow-500 text-sm mt-2">This subject has no lessons. You need to create one first.</p>
+              <p className="text-yellow-500 text-sm mt-2">This subject has no lessons. Click "+ New" to add one.</p>
             )}
           </div>
         )}
@@ -203,7 +265,7 @@ export default function AdminClient({ subjects }: AdminClientProps) {
           disabled={!file || !selectedSubjectId || !selectedLessonId || uploading}
           className="w-full relative overflow-hidden group bg-white text-black font-semibold py-3 px-6 rounded-xl hover:bg-gray-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white flex items-center justify-center gap-2"
         >
-          {uploading ? 'Uploading...' : 'Upload to Cloud'}
+          {uploading ? 'Uploading...' : 'Upload File to Cloud'}
         </button>
       </form>
     </div>
