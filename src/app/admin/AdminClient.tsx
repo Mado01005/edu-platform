@@ -581,21 +581,24 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
             )}
           </div>
 
-          {/* Teacher Roster */}
-          <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/10 bg-black/20">
-              <h3 className="text-white font-semibold">Active Teachers ({teamRoles.length})</h3>
+          {/* Active Instructors Roster */}
+          <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mt-8 shadow-2xl">
+            <div className="px-6 py-4 border-b border-white/10 bg-black/40">
+              <h3 className="text-white font-bold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
+                Active Instructors ({teamRoles.length})
+              </h3>
             </div>
-            <ul className="divide-y divide-white/5">
+            <ul className="divide-y divide-white/5 bg-black/20">
               {teamRoles.map(role => (
-                <li key={role.email} className="px-6 py-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:bg-white/5 transition">
+                <li key={role.email} className="px-6 py-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:bg-white/5 transition duration-300">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-black text-lg shrink-0 shadow-inner">
                        {role.email.charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <p className="text-white font-medium break-all">{role.email}</p>
-                      <p className="text-xs text-indigo-400 uppercase tracking-wider font-bold mt-0.5">{role.role}</p>
+                      <p className="text-[10px] text-indigo-400 uppercase tracking-widest font-black mt-1 drop-shadow-md">{role.role}</p>
                     </div>
                   </div>
                   <button 
@@ -607,16 +610,66 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                          setAllRoles((prev: any[]) => prev.map(r => r.email === role.email ? { ...r, role: 'student' } : r));
                        } catch(err: any) { alert(err.message); }
                      }}
-                     className="text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-lg text-sm font-medium transition shrink-0"
+                     className="text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-lg text-xs font-bold transition shrink-0 border border-red-500/20"
                   >
-                    Revoke
+                    Revoke Access
                   </button>
                 </li>
               ))}
               {teamRoles.length === 0 && (
-                <li className="px-6 py-8 text-center text-gray-500 text-sm">No external teachers have been granted access yet.</li>
+                <li className="px-6 py-8 text-center text-gray-500 text-sm italic">No external teachers have been granted access yet.</li>
               )}
             </ul>
+          </div>
+
+          {/* Registered Students Roster */}
+          <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mt-8 shadow-2xl">
+            <div className="px-6 py-4 border-b border-white/10 bg-black/40">
+              <h3 className="text-white font-bold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>
+                Registered Students ({activeLogins.length})
+              </h3>
+            </div>
+            {activeLogins.length === 0 ? (
+               <p className="px-6 py-8 text-sm text-gray-400 italic text-center bg-black/20">No students have signed in to the platform yet.</p>
+            ) : (
+               <ul className="divide-y divide-white/5 max-h-[400px] overflow-y-auto custom-scrollbar bg-black/20">
+                 {allRoles.filter(r => r.role === 'student').map(student => (
+                   <li key={student.email} className="px-6 py-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:bg-white/5 transition duration-300 group">
+                     <div className="flex items-center gap-4">
+                       <div className="w-10 h-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 font-bold shrink-0">
+                          {student.email.charAt(0).toUpperCase()}
+                       </div>
+                       <div>
+                         <p className="text-white font-medium break-all">{student.email}</p>
+                         <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Student</p>
+                       </div>
+                     </div>
+                     <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                       <button onClick={() => { navigator.clipboard.writeText(student.email); alert('Student Email Copied to Clipboard!'); }} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-xs font-bold transition">
+                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                         Copy Email
+                       </button>
+                       <button onClick={async () => {
+                         if (!confirm(`WARNING: Are you sure you want to elevate ${student.email} to an Instructor? They will gain access to this Admin Dashboard.`)) return;
+                         setUploading(true);
+                         try {
+                           const res = await fetch('/api/admin/roles', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: student.email })});
+                           if (!res.ok) throw new Error(await res.text());
+                           const { role } = await res.json();
+                           setAllRoles(prev => [...prev.filter(r => r.email !== role.email), role]);
+                           alert('SUCCESS: Teacher permission granted!');
+                         } catch(err: any) { alert(err.message); }
+                         setUploading(false);
+                       }} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 hover:border-indigo-500/50 rounded-lg text-xs font-bold transition duration-300 shadow-[inset_0_0_10px_rgba(99,102,241,0.05)] hover:shadow-indigo-500/20">
+                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 11l7-7 7 7M5 19l7-7 7 7" /></svg>
+                         Elevate to Instructor
+                       </button>
+                     </div>
+                   </li>
+                 ))}
+               </ul>
+            )}
           </div>
         </div>
       )}
