@@ -2,9 +2,11 @@ import { auth } from '@/auth';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getLesson, getSubject } from '@/lib/content';
+import { supabaseAdmin } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import FolderTree from '@/components/FolderTree';
 import ViewTracker from '@/components/ViewTracker';
+import CompleteButton from '@/components/CompleteButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +24,13 @@ export default async function LessonPage({ params }: Props) {
 
   const subject = await getSubject(subjectSlug);
   const lesson = await getLesson(subjectSlug, lessonSlug);
+  
+  // Calculate historical gamification status
+  const { data: logs } = await supabaseAdmin.from('activity_logs')
+    .select('details')
+    .eq('action', 'Completed Lesson')
+    .eq('user_email', session.user?.email || '');
+  const isCompleted = logs?.some(l => l.details?.subjectSlug === subjectSlug && l.details?.lessonSlug === lessonSlug) || false;
   
   console.log('--- DEBUG ---');
   console.log('Params:', subjectParam, lessonParam);
@@ -89,7 +98,9 @@ export default async function LessonPage({ params }: Props) {
           )}
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/5">
+        <CompleteButton subjectSlug={subjectSlug} lessonSlug={lessonSlug} initialCompleted={isCompleted} />
+
+        <div className="mt-8 pt-8 border-t border-white/5">
           <Link
             href={`/subjects/${encodeURIComponent(subjectSlug)}`}
             className="inline-flex items-center gap-2 text-gray-400 hover:text-indigo-400 text-sm font-medium transition-colors"

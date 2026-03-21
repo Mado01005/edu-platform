@@ -8,7 +8,7 @@ type AdminClientProps = {
 
 export default function AdminClient({ subjects: initialSubjects }: AdminClientProps) {
   const [localSubjects, setLocalSubjects] = useState(initialSubjects);
-  const [activeTab, setActiveTab] = useState<'upload' | 'manage'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast'>('upload');
 
   // ================= UPLOAD / EMBED STATE =================
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
@@ -197,6 +197,7 @@ export default function AdminClient({ subjects: initialSubjects }: AdminClientPr
         <div className="flex gap-2">
           <button onClick={() => setActiveTab('upload')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'upload' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Upload / Embed</button>
           <button onClick={() => setActiveTab('manage')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'manage' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Manage Syllabus</button>
+          <button onClick={() => setActiveTab('broadcast')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'broadcast' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Broadcast</button>
         </div>
       </div>
 
@@ -316,6 +317,34 @@ export default function AdminClient({ subjects: initialSubjects }: AdminClientPr
             </div>
           ))}
           {localSubjects.length === 0 && <p className="text-gray-500 text-center py-10">No subjects exist yet.</p>}
+        </div>
+      )}
+
+      {activeTab === 'broadcast' && (
+        <div className="space-y-4 fade-in">
+          <p className="text-sm text-gray-400 mb-4">Send a global announcement banner to all students directly on their dashboard.</p>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <input 
+              type="text" 
+              placeholder="e.g. Midterm Exams starting Next Friday! 📚"
+              className="w-full bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none mb-4"
+              id="broadcast-msg"
+            />
+            <div className="flex gap-3">
+              <button onClick={async () => {
+                const msg = (document.getElementById('broadcast-msg') as HTMLInputElement).value;
+                if (!msg) return alert('Enter a message first');
+                await fetch('/api/admin/announcement', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, is_active: true }) });
+                alert('Broadcast pushed globally!');
+                (document.getElementById('broadcast-msg') as HTMLInputElement).value = '';
+              }} className="bg-indigo-500 hover:bg-indigo-600 px-6 py-2.5 rounded-lg text-sm font-bold shadow-md transition">Publish Banner</button>
+              
+              <button onClick={async () => {
+                await fetch('/api/admin/announcement', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ is_active: false }) });
+                alert('All banners deactivated!');
+              }} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 px-6 py-2.5 rounded-lg text-sm font-bold shadow-md transition">Clear Banner</button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { getAllSubjects } from '@/lib/content';
+import { supabaseAdmin } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import SubjectCard from '@/components/SubjectCard';
 
@@ -10,7 +11,13 @@ export default async function DashboardPage() {
   const session = await auth();
   if (!session) redirect('/login');
 
-  const subjects = await getAllSubjects();
+  const [subjects, { data: completedLogs }, { data: globalMsg }] = await Promise.all([
+    getAllSubjects(),
+    supabaseAdmin.from('activity_logs').select('details').eq('action', 'Completed Lesson').eq('user_email', session.user?.email || ''),
+    supabaseAdmin.from('announcements').select('message').eq('is_active', true).order('created_at', { ascending: false }).limit(1).single()
+  ]);
+
+  const completedSet = new Set(completedLogs?.map(l => `${l.details?.subjectSlug}-${l.details?.lessonSlug}`));
 
   return (
     <div className="min-h-screen bg-[#0A0A0B]">
@@ -22,6 +29,19 @@ export default async function DashboardPage() {
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        {/* Global Announcement Banner */}
+        {globalMsg?.message && (
+          <div className="mb-8 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-start gap-4 shadow-lg shadow-indigo-500/5 fade-in">
+            <div className="p-2 bg-indigo-500/20 rounded-xl shrink-0 mt-0.5">
+              <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+            </div>
+            <div className="flex-1 font-medium text-white tracking-wide text-[15px] leading-relaxed">
+              {globalMsg.message}
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-10 fade-in">
           <p className="text-indigo-400 text-sm font-medium mb-2">
@@ -78,6 +98,7 @@ export default async function DashboardPage() {
                 icon={subject.icon}
                 color={subject.color}
                 lessonCount={subject.lessons.length}
+                completedCount={subject.lessons.filter(l => completedSet.has(`${subject.slug}-${l.slug}`)).length}
               />
             ))}
           </div>
