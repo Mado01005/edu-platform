@@ -442,7 +442,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                        try {
                          const res = await fetch('/api/admin/roles', { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: role.email })});
                          if (!res.ok) throw new Error(await res.text());
-                         setTeamRoles(prev => prev.filter(r => r.email !== role.email));
+                         setAllRoles((prev: any[]) => prev.map(r => r.email === role.email ? { ...r, role: 'student' } : r));
                        } catch(err: any) { alert(err.message); }
                      }}
                      className="text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-lg text-sm font-medium transition shrink-0"
