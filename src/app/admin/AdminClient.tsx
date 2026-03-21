@@ -141,6 +141,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
       if (file!.type.startsWith('video/')) fileType = 'video';
       else if (file!.type.startsWith('image/')) fileType = 'image';
       else if (file!.type === 'application/pdf') fileType = 'pdf';
+      else if (file!.name.toLowerCase().endsWith('.ppt') || file!.name.toLowerCase().endsWith('.pptx') || file!.type.includes('presentation')) fileType = 'powerpoint';
 
       const completeRes = await fetch('/api/admin/upload-complete', {
         method: 'POST',
@@ -307,7 +308,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                         return (
                            <li key={item.id || idx} className="flex justify-between items-center text-sm text-gray-400 py-1 hover:bg-white/5 px-2 rounded group">
                              <div className="flex items-center gap-2 truncate">
-                               {item.type === 'vimeo' ? '🔗' : '📄'} <span>{item.name}</span>
+                               {item.type === 'vimeo' ? '🔗' : item.fileType === 'powerpoint' ? '📊' : '📄'} <span>{item.name}</span>
                              </div>
                              {item.id && (
                                <button onClick={() => handleDelete('item', item.id, item.name)} className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded hover:bg-red-500/10 transition">Delete</button>

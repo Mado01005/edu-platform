@@ -55,6 +55,22 @@ export default function FolderTree({ node, isRoot = false }: FolderTreeProps) {
         </div>
       );
     }
+    if (node.fileType === 'powerpoint' && node.url) {
+      // The Microsoft Cloud Proxy inherently requires URL Encoded payloads to parse heavy files
+      const encodedUrl = encodeURIComponent(node.url);
+      return (
+        <div className="my-6 fade-in min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col">
+          <div className="flex items-center gap-2 mb-3 ml-1 text-sm font-semibold text-indigo-300">
+            <span>📊</span> <span>{node.name}</span>
+          </div>
+          <iframe 
+            src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
+            className="w-full h-full flex-1 rounded-xl bg-white border border-white/10 shadow-2xl"
+            title={node.name}
+          />
+        </div>
+      );
+    }
     // Single images handled by renderChildren grouping, but just in case:
     if (node.fileType === 'image' && node.url) {
       return (

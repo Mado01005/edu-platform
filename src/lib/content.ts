@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 export interface ContentNode {
   id?: string;
   type: 'file' | 'folder' | 'vimeo';
-  fileType?: 'video' | 'pdf' | 'image' | 'unknown'; 
+  fileType?: 'video' | 'pdf' | 'image' | 'powerpoint' | 'unknown'; 
   name: string;
   url?: string;
   vimeoId?: string;
