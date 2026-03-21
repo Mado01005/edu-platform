@@ -1541,6 +1541,12 @@
               {
                 "type": "file",
                 "fileType": "image",
+                "name": "IMG_8478.jpg",
+                "url": "/content/physics/Photos/PHY%202%20LAB/IMG_8478.jpg"
+              },
+              {
+                "type": "file",
+                "fileType": "image",
                 "name": "IMG_8573.jpg",
                 "url": "/content/physics/Photos/PHY%202%20LAB/IMG_8573.jpg"
               }
@@ -1609,7 +1615,7 @@
         ],
         "hasVideo": false,
         "hasPdf": false,
-        "imageCount": 11
+        "imageCount": 12
       },
       {
         "slug": "Physics files",
