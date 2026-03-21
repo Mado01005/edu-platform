@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 
 export interface ContentNode {
+  id?: string;
   type: 'file' | 'folder' | 'vimeo';
   fileType?: 'video' | 'pdf' | 'image' | 'unknown'; 
   name: string;
@@ -45,6 +46,7 @@ function buildContentTree(flatItems: any[], parentId = null): ContentNode[] {
       const folderChildren = buildContentTree(flatItems, child.id);
       if (folderChildren.length > 0) {
         nodes.push({
+          id: child.id,
           type: 'folder',
           name: child.name,
           children: folderChildren
@@ -52,6 +54,7 @@ function buildContentTree(flatItems: any[], parentId = null): ContentNode[] {
       }
     } else {
       nodes.push({
+        id: child.id,
         type: child.item_type,
         fileType: child.file_type || undefined,
         name: child.name,

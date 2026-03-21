@@ -12,6 +12,19 @@ export default async function AnalyticsPanel() {
     return <div className="text-red-400 p-4 bg-red-500/10 rounded-xl mt-8">Failed to load analytics: {error.message}</div>;
   }
 
+  // Derived Metrics
+  const uniqueStudents = new Set(logs?.map((l: any) => l.user_email)).size;
+  const totalInteractions = logs?.length || 0;
+  
+  const moduleCounts: Record<string, number> = {};
+  logs?.forEach((l: any) => {
+    if (l.action === 'Viewed Lesson' && l.details?.lessonSlug) {
+      moduleCounts[l.details.lessonSlug] = (moduleCounts[l.details.lessonSlug] || 0) + 1;
+    }
+  });
+  const sortedModules = Object.entries(moduleCounts).sort((a, b) => b[1] - a[1]);
+  const topModule = sortedModules.length > 0 ? sortedModules[0][0].replace(/-/g, ' ') : 'N/A';
+
   return (
     <div className="mt-12">
       <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
@@ -20,6 +33,33 @@ export default async function AnalyticsPanel() {
         </svg>
         Recent Student Activity
       </h2>
+
+      {/* STATS WIDGETS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="bg-[#1A1A1E] border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <svg className="w-16 h-16 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+          </div>
+          <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-1">Unique Students</p>
+          <p className="text-3xl font-bold text-white">{uniqueStudents}</p>
+        </div>
+
+        <div className="bg-[#1A1A1E] border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <svg className="w-16 h-16 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"/></svg>
+          </div>
+          <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Interactions</p>
+          <p className="text-3xl font-bold text-white">{totalInteractions}</p>
+        </div>
+
+        <div className="bg-[#1A1A1E] border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <svg className="w-16 h-16 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
+          </div>
+          <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-1">Top Module</p>
+          <p className="text-xl font-bold text-white truncate capitalize">{topModule}</p>
+        </div>
+      </div>
       
       <div className="glass-card rounded-2xl border border-white/5 overflow-hidden">
         <div className="overflow-x-auto">

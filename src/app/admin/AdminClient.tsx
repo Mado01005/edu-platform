@@ -2,23 +2,35 @@
 
 import { useState } from 'react';
 
-// Using inline types to represent the fetched data structure
 type AdminClientProps = {
   subjects: any[];
 };
 
-export default function AdminClient({ subjects }: AdminClientProps) {
-  const [localSubjects, setLocalSubjects] = useState(subjects);
+export default function AdminClient({ subjects: initialSubjects }: AdminClientProps) {
+  const [localSubjects, setLocalSubjects] = useState(initialSubjects);
+  const [activeTab, setActiveTab] = useState<'upload' | 'manage'>('upload');
+
+  // ================= UPLOAD / EMBED STATE =================
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedLessonId, setSelectedLessonId] = useState('');
+  const [inputType, setInputType] = useState<'file' | 'link'>('file');
   
   const [file, setFile] = useState<File | null>(null);
+  const [vimeoUrl, setVimeoUrl] = useState('');
+  const [vimeoTitle, setVimeoTitle] = useState('');
+
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
 
   const activeSubject = localSubjects.find(s => s.id === selectedSubjectId);
   const activeLessons = activeSubject?.lessons || [];
+
+  // ================= COMMON ACTION HANDLERS =================
+  const refreshPageData = () => {
+    // A full refresh is the safest way to re-sync heavily nested tree structures
+    window.location.reload();
+  };
 
   const handleCreateSubject = async () => {
     const title = prompt('Enter the name of the new Subject (Math, Physics, etc.):');
@@ -32,21 +44,17 @@ export default function AdminClient({ subjects }: AdminClientProps) {
         body: JSON.stringify({ title, icon, color: 'from-indigo-500 to-purple-500' })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to create subject');
-      const { subject } = data;
-      setLocalSubjects(prev => [...prev, subject]);
-      setSelectedSubjectId(subject.id);
+      if (!res.ok) throw new Error(data.error);
+      setLocalSubjects(prev => [...prev, data.subject]);
+      setSelectedSubjectId(data.subject.id);
       setSelectedLessonId('');
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
-    }
+    } catch (err: any) { alert(`Error: ${err.message}`); }
   };
 
   const handleCreateLesson = async () => {
     if (!selectedSubjectId) return;
     const title = prompt('Enter the name of the new Lesson / Folder:');
     if (!title) return;
-    
     try {
       const res = await fetch('/api/admin/lessons', {
         method: 'POST',
@@ -54,72 +62,67 @@ export default function AdminClient({ subjects }: AdminClientProps) {
         body: JSON.stringify({ subjectId: selectedSubjectId, title })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to create lesson');
-      const { lesson } = data;
-      
-      setLocalSubjects(prev => prev.map(s => {
-        if (s.id === selectedSubjectId) {
-          return { ...s, lessons: [...(s.lessons || []), lesson] };
-        }
-        return s;
-      }));
-      setSelectedLessonId(lesson.id);
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
-    }
+      if (!res.ok) throw new Error(data.error);
+      setLocalSubjects(prev => prev.map(s => s.id === selectedSubjectId ? { ...s, lessons: [...(s.lessons || []), data.lesson] } : s));
+      setSelectedLessonId(data.lesson.id);
+    } catch (err: any) { alert(`Error: ${err.message}`); }
   };
 
-  const handleUpload = async (e: React.FormEvent) => {
+  // ================= FILE UPLOAD + LINK EMBED =================
+  const processUploadOrEmbed = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !selectedSubjectId || !selectedLessonId) {
-      setStatusMessage('Please select a subject, lesson, and file.');
+    if (!selectedSubjectId || !selectedLessonId) {
+      setStatusMessage('Please select a subject and lesson.');
       return;
     }
 
+    if (inputType === 'file' && !file) return setStatusMessage('Please select a file to upload.');
+    if (inputType === 'link' && (!vimeoUrl || !vimeoTitle)) return setStatusMessage('Please provide a URL and Title.');
+
     setUploading(true);
     setProgress(10);
-    setStatusMessage('Initiating secure upload...');
 
     try {
+      if (inputType === 'link') {
+        setStatusMessage('Embedding video link...');
+        const res = await fetch('/api/admin/embed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subjectId: selectedSubjectId, lessonId: selectedLessonId, url: vimeoUrl, title: vimeoTitle })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to embed');
+        setProgress(100);
+        setStatusMessage('Link Embedded successfully!');
+        setVimeoUrl(''); setVimeoTitle('');
+        setTimeout(() => setProgress(0), 3000);
+        return;
+      }
+
+      // FILE UPLOAD FLOW
+      setStatusMessage('Requesting secure cloud signature...');
       const subjectSlug = activeSubject.slug;
       const lessonSlug = activeLessons.find((l: any) => l.id === selectedLessonId)?.slug;
 
       const initiateRes = await fetch('/api/admin/upload-initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fileName: file.name,
-          subjectSlug,
-          lessonSlug
-        })
+        body: JSON.stringify({ fileName: file!.name, subjectSlug, lessonSlug })
       });
-
       if (!initiateRes.ok) throw new Error('Failed to initiate upload');
       const { signedUrl, publicUrl } = await initiateRes.json();
       
       setProgress(30);
-      setStatusMessage('Uploading to cloud storage...');
+      setStatusMessage('Directly uploading to cloud storage...');
 
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', signedUrl, true);
-        xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-        
+        xhr.setRequestHeader('Content-Type', file!.type || 'application/octet-stream');
         xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            const percentComplete = Math.round((event.loaded / event.total) * 60) + 30;
-            setProgress(percentComplete);
-          }
+          if (event.lengthComputable) setProgress(Math.round((event.loaded / event.total) * 60) + 30);
         };
-
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            resolve();
-          } else {
-            reject(new Error(`Upload failed: ${xhr.statusText}`));
-          }
-        };
-
+        xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`Upload failed: ${xhr.statusText}`));
         xhr.onerror = () => reject(new Error('Network error during upload'));
         xhr.send(file);
       });
@@ -128,26 +131,20 @@ export default function AdminClient({ subjects }: AdminClientProps) {
       setStatusMessage('Finalizing database records...');
 
       let fileType = 'unknown';
-      if (file.type.startsWith('video/')) fileType = 'video';
-      else if (file.type.startsWith('image/')) fileType = 'image';
-      else if (file.type === 'application/pdf') fileType = 'pdf';
+      if (file!.type.startsWith('video/')) fileType = 'video';
+      else if (file!.type.startsWith('image/')) fileType = 'image';
+      else if (file!.type === 'application/pdf') fileType = 'pdf';
 
       const completeRes = await fetch('/api/admin/upload-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subjectId: selectedSubjectId,
-          lessonId: selectedLessonId,
-          fileName: file.name,
-          fileType,
-          publicUrl
-        })
+        body: JSON.stringify({ subjectId: selectedSubjectId, lessonId: selectedLessonId, fileName: file!.name, fileType, publicUrl })
       });
 
       if (!completeRes.ok) throw new Error('Failed to register file in database');
 
       setProgress(100);
-      setStatusMessage('Upload complete! The file is now live.');
+      setStatusMessage('Upload complete!');
       setFile(null); 
 
     } catch (err: any) {
@@ -158,116 +155,170 @@ export default function AdminClient({ subjects }: AdminClientProps) {
     }
   };
 
+  // ================= CRUD ABILITIES =================
+  const handleDelete = async (type: string, id: string, name: string) => {
+    if (!confirm(`Are you absolutely sure you want to permanently delete "${name}"? This action cannot be undone.`)) return;
+    try {
+      const res = await fetch('/api/admin/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, id })
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      refreshPageData();
+    } catch(err: any) { alert(err.message); }
+  };
+
+  const handleRename = async (type: string, id: string, oldName: string) => {
+    const newName = prompt(`Enter new name for "${oldName}":`, oldName);
+    if (!newName || newName === oldName) return;
+    try {
+      const res = await fetch('/api/admin/rename', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, id, title: newName })
+      });
+      if (!res.ok) throw new Error('Rename failed');
+      refreshPageData();
+    } catch(err: any) { alert(err.message); }
+  };
+
   return (
-    <div className="glass-card p-6 md:p-8 rounded-2xl max-w-2xl border border-white/5">
-      <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-        <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
-        </svg>
-        Course Management & Uploads
-      </h2>
-
-      <form onSubmit={handleUpload} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">Select Subject</label>
-          <div className="flex gap-2">
-            <select 
-              className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-              value={selectedSubjectId}
-              onChange={(e) => {
-                setSelectedSubjectId(e.target.value);
-                setSelectedLessonId(''); // reset lesson when subject changes
-              }}
-              disabled={uploading}
-            >
-              <option value="">-- Choose a Subject --</option>
-              {localSubjects.map(subject => (
-                <option key={subject.id} value={subject.id}>{subject.icon} {subject.title}</option>
-              ))}
-            </select>
-            <button 
-              type="button" 
-              onClick={handleCreateSubject}
-              className="px-4 py-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 rounded-xl font-medium transition"
-            >
-              + New
-            </button>
-          </div>
+    <div className="glass-card p-6 md:p-8 rounded-2xl max-w-4xl mx-auto border border-white/5 space-y-6">
+      
+      {/* TABS HEADER */}
+      <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+        <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+          <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+          Admin Control Center
+        </h2>
+        <div className="flex gap-2">
+          <button onClick={() => setActiveTab('upload')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'upload' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Upload / Embed</button>
+          <button onClick={() => setActiveTab('manage')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'manage' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Manage Syllabus</button>
         </div>
+      </div>
 
-        {selectedSubjectId && (
-          <div className="fade-in">
-            <label className="block text-sm font-medium text-gray-400 mb-2">Select Lesson</label>
-            <div className="flex gap-2">
-              <select 
-                className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                value={selectedLessonId}
-                onChange={(e) => setSelectedLessonId(e.target.value)}
-                disabled={uploading}
-              >
-                <option value="">-- Choose a Lesson --</option>
-                {activeLessons.map((lesson: any) => (
-                  <option key={lesson.id} value={lesson.id}>{lesson.title}</option>
-                ))}
+      {/* TABS CONTENT */}
+      {activeTab === 'upload' && (
+        <form onSubmit={processUploadOrEmbed} className="space-y-6 fade-in">
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Select Course Destination</label>
+            <div className="flex gap-2 mb-3">
+              <select className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" value={selectedSubjectId} onChange={(e) => { setSelectedSubjectId(e.target.value); setSelectedLessonId(''); }} disabled={uploading}>
+                <option value="">-- Choose Subject --</option>
+                {localSubjects.map(s => <option key={s.id} value={s.id}>{s.icon} {s.title}</option>)}
               </select>
-              <button 
-                type="button" 
-                onClick={handleCreateLesson}
-                className="px-4 py-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 rounded-xl font-medium transition"
-              >
-                + New
-              </button>
+              <button type="button" onClick={handleCreateSubject} className="px-4 py-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 rounded-xl font-medium transition">+ New</button>
             </div>
-            {activeLessons.length === 0 && (
-              <p className="text-yellow-500 text-sm mt-2">This subject has no lessons. Click "+ New" to add one.</p>
+            {selectedSubjectId && (
+              <div className="flex gap-2 fade-in">
+                <select className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" value={selectedLessonId} onChange={(e) => setSelectedLessonId(e.target.value)} disabled={uploading}>
+                  <option value="">-- Choose Module --</option>
+                  {activeLessons.map((l: any) => <option key={l.id} value={l.id}>{l.title}</option>)}
+                </select>
+                <button type="button" onClick={handleCreateLesson} className="px-4 py-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 rounded-xl font-medium transition">+ New</button>
+              </div>
             )}
           </div>
-        )}
 
-        {selectedLessonId && (
-          <div className="fade-in">
-            <label className="block text-sm font-medium text-gray-400 mb-2">Select File (Video, PDF, Image)</label>
-            <label className={`flex flex-col items-center justify-center w-full h-32 border-2 ${file ? 'border-indigo-500 bg-indigo-500/10' : 'border-dashed border-white/10 hover:border-indigo-400 bg-[#1A1A1E]'} rounded-xl cursor-pointer transition-all`}>
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <svg className="w-8 h-8 mb-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                {file ? (
-                  <p className="text-sm font-semibold text-indigo-300">{file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>
-                ) : (
-                  <p className="text-sm text-gray-400"><span className="font-semibold text-white">Click to select</span> or drag and drop</p>
+          {selectedLessonId && (
+            <div className="fade-in bg-white/5 p-4 rounded-xl space-y-4 border border-white/10">
+              <div className="flex gap-4 border-b border-white/10 pb-4">
+                <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-white">
+                  <input type="radio" checked={inputType === 'file'} onChange={() => setInputType('file')} className="text-indigo-500 focus:ring-indigo-500 bg-[#1A1A1E] border-gray-600" />
+                  Cloud File Upload
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-white">
+                  <input type="radio" checked={inputType === 'link'} onChange={() => setInputType('link')} className="text-indigo-500 focus:ring-indigo-500 bg-[#1A1A1E] border-gray-600" />
+                  Embed Link (Vimeo)
+                </label>
+              </div>
+
+              {inputType === 'file' ? (
+                <label className={`flex flex-col items-center justify-center w-full h-32 border-2 ${file ? 'border-indigo-500 bg-indigo-500/10' : 'border-dashed border-white/10 hover:border-indigo-400 bg-[#1A1A1E]'} rounded-xl cursor-pointer transition-all`}>
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-8 h-8 mb-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                    {file ? <p className="text-sm font-semibold text-indigo-300">{file.name}</p> : <p className="text-sm text-gray-400"><span className="font-semibold text-white">Click to select file</span></p>}
+                  </div>
+                  <input type="file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} disabled={uploading}/>
+                </label>
+              ) : (
+                <div className="space-y-3">
+                  <input type="text" placeholder="Video Title (e.g. Chapter 1 Intro)" value={vimeoTitle} onChange={e => setVimeoTitle(e.target.value)} className="w-full bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" disabled={uploading}/>
+                  <input type="text" placeholder="https://vimeo.com/..." value={vimeoUrl} onChange={e => setVimeoUrl(e.target.value)} className="w-full bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" disabled={uploading}/>
+                </div>
+              )}
+            </div>
+          )}
+
+          {statusMessage && (
+            <div className={`p-3 rounded-lg text-sm font-medium ${statusMessage.includes('Error') ? 'bg-red-500/10 text-red-400' : 'bg-indigo-500/10 text-indigo-300'}`}>{statusMessage}</div>
+          )}
+          {uploading && progress > 0 && (
+            <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2"><div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div></div>
+          )}
+
+          <button type="submit" disabled={!selectedLessonId || uploading} className="w-full bg-white text-black font-semibold py-3 px-6 rounded-xl hover:bg-gray-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            {uploading ? 'Processing...' : inputType === 'file' ? 'Upload File' : 'Embed Link'}
+          </button>
+        </form>
+      )}
+
+      {activeTab === 'manage' && (
+        <div className="space-y-4 fade-in">
+          <p className="text-sm text-gray-400 mb-4">Manage your entire course hierarchy interactively. Changes sync instantly.</p>
+          {localSubjects.map(subject => (
+            <div key={subject.id} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between p-4 bg-white/5">
+                <h3 className="text-lg font-bold text-white flex gap-2 items-center">{subject.icon} {subject.title}</h3>
+                <div className="flex gap-2">
+                  <button onClick={() => handleRename('subject', subject.id, subject.title)} className="p-1.5 hover:bg-white/10 rounded text-gray-400 hover:text-white transition">✏️</button>
+                  <button onClick={() => handleDelete('subject', subject.id, subject.title)} className="p-1.5 hover:bg-red-500/20 rounded text-red-400 hover:text-red-300 transition">🗑️</button>
+                </div>
+              </div>
+              <div className="divide-y divide-white/5">
+                {subject.lessons?.map((lesson: any) => (
+                  <div key={lesson.id} className="p-4 pl-8 bg-black/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-md font-semibold text-indigo-300">📂 {lesson.title}</h4>
+                      <div className="flex gap-2">
+                        <button onClick={() => handleRename('lesson', lesson.id, lesson.title)} className="text-xs px-2 py-1 text-gray-400 hover:bg-white/10 rounded transition">Rename</button>
+                        <button onClick={() => handleDelete('lesson', lesson.id, lesson.title)} className="text-xs px-2 py-1 text-red-400 hover:bg-red-500/20 rounded transition">Delete</button>
+                      </div>
+                    </div>
+                    {/* Render Files */}
+                    <ul className="pl-6 space-y-1 mt-2">
+                      {lesson.content?.map((item: any, idx: number) => {
+                        // The ContentNode has an id mapped now from content items 
+                        // Wait, folder grouping means some nodes are folders. We'll simply show a flat list if possible, or just exact items.
+                        // I mapped `id` explicitly into ContentNode in src/lib/content.ts
+                        if (item.type === 'folder') return null; // Simplified rendering for deep folders
+                        return (
+                           <li key={item.id || idx} className="flex justify-between items-center text-sm text-gray-400 py-1 hover:bg-white/5 px-2 rounded group">
+                             <div className="flex items-center gap-2 truncate">
+                               {item.type === 'vimeo' ? '🔗' : '📄'} <span>{item.name}</span>
+                             </div>
+                             {item.id && (
+                               <button onClick={() => handleDelete('item', item.id, item.name)} className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded hover:bg-red-500/10 transition">Delete</button>
+                             )}
+                           </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
+                {(!subject.lessons || subject.lessons.length === 0) && (
+                  <p className="px-8 py-4 text-sm text-gray-500 italic">No lessons in this subject.</p>
                 )}
               </div>
-              <input 
-                type="file" 
-                className="hidden" 
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                disabled={uploading}
-              />
-            </label>
-          </div>
-        )}
+            </div>
+          ))}
+          {localSubjects.length === 0 && <p className="text-gray-500 text-center py-10">No subjects exist yet.</p>}
+        </div>
+      )}
 
-        {statusMessage && (
-          <div className={`p-3 rounded-lg text-sm font-medium ${statusMessage.includes('Error') ? 'bg-red-500/10 text-red-400' : 'bg-indigo-500/10 text-indigo-300'}`}>
-            {statusMessage}
-          </div>
-        )}
-
-        {uploading && progress > 0 && (
-          <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={!file || !selectedSubjectId || !selectedLessonId || uploading}
-          className="w-full relative overflow-hidden group bg-white text-black font-semibold py-3 px-6 rounded-xl hover:bg-gray-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white flex items-center justify-center gap-2"
-        >
-          {uploading ? 'Uploading...' : 'Upload File to Cloud'}
-        </button>
-      </form>
     </div>
   );
 }
