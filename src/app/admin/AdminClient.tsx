@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type AdminClientProps = {
   subjects: any[];
@@ -9,8 +9,23 @@ type AdminClientProps = {
 
 export default function AdminClient({ subjects: initialSubjects, initialRoles = [] }: AdminClientProps) {
   const [localSubjects, setLocalSubjects] = useState(initialSubjects);
-  const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'team'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'team' | 'inbox'>('upload');
   
+  const [messages, setMessages] = useState<any[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (activeTab === 'inbox') {
+      setLoadingMessages(true);
+      fetch('/api/messages').then(res => res.json()).then(data => {
+        setMessages(data.messages || []);
+        setLoadingMessages(false);
+      });
+    }
+  }, [activeTab]);
+
   const [allRoles, setAllRoles] = useState(initialRoles);
   const teamRoles = allRoles.filter(r => r.role === 'teacher' || r.role === 'admin');
   const activeLogins = allRoles.filter(r => r.role === 'student').map(r => r.email);
@@ -205,6 +220,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
         <div className="flex gap-2">
           <button onClick={() => setActiveTab('upload')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'upload' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Upload / Embed</button>
           <button onClick={() => setActiveTab('manage')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'manage' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Manage Syllabus</button>
+          <button onClick={() => setActiveTab('inbox')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'inbox' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Inbox</button>
           <button onClick={() => setActiveTab('broadcast')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'broadcast' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Broadcast</button>
           <button onClick={() => setActiveTab('team')} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'team' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>Team Access</button>
         </div>
@@ -353,6 +369,106 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                 alert('All banners deactivated!');
               }} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 px-6 py-2.5 rounded-lg text-sm font-bold shadow-md transition">Clear Banner</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'inbox' && (
+        <div className="space-y-4 fade-in">
+          <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-4">
+            <p className="text-sm text-gray-400">Read and reply to direct queries from your students asynchronously. Replies are securely routed to the student's dashboard.</p>
+            <button 
+              onClick={async () => {
+                setLoadingMessages(true);
+                const res = await fetch('/api/messages');
+                if (res.ok) {
+                  const { messages } = await res.json();
+                  setMessages(messages || []);
+                }
+                setLoadingMessages(false);
+              }}
+              className="px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-sm font-medium transition shrink-0"
+            >
+              Refresh Inbox
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {loadingMessages && <p className="text-gray-500 text-sm text-center py-10">Decrypting inbound transmissions...</p>}
+            {!loadingMessages && messages.length === 0 && (
+              <p className="text-gray-500 text-sm text-center py-10 bg-white/5 rounded-xl border border-white/10">No messages in your active queue.</p>
+            )}
+            {!loadingMessages && messages.map(msg => (
+              <div key={msg.id} className={`p-5 rounded-xl border transition-all duration-300 ${msg.is_read ? 'bg-white/5 border-white/10 opacity-75' : 'bg-[#1A1A1E] border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.05)]'}`}>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h4 className="font-semibold text-white flex items-center gap-2 text-lg">
+                       {!msg.is_read && <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>}
+                       {msg.subject}
+                    </h4>
+                    <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-2">
+                       From: <span className="text-indigo-300 font-medium">{msg.sender_email}</span> 
+                       <span className="text-gray-600">•</span> 
+                       {new Date(msg.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  {!msg.is_read && (
+                    <button 
+                      onClick={async () => {
+                        await fetch('/api/messages', { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message_id: msg.id, is_read: true })});
+                        setMessages(prev => prev.map(m => m.id === msg.id ? {...m, is_read: true} : m));
+                      }}
+                      className="text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg transition"
+                    >
+                      Mark Read
+                    </button>
+                  )}
+                </div>
+                
+                <div className="text-sm text-gray-200 bg-black/30 border border-white/5 p-4 rounded-xl mb-4 whitespace-pre-wrap leading-relaxed">
+                  {msg.body}
+                </div>
+
+                {replyingTo === msg.id ? (
+                  <div className="space-y-3 mt-4 border-t border-white/10 pt-5 fade-in">
+                     <textarea 
+                       placeholder="Draft your secure reply..."
+                       value={replyText}
+                       onChange={e => setReplyText(e.target.value)}
+                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm min-h-[120px] resize-y"
+                     />
+                     <div className="flex gap-3 justify-end items-center">
+                       <button onClick={() => setReplyingTo(null)} className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition">Cancel</button>
+                       <button 
+                         onClick={async () => {
+                           if (!replyText) return;
+                           const res = await fetch('/api/messages', {
+                             method: 'POST',
+                             headers: {'Content-Type': 'application/json'},
+                             body: JSON.stringify({ receiver_email: msg.sender_email, subject: `Re: ${msg.subject}`, body: replyText })
+                           });
+                           if (res.ok) {
+                             alert('Reply securely dispatched to the student!');
+                             setReplyingTo(null);
+                             setReplyText('');
+                             fetch('/api/messages', { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message_id: msg.id, is_read: true })});
+                             setMessages(prev => prev.map(m => m.id === msg.id ? {...m, is_read: true} : m));
+                           }
+                         }}
+                         className="px-6 py-2 text-sm font-bold bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl transition shadow-lg hover:shadow-indigo-500/20"
+                       >
+                         Dispatch Reply
+                       </button>
+                     </div>
+                  </div>
+                ) : (
+                  <button onClick={() => { setReplyingTo(msg.id); setReplyText(''); }} className="text-sm text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1.5 transition px-3 py-1.5 rounded-lg hover:bg-indigo-500/10 -ml-3">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                    Quick Reply
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}

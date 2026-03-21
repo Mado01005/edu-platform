@@ -4,6 +4,7 @@ import { getAllSubjects } from '@/lib/content';
 import { supabaseAdmin } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import SubjectCard from '@/components/SubjectCard';
+import SupportTicketModal from '@/components/SupportTicketModal';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,6 +104,7 @@ export default async function DashboardPage() {
             ))}
           </div>
         )}
+        <SupportTicketModal />
       </main>
     </div>
   );
