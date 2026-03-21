@@ -11,7 +11,8 @@ export default function PDFViewer({ src, title }: PDFViewerProps) {
   const [fallback, setFallback] = useState(false);
 
   return (
-    <div className="glass-card rounded-2xl p-4">
+    <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
       {fallback ? (
         <div className="flex flex-col items-center justify-center py-16 text-gray-400 gap-4">
           <svg className="w-16 h-16 text-red-400/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,13 +47,15 @@ export default function PDFViewer({ src, title }: PDFViewerProps) {
               Open in new tab
             </a>
           </div>
-          <iframe
-            src={src}
-            className="pdf-viewer"
-            title={title}
-            id="lesson-pdf-viewer"
-            onError={() => setFallback(true)}
-          />
+          <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50 h-[600px] md:h-[800px]">
+            <iframe
+              src={src}
+              className="w-full h-full"
+              title={title}
+              id="lesson-pdf-viewer"
+              onError={() => setFallback(true)}
+            />
+          </div>
         </>
       )}
     </div>

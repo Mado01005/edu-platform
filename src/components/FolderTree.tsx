@@ -59,15 +59,19 @@ export default function FolderTree({ node, isRoot = false }: FolderTreeProps) {
       // The Microsoft Cloud Proxy inherently requires URL Encoded payloads to parse heavy files
       const encodedUrl = encodeURIComponent(node.url);
       return (
-        <div className="my-6 fade-in min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col">
-          <div className="flex items-center gap-2 mb-3 ml-1 text-sm font-semibold text-indigo-300">
-            <span>📊</span> <span>{node.name}</span>
+        <div className="my-6 fade-in min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+          <div className="flex items-center gap-3 mb-4 ml-1">
+            <span className="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-sm shadow-inner">📊</span>
+            <span className="text-sm font-bold text-orange-400 tracking-wide uppercase">{node.name}</span>
           </div>
-          <iframe 
-            src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
-            className="w-full h-full flex-1 rounded-xl bg-white border border-white/10 shadow-2xl"
-            title={node.name}
-          />
+          <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
+            <iframe 
+              src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
+              className="w-full h-full bg-white"
+              title={node.name}
+            />
+          </div>
         </div>
       );
     }
@@ -103,11 +107,13 @@ export default function FolderTree({ node, isRoot = false }: FolderTreeProps) {
       <div className="my-6">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between w-full glass-card hover:bg-white/10 px-4 py-3 rounded-xl transition-all duration-200 group"
+          className={`flex items-center justify-between w-full bg-white/5 backdrop-blur-xl border transition-all duration-300 group px-5 py-4 rounded-2xl cursor-pointer ${isOpen ? 'border-indigo-500/40 shadow-[0_0_30px_rgba(99,102,241,0.1)] bg-indigo-500/5' : 'border-white/10 hover:border-indigo-500/30 hover:bg-indigo-500/10 hover:shadow-[0_0_20px_rgba(99,102,241,0.15)]'}`}
         >
-          <div className="flex items-center gap-3">
-            <span className="text-xl">{isOpen ? '📂' : '📁'}</span>
-            <span className="font-semibold text-white group-hover:text-indigo-300 transition-colors">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-[#05050A] border border-white/10 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-inner group-hover:border-indigo-500/50">
+               {isOpen ? '📂' : '📁'}
+            </div>
+            <span className="font-bold text-lg text-white tracking-widest uppercase truncate drop-shadow-md">
               {node.name}
             </span>
           </div>

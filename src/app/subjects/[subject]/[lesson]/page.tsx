@@ -43,7 +43,10 @@ export default async function LessonPage({ params }: Props) {
   if (!subject || !lesson) notFound();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(0,0,0,0))] relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
+      
+      <div className="relative z-10">
       <Navbar
         userName={session.user?.name ?? undefined}
         userImage={session.user?.image ?? undefined}
@@ -57,30 +60,35 @@ export default async function LessonPage({ params }: Props) {
           details={{ subject: subject.title, lesson: lesson.title }} 
         />
 
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8 fade-in flex-wrap" aria-label="Breadcrumb">
-          <Link href="/dashboard" className="hover:text-indigo-400 transition-colors">Dashboard</Link>
-          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        {/* Cyber-Breadcrumb */}
+        <nav className="flex items-center gap-3 text-xs md:text-sm text-gray-500 mb-10 fade-in flex-wrap font-mono tracking-widest uppercase bg-white/5 border border-white/10 px-4 py-2 rounded-lg inline-flex" aria-label="Breadcrumb">
+          <Link href="/dashboard" className="hover:text-indigo-400 transition-colors flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/50"></span>
+            SYS
+          </Link>
+          <svg className="w-4 h-4 flex-shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
           <Link href={`/subjects/${encodeURIComponent(subjectSlug)}`} className="hover:text-indigo-400 transition-colors">
             {subject.title}
           </Link>
-          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 flex-shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          <span className="text-gray-300">{lesson.title}</span>
+          <span className="text-white font-bold">{lesson.title}</span>
         </nav>
 
-        {/* Lesson title */}
-        <div className="mb-10 fade-in">
-          <div className="flex items-center gap-3 mb-3">
-            <span className={`inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br ${subject.color} text-base shadow-md`}>
+        {/* Lesson Payload Header */}
+        <div className="mb-14 fade-in">
+          <div className="flex items-center gap-4 mb-4">
+            <span className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${subject.color} text-2xl shadow-[0_0_20px_rgba(255,255,255,0.1)]`}>
               {subject.icon}
             </span>
-            <span className="text-sm text-gray-400">{subject.title}</span>
+            <span className="text-sm font-bold tracking-widest uppercase text-indigo-400 border border-indigo-400/30 bg-indigo-400/10 px-3 py-1 rounded-md">{subject.title}</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white">{lesson.title}</h1>
+          <h1 className="text-4xl md:text-5xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight select-none">
+            {lesson.title}
+          </h1>
         </div>
 
         {/* Content sections */}
@@ -100,18 +108,19 @@ export default async function LessonPage({ params }: Props) {
 
         <CompleteButton subjectSlug={subjectSlug} lessonSlug={lessonSlug} initialCompleted={isCompleted} />
 
-        <div className="mt-8 pt-8 border-t border-white/5">
+        <div className="mt-12 pt-8 border-t border-white/10">
           <Link
             href={`/subjects/${encodeURIComponent(subjectSlug)}`}
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-indigo-400 text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to {subject.title}
+            BACK TO {subject.title.toUpperCase()} MAP
           </Link>
         </div>
       </main>
+      </div>
     </div>
   );
 }
