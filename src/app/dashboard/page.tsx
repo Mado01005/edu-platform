@@ -4,9 +4,6 @@ import { getAllSubjects } from '@/lib/content';
 import Navbar from '@/components/Navbar';
 import SubjectCard from '@/components/SubjectCard';
 
-// Temporary raw DB import for direct Vercel diagnostic tracing
-import { supabase } from '@/lib/supabase';
-
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
@@ -14,9 +11,6 @@ export default async function DashboardPage() {
   if (!session) redirect('/login');
 
   const subjects = await getAllSubjects();
-  
-  // RAW DEBUG CALL
-  const rawDebug = await supabase.from('subjects').select('*');
 
   return (
     <div className="min-h-screen bg-[#0A0A0B]">
@@ -67,15 +61,11 @@ export default async function DashboardPage() {
             <p className="text-sm mt-2">
               Courses are currently syncing or none have been added yet. Use the <strong className="text-indigo-400">Admin Panel</strong> to create course folders.
             </p>
-            <div className="mt-8 text-xs text-red-300 bg-red-900/40 inline-block p-4 rounded-xl text-left border border-red-500/30">
-              <p className="mb-2 uppercase font-bold tracking-widest border-b border-red-500/20 pb-2">Fatal Vercel Database Connection Failure ‼️</p>
+            <div className="mt-8 text-xs text-gray-600 bg-white/5 inline-block p-4 rounded-xl text-left">
+              <p><strong>Vercel Connection Diagnostic:</strong></p>
               <p>URL loaded: {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Yes' : '❌ No'}</p>
               <p>Anon Key loaded: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Yes' : '❌ No'}</p>
-              <p className="mt-2 text-red-200">RAW Database Status: {rawDebug.status}</p>
-              <p className="text-red-200">RAW Database Status Text: {rawDebug.statusText}</p>
-              <p className="text-red-200 font-mono mt-2 bg-black/50 p-2 rounded">
-                EXPLICIT ERROR CAUSE: {rawDebug.error ? JSON.stringify(rawDebug.error) : 'Unknown Silenced Error Object'}
-              </p>
+              <p>If you see ❌, you must add these to Vercel Settings &gt; Environment Variables, and click Redeploy.</p>
             </div>
           </div>
         ) : (
