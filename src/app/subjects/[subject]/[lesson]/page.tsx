@@ -32,14 +32,6 @@ export default async function LessonPage({ params }: Props) {
     .eq('user_email', session.user?.email || '');
   const isCompleted = logs?.some(l => l.details?.subjectSlug === subjectSlug && l.details?.lessonSlug === lessonSlug) || false;
   
-  console.log('--- DEBUG ---');
-  console.log('Params:', subjectParam, lessonParam);
-  console.log('Decoded:', subjectSlug, lessonSlug);
-  console.log('Found Subject?', !!subject, 'Found Lesson?', !!lesson);
-  if (subject) {
-    console.log('Available lessons:', subject.lessons.map(l => l.slug));
-  }
-  
   if (!subject || !lesson) notFound();
 
   return (
