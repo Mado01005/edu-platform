@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getLesson, getSubject } from '@/lib/content';
 import Navbar from '@/components/Navbar';
 import FolderTree from '@/components/FolderTree';
+import ViewTracker from '@/components/ViewTracker';
 
 interface Props {
   params: Promise<{ subject: string; lesson: string }>;
@@ -17,8 +18,8 @@ export default async function LessonPage({ params }: Props) {
   const session = await auth();
   if (!session) redirect('/login');
 
-  const subject = getSubject(subjectSlug);
-  const lesson = getLesson(subjectSlug, lessonSlug);
+  const subject = await getSubject(subjectSlug);
+  const lesson = await getLesson(subjectSlug, lessonSlug);
   
   console.log('--- DEBUG ---');
   console.log('Params:', subjectParam, lessonParam);
@@ -35,9 +36,16 @@ export default async function LessonPage({ params }: Props) {
       <Navbar
         userName={session.user?.name ?? undefined}
         userImage={session.user?.image ?? undefined}
+        isAdmin={(session.user as any)?.isAdmin}
       />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        <ViewTracker 
+          action="VIEW_LESSON" 
+          details={{ subject: subject.title, lesson: lesson.title }} 
+        />
+
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8 fade-in flex-wrap" aria-label="Breadcrumb">
           <Link href="/dashboard" className="hover:text-indigo-400 transition-colors">Dashboard</Link>

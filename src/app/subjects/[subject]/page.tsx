@@ -16,7 +16,7 @@ export default async function SubjectPage({ params }: Props) {
   const session = await auth();
   if (!session) redirect('/login');
 
-  const subject = getSubject(subjectSlug);
+  const subject = await getSubject(subjectSlug);
   if (!subject) notFound();
 
   return (
@@ -24,6 +24,7 @@ export default async function SubjectPage({ params }: Props) {
       <Navbar
         userName={session.user?.name ?? undefined}
         userImage={session.user?.image ?? undefined}
+        isAdmin={(session.user as any)?.isAdmin}
       />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
