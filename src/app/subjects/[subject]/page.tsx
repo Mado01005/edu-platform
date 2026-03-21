@@ -5,6 +5,8 @@ import { getSubject } from '@/lib/content';
 import Navbar from '@/components/Navbar';
 import LessonCard from '@/components/LessonCard';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ subject: string }>;
 }

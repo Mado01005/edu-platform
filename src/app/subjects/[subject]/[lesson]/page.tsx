@@ -6,6 +6,8 @@ import Navbar from '@/components/Navbar';
 import FolderTree from '@/components/FolderTree';
 import ViewTracker from '@/components/ViewTracker';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ subject: string; lesson: string }>;
 }

@@ -4,6 +4,8 @@ import { getAllSubjects } from '@/lib/content';
 import Navbar from '@/components/Navbar';
 import SubjectCard from '@/components/SubjectCard';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session) redirect('/login');
@@ -11,11 +13,12 @@ export default async function DashboardPage() {
   const subjects = await getAllSubjects();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#0A0A0B]">
       <Navbar
         userName={session.user?.name ?? undefined}
         userImage={session.user?.image ?? undefined}
-        isAdmin={(session.user as any)?.isAdmin}
+        // @ts-ignore
+        isAdmin={session.user?.isAdmin}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -56,8 +59,7 @@ export default async function DashboardPage() {
             <div className="text-5xl mb-4">📂</div>
             <p className="text-lg font-medium">No subjects found</p>
             <p className="text-sm mt-2">
-              Add folders inside the{' '}
-              <code className="bg-white/5 px-1 rounded">/content</code> directory to get started.
+              Courses are currently syncing or none have been added yet. Use the <strong className="text-indigo-400">Admin Panel</strong> to create course folders.
             </p>
           </div>
         ) : (
