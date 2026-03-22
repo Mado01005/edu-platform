@@ -9,21 +9,19 @@ interface PDFViewerProps {
 
 export default function PDFViewer({ src, title }: PDFViewerProps) {
   const [fallback, setFallback] = useState(false);
-  const [darkPdf, setDarkPdf] = useState(false);
   const activeSeconds = useRef(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Start active timer
     intervalRef.current = setInterval(() => {
-      if (document.hasFocus()) { // Only count if they are actually looking at the tab
+      if (document.hasFocus()) {
         activeSeconds.current += 1;
       }
     }, 1000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
-      if (activeSeconds.current > 10) { // Only log if they read for > 10 seconds
+      if (activeSeconds.current > 10) {
         fetch('/api/log', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -65,43 +63,25 @@ export default function PDFViewer({ src, title }: PDFViewerProps) {
         <>
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-gray-400 truncate">{title}.pdf</span>
-            <div className="flex items-center gap-3 shrink-0 ml-4">
-              <button
-                onClick={() => setDarkPdf(!darkPdf)}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-all duration-300 border ${
-                  darkPdf
-                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
-                    : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {darkPdf ? (
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                ) : (
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                )}
-                {darkPdf ? 'Dark Mode' : 'Light Mode'}
-              </button>
-              <a
-                href={src}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Open
-              </a>
-            </div>
+            <a
+              href={src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex-shrink-0 ml-4"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Open in new tab
+            </a>
           </div>
-          <div className={`relative rounded-2xl overflow-hidden border shadow-inner h-[600px] md:h-[800px] transition-all duration-500 ${darkPdf ? 'border-indigo-500/30 ring-1 ring-indigo-500/20 bg-[#1a1a2e]' : 'border-white/10 bg-black/50'}`}>
+          <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50 h-[600px] md:h-[800px]">
             <iframe
               src={src}
               className="w-full h-full"
               title={title}
               id="lesson-pdf-viewer"
               onError={() => setFallback(true)}
-              style={darkPdf ? { filter: 'invert(0.88) contrast(0.95) hue-rotate(180deg) saturate(1.5) brightness(1.1)' } : {}}
             />
           </div>
         </>
