@@ -58,6 +58,8 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
     fetch('/api/admin/storage-stats').then(r => r.json()).then(setStorageStats).catch(() => {});
   }, []);
 
+  const [migrating, setMigrating] = useState(false);
+
   const activeSubject = localSubjects.find(s => s.id === selectedSubjectId);
   const activeLessons = activeSubject?.lessons || [];
 
@@ -692,6 +694,25 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                     <span className="text-xs text-gray-500 italic">No new students have logged into the platform yet since activation.</span>
                   )}
                 </div>
+                {storageStats.supabase.fileCount > 0 && (
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`Migrate all ${storageStats.supabase.fileCount} Supabase files to Cloudflare R2? This may take a minute.`)) return;
+                      setMigrating(true);
+                      try {
+                        const res = await fetch('/api/admin/migrate-to-r2', { method: 'POST' });
+                        const data = await res.json();
+                        alert(data.message || `Migrated ${data.migrated} files.${data.failed ? ` ${data.failed} failed.` : ''}`);
+                        fetch('/api/admin/storage-stats').then(r => r.json()).then(setStorageStats).catch(() => {});
+                      } catch (err: any) { alert(`Migration error: ${err.message}`); }
+                      setMigrating(false);
+                    }}
+                    disabled={migrating}
+                    className={`w-full mt-2 py-2 rounded-xl text-[11px] font-bold border transition ${migrating ? 'bg-orange-500/5 text-orange-300/50 border-orange-500/10 cursor-wait' : 'bg-orange-500/10 text-orange-300 border-orange-500/20 hover:bg-orange-500/20'}`}
+                  >
+                    {migrating ? 'Migrating...' : '⚡ Migrate All → R2'}
+                  </button>
+                )}
               </div>
             )}
           </div>
