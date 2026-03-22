@@ -40,12 +40,15 @@ export async function POST() {
       return NextResponse.json({ migrated: 0, message: 'No files to migrate.' });
     }
 
+    // Return sample URLs for debugging
+    const sampleUrls = supabaseFiles.slice(0, 3).map(f => f.url?.substring(0, 120));
+
     const bucket = process.env.R2_BUCKET_NAME!;
     let migrated = 0;
     let failed = 0;
     const errors: string[] = [];
 
-    // Process in batches of 10 to avoid timeout
+    // Process in batches of 20 to avoid timeout
     const batch = supabaseFiles.slice(0, 20);
 
     for (const item of batch) {
@@ -67,6 +70,8 @@ export async function POST() {
           if (blob && !dlError) {
             fileBuffer = Buffer.from(await blob.arrayBuffer());
             contentType = blob.type || contentType;
+          } else if (dlError) {
+            errors.push(`SDK err [${storagePath}]: ${dlError.message}`);
           }
         }
 
@@ -77,8 +82,10 @@ export async function POST() {
             if (response.ok) {
               fileBuffer = Buffer.from(await response.arrayBuffer());
               contentType = response.headers.get('content-type') || contentType;
+            } else {
+              errors.push(`HTTP ${response.status} for ${item.url.substring(0, 60)}`);
             }
-          } catch { /* ignore fetch errors */ }
+          } catch (e: any) { errors.push(`Fetch err: ${e.message?.substring(0, 60)}`); }
         }
 
         if (!fileBuffer || fileBuffer.length === 0) {
@@ -133,8 +140,9 @@ export async function POST() {
       failed,
       total: batch.length,
       remaining,
-      errors: errors.slice(0, 5),
-      message: `Migrated ${migrated}/${batch.length} files.${remaining > 0 ? ` ${remaining} files remaining — click again to continue.` : ''}`,
+      sampleUrls,
+      errors: errors.slice(0, 10),
+      message: `Migrated ${migrated}/${batch.length} files.${remaining > 0 ? ` ${remaining} remaining — click again.` : ''}`,
     });
 
   } catch (error: any) {

@@ -702,7 +702,9 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                       try {
                         const res = await fetch('/api/admin/migrate-to-r2', { method: 'POST' });
                         const data = await res.json();
-                        alert(data.message || `Migrated ${data.migrated} files.${data.failed ? ` ${data.failed} failed.` : ''}`);
+                        const errInfo = data.errors?.length ? `\n\nErrors:\n${data.errors.join('\n')}` : '';
+                        const urlInfo = data.sampleUrls?.length ? `\n\nSample URLs:\n${data.sampleUrls.join('\n')}` : '';
+                        alert(`${data.message}${errInfo}${urlInfo}`);
                         fetch('/api/admin/storage-stats').then(r => r.json()).then(setStorageStats).catch(() => {});
                       } catch (err: any) { alert(`Migration error: ${err.message}`); }
                       setMigrating(false);
