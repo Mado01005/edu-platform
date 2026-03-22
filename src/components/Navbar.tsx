@@ -67,10 +67,10 @@ export default function Navbar({ userName, userImage, isAdmin }: NavbarProps) {
               </Link>
             )}
             {userName && (
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <Link href="/profile" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors rounded-lg px-2 py-1 hover:bg-white/5">
                 {avatar}
                 <span className="max-w-[140px] truncate">{userName}</span>
-              </div>
+              </Link>
             )}
             <button
               id="logout-btn"

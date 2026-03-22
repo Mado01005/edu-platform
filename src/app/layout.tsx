@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import SessionTracker from '@/components/SessionTracker';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
         <SessionTracker />
         <PWAInstallPrompt />
+        <KeyboardShortcuts />
         {children}
         
         {/* Tawk.to Live Chat Script */}

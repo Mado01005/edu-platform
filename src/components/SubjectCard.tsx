@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ProgressRing from './ProgressRing';
 
 interface SubjectCardProps {
   slug: string;
@@ -36,21 +37,14 @@ export default function SubjectCard({ slug, title, icon, color, lessonCount, com
         {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'} available
       </p>
 
-      {/* Progress Bar Container */}
+      {/* Progress Ring */}
       {completedCount !== undefined && lessonCount > 0 && (
-        <div className="mt-6 pt-5 border-t border-white/5 relative z-10">
-          <div className="flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2.5">
-            <span>Course Progress</span>
-            <span className="text-white drop-shadow-md">{Math.round((completedCount / lessonCount) * 100)}%</span>
+        <div className="mt-6 pt-5 border-t border-white/5 relative z-10 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Course Progress</p>
+            <p className="text-sm text-gray-300 font-medium">{completedCount} of {lessonCount} completed</p>
           </div>
-          <div className="w-full bg-black/50 rounded-full h-2 overflow-hidden border border-white/5 shadow-inner">
-            <div 
-              className={`h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r ${color} relative flex items-center justify-end overflow-hidden`} 
-              style={{ width: `${(completedCount / lessonCount) * 100}%` }} 
-            >
-              <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
-            </div>
-          </div>
+          <ProgressRing percentage={(completedCount / lessonCount) * 100} color={color} />
         </div>
       )}
 
