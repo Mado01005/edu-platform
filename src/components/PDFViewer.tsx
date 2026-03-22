@@ -94,13 +94,14 @@ export default function PDFViewer({ src, title }: PDFViewerProps) {
               </a>
             </div>
           </div>
-          <div className={`relative rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50 h-[600px] md:h-[800px] transition-all duration-500 ${darkPdf ? 'ring-1 ring-indigo-500/30' : ''}`}>
+          <div className={`relative rounded-2xl overflow-hidden border shadow-inner h-[600px] md:h-[800px] transition-all duration-500 ${darkPdf ? 'border-indigo-500/30 ring-1 ring-indigo-500/20 bg-[#1a1a2e]' : 'border-white/10 bg-black/50'}`}>
             <iframe
               src={src}
-              className={`w-full h-full transition-all duration-500 ${darkPdf ? 'invert hue-rotate-180' : ''}`}
+              className="w-full h-full"
               title={title}
               id="lesson-pdf-viewer"
               onError={() => setFallback(true)}
+              style={darkPdf ? { filter: 'invert(0.88) contrast(0.95) hue-rotate(180deg) saturate(1.5) brightness(1.1)' } : {}}
             />
           </div>
         </>

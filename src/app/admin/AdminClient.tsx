@@ -50,14 +50,44 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
   const activeSubject = localSubjects.find(s => s.id === selectedSubjectId);
   const activeLessons = activeSubject?.lessons || [];
 
   // ================= COMMON ACTION HANDLERS =================
   const refreshPageData = () => {
-    // A full refresh is the safest way to re-sync heavily nested tree structures
     window.location.reload();
+  };
+
+  const toggleSelectItem = (id: string) => {
+    setSelectedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedItems.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedItems.size} selected item(s)? This cannot be undone.`)) return;
+
+    let failed = 0;
+    for (const id of selectedItems) {
+      try {
+        const res = await fetch('/api/admin/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'item', id })
+        });
+        if (!res.ok) failed++;
+      } catch { failed++; }
+    }
+
+    setSelectedItems(new Set());
+    if (failed > 0) alert(`${failed} item(s) failed to delete.`);
+    refreshPageData();
   };
 
   const handleCreateSubject = async () => {
@@ -379,13 +409,19 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                     {/* Render Files */}
                     <ul className="pl-6 space-y-1 mt-2">
                       {lesson.content?.map((item: any, idx: number) => {
-                        // The ContentNode has an id mapped now from content items 
-                        // Wait, folder grouping means some nodes are folders. We'll simply show a flat list if possible, or just exact items.
-                        // I mapped `id` explicitly into ContentNode in src/lib/content.ts
-                        if (item.type === 'folder') return null; // Simplified rendering for deep folders
+                        if (item.type === 'folder') return null;
+                        const isSelected = item.id && selectedItems.has(item.id);
                         return (
-                           <li key={item.id || idx} className="flex justify-between items-center text-sm text-gray-400 py-1 hover:bg-white/5 px-2 rounded group">
+                           <li key={item.id || idx} className={`flex justify-between items-center text-sm py-1.5 px-2 rounded group transition-all ${isSelected ? 'bg-red-500/10 border border-red-500/20 text-red-300' : 'text-gray-400 hover:bg-white/5'}`}>
                              <div className="flex items-center gap-2 truncate">
+                               {item.id && (
+                                 <input
+                                   type="checkbox"
+                                   checked={!!isSelected}
+                                   onChange={() => toggleSelectItem(item.id)}
+                                   className="w-4 h-4 rounded border-gray-600 bg-transparent accent-red-500 cursor-pointer"
+                                 />
+                               )}
                                {item.type === 'vimeo' ? '🔗' : item.fileType === 'powerpoint' ? '📊' : '📄'} <span>{item.name}</span>
                              </div>
                              {item.id && (
@@ -403,6 +439,21 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
               </div>
             </div>
           ))}
+
+          {/* Floating Batch Delete Action Bar */}
+          {selectedItems.size > 0 && (
+            <div className="sticky bottom-4 mt-6 bg-red-500/10 backdrop-blur-xl border border-red-500/30 rounded-2xl p-4 flex items-center justify-between shadow-[0_-5px_30px_rgba(239,68,68,0.2)] z-50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400 font-black text-sm">{selectedItems.size}</div>
+                <p className="text-red-300 text-sm font-bold">item{selectedItems.size > 1 ? 's' : ''} selected</p>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setSelectedItems(new Set())} className="text-sm text-gray-400 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition font-medium">Cancel</button>
+                <button onClick={handleBatchDelete} className="text-sm text-white bg-red-500/80 hover:bg-red-500 px-5 py-2 rounded-lg transition font-bold shadow-lg">Delete All</button>
+              </div>
+            </div>
+          )}
+
           {localSubjects.length === 0 && <p className="text-gray-500 text-center py-10">No subjects exist yet.</p>}
         </div>
       )}
