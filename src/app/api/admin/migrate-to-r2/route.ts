@@ -28,12 +28,13 @@ export async function POST() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Filter to only Supabase-stored files (not R2, not embeds/vimeo)
+    // Filter to only non-R2, non-embed files (these are the Supabase files)
     const supabaseFiles = (items || []).filter(item => {
       if (!item.url) return false;
       if (item.item_type === 'embed' || item.item_type === 'vimeo') return false;
+      if (item.file_type === 'vimeo') return false;
       if (item.url.startsWith(r2PublicBase)) return false; // Already in R2
-      return item.url.includes('supabase'); // Supabase URL pattern
+      return true; // Everything else is stored in Supabase
     });
 
     if (supabaseFiles.length === 0) {
