@@ -32,7 +32,7 @@ export async function POST() {
       if (!item.url) return false;
       if (item.item_type === 'embed' || item.item_type === 'vimeo') return false;
       if (item.file_type === 'vimeo') return false;
-      if (item.url.startsWith(r2PublicBase)) return false;
+      if (item.url.startsWith(r2PublicBase)) return false; // Already in R2
       return true;
     });
 
@@ -40,28 +40,30 @@ export async function POST() {
       return NextResponse.json({ migrated: 0, message: 'No files to migrate.' });
     }
 
-    // Return sample URLs for debugging
-    const sampleUrls = supabaseFiles.slice(0, 3).map(f => f.url?.substring(0, 120));
-
+    const sampleUrls = supabaseFiles.slice(0, 3).map(f => f.url);
     const bucket = process.env.R2_BUCKET_NAME!;
     let migrated = 0;
     let failed = 0;
     const errors: string[] = [];
 
-    // Process in batches of 20 to avoid timeout
-    const batch = supabaseFiles.slice(0, 20);
+    // Process 15 files per batch to stay within timeout
+    const batch = supabaseFiles.slice(0, 15);
 
     for (const item of batch) {
       try {
-        // Try to extract Supabase storage path
         let fileBuffer: Buffer | null = null;
         let contentType = 'application/octet-stream';
 
-        // Method 1: Download via Supabase Admin SDK (if it's a storage URL)
-        const eduContentMatch = item.url.match(/\/edu-content\/(.+)$/);
-        const objectMatch = item.url.match(/\/object\/(?:public|sign)\/([^?]+)/);
-        const storagePath = eduContentMatch?.[1] || objectMatch?.[1];
+        // The URLs are relative paths like /content/academic-writing/Week%201/file.pdf
+        // The Supabase storage path is everything after /content/
+        let storagePath = '';
+        if (item.url.startsWith('/content/')) {
+          storagePath = decodeURIComponent(item.url.replace('/content/', ''));
+        } else if (item.url.includes('/edu-content/')) {
+          storagePath = decodeURIComponent(item.url.split('/edu-content/')[1]?.split('?')[0] || '');
+        }
 
+        // Method 1: Download via Supabase Admin SDK using the storage path
         if (storagePath) {
           const { data: blob, error: dlError } = await supabaseAdmin.storage
             .from('edu-content')
@@ -71,33 +73,33 @@ export async function POST() {
             fileBuffer = Buffer.from(await blob.arrayBuffer());
             contentType = blob.type || contentType;
           } else if (dlError) {
-            errors.push(`SDK err [${storagePath}]: ${dlError.message}`);
+            errors.push(`SDK: ${storagePath} → ${dlError.message}`);
           }
         }
 
-        // Method 2: Direct HTTP fetch as fallback
-        if (!fileBuffer) {
+        // Method 2: If URL is a full URL, try direct HTTP fetch
+        if (!fileBuffer && (item.url.startsWith('http://') || item.url.startsWith('https://'))) {
           try {
             const response = await fetch(item.url);
             if (response.ok) {
               fileBuffer = Buffer.from(await response.arrayBuffer());
               contentType = response.headers.get('content-type') || contentType;
             } else {
-              errors.push(`HTTP ${response.status} for ${item.url.substring(0, 60)}`);
+              errors.push(`HTTP ${response.status}: ${item.url.substring(0, 60)}`);
             }
-          } catch (e: any) { errors.push(`Fetch err: ${e.message?.substring(0, 60)}`); }
+          } catch (e: any) { errors.push(`Fetch: ${e.message?.substring(0, 60)}`); }
         }
 
         if (!fileBuffer || fileBuffer.length === 0) {
-          errors.push(`Could not download: ${item.url.substring(0, 80)}...`);
+          if (errors.length === 0 || !errors[errors.length-1]?.includes(storagePath)) {
+            errors.push(`No data: ${storagePath || item.url.substring(0, 80)}`);
+          }
           failed++;
           continue;
         }
 
-        // Generate R2 key
-        const urlParts = item.url.split('/');
-        const rawName = urlParts[urlParts.length - 1]?.split('?')[0] || `file_${item.id}`;
-        const key = `migrated/${Date.now()}_${rawName}`;
+        // Generate R2 key preserving original path structure
+        const key = `content/${storagePath || `file_${item.id}`}`;
 
         // Upload to R2
         await r2Client.send(new PutObjectCommand({
@@ -109,14 +111,14 @@ export async function POST() {
 
         const newUrl = `${r2PublicBase}/${key}`;
 
-        // Update DB
+        // Update DB to point to R2
         const { error: updateError } = await supabaseAdmin
           .from('content_items')
           .update({ url: newUrl })
           .eq('id', item.id);
 
         if (updateError) {
-          errors.push(`DB update failed: ${updateError.message}`);
+          errors.push(`DB: ${updateError.message}`);
           failed++;
           continue;
         }
@@ -128,7 +130,7 @@ export async function POST() {
 
         migrated++;
       } catch (err: any) {
-        errors.push(`Error: ${err.message?.substring(0, 100)}`);
+        errors.push(`Err: ${err.message?.substring(0, 80)}`);
         failed++;
       }
     }
