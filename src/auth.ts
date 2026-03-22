@@ -25,7 +25,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         let isTeacher = false;
         
         if (!isMasterAdmin) {
-           const { data } = await supabaseAdmin.from('user_roles').select('role').eq('email', user.email).single();
+           const { data } = await supabaseAdmin.from('user_roles').select('role').eq('email', user.email).maybeSingle();
            
            let dbRole = data?.role;
            if (!data) {

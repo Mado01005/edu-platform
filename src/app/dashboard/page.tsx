@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const [subjects, { data: completedLogs }, { data: globalMsg }] = await Promise.all([
     getAllSubjects(),
     supabaseAdmin.from('activity_logs').select('details').eq('action', 'Completed Lesson').eq('user_email', session.user?.email || ''),
-    supabaseAdmin.from('announcements').select('message').eq('is_active', true).order('created_at', { ascending: false }).limit(1).single()
+    supabaseAdmin.from('announcements').select('message').eq('is_active', true).order('created_at', { ascending: false }).limit(1).maybeSingle()
   ]);
 
   const completedSet = new Set(completedLogs?.map(l => `${l.details?.subjectSlug}-${l.details?.lessonSlug}`));
