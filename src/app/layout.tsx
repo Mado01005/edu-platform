@@ -5,6 +5,7 @@ import SessionTracker from '@/components/SessionTracker';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 import StudyTimer from '@/components/StudyTimer';
+import MobileNav from '@/components/MobileNav';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
@@ -32,6 +33,7 @@ export default function RootLayout({
         <PWAInstallPrompt />
         <KeyboardShortcuts />
         <StudyTimer />
+        <MobileNav />
         {children}
         
         {/* Tawk.to Live Chat Script */}
