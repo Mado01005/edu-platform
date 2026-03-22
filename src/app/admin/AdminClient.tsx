@@ -7,9 +7,11 @@ type AdminClientProps = {
   initialRoles?: any[];
 };
 
+import ActiveSessionsFeed from '@/components/ActiveSessionsFeed';
+
 export default function AdminClient({ subjects: initialSubjects, initialRoles = [] }: AdminClientProps) {
   const [localSubjects, setLocalSubjects] = useState(initialSubjects);
-  const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'team' | 'inbox'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'team' | 'inbox' | 'telemetry'>('upload');
   
   const [messages, setMessages] = useState<any[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -233,6 +235,15 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
              Student Inbox
              {messages.filter(m => !m.is_read).length > 0 && <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-pulse">{messages.filter(m => !m.is_read).length}</span>}
              {activeTab === 'inbox' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>}
+           </button>
+
+           <button onClick={() => setActiveTab('telemetry')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'telemetry' ? 'bg-green-500/10 border border-green-500/30 text-green-300 shadow-[inset_0_0_20px_rgba(34,197,94,0.05)] shadow-green-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
+             <div className="relative">
+               <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+               <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+             </div>
+             God Mode HUD
+             {activeTab === 'telemetry' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-green-500 rounded-r-full shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>}
            </button>
 
            <button onClick={() => setActiveTab('broadcast')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'broadcast' ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] shadow-indigo-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
@@ -518,6 +529,10 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
         </div>
       )}
 
+      {activeTab === 'telemetry' && (
+        <ActiveSessionsFeed />
+      )}
+      
       {activeTab === 'team' && (
         <div className="space-y-6 fade-in">
           <p className="text-sm text-gray-400 mb-2">Grant or explicitly revoke Administrative dashboard permissions to verified Google accounts.</p>

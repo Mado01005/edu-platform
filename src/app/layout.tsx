@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
+import SessionTracker from '@/components/SessionTracker';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
+        <SessionTracker />
         {children}
         
         {/* Tawk.to Live Chat Script */}

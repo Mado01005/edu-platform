@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface PDFViewerProps {
   src: string;
@@ -9,6 +9,35 @@ interface PDFViewerProps {
 
 export default function PDFViewer({ src, title }: PDFViewerProps) {
   const [fallback, setFallback] = useState(false);
+  const activeSeconds = useRef(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Start active timer
+    intervalRef.current = setInterval(() => {
+      if (document.hasFocus()) { // Only count if they are actually looking at the tab
+        activeSeconds.current += 1;
+      }
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (activeSeconds.current > 10) { // Only log if they read for > 10 seconds
+        fetch('/api/log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            action: 'READ_PDF', 
+            details: { 
+              pdf_title: title, 
+              active_seconds: activeSeconds.current,
+              active_minutes: (activeSeconds.current / 60).toFixed(1)
+            } 
+          })
+        }).catch(() => {});
+      }
+    };
+  }, [title]);
 
   return (
     <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
