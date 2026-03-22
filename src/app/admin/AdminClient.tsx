@@ -135,7 +135,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
       const initiateRes = await fetch('/api/admin/upload-initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileName: file!.name, subjectSlug, lessonSlug })
+        body: JSON.stringify({ fileName: file!.name, subjectSlug, lessonSlug, contentType: file!.type || 'application/octet-stream' })
       });
       if (!initiateRes.ok) throw new Error('Failed to initiate upload');
       const { signedUrl, publicUrl } = await initiateRes.json();

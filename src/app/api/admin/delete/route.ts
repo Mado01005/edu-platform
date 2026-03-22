@@ -24,9 +24,19 @@ export async function POST(req: Request) {
       const { data: item } = await supabaseAdmin.from('content_items').select('url, item_type').eq('id', id).single();
       if (item && item.item_type === 'file' && item.url) {
          try {
-           const path = item.url.split('/edu-content/')[1];
-           if (path) {
-             await supabaseAdmin.storage.from('edu-content').remove([path]);
+           // Check if file is stored in Cloudflare R2 (new uploads) or Supabase (legacy uploads)
+           const r2PublicBase = process.env.R2_PUBLIC_URL || '';
+           if (r2PublicBase && item.url.startsWith(r2PublicBase)) {
+             // R2 file: extract key and delete from R2
+             const { deleteR2Object } = await import('@/lib/r2');
+             const key = item.url.replace(`${r2PublicBase}/`, '');
+             await deleteR2Object(key);
+           } else {
+             // Legacy Supabase file
+             const path = item.url.split('/edu-content/')[1];
+             if (path) {
+               await supabaseAdmin.storage.from('edu-content').remove([path]);
+             }
            }
          } catch(e) {
            console.error("Storage cleanup failed silently:", e);
