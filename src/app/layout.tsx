@@ -9,6 +9,12 @@ const inter = Inter({ subsets: ['latin'], display: 'swap' });
 export const metadata: Metadata = {
   title: 'EduPortal — Your Learning Hub',
   description: 'A modern education platform for students. Access courses in Dynamics, Physics, Chemistry, Communication Skills, Academic Writing, Calculus, and Programming.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'EduPortal',
+  },
 };
 
 export default function RootLayout({
@@ -34,6 +40,19 @@ export default function RootLayout({
             s1.setAttribute('crossorigin','*');
             s0.parentNode.insertBefore(s1,s0);
             })();
+          `}
+        </Script>
+        {/* PWA Service Worker Registration */}
+        <Script id="register-pwa-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(
+                  function(registration) { console.log('PWA ServiceWorker setup successful'); },
+                  function(err) { console.log('PWA ServiceWorker setup failed: ', err); }
+                );
+              });
+            }
           `}
         </Script>
       </body>
