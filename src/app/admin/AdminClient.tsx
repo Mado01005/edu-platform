@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ActiveSessionsFeed from '@/components/ActiveSessionsFeed';
 
 type AdminClientProps = {
   subjects: any[];
   initialRoles?: any[];
 };
-
-import ActiveSessionsFeed from '@/components/ActiveSessionsFeed';
 
 export default function AdminClient({ subjects: initialSubjects, initialRoles = [] }: AdminClientProps) {
   const [localSubjects, setLocalSubjects] = useState(initialSubjects);
