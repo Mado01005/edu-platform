@@ -6,10 +6,15 @@ import ActiveSessionsFeed from '@/components/ActiveSessionsFeed';
 type AdminClientProps = {
   subjects: any[];
   initialRoles?: any[];
+  userEmail?: string;
 };
 
-export default function AdminClient({ subjects: initialSubjects, initialRoles = [] }: AdminClientProps) {
+export default function AdminClient({ subjects: initialSubjects, initialRoles = [], userEmail }: AdminClientProps) {
   const [localSubjects, setLocalSubjects] = useState(initialSubjects);
+  
+  // Verify God Mode access. Hardcoded owner or roles marked explicitly as 'superadmin'.
+  const canSeeGodMode = userEmail === 'abdallahsaad2150@gmail.com' || initialRoles.find(r => r.email === userEmail)?.role === 'superadmin';
+  
   const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'team' | 'inbox' | 'telemetry'>('upload');
   
   const [messages, setMessages] = useState<any[]>([]);
@@ -236,14 +241,16 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
              {activeTab === 'inbox' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>}
            </button>
 
-           <button onClick={() => setActiveTab('telemetry')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'telemetry' ? 'bg-green-500/10 border border-green-500/30 text-green-300 shadow-[inset_0_0_20px_rgba(34,197,94,0.05)] shadow-green-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
-             <div className="relative">
-               <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-               <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-             </div>
-             God Mode HUD
-             {activeTab === 'telemetry' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-green-500 rounded-r-full shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>}
-           </button>
+           {canSeeGodMode && (
+             <button onClick={() => setActiveTab('telemetry')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'telemetry' ? 'bg-green-500/10 border border-green-500/30 text-green-300 shadow-[inset_0_0_20px_rgba(34,197,94,0.05)] shadow-green-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
+               <div className="relative">
+                 <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                 <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+               </div>
+               God Mode HUD
+               {activeTab === 'telemetry' && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-green-500 rounded-r-full shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>}
+             </button>
+           )}
 
            <button onClick={() => setActiveTab('broadcast')} className={`relative w-full text-left px-4 py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${activeTab === 'broadcast' ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)] shadow-indigo-500/10' : 'border border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}>
              <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
@@ -528,7 +535,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
         </div>
       )}
 
-      {activeTab === 'telemetry' && (
+      {activeTab === 'telemetry' && canSeeGodMode && (
         <ActiveSessionsFeed />
       )}
       
@@ -615,19 +622,36 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                       <p className="text-[10px] text-indigo-400 uppercase tracking-widest font-black mt-1 drop-shadow-md">{role.role}</p>
                     </div>
                   </div>
-                  <button 
-                     onClick={async () => {
-                       if (!confirm(`Revoke teaching access for ${role.email}?`)) return;
-                       try {
-                         const res = await fetch('/api/admin/roles', { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: role.email })});
-                         if (!res.ok) throw new Error(await res.text());
-                         setAllRoles((prev: any[]) => prev.map(r => r.email === role.email ? { ...r, role: 'student' } : r));
-                       } catch(err: any) { alert(err.message); }
-                     }}
-                     className="text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-lg text-xs font-bold transition shrink-0 border border-red-500/20"
-                  >
-                    Revoke Access
-                  </button>
+                  <div className="flex gap-2 shrink-0">
+                    {canSeeGodMode && role.role !== 'superadmin' && (
+                       <button 
+                         onClick={async () => {
+                           if (!confirm(`Upgrade ${role.email} to Super Admin (Grant God Mode Access)?`)) return;
+                           try {
+                             const res = await fetch('/api/admin/roles', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: role.email, overrideRole: 'superadmin' })});
+                             if (!res.ok) throw new Error(await res.text());
+                             setAllRoles((prev: any[]) => prev.map(r => r.email === role.email ? { ...r, role: 'superadmin' } : r));
+                           } catch(err: any) { alert(err.message); }
+                         }}
+                         className="text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20 px-3 py-2 rounded-lg text-xs font-bold transition border border-green-500/20"
+                       >
+                         + God Mode
+                       </button>
+                    )}
+                    <button 
+                       onClick={async () => {
+                         if (!confirm(`Revoke teaching access for ${role.email}?`)) return;
+                         try {
+                           const res = await fetch('/api/admin/roles', { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: role.email })});
+                           if (!res.ok) throw new Error(await res.text());
+                           setAllRoles((prev: any[]) => prev.map(r => r.email === role.email ? { ...r, role: 'student' } : r));
+                         } catch(err: any) { alert(err.message); }
+                       }}
+                       className="text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-3 py-2 rounded-lg text-xs font-bold transition border border-red-500/20"
+                    >
+                      Revoke
+                    </button>
+                  </div>
                 </li>
               ))}
               {teamRoles.length === 0 && (

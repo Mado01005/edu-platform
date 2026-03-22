@@ -8,10 +8,11 @@ export async function POST(req: Request) {
     // @ts-ignore
     if (!session || !session.user?.isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { email } = await req.json();
+    const { email, overrideRole } = await req.json();
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
-    const { data, error } = await supabaseAdmin.from('user_roles').upsert({ email, role: 'teacher' }).select().single();
+    const finalRole = overrideRole === 'superadmin' ? 'superadmin' : 'teacher';
+    const { data, error } = await supabaseAdmin.from('user_roles').upsert({ email, role: finalRole }).select().single();
     if (error) throw error;
     
     // Auto-dispatch Native Inbox message to the newly promoted user

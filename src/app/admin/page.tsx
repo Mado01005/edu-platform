@@ -57,7 +57,7 @@ export default async function AdminPage() {
             </p>
           </div>
           
-          <AdminClient subjects={subjects} initialRoles={mergedRoles} />
+          <AdminClient subjects={subjects} initialRoles={mergedRoles} userEmail={session.user?.email || ''} />
           
           <div className="mt-16 fade-in scale-in" style={{ animationDelay: '0.2s' }}>
             <AnalyticsPanel />

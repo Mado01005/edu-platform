@@ -63,38 +63,44 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
             <p className="text-gray-400 text-lg font-medium">Your account <strong className="text-blue-300">{userEmail}</strong> has been successfully registered.</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+          <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 mb-8">
              {/* Feature 1 */}
-             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors shadow-inner flex flex-col items-center text-center">
-               <span className="text-3xl mb-3">📚</span>
-               <h4 className="text-white font-bold mb-2">Explore Modules</h4>
-               <p className="text-sm text-gray-400">Click any course on your dashboard to instantly access HD videos and native reading assets.</p>
+             <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-5 hover:bg-white/10 transition-colors shadow-inner flex flex-row sm:flex-col items-center sm:text-center text-left gap-4 sm:gap-2">
+               <span className="text-2xl sm:text-3xl shrink-0">📚</span>
+               <div>
+                 <h4 className="text-white font-bold text-sm sm:text-base sm:mb-1">Explore Modules</h4>
+                 <p className="text-xs text-gray-400 leading-tight">Click any course to instantly access videos and PDFs.</p>
+               </div>
              </div>
              
              {/* Feature 2 */}
-             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors shadow-inner flex flex-col items-center text-center">
-               <span className="text-3xl mb-3">📈</span>
-               <h4 className="text-white font-bold mb-2">Track Progress</h4>
-               <p className="text-sm text-gray-400">Mark lessons as completed to permanently boost your global completion percentage bars.</p>
+             <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-5 hover:bg-white/10 transition-colors shadow-inner flex flex-row sm:flex-col items-center sm:text-center text-left gap-4 sm:gap-2">
+               <span className="text-2xl sm:text-3xl shrink-0">📈</span>
+               <div>
+                 <h4 className="text-white font-bold text-sm sm:text-base sm:mb-1">Track Progress</h4>
+                 <p className="text-xs text-gray-400 leading-tight">Mark lessons completed to boost your global bars.</p>
+               </div>
              </div>
 
              {/* Feature 3 */}
-             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors shadow-inner flex flex-col items-center text-center">
-               <span className="text-3xl mb-3">💬</span>
-               <h4 className="text-white font-bold mb-2">Secure Inbox</h4>
-               <p className="text-sm text-gray-400">Use the Support system at the bottom to dispatch encrypted native messages to your Instructors.</p>
+             <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-5 hover:bg-white/10 transition-colors shadow-inner flex flex-row sm:flex-col items-center sm:text-center text-left gap-4 sm:gap-2">
+               <span className="text-2xl sm:text-3xl shrink-0">💬</span>
+               <div>
+                 <h4 className="text-white font-bold text-sm sm:text-base sm:mb-1">Secure Inbox</h4>
+                 <p className="text-xs text-gray-400 leading-tight">Send encrypted native messages to your Instructors.</p>
+               </div>
              </div>
           </div>
 
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-4 sm:mt-8">
             <button
               onClick={handleAcknowledge}
               disabled={loading}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest px-12 py-4 rounded-xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all duration-300 hover:scale-105 disabled:opacity-50 flex items-center justify-center gap-3 w-full sm:w-auto"
+              className="bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest px-6 py-3 sm:px-12 sm:py-4 rounded-xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all duration-300 hover:scale-105 disabled:opacity-50 flex items-center justify-center gap-3 w-full sm:w-auto text-sm sm:text-base"
             >
-              {loading ? 'Initializing Core...' : 'Initialize Dashboard'}
+              {loading ? 'Initializing...' : 'Initialize Dashboard'}
               {!loading && (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               )}
