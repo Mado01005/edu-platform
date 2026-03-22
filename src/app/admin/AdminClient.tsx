@@ -51,6 +51,12 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [uploadTarget, setUploadTarget] = useState<'r2' | 'supabase'>('r2');
+  const [storageStats, setStorageStats] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/storage-stats').then(r => r.json()).then(setStorageStats).catch(() => {});
+  }, []);
 
   const activeSubject = localSubjects.find(s => s.id === selectedSubjectId);
   const activeLessons = activeSubject?.lessons || [];
@@ -309,6 +315,34 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
              <span className="text-sm text-gray-300 font-medium">Verified Staff</span>
              <span className="text-xl font-black text-indigo-300 drop-shadow-md">{teamRoles.length}</span>
            </div>
+
+           {/* Storage Usage */}
+           {storageStats && (
+             <div className="space-y-3 pt-3 border-t border-white/5">
+               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" /></svg>
+                 Storage Usage
+               </p>
+               <div>
+                 <div className="flex justify-between text-[10px] mb-1">
+                   <span className="text-gray-400">Supabase ({storageStats.supabase.fileCount} files)</span>
+                   <span className="text-white font-bold">~{storageStats.supabase.estimatedMB} / {storageStats.supabase.limitMB} MB</span>
+                 </div>
+                 <div className="w-full bg-black/50 rounded-full h-1.5 overflow-hidden">
+                   <div className={`h-full rounded-full transition-all ${storageStats.supabase.percentUsed > 80 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${Math.max(storageStats.supabase.percentUsed, 2)}%` }} />
+                 </div>
+               </div>
+               <div>
+                 <div className="flex justify-between text-[10px] mb-1">
+                   <span className="text-gray-400">Cloudflare R2 ({storageStats.r2.fileCount} files)</span>
+                   <span className="text-white font-bold">~{storageStats.r2.estimatedMB} / {storageStats.r2.limitMB} MB</span>
+                 </div>
+                 <div className="w-full bg-black/50 rounded-full h-1.5 overflow-hidden">
+                   <div className="h-full rounded-full bg-orange-500 transition-all" style={{ width: `${Math.max(storageStats.r2.percentUsed, 2)}%` }} />
+                 </div>
+               </div>
+             </div>
+           )}
         </div>
 
       </div>
@@ -343,6 +377,15 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
 
           {selectedLessonId && (
             <div className="fade-in bg-white/5 p-4 rounded-xl space-y-4 border border-white/10">
+              {/* Upload destination picker */}
+              <div className="flex gap-2 border-b border-white/10 pb-4">
+                <button type="button" onClick={() => setUploadTarget('r2')} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition border ${uploadTarget === 'r2' ? 'bg-orange-500/10 text-orange-300 border-orange-500/30' : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'}`}>
+                  ☁️ Cloudflare R2
+                </button>
+                <button type="button" onClick={() => setUploadTarget('supabase')} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition border ${uploadTarget === 'supabase' ? 'bg-blue-500/10 text-blue-300 border-blue-500/30' : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'}`}>
+                  📦 Supabase
+                </button>
+              </div>
               <div className="flex gap-4 border-b border-white/10 pb-4">
                 <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-white">
                   <input type="radio" checked={inputType === 'file'} onChange={() => setInputType('file')} className="text-indigo-500 focus:ring-indigo-500 bg-[#1A1A1E] border-gray-600" />
@@ -752,7 +795,17 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                          setUploading(false);
                        }} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 hover:border-indigo-500/50 rounded-lg text-xs font-bold transition duration-300 shadow-[inset_0_0_10px_rgba(99,102,241,0.05)] hover:shadow-indigo-500/20">
                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 11l7-7 7 7M5 19l7-7 7 7" /></svg>
-                         Elevate to Instructor
+                         Elevate
+                       </button>
+                       <button onClick={async () => {
+                         if (!confirm(`BAN ${student.email}? They will be immediately locked out of the platform.`)) return;
+                         try {
+                           const res = await fetch('/api/admin/roles', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: student.email, overrideRole: 'banned' })});
+                           if (!res.ok) throw new Error(await res.text());
+                           setAllRoles(prev => prev.map(r => r.email === student.email ? { ...r, role: 'banned' } : r));
+                         } catch(err: any) { alert(err.message); }
+                       }} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold transition">
+                         🚫 Ban
                        </button>
                      </div>
                    </li>
@@ -760,6 +813,37 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
                </ul>
             )}
           </div>
+
+          {/* Banned Students */}
+          {allRoles.filter(r => r.role === 'banned').length > 0 && (
+            <div className="bg-red-500/5 border border-red-500/10 rounded-xl overflow-hidden mt-8">
+              <div className="px-6 py-4 border-b border-red-500/10 bg-red-500/5">
+                <h3 className="text-red-400 font-bold flex items-center gap-2">
+                  🚫 Banned Students ({allRoles.filter(r => r.role === 'banned').length})
+                </h3>
+              </div>
+              <ul className="divide-y divide-red-500/5 bg-black/20">
+                {allRoles.filter(r => r.role === 'banned').map(banned => (
+                  <li key={banned.email} className="px-6 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400 font-bold text-sm">{banned.email.charAt(0).toUpperCase()}</div>
+                      <span className="text-sm text-gray-300">{banned.email}</span>
+                    </div>
+                    <button onClick={async () => {
+                      if (!confirm(`Unban ${banned.email}? They will regain access to the platform.`)) return;
+                      try {
+                        const res = await fetch('/api/admin/roles', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: banned.email, overrideRole: 'student' })});
+                        if (!res.ok) throw new Error(await res.text());
+                        setAllRoles(prev => prev.map(r => r.email === banned.email ? { ...r, role: 'student' } : r));
+                      } catch(err: any) { alert(err.message); }
+                    }} className="text-xs text-green-400 bg-green-500/10 hover:bg-green-500/20 px-4 py-2 rounded-lg font-bold border border-green-500/20 transition">
+                      ✅ Unban
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 

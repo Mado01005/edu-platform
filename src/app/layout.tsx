@@ -4,6 +4,7 @@ import Script from 'next/script';
 import SessionTracker from '@/components/SessionTracker';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
+import StudyTimer from '@/components/StudyTimer';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
@@ -30,6 +31,7 @@ export default function RootLayout({
         <SessionTracker />
         <PWAInstallPrompt />
         <KeyboardShortcuts />
+        <StudyTimer />
         {children}
         
         {/* Tawk.to Live Chat Script */}

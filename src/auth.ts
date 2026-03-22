@@ -35,7 +35,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
              dbRole = 'student';
            }
 
-           if (dbRole === 'teacher' || dbRole === 'admin') isTeacher = true;
+           if (dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin') isTeacher = true;
+           if (dbRole === 'banned') token.isBanned = true;
         }
         
         token.isAdmin = isMasterAdmin || isTeacher;
@@ -50,6 +51,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.image = token.picture as string | null | undefined ?? session.user.image;
         // @ts-expect-error - Adding custom property to session user
         session.user.isAdmin = token.isAdmin ?? false;
+        // @ts-expect-error
+        session.user.isBanned = token.isBanned ?? false;
       }
       return session;
     },

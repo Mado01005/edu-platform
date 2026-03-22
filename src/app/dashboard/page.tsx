@@ -8,12 +8,16 @@ import SupportTicketModal from '@/components/SupportTicketModal';
 import PromotionModal from '@/components/PromotionModal';
 import StudentWelcomeModal from '@/components/StudentWelcomeModal';
 import DashboardLogger from '@/components/DashboardLogger';
+import DailyStreak from '@/components/DailyStreak';
+import BookmarkedLessons from '@/components/BookmarkedLessons';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session) redirect('/login');
+  // @ts-ignore
+  if (session.user?.isBanned) redirect('/banned');
 
   const [subjects, { data: completedLogs }, { data: globalMsg }] = await Promise.all([
     getAllSubjects(),
@@ -84,9 +88,10 @@ export default async function DashboardPage() {
 
         {/* Header */}
         <div className="mb-12 fade-in mt-4">
-          <p className="text-indigo-400 text-sm font-bold tracking-widest uppercase mb-3 flex items-center gap-2">
+          <p className="text-indigo-400 text-sm font-bold tracking-widest uppercase mb-3 flex items-center gap-3">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)] animate-pulse"></span>
             Welcome back, {session.user?.name?.split(' ')[0]} 👋
+            <DailyStreak userEmail={session.user?.email || ''} />
           </p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-4 select-none">
             Your Courses
@@ -138,6 +143,9 @@ export default async function DashboardPage() {
             </svg>
           </div>
         </a>
+
+        {/* Bookmarked Lessons */}
+        <BookmarkedLessons />
 
         {/* Subject grid */}
         {subjects.length === 0 ? (

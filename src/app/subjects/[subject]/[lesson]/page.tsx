@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import FolderTree from '@/components/FolderTree';
 import ViewTracker from '@/components/ViewTracker';
 import CompleteButton from '@/components/CompleteButton';
+import BookmarkButton from '@/components/BookmarkButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +22,8 @@ export default async function LessonPage({ params }: Props) {
 
   const session = await auth();
   if (!session) redirect('/login');
+  // @ts-ignore
+  if (session.user?.isBanned) redirect('/banned');
 
   const subject = await getSubject(subjectSlug);
   const lesson = await getLesson(subjectSlug, lessonSlug);
@@ -98,7 +101,10 @@ export default async function LessonPage({ params }: Props) {
           )}
         </div>
 
-        <CompleteButton subjectSlug={subjectSlug} lessonSlug={lessonSlug} initialCompleted={isCompleted} />
+        <div className="flex items-center gap-3 flex-wrap">
+          <CompleteButton subjectSlug={subjectSlug} lessonSlug={lessonSlug} initialCompleted={isCompleted} />
+          <BookmarkButton subjectSlug={subjectSlug} lessonSlug={lessonSlug} lessonTitle={lesson.title} subjectTitle={subject.title} />
+        </div>
 
         <div className="mt-12 pt-8 border-t border-white/10">
           <Link
