@@ -83,6 +83,38 @@ export default function FolderTree({ node, isRoot = false }: FolderTreeProps) {
         </div>
       );
     }
+    // Handle .doc and .docx files (Word documents)
+    if (node.url && (node.name.toLowerCase().endsWith('.doc') || node.name.toLowerCase().endsWith('.docx'))) {
+      const encodedUrl = encodeURIComponent(node.url);
+      return (
+        <div className="my-6 fade-in min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+          <div className="flex items-center justify-between mb-4 ml-1">
+            <div className="flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-sm shadow-inner">📝</span>
+              <span className="text-sm font-bold text-blue-400 tracking-wide uppercase">{node.name}</span>
+            </div>
+            <a 
+              href={node.url} 
+              download 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition-all"
+            >
+              Download Original
+            </a>
+          </div>
+          <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
+            <iframe 
+              src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
+              className="w-full h-full bg-white"
+              title={node.name}
+            />
+          </div>
+        </div>
+      );
+    }
+
     return null;
   }
 
