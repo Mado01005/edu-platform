@@ -233,11 +233,11 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
             <div className="space-y-3">
               <div className="flex justify-between items-center text-[11px]">
                  <span className="text-gray-500 font-bold">R2 STORAGE</span>
-                 <span className="text-white font-black">{(storageStats.r2.totalSize / (1024 * 1024)).toFixed(1)}MB</span>
+                 <span className="text-white font-black">{storageStats.r2.estimatedMB}MB</span>
               </div>
               <div className="flex justify-between items-center text-[11px]">
                  <span className="text-gray-500 font-bold">SUPABASE</span>
-                 <span className="text-white font-black">{(storageStats.supabase.totalSize / (1024 * 1024)).toFixed(1)}MB</span>
+                 <span className="text-white font-black">{storageStats.supabase.estimatedMB}MB</span>
               </div>
             </div>
           </div>
