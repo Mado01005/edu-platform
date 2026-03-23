@@ -10,6 +10,7 @@ interface LessonCardProps {
   index: number;
   color: string;
   isNew?: boolean;
+  hasDocx: boolean;
 }
 
 export default function LessonCard({
@@ -22,6 +23,7 @@ export default function LessonCard({
   index,
   color,
   isNew,
+  hasDocx,
 }: LessonCardProps) {
   return (
     <div
@@ -74,6 +76,14 @@ export default function LessonCard({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
                 PDF
+              </span>
+            )}
+            {hasDocx && (
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-600/10 border border-blue-600/20 text-xs font-bold text-blue-400 tracking-wide uppercase shadow-[0_0_10px_rgba(37,99,235,0.1)]">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414-5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                DOCX
               </span>
             )}
             {imageCount > 0 && (

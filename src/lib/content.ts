@@ -18,6 +18,7 @@ export interface LessonMeta {
   content: ContentNode[];
   hasVideo: boolean;
   hasPdf: boolean;
+  hasDocx: boolean;
   imageCount: number;
 }
 
@@ -113,6 +114,7 @@ export async function getAllSubjects(): Promise<SubjectMeta[]> {
         content: contentTree,
         hasVideo: hasFilesOfType(contentTree, 'video') || hasFilesOfType(contentTree, 'vimeo'),
         hasPdf: hasFilesOfType(contentTree, 'pdf'),
+        hasDocx: contentTree.some(node => node.url && (node.name.toLowerCase().endsWith('.doc') || node.name.toLowerCase().endsWith('.docx'))),
         imageCount: countImages(contentTree),
       };
     });
