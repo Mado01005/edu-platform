@@ -21,20 +21,36 @@ export async function POST(req: Request) {
     }
 
     // Insert log securely into Supabase
-    const { error } = await supabaseAdmin.from('activity_logs').insert({
-      user_email: session.user.email,
-      user_name: session.user.name || 'Unknown User',
+    // First attempt: Deep logging with geolocation (requires new schema columns)
+    const { data, error } = await supabaseAdmin.from('activity_logs').insert({
+      user_name: session.user?.name || 'Anonymous Student',
+      user_email: session.user?.email,
       action,
       url,
       user_agent: userAgent,
       geo_city: city,
       geo_country: country,
       details: details || {}
-    });
+    }).select().single();
 
     if (error) {
-      console.error('Activity log error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.warn('Advanced logging failed (likely missing columns), falling back to basic log:', error.message);
+      // Fallback: Store info in 'details' instead of dedicated columns to prevent 500 errors
+      const { error: fallbackError } = await supabaseAdmin.from('activity_logs').insert({
+        user_name: session.user?.name || 'Anonymous Student',
+        user_email: session.user?.email,
+        action,
+        url,
+        user_agent: userAgent,
+        details: {
+          ...(details || {}),
+          _geo: { city, country },
+          _notice: 'Please run SQL to add geo_city/geo_country columns'
+        }
+      });
+      if (fallbackError) {
+        return NextResponse.json({ error: fallbackError.message }, { status: 500 });
+      }
     }
 
     // WEBHOOK: If a brand new student just initialized their dashboard, autonomously alert the Master Admin!

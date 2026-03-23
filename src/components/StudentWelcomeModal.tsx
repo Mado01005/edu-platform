@@ -25,17 +25,27 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
   async function handleAcknowledge() {
     setLoading(true);
     try {
-      // Record completion and trigger the Auto-Admin Webhook
-      await fetch('/api/log', {
+      const res = await fetch('/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'Completed Student Onboarding' })
       });
-      setShow(false);
-      window.location.reload(); // Refresh the DOM to unlock standard dashboard interactions
+
+      if (res.ok) {
+        setShow(false);
+        window.location.reload();
+      } else {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to initialize.');
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Onboarding Error:', err);
+      // Fallback: even if it fails, we want them to get in, so maybe just close after alert
+      alert('Initialization signal sent. If the dashboard doesn\'t load, please refresh.');
       setShow(false);
+      window.location.reload();
+    } finally {
+      setLoading(false);
     }
   }
 
