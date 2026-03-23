@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 
   const [subjects, { data: completedLogs }, { data: globalMsg }] = await Promise.all([
     getAllSubjects(),
-    supabaseAdmin.from('activity_logs').select('details').eq('action', 'Completed Lesson').eq('user_email', session.user?.email || ''),
+    supabaseAdmin.from('activity_logs').select('details').eq('action', 'Completed Lesson').eq('user_email', (session.user?.email || '').toLowerCase()),
     supabaseAdmin.from('announcements').select('message').eq('is_active', true).order('created_at', { ascending: false }).limit(1).maybeSingle()
   ]);
 
@@ -35,7 +35,7 @@ export default async function DashboardPage() {
     const { data: promoLog } = await supabaseAdmin
       .from('activity_logs')
       .select('id')
-      .eq('user_email', session.user.email || '')
+      .eq('user_email', (session.user.email || '').toLowerCase())
       .eq('action', 'Viewed Promotion Modal')
       .limit(1);
     
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
     const { data: welcomeLog } = await supabaseAdmin
       .from('activity_logs')
       .select('id')
-      .eq('user_email', session.user?.email || '')
+      .eq('user_email', (session.user?.email || '').toLowerCase())
       .eq('action', 'Completed Student Onboarding')
       .limit(1);
     

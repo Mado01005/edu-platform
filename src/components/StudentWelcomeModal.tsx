@@ -13,16 +13,25 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check if we've already acknowledged in this browser session to break any loops
-    const alreadyDone = localStorage.getItem(`onboarding_${userEmail}`);
-    if (alreadyDone) {
+    // Check if we've already acknowledged to break any loops
+    const checkOnboarding = () => {
+      if (typeof window === 'undefined') return false;
+      const ls = localStorage.getItem(`onb_v2_${userEmail.toLowerCase()}`);
+      const ck = document.cookie.includes(`onb_v2_${userEmail.toLowerCase()}`);
+      return ls || ck;
+    };
+
+    if (checkOnboarding()) {
       setShow(false);
       return;
     }
 
     if (open) {
       // Dramatically fade in after the Dashboard loads behind it
-      const timer = setTimeout(() => setShow(true), 1200);
+      const timer = setTimeout(() => {
+        // Double check again before showing
+        if (!checkOnboarding()) setShow(true);
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [open, userEmail]);
@@ -31,6 +40,7 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
 
   async function handleAcknowledge() {
     setLoading(true);
+    const emailKey = userEmail.toLowerCase();
     try {
       const res = await fetch('/api/log', {
         method: 'POST',
@@ -39,10 +49,11 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
       });
 
       if (res.ok) {
-        localStorage.setItem(`onboarding_${userEmail}`, 'true');
+        localStorage.setItem(`onb_v2_${emailKey}`, 'true');
+        document.cookie = `onb_v2_${emailKey}=true; path=/; max-age=31536000`; // 1 year
         setShow(false);
-        // Use a cache-busting reload to ensure the server-side check is fresh
-        window.location.href = window.location.pathname + '?t=' + Date.now();
+        // Clean URL and bust cache
+        window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
       } else {
         const errData = await res.json();
         throw new Error(errData.error || 'Failed to initialize.');

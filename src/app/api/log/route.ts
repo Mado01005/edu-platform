@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     // First attempt: Deep logging with geolocation (requires new schema columns)
     const { data, error } = await supabaseAdmin.from('activity_logs').insert({
       user_name: session.user?.name || 'Anonymous Student',
-      user_email: session.user?.email,
+      user_email: (session.user?.email || '').toLowerCase(),
       action,
       url,
       user_agent: userAgent,
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       // Fallback: Store info in 'details' instead of dedicated columns to prevent 500 errors
       const { error: fallbackError } = await supabaseAdmin.from('activity_logs').insert({
         user_name: session.user?.name || 'Anonymous Student',
-        user_email: session.user?.email,
+        user_email: (session.user?.email || '').toLowerCase(),
         action,
         url,
         user_agent: userAgent,
