@@ -43,8 +43,8 @@ export default async function RootLayout({
         
         {children}
 
-        {/* Custom Support Chat System (Only for non-superadmins to avoid duplicate UIs on Admin Panel) */}
-        {!((session?.user as any)?.isSuperAdmin) && <SupportChat userEmail={session?.user?.email} />}
+        {/* Global Support Chat - Only hidden on the Admin Command Center to avoid UI clutter */}
+        {session?.user?.email && <SupportChat userEmail={session.user.email} />}
         
         {/* PWA Service Worker Registration */}
         <Script id="register-pwa-sw" strategy="afterInteractive">

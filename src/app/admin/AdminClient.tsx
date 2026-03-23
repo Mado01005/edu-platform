@@ -43,8 +43,9 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
   const ADMIN_EMAILS = ['abdallahsaad2150@gmail.com', 'abdallahsaad828asd@gmail.com'];
 
   const currentUserRole = useMemo(() => {
+    console.log('[DEBUG] Admin Verification:', { userEmail, authorized: ADMIN_EMAILS });
     // Force superadmin for the master admin email
-    if (userEmail && ADMIN_EMAILS.includes(userEmail.toLowerCase())) return 'superadmin';
+    if (userEmail && ADMIN_EMAILS.some(e => userEmail.toLowerCase().trim() === e.toLowerCase().trim())) return 'superadmin';
     
     const found = allRoles.find(r => r.email?.toLowerCase() === userEmail?.toLowerCase());
     return found?.role || 'student';
@@ -612,7 +613,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
                                      {r.role !== 'superadmin' && (
                                        <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl hover:bg-indigo-500 transition-all">Grant God Mode</button>
                                      )}
-                                     {!ADMIN_EMAILS.includes(r.email.toLowerCase()) && (
+                                     {!ADMIN_EMAILS.some(e => r.email.toLowerCase().trim() === e.toLowerCase().trim()) && (
                                        <button onClick={() => updateRole(r.email, 'student')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-red-500/40 hover:text-red-500 border border-white/10 hover:bg-red-500/10 transition-all">Demote to Student</button>
                                      )}
                                   </div>

@@ -92,7 +92,7 @@ export default function SupportChat({ userEmail }: { userEmail: string | null | 
   if (!userEmail) return null;
 
   return (
-    <div className="fixed bottom-24 right-6 sm:bottom-6 z-[99999] transition-all duration-500 ease-out flex flex-col items-end">
+    <div className="fixed bottom-24 right-6 sm:bottom-6 z-[999999] pointer-events-auto transition-all duration-500 ease-out flex flex-col items-end">
       
       {/* CHAT WINDOW */}
       {isOpen && (
