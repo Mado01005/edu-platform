@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'abdallahsaad813@gmail.com';
+const ADMIN_EMAIL = 'abdallahsaad2150@gmail.com';
 
 interface Message {
   id: string;

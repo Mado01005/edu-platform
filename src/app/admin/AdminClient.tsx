@@ -40,9 +40,12 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
   const [adminReply, setAdminReply] = useState('');
 
   const supabase = createClientComponentClient();
-  const ADMIN_EMAIL = 'abdallahsaad813@gmail.com';
+  const ADMIN_EMAIL = 'abdallahsaad2150@gmail.com';
 
   const currentUserRole = useMemo(() => {
+    // Force superadmin for the master admin email
+    if (userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) return 'superadmin';
+    
     const found = allRoles.find(r => r.email?.toLowerCase() === userEmail?.toLowerCase());
     return found?.role || 'student';
   }, [allRoles, userEmail]);
