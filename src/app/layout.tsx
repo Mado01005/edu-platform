@@ -8,6 +8,9 @@ import StudyTimer from '@/components/StudyTimer';
 import MobileNav from '@/components/MobileNav';
 import './globals.css';
 
+import { auth } from '@/auth';
+import SupportChat from '@/components/SupportChat';
+
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
@@ -21,11 +24,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+  const isAdmin = (session?.user as any)?.isAdmin;
+
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
@@ -34,22 +40,12 @@ export default function RootLayout({
         <KeyboardShortcuts />
         <StudyTimer />
         <MobileNav />
-        {children}
         
-        {/* Tawk.to Live Chat Script */}
-        <Script id="tawk-to" strategy="lazyOnload">
-          {`
-            var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-            (function(){
-            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-            s1.async=true;
-            s1.src='https://embed.tawk.to/69beda18efc5d11c3692a4f8/default';
-            s1.charset='UTF-8';
-            s1.setAttribute('crossorigin','*');
-            s0.parentNode.insertBefore(s1,s0);
-            })();
-          `}
-        </Script>
+        {children}
+
+        {/* Custom Support Chat System (Only for non-admins to avoid duplicate UIs) */}
+        {!isAdmin && <SupportChat userEmail={session?.user?.email} />}
+        
         {/* PWA Service Worker Registration */}
         <Script id="register-pwa-sw" strategy="afterInteractive">
           {`
