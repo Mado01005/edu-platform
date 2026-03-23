@@ -236,7 +236,10 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
         body: JSON.stringify({ subjectId: selectedSubjectId, lessonId: selectedLessonId, fileName: file!.name, fileType, publicUrl })
       });
 
-      if (!completeRes.ok) throw new Error('Failed to register file in database');
+      if (!completeRes.ok) {
+        const errorData = await completeRes.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to register file in database');
+      }
 
       setProgress(100);
       setStatusMessage('Upload complete!');
