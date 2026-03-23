@@ -41,6 +41,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   const [replyText, setReplyText] = useState('');
   const [activeChatEmail, setActiveChatEmail] = useState<string | null>(null);
   const [adminReply, setAdminReply] = useState('');
+  const [expandedLessons, setExpandedLessons] = useState<Set<string>>(new Set());
 
   const supabase = createClientComponentClient();
 
@@ -247,6 +248,13 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     setSelectedItems(next);
   };
 
+  const toggleLesson = (id: string) => {
+    const next = new Set(expandedLessons);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setExpandedLessons(next);
+  };
+
   const handleBatchDelete = async () => {
     if (!confirm(`Permanently delete ${selectedItems.size} selected items?`)) return;
     try {
@@ -433,15 +441,19 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                           <div className="divide-y divide-white/5">
                             {subject.lessons?.map((lesson: any) => (
                               <div key={lesson.id} className="p-8 pb-10 group">
-                                <div className="flex items-center justify-between mb-6">
-                                  <h4 className="text-md font-bold text-indigo-400 uppercase tracking-widest group-hover:text-white transition-colors">📂 {lesson.title}</h4>
-                                  <div className="flex gap-2">
+                                <div className={`flex items-center justify-between cursor-pointer rounded-2xl p-4 transition-all duration-300 ${expandedLessons.has(lesson.id!) ? 'bg-white/5 mb-6' : 'hover:bg-white/[0.02]'}`} onClick={() => toggleLesson(lesson.id!)}>
+                                  <div className="flex items-center gap-4">
+                                    <span className={`text-xs transition-transform duration-300 ${expandedLessons.has(lesson.id!) ? 'rotate-90' : 'rotate-0'}`}>▶</span>
+                                    <h4 className={`text-md font-bold uppercase tracking-widest transition-colors ${expandedLessons.has(lesson.id!) ? 'text-indigo-400' : 'text-gray-500'}`}>📂 {lesson.title}</h4>
+                                  </div>
+                                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                                     <button onClick={() => handleMove('lesson', lesson.id!, lesson.title)} className="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/10 rounded-lg hover:bg-indigo-500/20 transition">Move</button>
                                     <button onClick={() => handleRename('lesson', lesson.id!, lesson.title)} className="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition">Rename</button>
                                     <button onClick={() => handleDelete('lesson', lesson.id!, lesson.title)} className="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 bg-red-500/5 text-red-500 border border-red-500/10 rounded-lg hover:bg-red-500/10 transition">Delete</button>
                                   </div>
                                 </div>
-                                   <ul className="space-y-2 mt-4">
+                                {expandedLessons.has(lesson.id!) && (
+                                   <ul className="space-y-2 mt-4 animate-in slide-in-from-top-2 duration-300">
                                     {lesson.content?.length === 0 && (
                                       <p className="text-[9px] text-gray-700 italic px-6">Folder is currently empty</p>
                                     )}
@@ -480,6 +492,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                       </li>
                                     ))}
                                   </ul>
+                                )}
                               </div>
                             ))}
                           </div>
