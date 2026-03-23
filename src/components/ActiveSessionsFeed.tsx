@@ -38,14 +38,21 @@ export default function ActiveSessionsFeed() {
           console.log('Session Update:', payload);
           setSessions(prev => {
             if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-               const existing = prev.find(s => s.id === payload.new.id);
-               if (existing) {
-                 return prev.map(s => s.id === payload.new.id ? payload.new as Session : s).sort((a,b) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime());
+               const newData = payload.new as Session;
+               if (!newData || !newData.id) return prev;
+               
+               const existingIndex = prev.findIndex(s => s.id === newData.id);
+               if (existingIndex !== -1) {
+                 const updated = [...prev];
+                 updated[existingIndex] = newData;
+                 return updated.sort((a,b) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime());
                } else {
-                 return [payload.new as Session, ...prev].sort((a,b) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime());
+                 return [newData, ...prev].sort((a,b) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime());
                }
             } else if (payload.eventType === 'DELETE') {
-               return prev.filter(s => s.id !== payload.old.id);
+               const oldData = payload.old as { id: string };
+               if (!oldData || !oldData.id) return prev;
+               return prev.filter(s => s.id !== oldData.id);
             }
             return prev;
           });

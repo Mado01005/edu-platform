@@ -46,8 +46,8 @@ export default function SessionTracker() {
     window.addEventListener('scroll', updateActivity);
     window.addEventListener('click', updateActivity);
 
-    // Run heartbeat every 60 seconds
-    heartbeatInterval = setInterval(sendHeartbeat, 60000);
+    // Run heartbeat every 30 seconds for higher fidelity telemetry
+    heartbeatInterval = setInterval(sendHeartbeat, 30000);
     
     // Initial ping on load
     sendHeartbeat();
