@@ -13,12 +13,19 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Check if we've already acknowledged in this browser session to break any loops
+    const alreadyDone = localStorage.getItem(`onboarding_${userEmail}`);
+    if (alreadyDone) {
+      setShow(false);
+      return;
+    }
+
     if (open) {
       // Dramatically fade in after the Dashboard loads behind it
       const timer = setTimeout(() => setShow(true), 1200);
       return () => clearTimeout(timer);
     }
-  }, [open]);
+  }, [open, userEmail]);
 
   if (!show) return null;
 
@@ -32,8 +39,10 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
       });
 
       if (res.ok) {
+        localStorage.setItem(`onboarding_${userEmail}`, 'true');
         setShow(false);
-        window.location.reload();
+        // Use a cache-busting reload to ensure the server-side check is fresh
+        window.location.href = window.location.pathname + '?t=' + Date.now();
       } else {
         const errData = await res.json();
         throw new Error(errData.error || 'Failed to initialize.');
