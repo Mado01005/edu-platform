@@ -31,7 +31,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ 
       signedUrl,
       path: storagePath,
-      publicUrl
+      publicUrl,
+      contentType: contentType || 'application/octet-stream'
     });
 
   } catch (error: any) {

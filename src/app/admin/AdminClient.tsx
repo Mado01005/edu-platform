@@ -180,7 +180,7 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
           body: JSON.stringify({ fileName: file!.name, subjectSlug, lessonSlug, contentType: file!.type || 'application/octet-stream' })
         });
         if (!initiateRes.ok) throw new Error('Failed to initiate R2 upload');
-        const { signedUrl, publicUrl: r2Url } = await initiateRes.json();
+        const { signedUrl, publicUrl: r2Url, contentType: signedContentType } = await initiateRes.json();
         publicUrl = r2Url;
         
         setProgress(30);
@@ -189,12 +189,13 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
         await new Promise<void>((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open('PUT', signedUrl, true);
-          xhr.setRequestHeader('Content-Type', file!.type || 'application/octet-stream');
+          // MUST match exactly what was signed by the server
+          xhr.setRequestHeader('Content-Type', signedContentType || 'application/octet-stream');
           xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) setProgress(Math.round((event.loaded / event.total) * 60) + 30);
           };
           xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`R2 upload failed (${xhr.status}): ${xhr.statusText}`));
-          xhr.onerror = () => reject(new Error('R2 network error — try Supabase instead'));
+          xhr.onerror = () => reject(new Error('R2 network error (CORS or Timeout) — try Supabase instead'));
           xhr.send(file);
         });
       } else {
@@ -223,12 +224,12 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
       setProgress(90);
       setStatusMessage('Finalizing database records...');
 
-      let fileType = 'unknown';
+      let fileType: 'video' | 'pdf' | 'image' | 'powerpoint' | 'unknown' = 'unknown';
       if (file!.type.startsWith('video/')) fileType = 'video';
       else if (file!.type.startsWith('image/')) fileType = 'image';
       else if (file!.type === 'application/pdf') fileType = 'pdf';
       else if (file!.name.toLowerCase().endsWith('.ppt') || file!.name.toLowerCase().endsWith('.pptx') || file!.type.includes('presentation')) fileType = 'powerpoint';
-      else if (file!.name.toLowerCase().endsWith('.doc') || file!.name.toLowerCase().endsWith('.docx')) fileType = 'document';
+      else fileType = 'unknown'; 
 
       const completeRes = await fetch('/api/admin/upload-complete', {
         method: 'POST',
