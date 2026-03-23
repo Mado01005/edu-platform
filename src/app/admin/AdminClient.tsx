@@ -198,13 +198,17 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   const handleDelete = async (type: 'subject' | 'lesson' | 'item', id: string, name: string) => {
     if (!confirm(`Permanently delete ${type} "${name}"?`)) return;
     try {
-      const res = await fetch(`/api/admin/${type === 'subject' ? 'subjects' : 'content'}?id=${id}`, { method: 'DELETE' });
+      const res = await fetch('/api/admin/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, id })
+      });
       if (res.ok) refreshPageData();
       else throw new Error('Deletion failed');
     } catch(err: any) { alert(err.message); }
   };
 
-  const handleRename = async (type: 'subject' | 'lesson', id: string, oldName: string) => {
+  const handleRename = async (type: 'subject' | 'lesson' | 'item', id: string, oldName: string) => {
     const newName = prompt(`Rename "${oldName}" to:`, oldName);
     if (!newName || newName === oldName) return;
     try {
@@ -214,6 +218,24 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         body: JSON.stringify({ type, id, title: newName })
       });
       if (!res.ok) throw new Error('Rename failed');
+      refreshPageData();
+    } catch(err: any) { alert(err.message); }
+  };
+
+  const handleMove = async (type: 'lesson' | 'item', id: string, name: string) => {
+    // Basic implementation using prompt for now, could be improved with a dropdown UI
+    const targetType = type === 'item' ? 'Module' : 'Subject';
+    const targetId = prompt(`Enter the ID of the target ${targetType} to move "${name}" to:`);
+    if (!targetId) return;
+
+    try {
+      const res = await fetch('/api/admin/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, id, targetId })
+      });
+      if (!res.ok) throw new Error('Move failed');
+      alert(`Successfully moved to target ${targetId}`);
       refreshPageData();
     } catch(err: any) { alert(err.message); }
   };
@@ -414,22 +436,33 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                 <div className="flex items-center justify-between mb-6">
                                   <h4 className="text-md font-bold text-indigo-400 uppercase tracking-widest group-hover:text-white transition-colors">📂 {lesson.title}</h4>
                                   <div className="flex gap-2">
+                                    <button onClick={() => handleMove('lesson', lesson.id!, lesson.title)} className="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/10 rounded-lg hover:bg-indigo-500/20 transition">Move</button>
                                     <button onClick={() => handleRename('lesson', lesson.id!, lesson.title)} className="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition">Rename</button>
                                     <button onClick={() => handleDelete('lesson', lesson.id!, lesson.title)} className="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 bg-red-500/5 text-red-500 border border-red-500/10 rounded-lg hover:bg-red-500/10 transition">Delete</button>
                                   </div>
                                 </div>
-                                <ul className="space-y-2">
-                                  {lesson.content?.map((item: any) => (
-                                    <li key={item.id} className="flex justify-between items-center text-xs py-4 px-6 rounded-2xl hover:bg-white/5 transition border border-transparent hover:border-white/5 group/item bg-black/40">
-                                      <div className="flex items-center gap-4">
-                                        <input type="checkbox" checked={selectedItems.size > 0 && selectedItems.has(item.id)} onChange={() => toggleSelectItem(item.id)} className="accent-indigo-500 w-4 h-4 rounded-lg" />
-                                        <span className="text-gray-600">{item.type === 'vimeo' ? '🔗' : '📄'}</span>
-                                        <span className="font-bold text-gray-300">{item.name}</span>
-                                      </div>
-                                      <button onClick={() => handleDelete('item', item.id, item.name)} className="opacity-0 group-item-hover:opacity-100 text-red-500 hover:scale-125 transition">🗑️</button>
-                                    </li>
-                                  ))}
-                                </ul>
+                                   <ul className="space-y-2 mt-4">
+                                    {lesson.content?.length === 0 && (
+                                      <p className="text-[9px] text-gray-700 italic px-6">Folder is currently empty</p>
+                                    )}
+                                    {lesson.content?.map((item: any) => (
+                                      <li key={item.id} className="flex justify-between items-center text-xs py-4 px-6 rounded-2xl hover:bg-white/5 transition border border-transparent hover:border-white/5 group/item bg-black/40">
+                                        <div className="flex items-center gap-4">
+                                          <input type="checkbox" checked={selectedItems.size > 0 && selectedItems.has(item.id)} onChange={() => toggleSelectItem(item.id)} className="accent-indigo-500 w-4 h-4 rounded-lg" />
+                                          <span className="text-gray-600 font-normal">{item.type === 'vimeo' ? '🎬' : item.type === 'folder' ? '📂' : '📄'}</span>
+                                          <div className="flex flex-col">
+                                            <span className="font-bold text-gray-300">{item.name}</span>
+                                            <span className="text-[8px] text-gray-600 uppercase tracking-widest">{item.id}</span>
+                                          </div>
+                                        </div>
+                                        <div className="flex gap-3 opacity-0 group-hover/item:opacity-100 transition-all">
+                                          <button onClick={() => handleMove('item', item.id, item.name)} className="text-[7px] font-black uppercase tracking-widest text-indigo-400 hover:text-white transition">Move</button>
+                                          <button onClick={() => handleRename('item', item.id, item.name)} className="text-[7px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition">Rename</button>
+                                          <button onClick={() => handleDelete('item', item.id, item.name)} className="text-red-500 hover:scale-125 transition">🗑️</button>
+                                        </div>
+                                      </li>
+                                    ))}
+                                  </ul>
                               </div>
                             ))}
                           </div>
