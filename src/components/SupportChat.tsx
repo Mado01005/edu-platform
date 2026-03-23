@@ -189,7 +189,7 @@ export default function SupportChat({ userEmail }: { userEmail: string | null | 
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="group relative flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-indigo-600 shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all duration-500 hover:scale-110 hover:-translate-y-2 active:scale-95"
+          className="group relative flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-indigo-600 shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-all duration-500 hover:scale-110 hover:-translate-y-2 active:scale-95 border-4 border-red-500"
         >
           <div className="absolute inset-0 rounded-[1.5rem] bg-indigo-600 blur-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
           
