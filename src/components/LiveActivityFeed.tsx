@@ -16,20 +16,30 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
   const [shadowTarget, setShadowTarget] = useState<string | null>(null);
   const [auditSearch, setAuditSearch] = useState('');
   const [auditAction, setAuditAction] = useState('');
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
 
   useEffect(() => {
+    console.log("Initializing Realtime Surveillance...");
     const channel = supabase
       .channel('realtime_activity')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'activity_logs' },
         (payload) => {
+          console.log("New Event Captured:", payload.new.action);
           setLogs(prev => [payload.new, ...prev].slice(0, 500));
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Subscription Status Change:", status);
+        if (status === 'SUBSCRIBED') setConnectionStatus('connected');
+        if (status === 'CLOSED' || status === 'CHANNEL_ERROR') setConnectionStatus('error');
+      });
 
-    return () => { supabase.removeChannel(channel); };
+    return () => { 
+      console.log("Deactivating Surveillance...");
+      supabase.removeChannel(channel); 
+    };
   }, []);
 
   // Derived data
@@ -138,6 +148,13 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
           </div>
           GOD MODE — COMMAND CENTER
+          <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border ${
+            connectionStatus === 'connected' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+            connectionStatus === 'connecting' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 animate-pulse' :
+            'bg-red-500/10 text-red-400 border-red-500/20'
+          }`}>
+            {connectionStatus === 'connected' ? 'LIVE SYNC ACTIVE' : connectionStatus === 'connecting' ? 'ESTABLISHING LINK...' : 'SYNC OFFLINE'}
+          </span>
         </h2>
         <div className="flex gap-1 bg-black/40 rounded-xl p-1 border border-white/10">
           {([['feed', '📡 Feed'], ['grid', '🖥️ Grid'], ['audit', '📋 Audit'], ['shadow', '🎯 Shadow']] as const).map(([key, label]) => (
