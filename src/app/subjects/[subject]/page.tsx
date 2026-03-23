@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getSubject } from '@/lib/content';
+import { supabaseAdmin } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import LessonCard from '@/components/LessonCard';
 
@@ -20,6 +21,15 @@ export default async function SubjectPage({ params }: Props) {
 
   const subject = await getSubject(subjectSlug);
   if (!subject) notFound();
+
+  // Check for recently added content (last 24h) for "NEW" badges
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: newLogs } = await supabaseAdmin
+    .from('activity_logs')
+    .select('details')
+    .eq('action', 'NEW_CONTENT_ADDED')
+    .gte('created_at', since);
+  const newLessonIds = new Set((newLogs || []).map(l => l.details?.lessonId).filter(Boolean));
 
   return (
     <div className="min-h-screen bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(0,0,0,0))] relative overflow-hidden">
@@ -87,6 +97,7 @@ export default async function SubjectPage({ params }: Props) {
                 imageCount={lesson.imageCount}
                 index={i}
                 color={subject.color}
+                isNew={newLessonIds.has(lesson.slug)}
               />
             ))}
           </div>

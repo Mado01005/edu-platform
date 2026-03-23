@@ -10,6 +10,7 @@ import StudentWelcomeModal from '@/components/StudentWelcomeModal';
 import DashboardLogger from '@/components/DashboardLogger';
 import DailyStreak from '@/components/DailyStreak';
 import BookmarkedLessons from '@/components/BookmarkedLessons';
+import WhatsNewBanner from '@/components/WhatsNewBanner';
 
 export const dynamic = 'force-dynamic';
 
@@ -85,6 +86,9 @@ export default async function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* New Material Banner (separate from broadcast) */}
+        <WhatsNewBanner />
 
         {/* Header */}
         <div className="mb-12 fade-in mt-4">

@@ -9,6 +9,7 @@ interface LessonCardProps {
   imageCount: number;
   index: number;
   color: string;
+  isNew?: boolean;
 }
 
 export default function LessonCard({
@@ -20,6 +21,7 @@ export default function LessonCard({
   imageCount,
   index,
   color,
+  isNew,
 }: LessonCardProps) {
   return (
     <div
@@ -41,6 +43,15 @@ export default function LessonCard({
         {/* Subtle internal ambient glow on hover */}
         <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-[0.05] transition-opacity duration-500`}></div>
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+        {/* NEW Badge */}
+        {isNew && (
+          <div className="absolute top-3 right-3 z-20">
+            <span className="px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse">
+              ✨ NEW
+            </span>
+          </div>
+        )}
 
         {/* Info */}
         <div className="flex-1 min-w-0 relative z-10">
