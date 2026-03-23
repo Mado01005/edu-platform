@@ -667,14 +667,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
                          </div>
                        </div>
                     </div>
-                  )}
+                  </div>
+                )}
                 </div>
               </div>
-           </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  );
+      );
 
   function renderDossierChat(studentEmail: string) {
     const chatMessages = messages.filter(m => m.sender_email === studentEmail || m.receiver_email === studentEmail).sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());

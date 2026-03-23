@@ -6,6 +6,31 @@ function generateSlug(title: string) {
   return title.toLowerCase().trim().replace(/[\s\W-]+/g, '-');
 }
 
+export async function GET() {
+  try {
+    const session = await auth();
+    // @ts-ignore
+    if (!session || !session.user?.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: subjects, error } = await supabaseAdmin
+      .from('subjects')
+      .select(`
+        *,
+        lessons (*)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return NextResponse.json(subjects);
+  } catch (error: any) {
+    console.error('Fetch subjects error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const session = await auth();

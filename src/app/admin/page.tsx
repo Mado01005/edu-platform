@@ -43,26 +43,25 @@ export default async function AdminPage() {
           // @ts-ignore
           isAdmin={session.user?.isAdmin}
         />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          
-          <div className="flex flex-col items-center mb-12 text-center fade-in">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[11px] font-bold uppercase tracking-widest mb-5 max-w-fit shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span> Systems Online
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-4 select-none">
-              Command Center
-            </h1>
-            <p className="text-gray-400 text-lg max-w-2xl font-medium">
-              Control the global syllabus hierarchy, process encrypted uploads, and monitor incoming student transmissions.
-            </p>
+        <div className="flex flex-col items-center py-10 text-center fade-in">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[11px] font-bold uppercase tracking-widest mb-5 max-w-fit shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span> Systems Online
           </div>
-          
-          <AdminClient subjects={subjects} initialRoles={mergedRoles} userEmail={session.user?.email || ''} />
-          
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-4 select-none">
+            Command Center
+          </h1>
+          <p className="text-gray-400 text-lg max-w-2xl font-medium">
+            Control the global syllabus hierarchy, process encrypted uploads, and monitor incoming student transmissions.
+          </p>
+        </div>
+        
+        <AdminClient subjects={subjects} initialRoles={mergedRoles} userEmail={session.user?.email || ''} />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
           <div className="mt-16 fade-in scale-in" style={{ animationDelay: '0.2s' }}>
             <AnalyticsPanel />
           </div>
-        </main>
+        </div>
       </div>
     </div>
   );
