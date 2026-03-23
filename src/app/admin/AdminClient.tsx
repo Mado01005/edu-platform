@@ -40,11 +40,11 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
   const [adminReply, setAdminReply] = useState('');
 
   const supabase = createClientComponentClient();
-  const ADMIN_EMAIL = 'abdallahsaad2150@gmail.com';
+  const ADMIN_EMAILS = ['abdallahsaad2150@gmail.com', 'abdallahsaad828asd@gmail.com'];
 
   const currentUserRole = useMemo(() => {
     // Force superadmin for the master admin email
-    if (userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) return 'superadmin';
+    if (userEmail && ADMIN_EMAILS.includes(userEmail.toLowerCase())) return 'superadmin';
     
     const found = allRoles.find(r => r.email?.toLowerCase() === userEmail?.toLowerCase());
     return found?.role || 'student';
@@ -612,7 +612,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
                                      {r.role !== 'superadmin' && (
                                        <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl hover:bg-indigo-500 transition-all">Grant God Mode</button>
                                      )}
-                                     {r.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase() && (
+                                     {!ADMIN_EMAILS.includes(r.email.toLowerCase()) && (
                                        <button onClick={() => updateRole(r.email, 'student')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-red-500/40 hover:text-red-500 border border-white/10 hover:bg-red-500/10 transition-all">Demote to Student</button>
                                      )}
                                   </div>
@@ -718,7 +718,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
               body: JSON.stringify({ receiver_email: studentEmail, subject: 'Direct Protocol Override Response', body: adminReply })
             });
             if (res.ok) {
-              setMessages(prev => [{ id: Math.random().toString(), sender_email: ADMIN_EMAIL, receiver_email: studentEmail, body: adminReply, created_at: new Date().toISOString() }, ...prev]);
+              setMessages(prev => [{ id: Math.random().toString(), sender_email: ADMIN_EMAILS[0], receiver_email: studentEmail, body: adminReply, created_at: new Date().toISOString() }, ...prev]);
               setAdminReply('');
               refreshPageData();
             }

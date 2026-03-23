@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const session = await auth();
     // @ts-ignore
-    if (!session || !session.user?.isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || !session.user?.isSuperAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { data, error } = await supabaseAdmin.from('user_roles').select('*').order('created_at', { ascending: false });
     if (error) throw error;
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   try {
     const session = await auth();
     // @ts-ignore
-    if (!session || !session.user?.isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || !session.user?.isSuperAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { email, overrideRole } = await req.json();
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });

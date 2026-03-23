@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
 import { supabaseAdmin } from '@/lib/supabase';
 
-export const ADMIN_EMAIL = 'abdallahsaad2150@gmail.com';
+export const ADMIN_EMAILS = ['abdallahsaad2150@gmail.com', 'abdallahsaad828asd@gmail.com'];
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -21,25 +21,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user && user.email) {
         // This 'user' object is only present on the very first sign-in moment.
         // We do our heavy database query here and 'bake' the result into the token forever.
-        const isMasterAdmin = user.email === ADMIN_EMAIL;
-        let isTeacher = false;
+        const isMasterAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
+        let dbRole = 'student';
         
-        if (!isMasterAdmin) {
-           const { data } = await supabaseAdmin.from('user_roles').select('role').eq('email', user.email).maybeSingle();
-           
-           let dbRole = data?.role;
-           if (!data) {
-             // This is their absolute first time logging into the platform! 
-             // We automatically register them into the database natively as a permanent 'student'
-             await supabaseAdmin.from('user_roles').insert({ email: user.email, role: 'student' });
-             dbRole = 'student';
-           }
-
-           if (dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin') isTeacher = true;
-           if (dbRole === 'banned') token.isBanned = true;
+        const { data } = await supabaseAdmin.from('user_roles').select('role').eq('email', user.email).maybeSingle();
+        if (data) {
+          dbRole = data.role;
+        } else {
+          // This is their absolute first time logging into the platform! 
+          // We automatically register them into the database natively as a permanent 'student'
+          await supabaseAdmin.from('user_roles').insert({ email: user.email, role: 'student' });
         }
+
+        if (dbRole === 'banned') token.isBanned = true;
         
-        token.isAdmin = isMasterAdmin || isTeacher;
+        token.isSuperAdmin = isMasterAdmin || dbRole === 'superadmin';
+        token.isAdmin = isMasterAdmin || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
       }
       return token;
     },
@@ -51,6 +48,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.image = token.picture as string | null | undefined ?? session.user.image;
         // @ts-expect-error - Adding custom property to session user
         session.user.isAdmin = token.isAdmin ?? false;
+        // @ts-expect-error
+        session.user.isSuperAdmin = token.isSuperAdmin ?? false;
         // @ts-expect-error
         session.user.isBanned = token.isBanned ?? false;
       }

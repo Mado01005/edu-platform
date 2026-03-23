@@ -113,7 +113,8 @@ body {
 /* PDF iframe */
 .pdf-viewer {
   width: 100%;
-  height: 700px;
+  height: 80vh;
+  min-height: 500px;
   border-radius: 12px;
   border: 1px solid var(--card-border);
 }

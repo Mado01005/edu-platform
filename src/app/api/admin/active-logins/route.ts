@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const session = await auth();
     // @ts-ignore
-    if (!session || !session.user?.isAdmin) {
+    if (!session || !session.user?.isSuperAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

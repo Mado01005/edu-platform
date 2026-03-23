@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'abdallahsaad2150@gmail.com';
+const ADMIN_EMAILS = ['abdallahsaad2150@gmail.com', 'abdallahsaad828asd@gmail.com'];
 
 interface Message {
   id: string;
@@ -25,10 +25,12 @@ export default function SupportChat({ userEmail }: { userEmail: string | null | 
     if (!userEmail || !isOpen) return;
 
     const fetchMessages = async () => {
+      // Build a filter that includes all admin emails
+      const adminEmailsStr = ADMIN_EMAILS.join(',');
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .or(`and(sender_email.eq.${userEmail},receiver_email.eq.${ADMIN_EMAIL}),and(sender_email.eq.${ADMIN_EMAIL},receiver_email.eq.${userEmail})`)
+        .or(`and(sender_email.eq.${userEmail},receiver_email.in.(${adminEmailsStr})),and(sender_email.in.(${adminEmailsStr}),receiver_email.eq.${userEmail})`)
         .order('created_at', { ascending: true });
 
       if (data) setMessages(data);
@@ -71,7 +73,7 @@ export default function SupportChat({ userEmail }: { userEmail: string | null | 
     setLoading(true);
     const msgData = {
       sender_email: userEmail,
-      receiver_email: ADMIN_EMAIL,
+      receiver_email: ADMIN_EMAILS[0],
       subject: 'Support Inquiry',
       body: newMessage.trim(),
     };
@@ -90,7 +92,7 @@ export default function SupportChat({ userEmail }: { userEmail: string | null | 
   if (!userEmail) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[99999] transition-all duration-500 ease-out flex flex-col items-end">
+    <div className="fixed bottom-24 right-6 sm:bottom-6 z-[99999] transition-all duration-500 ease-out flex flex-col items-end">
       
       {/* CHAT WINDOW */}
       {isOpen && (

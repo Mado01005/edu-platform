@@ -181,7 +181,6 @@ export default async function DashboardPage() {
             ))}
           </div>
         )}
-        <SupportTicketModal />
         <PromotionModal open={showPromotionModal} userEmail={session.user?.email || ''} />
         <StudentWelcomeModal open={showStudentWelcomeModal} userEmail={session.user?.email || ''} userName={session.user?.name || 'Student'} />
       </main>

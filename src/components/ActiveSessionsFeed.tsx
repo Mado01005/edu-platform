@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface Session {
   id: string;
@@ -15,6 +15,7 @@ interface Session {
 
 export default function ActiveSessionsFeed() {
   const [sessions, setSessions] = useState<Session[]>([]);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     // Initial fetch of active sessions
