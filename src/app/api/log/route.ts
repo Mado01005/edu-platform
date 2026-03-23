@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { ADMIN_EMAIL } from '@/auth';
+import { ADMIN_EMAIL } from '@/lib/constants';
 
 export async function POST(req: Request) {
   try {

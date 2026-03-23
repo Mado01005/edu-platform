@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
-import { auth, ADMIN_EMAILS } from '@/auth';
+import { auth } from '@/auth';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import LiveActivityFeed from '@/components/LiveActivityFeed';
 
 export default async function AnalyticsPanel() {

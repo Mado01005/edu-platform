@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
-const ADMIN_EMAILS = ['abdallahsaad2150@gmail.com', 'abdallahsaad828asd@gmail.com'];
 
 interface Message {
   id: string;

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import ActiveSessionsFeed from '@/components/ActiveSessionsFeed';
 import { SubjectMeta } from '@/lib/content';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 interface AdminClientProps {
   subjects: SubjectMeta[];
@@ -40,7 +41,6 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
   const [adminReply, setAdminReply] = useState('');
 
   const supabase = createClientComponentClient();
-  const ADMIN_EMAILS = ['abdallahsaad2150@gmail.com', 'abdallahsaad828asd@gmail.com'];
 
   const currentUserRole = useMemo(() => {
     console.log('[DEBUG] Admin Verification:', { userEmail, authorized: ADMIN_EMAILS });
