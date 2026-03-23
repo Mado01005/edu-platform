@@ -38,17 +38,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required message parameters' }, { status: 400 });
     }
 
-    const { error } = await supabaseAdmin.from('messages').insert({
+    const { data, error } = await supabaseAdmin.from('messages').insert({
       sender_email: session.user.email,
       receiver_email,
       subject,
       body,
       is_read: false
-    });
+    }).select().single();
 
     if (error) throw error;
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: data });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

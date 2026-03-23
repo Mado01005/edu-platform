@@ -71,22 +71,29 @@ export default function SupportChat({ userEmail }: { userEmail: string | null | 
     if (!newMessage.trim() || !userEmail) return;
 
     setLoading(true);
-    const msgData = {
-      sender_email: userEmail,
-      receiver_email: ADMIN_EMAILS[0],
-      subject: 'Support Inquiry',
-      body: newMessage.trim(),
-    };
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiver_email: ADMIN_EMAILS[0],
+          subject: 'Support Inquiry',
+          body: newMessage.trim(),
+        })
+      });
 
-    const { data, error } = await supabase.from('messages').insert(msgData).select().single();
-
-    if (error) {
-      console.error('Error sending message:', error);
-    } else {
-      setMessages((prev) => [...prev, data]);
-      setNewMessage('');
+      const data = await res.json();
+      if (res.ok && data.message) {
+        setMessages((prev) => [...prev, data.message]);
+        setNewMessage('');
+      } else {
+        console.error('Error sending message:', data.error || 'Unknown error');
+      }
+    } catch (err) {
+      console.error('Error sending message:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   if (!userEmail) return null;
