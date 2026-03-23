@@ -6,6 +6,8 @@ function generateSlug(title: string) {
   return title.toLowerCase().trim().replace(/[\s\W-]+/g, '-');
 }
 
+import { getAllSubjects } from '@/lib/content';
+
 export async function GET() {
   try {
     const session = await auth();
@@ -14,16 +16,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: subjects, error } = await supabaseAdmin
-      .from('subjects')
-      .select(`
-        *,
-        lessons (*)
-      `)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
+    const subjects = await getAllSubjects();
     return NextResponse.json(subjects);
   } catch (error: any) {
     console.error('Fetch subjects error:', error);
