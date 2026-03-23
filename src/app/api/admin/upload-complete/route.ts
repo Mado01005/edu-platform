@@ -30,19 +30,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Auto-log the upload as an activity event for "What's New" notifications
-    await supabaseAdmin.from('activity_logs').insert({
+    // Auto-log the upload as an activity event for "What's New" notifications (non-blocking)
+    Promise.resolve(supabaseAdmin.from('activity_logs').insert({
       user_email: session.user?.email || 'admin',
       user_name: session.user?.name || 'Admin',
       action: 'NEW_CONTENT_ADDED',
       url: publicUrl,
       details: { subjectId, lessonId, fileName, fileType, itemType },
-    });
+    })).catch(() => {});
 
     return NextResponse.json({ success: true, data });
 
   } catch (error: any) {
     console.error('Upload complete error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
