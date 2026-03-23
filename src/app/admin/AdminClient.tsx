@@ -449,10 +449,27 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                       <li key={item.id} className="flex justify-between items-center text-xs py-4 px-6 rounded-2xl hover:bg-white/5 transition border border-transparent hover:border-white/5 group/item bg-black/40">
                                         <div className="flex items-center gap-4">
                                           <input type="checkbox" checked={selectedItems.size > 0 && selectedItems.has(item.id)} onChange={() => toggleSelectItem(item.id)} className="accent-indigo-500 w-4 h-4 rounded-lg" />
-                                          <span className="text-gray-600 font-normal">{item.type === 'vimeo' ? '🎬' : item.type === 'folder' ? '📂' : '📄'}</span>
+                                          <span className="text-gray-500 font-normal text-lg">
+                                            {item.type === 'vimeo' ? '🎬' : 
+                                             item.fileType === 'video' ? '📽️' : 
+                                             item.fileType === 'pdf' ? '📕' : 
+                                             item.fileType === 'image' ? '🖼️' : 
+                                             item.name.toLowerCase().endsWith('.docx') || item.name.toLowerCase().endsWith('.doc') ? '📝' : 
+                                             '📄'}
+                                          </span>
                                           <div className="flex flex-col">
-                                            <span className="font-bold text-gray-300">{item.name}</span>
-                                            <span className="text-[8px] text-gray-600 uppercase tracking-widest">{item.id}</span>
+                                            <div className="flex items-center gap-2">
+                                              <span className="font-bold text-gray-300">{item.name}</span>
+                                              <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-md border ${
+                                                item.type === 'vimeo' || item.fileType === 'video' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' :
+                                                item.fileType === 'pdf' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
+                                                item.name.toLowerCase().includes('.doc') ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+                                                'bg-white/5 border-white/10 text-gray-500'
+                                              }`}>
+                                                {item.type === 'vimeo' ? 'VIMEO' : (item.fileType || 'FILE').toUpperCase()}
+                                              </span>
+                                            </div>
+                                            <span className="text-[8px] text-gray-700 font-mono tracking-tighter opacity-50 uppercase">{item.id}</span>
                                           </div>
                                         </div>
                                         <div className="flex gap-3 opacity-0 group-hover/item:opacity-100 transition-all">
