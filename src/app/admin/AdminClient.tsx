@@ -3,10 +3,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import ActiveSessionsFeed from '@/components/ActiveSessionsFeed';
+import { SubjectMeta } from '@/lib/content';
 
-export default function AdminClient() {
+interface AdminClientProps {
+  subjects: SubjectMeta[];
+  initialRoles: any[];
+  userEmail: string;
+}
+
+export default function AdminClient({ subjects, initialRoles, userEmail }: AdminClientProps) {
   const [activeTab, setActiveTab] = useState<'upload' | 'manage' | 'broadcast' | 'inbox' | 'team' | 'telemetry'>('upload');
-  const [localSubjects, setLocalSubjects] = useState<any[]>([]);
+  const [localSubjects, setLocalSubjects] = useState<SubjectMeta[]>(subjects);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedLessonId, setSelectedLessonId] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -16,7 +23,7 @@ export default function AdminClient() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
-  const [allRoles, setAllRoles] = useState<any[]>([]);
+  const [allRoles, setAllRoles] = useState<any[]>(initialRoles);
   const [newTeacherEmail, setNewTeacherEmail] = useState('');
   const [activeLogins, setActiveLogins] = useState<string[]>([]);
   const [storageStats, setStorageStats] = useState<any>(null);
@@ -295,8 +302,8 @@ export default function AdminClient() {
                         <div className="flex items-center justify-between p-6 bg-white/5 border-b border-white/5">
                           <h3 className="text-xl font-black text-white flex gap-3 items-center">{subject.icon} {subject.title}</h3>
                           <div className="flex gap-2">
-                             <button onClick={() => handleRename('subject', subject.id, subject.title)} className="p-2 hover:bg-white/10 rounded-xl transition text-gray-400">✏️</button>
-                             <button onClick={() => handleDelete('subject', subject.id, subject.title)} className="p-2 hover:bg-red-500/10 rounded-xl transition text-red-500">🗑️</button>
+                             <button onClick={() => handleRename('subject', subject.id!, subject.title)} className="p-2 hover:bg-white/10 rounded-xl transition text-gray-400">✏️</button>
+                             <button onClick={() => handleDelete('subject', subject.id!, subject.title)} className="p-2 hover:bg-red-500/10 rounded-xl transition text-red-500">🗑️</button>
                           </div>
                         </div>
                         <div className="divide-y divide-white/5">
@@ -305,8 +312,8 @@ export default function AdminClient() {
                               <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-lg font-bold text-indigo-300">📂 {lesson.title}</h4>
                                 <div className="flex gap-2">
-                                  <button onClick={() => handleRename('lesson', lesson.id, lesson.title)} className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-white/5 rounded-lg">Rename</button>
-                                  <button onClick={() => handleDelete('lesson', lesson.id, lesson.title)} className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg">Delete</button>
+                                  <button onClick={() => handleRename('lesson', lesson.id!, lesson.title)} className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-white/5 rounded-lg">Rename</button>
+                                  <button onClick={() => handleDelete('lesson', lesson.id!, lesson.title)} className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg">Delete</button>
                                 </div>
                               </div>
                               <ul className="space-y-2">
