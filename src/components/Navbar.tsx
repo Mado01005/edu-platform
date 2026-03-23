@@ -67,9 +67,23 @@ export default function Navbar({ userName, userImage, isAdmin }: NavbarProps) {
               </Link>
             )}
             {userName && (
-              <Link href="/profile" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors rounded-lg px-2 py-1 hover:bg-white/5">
-                {avatar}
+              <Link 
+                href="/profile" 
+                className="flex items-center gap-2.5 text-sm font-medium text-gray-400 hover:text-white transition-all duration-200 rounded-xl px-3 py-1.5 hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98] ring-offset-2 ring-offset-gray-900 focus:outline-none focus:ring-2 focus:ring-white/20 group/profile"
+              >
+                <div className="relative">
+                  {avatar}
+                  <div className="absolute inset-0 rounded-full ring-1 ring-white/10 group-hover/profile:ring-white/20 transition-colors" />
+                </div>
                 <span className="max-w-[140px] truncate">{userName}</span>
+                <svg 
+                  className="w-4 h-4 text-gray-500 group-hover/profile:text-gray-300 transition-colors" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </Link>
             )}
             <button
