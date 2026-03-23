@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { getAllSubjects } from '@/lib/content';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isMasterAdmin } from '@/lib/constants';
 import Navbar from '@/components/Navbar';
 import AdminClient from './AdminClient';
 import AnalyticsPanel from './AnalyticsPanel';
@@ -9,9 +10,9 @@ import AnalyticsPanel from './AnalyticsPanel';
 export default async function AdminPage() {
   const session = await auth();
   
-  // Strict check for admin status
   // @ts-ignore
-  if (!session || !session.user?.isAdmin) {
+  const isAdmin = session?.user?.isAdmin || isMasterAdmin(session?.user?.email);
+  if (!session || !isAdmin) {
     redirect('/dashboard');
   }
 

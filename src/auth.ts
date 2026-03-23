@@ -21,7 +21,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user && user.email) {
         // This 'user' object is only present on the very first sign-in moment.
         // We do our heavy database query here and 'bake' the result into the token forever.
-        const isMasterAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
+        const isMasterAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase().trim() === user.email?.toLowerCase().trim());
         let dbRole = 'student';
         
         const { data } = await supabaseAdmin.from('user_roles').select('role').eq('email', user.email).maybeSingle();
@@ -35,8 +35,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (dbRole === 'banned') token.isBanned = true;
         
-        token.isSuperAdmin = isMasterAdmin || dbRole === 'superadmin';
-        token.isAdmin = isMasterAdmin || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
+        token.isSuperAdmin = isMasterAdminEmail || dbRole === 'superadmin';
+        token.isAdmin = isMasterAdminEmail || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
       }
       return token;
     },
