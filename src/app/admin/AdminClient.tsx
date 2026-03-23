@@ -468,7 +468,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
                 {activeTab === 'broadcast' && (
                   <div className="h-[600px] flex items-center justify-center fade-in">
                      <div className="w-full max-w-2xl bg-white/5 border border-white/10 p-16 rounded-[4rem] text-center space-y-12 relative overflow-hidden shadow-3xl">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[120px] rounded-full"></div>
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
                         <div className="w-24 h-24 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto text-5xl shadow-inner border border-indigo-500/20">📢</div>
                         <div className="space-y-4">
                           <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Emergency Signal</h2>
@@ -590,7 +590,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
 
                     <div className="bg-[#05050A] border border-white/10 rounded-[4rem] overflow-hidden shadow-3xl min-h-[500px]">
                        <div className="px-14 py-10 border-b border-white/5 bg-white/[0.02] flex justify-between items-center relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[50px]"></div>
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[50px] pointer-events-none"></div>
                           <h3 className="font-black text-[11px] uppercase tracking-[0.4em] text-gray-500">Classified Personnel DB</h3>
                           <span className="text-[11px] font-black text-indigo-400 bg-indigo-500/10 px-6 py-2 rounded-2xl border border-indigo-500/10 shadow-inner">{allRoles.length} Identified Identities</span>
                        </div>
@@ -691,8 +691,8 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
     const chatMessages = messages.filter(m => m.sender_email === studentEmail || m.receiver_email === studentEmail).sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
     return (
-      <div className="flex flex-col h-[550px] bg-black/60 rounded-[3.5rem] border border-white/10 overflow-hidden shadow-3xl relative animate-in zoom-in-95 backdrop-blur-3xl">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent"></div>
+      <div className="flex flex-col h-[550px] bg-black/60 rounded-[3.5rem] border border-white/10 overflow-hidden shadow-3xl relative animate-in zoom-in-95 backdrop-blur-3xl z-10">
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent pointer-events-none"></div>
         <div className="flex-1 overflow-y-auto p-12 space-y-12 custom-scrollbar">
           {chatMessages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full opacity-10 grayscale space-y-10 animate-pulse">
