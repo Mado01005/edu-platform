@@ -170,34 +170,26 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
       const subjectSlug = activeSubject.slug;
       const lessonSlug = activeLessons.find((l: any) => l.id === selectedLessonId)?.slug;
       let publicUrl = '';
-
       if (uploadTarget === 'r2') {
-        // R2: Presigned URL direct upload
-        setStatusMessage('Requesting secure R2 signature...');
-        const initiateRes = await fetch('/api/admin/upload-initiate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileName: file!.name, subjectSlug, lessonSlug, contentType: file!.type || 'application/octet-stream' })
-        });
-        if (!initiateRes.ok) throw new Error('Failed to initiate R2 upload');
-        const { signedUrl, publicUrl: r2Url, contentType: signedContentType } = await initiateRes.json();
-        publicUrl = r2Url;
-        
-        setProgress(30);
         setStatusMessage('Uploading to Cloudflare R2...');
+        setProgress(30);
 
-        const r2PutRes = await fetch(signedUrl, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': signedContentType || 'application/octet-stream',
-          },
-          body: file!,
-          mode: 'cors',
+        const formData = new FormData();
+        formData.append('file', file!);
+        formData.append('subjectSlug', subjectSlug);
+        formData.append('lessonSlug', lessonSlug || '');
+
+        const uploadRes = await fetch('/api/admin/upload-r2', {
+          method: 'POST',
+          body: formData,
         });
-
-        if (!r2PutRes.ok) {
-          throw new Error(`R2 upload failed (${r2PutRes.status}): ${r2PutRes.statusText}. Try Supabase instead.`);
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json().catch(() => ({}));
+          throw new Error(errData.error || 'R2 upload failed via proxy');
         }
+        const { publicUrl: r2Url } = await uploadRes.json();
+        publicUrl = r2Url;
+        setProgress(90);
       } else {
         // Supabase: Server-side proxy upload (no CORS issues)
         setStatusMessage('Uploading to Supabase Storage...');
