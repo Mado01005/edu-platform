@@ -186,18 +186,18 @@ export default function AdminClient({ subjects: initialSubjects, initialRoles = 
         setProgress(30);
         setStatusMessage('Uploading to Cloudflare R2...');
 
-        await new Promise<void>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open('PUT', signedUrl, true);
-          // MUST match exactly what was signed by the server
-          xhr.setRequestHeader('Content-Type', signedContentType || 'application/octet-stream');
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) setProgress(Math.round((event.loaded / event.total) * 60) + 30);
-          };
-          xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`R2 upload failed (${xhr.status}): ${xhr.statusText}`));
-          xhr.onerror = () => reject(new Error('R2 network error (CORS or Timeout) — try Supabase instead'));
-          xhr.send(file);
+        const r2PutRes = await fetch(signedUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': signedContentType || 'application/octet-stream',
+          },
+          body: file!,
+          mode: 'cors',
         });
+
+        if (!r2PutRes.ok) {
+          throw new Error(`R2 upload failed (${r2PutRes.status}): ${r2PutRes.statusText}. Try Supabase instead.`);
+        }
       } else {
         // Supabase: Server-side proxy upload (no CORS issues)
         setStatusMessage('Uploading to Supabase Storage...');
