@@ -17,10 +17,11 @@ export default async function AdminPage() {
   }
 
   // Fetch all concurrent Admin Data before rendering
-  const [subjects, { data: roles }, { data: allLogs }] = await Promise.all([
+  const [subjects, { data: roles }, { data: allLogs }, { data: historicalLogs }] = await Promise.all([
     getAllSubjects(),
     supabaseAdmin.from('user_roles').select('*'),
-    supabaseAdmin.from('activity_logs').select('user_email')
+    supabaseAdmin.from('activity_logs').select('user_email'),
+    supabaseAdmin.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(500)
   ]);
 
   // Merge legacy users who interacted with the platform before the internal `user_roles` table existed
@@ -56,7 +57,7 @@ export default async function AdminPage() {
           </p>
         </div>
         
-        <AdminClient subjects={subjects} initialRoles={mergedRoles} userEmail={session.user?.email || ''} />
+        <AdminClient subjects={subjects} initialRoles={mergedRoles} userEmail={session.user?.email || ''} initialLogs={historicalLogs || []} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
           <div className="mt-16 fade-in scale-in" style={{ animationDelay: '0.2s' }}>

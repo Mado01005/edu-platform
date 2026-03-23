@@ -24,7 +24,7 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'activity_logs' },
         (payload) => {
-          setLogs(prev => [payload.new, ...prev].slice(0, 200));
+          setLogs(prev => [payload.new, ...prev].slice(0, 500));
         }
       )
       .subscribe();

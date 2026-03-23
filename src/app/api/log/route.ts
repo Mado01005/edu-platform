@@ -11,6 +11,8 @@ export async function POST(req: Request) {
     }
 
     const { action, details } = await req.json();
+    const url = req.headers.get('referer') || 'Unknown';
+    const userAgent = req.headers.get('user-agent') || 'Unknown';
 
     if (!action) {
       return NextResponse.json({ error: 'Missing action' }, { status: 400 });
@@ -21,6 +23,8 @@ export async function POST(req: Request) {
       user_email: session.user.email,
       user_name: session.user.name || 'Unknown User',
       action,
+      url,
+      user_agent: userAgent,
       details: details || {}
     });
 

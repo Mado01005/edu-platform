@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import ActiveSessionsFeed from '@/components/ActiveSessionsFeed';
+import LiveActivityFeed from '@/components/LiveActivityFeed';
 import { SubjectMeta } from '@/lib/content';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
@@ -10,11 +11,12 @@ interface AdminClientProps {
   subjects: SubjectMeta[];
   initialRoles: any[];
   userEmail: string;
+  initialLogs: any[];
 }
 
 type TabId = 'upload' | 'manage' | 'broadcast' | 'inbox' | 'team' | 'telemetry';
 
-export default function AdminClient({ subjects, initialRoles, userEmail }: AdminClientProps) {
+export default function AdminClient({ subjects, initialRoles, userEmail, initialLogs }: AdminClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>('upload');
   const [localSubjects, setLocalSubjects] = useState<SubjectMeta[]>(subjects);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
@@ -460,7 +462,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
                        <p className="text-sm text-gray-500 font-medium">Real-time scan of global session activity and platform load.</p>
                     </div>
                     <div className="bg-white/[0.02] border border-white/5 rounded-[3.5rem] p-4 shadow-3xl">
-                       <ActiveSessionsFeed />
+                       <LiveActivityFeed initialLogs={initialLogs} />
                     </div>
                   </div>
                 )}
