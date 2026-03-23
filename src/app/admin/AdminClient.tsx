@@ -608,12 +608,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
                                       </p>
                                     </div>
                                  </div>
-                                 {r.role !== 'superadmin' && (
-                                   <div className="flex gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-10 group-hover:translate-x-0">
-                                      <button onClick={() => updateRole(r.email, 'superadmin')} className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl hover:scale-105 active:scale-95 transition-all">Grant God Mode</button>
-                                      <button onClick={() => updateRole(r.email, 'student')} className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-white/5 text-gray-500 hover:text-white border border-white/10 transition-all italic">Demote to Student</button>
-                                   </div>
-                                 )}
+                                 <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-10 group-hover:translate-x-0 min-w-[200px]">
+                                     {r.role !== 'superadmin' && (
+                                       <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl hover:bg-indigo-500 transition-all">Grant God Mode</button>
+                                     )}
+                                     {r.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase() && (
+                                       <button onClick={() => updateRole(r.email, 'student')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-red-500/40 hover:text-red-500 border border-white/10 hover:bg-red-500/10 transition-all">Demote to Student</button>
+                                     )}
+                                  </div>
                               </li>
                             ))}
                          </div>
@@ -639,18 +641,20 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
                                           <p className={`text-[9px] font-black uppercase tracking-[0.3em] mt-2 ${r.role === 'banned' ? 'text-red-600' : 'text-gray-700'}`}>{r.role === 'banned' ? '✘ Identity Sector Revoked' : '✓ Verified connection'}</p>
                                        </div>
                                     </div>
-                                    <div className="flex flex-wrap gap-3 items-center justify-end w-full md:w-auto">
+                                    <div className="flex flex-col gap-2 min-w-[200px] items-end justify-center w-full md:w-auto">
                                        {r.role !== 'banned' ? (
                                          <>
-                                           <button onClick={() => updateRole(r.email, 'teacher')} className="px-8 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-gray-500 hover:text-white hover:bg-white/10 border border-white/5 shadow-xl transition-all">Promote: Teacher</button>
-                                           <button onClick={() => updateRole(r.email, 'superadmin')} className="px-8 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all">Grant: God Mode</button>
-                                           <button 
-                                              onClick={() => setActiveChatEmail(activeChatEmail === r.email ? null : r.email)}
-                                              className={`px-8 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${activeChatEmail === r.email ? 'bg-white text-black shadow-3xl scale-105' : 'bg-white/5 text-gray-600 hover:text-white border border-white/5'}`}
-                                           >
-                                              {activeChatEmail === r.email ? 'Close Dossier' : 'Dossier'}
-                                           </button>
-                                           <button onClick={() => updateRole(r.email, 'banned')} className="p-4 hover:bg-red-500/20 rounded-2xl text-red-500 transition-all opacity-0 group-hover/student:opacity-100">🚫</button>
+                                           <button onClick={() => updateRole(r.email, 'teacher')} className="w-full px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-gray-500 hover:text-white hover:bg-white/10 border border-white/5 shadow-xl transition-all">Promote: Teacher</button>
+                                           <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all">Grant: God Mode</button>
+                                           <div className="flex gap-2 w-full mt-1">
+                                             <button 
+                                                onClick={() => setActiveChatEmail(activeChatEmail === r.email ? null : r.email)}
+                                                className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${activeChatEmail === r.email ? 'bg-white text-black shadow-3xl' : 'bg-white/5 text-gray-600 hover:text-white border border-white/5'}`}
+                                             >
+                                                {activeChatEmail === r.email ? 'Close Dossier' : 'Dossier'}
+                                             </button>
+                                             <button onClick={() => updateRole(r.email, 'banned')} className="px-4 py-3 hover:bg-red-500/20 rounded-xl text-red-500 bg-white/5 border border-white/5 transition-all opacity-40 hover:opacity-100" title="Revoke Identity">🚫</button>
+                                           </div>
                                          </>
                                        ) : (
                                          <button onClick={() => updateRole(r.email, 'student')} className="px-10 py-4 bg-green-600 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">Authorize Re-Entry</button>
