@@ -17,6 +17,8 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
   const [auditSearch, setAuditSearch] = useState('');
   const [auditAction, setAuditAction] = useState('');
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
+  const [eventCount, setEventCount] = useState(0);
+  const [showRawStream, setShowRawStream] = useState(false);
 
   useEffect(() => {
     console.log("Initializing Realtime Surveillance...");
@@ -28,6 +30,7 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
         (payload) => {
           console.log("New Event Captured:", payload.new.action);
           setLogs(prev => [payload.new, ...prev].slice(0, 500));
+          setEventCount(c => c + 1);
         }
       )
       .subscribe((status) => {
@@ -148,13 +151,14 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
           </div>
           GOD MODE — COMMAND CENTER
-          <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border ${
+          <button onClick={() => setShowRawStream(!showRawStream)} className={`text-[8px] font-black px-2 py-0.5 rounded-full border transition ${
             connectionStatus === 'connected' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
             connectionStatus === 'connecting' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 animate-pulse' :
             'bg-red-500/10 text-red-400 border-red-500/20'
           }`}>
-            {connectionStatus === 'connected' ? 'LIVE SYNC ACTIVE' : connectionStatus === 'connecting' ? 'ESTABLISHING LINK...' : 'SYNC OFFLINE'}
-          </span>
+            {connectionStatus === 'connected' ? `LIVE SYNC ACTIVE (${eventCount} EVENTS)` : connectionStatus === 'connecting' ? 'ESTABLISHING LINK...' : 'SYNC OFFLINE'}
+            {connectionStatus === 'connected' && <span className="ml-2 opacity-50">CLICK TO {showRawStream ? 'HIDE' : 'VIEW'} STREAM</span>}
+          </button>
         </h2>
         <div className="flex gap-1 bg-black/40 rounded-xl p-1 border border-white/10">
           {([['feed', '📡 Feed'], ['grid', '🖥️ Grid'], ['audit', '📋 Audit'], ['shadow', '🎯 Shadow']] as const).map(([key, label]) => (
@@ -163,6 +167,17 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
             </button>
           ))}
         </div>
+      
+      {showRawStream && (
+        <div className="mb-6 bg-black/80 border border-indigo-500/30 rounded-xl p-4 font-mono text-[9px] text-green-400 max-h-[150px] overflow-y-auto animate-in slide-in-from-top-2">
+           <p className="border-b border-indigo-500/20 pb-2 mb-2 text-indigo-400 font-black">--- RAW PACKET STREAM (MOST RECENT FIRST) ---</p>
+           {logs.slice(0, 5).map((l, i) => (
+             <div key={i} className="mb-1 opacity-80 border-b border-white/5 pb-1">
+               [{new Date(l.created_at).toLocaleTimeString()}] {l.user_email}: {l.action} ({JSON.stringify(l.details)})
+             </div>
+           ))}
+        </div>
+      )}
       </div>
 
       {/* Stats Row */}
