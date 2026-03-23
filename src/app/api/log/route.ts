@@ -13,6 +13,8 @@ export async function POST(req: Request) {
     const { action, details } = await req.json();
     const url = req.headers.get('referer') || 'Unknown';
     const userAgent = req.headers.get('user-agent') || 'Unknown';
+    const city = req.headers.get('x-vercel-ip-city') || 'Unknown City';
+    const country = req.headers.get('x-vercel-ip-country') || 'Unknown Country';
 
     if (!action) {
       return NextResponse.json({ error: 'Missing action' }, { status: 400 });
@@ -25,6 +27,8 @@ export async function POST(req: Request) {
       action,
       url,
       user_agent: userAgent,
+      geo_city: city,
+      geo_country: country,
       details: details || {}
     });
 

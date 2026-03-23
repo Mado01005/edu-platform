@@ -38,26 +38,41 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
     logs.forEach((l: any) => {
       if (!map.has(l.user_email)) {
         map.set(l.user_email, {
+          name: l.user_name,
           email: l.user_email,
-          name: l.user_name || l.user_email.split('@')[0],
-          lastAction: l.action,
-          lastPage: l.url || l.details?.lessonSlug || 'Unknown',
-          lastSeen: l.created_at,
-          actionCount: 0,
           completions: 0,
           logins: 0,
           pdfReads: 0,
           videoWatches: 0,
+          actionCount: 0,
+          lastSeen: l.created_at,
+          lastAction: l.action,
+          city: l.geo_city || 'Unknown',
+          country: l.geo_country || 'Unknown',
+          currentScroll: 0
         });
       }
       const student = map.get(l.user_email);
       student.actionCount++;
+      if (new Date(l.created_at) > new Date(student.lastSeen)) {
+        student.lastSeen = l.created_at;
+        student.lastAction = l.action;
+        if (l.geo_city) student.city = l.geo_city;
+        if (l.geo_country) student.country = l.geo_country;
+      }
+      
+      if (l.action === 'USER_SCROLL' && l.details?.percent !== undefined) {
+         if (new Date(l.created_at) >= new Date(student.lastSeen)) {
+           student.currentScroll = l.details.percent;
+         }
+      }
+
       if (l.action === 'Completed Lesson') student.completions++;
       if (l.action === 'USER_LOGIN') student.logins++;
-      if (l.action === 'READ_PDF') student.pdfReads++;
-      if (l.action === 'WATCH_VIDEO') student.videoWatches++;
+      if (l.action === 'Open PDF') student.pdfReads++;
+      if (l.action === 'Watched Video') student.videoWatches++;
     });
-    return Array.from(map.values());
+    return Array.from(map.values()).sort((a,b) => new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime());
   }, [logs]);
 
   const totalInteractions = logs.length;
@@ -187,10 +202,31 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                   <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">City Intelligence</p>
+                   <p className="text-sm text-white font-black truncate">{s.city}</p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                   <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Region Sector</p>
+                   <p className="text-sm text-white font-black truncate">{s.country}</p>
+                </div>
+              </div>
+
               <div className="bg-white/5 rounded-xl p-3 border border-white/5 mb-6">
-                <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Last Active</p>
+                <div className="flex justify-between items-center mb-1">
+                   <p className="text-[10px] text-gray-500 font-bold uppercase">Current Viewport</p>
+                   <p className="text-[10px] text-indigo-400 font-black">{s.currentScroll}% SCROLLED</p>
+                </div>
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                   <div className="h-full bg-indigo-500 transition-all duration-1000 shadow-[0_0_8px_rgba(99,102,241,0.6)]" style={{ width: `${s.currentScroll}%` }}></div>
+                </div>
+              </div>
+
+              <div className="bg-white/10 rounded-xl p-3 border border-indigo-500/20 mb-6">
+                <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Last Transmission</p>
                 <p className="text-sm text-white font-mono">{new Date(s.lastSeen).toLocaleString()}</p>
-                <p className="text-[10px] text-gray-500 mt-1">({timeAgo(s.lastSeen)})</p>
+                <p className="text-[10px] text-indigo-400/60 mt-1">Status: Active Trace Locked ({timeAgo(s.lastSeen)})</p>
               </div>
 
               <div className="mb-4">
@@ -249,6 +285,11 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
                               <span className="text-gray-500">{k}:</span> <span className="text-indigo-200">{String(v).substring(0, 30)}</span>
                             </div>
                           ))}
+                          {log.geo_city && (
+                            <div className="text-[10px] bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 text-indigo-300">
+                               📍 {log.geo_city}, {log.geo_country}
+                            </div>
+                          )}
                         </div>
                       ) : <span className="text-gray-600 italic text-[10px]">—</span>}
                     </td>
@@ -368,29 +409,80 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
                 <p className="text-sm text-red-300 font-bold">SHADOWING: {shadowTarget}</p>
                 <p className="text-xs text-red-400/60 ml-auto">{shadowLogs.length} events captured</p>
               </div>
-              <div className="space-y-2 max-h-[500px] overflow-y-auto">
-                {shadowLogs.length === 0 && <p className="text-center py-12 text-gray-500 italic">Waiting for target activity...</p>}
-                {shadowLogs.map((log: any, i: number) => (
-                  <div key={log.id || i} className="bg-[#1A1A1E]/80 border border-white/5 rounded-xl p-4 flex items-start gap-4 hover:bg-white/5 transition">
-                    <div className="shrink-0 mt-1">
-                      <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.6)]"></div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${actionColor(log.action)}`}>{log.action.replace(/_/g, ' ')}</span>
-                        <span className="text-[10px] text-gray-600 font-mono ml-auto">{new Date(log.created_at).toLocaleTimeString()}</span>
-                      </div>
-                      {log.details && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {Object.entries(log.details).map(([k, v]) => (
-                            <span key={k} className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-gray-400">{k}: <span className="text-white">{String(v).substring(0, 40)}</span></span>
-                          ))}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-250px)] overflow-hidden">
+                 {/* SURVEILLANCE DATA */}
+                 <div className="lg:col-span-8 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+                    {shadowLogs.length === 0 && <p className="text-center py-12 text-gray-500 italic">Waiting for target activity...</p>}
+                    {shadowLogs.map((log: any, i: number) => (
+                      <div key={log.id || i} className="bg-[#1A1A1E]/80 border border-white/5 rounded-xl p-4 flex items-start gap-4 hover:bg-white/5 transition relative overflow-hidden group">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-red-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="shrink-0 mt-1">
+                          <div className={`w-2 h-2 rounded-full ${log.action.includes('CLICK') ? 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]' : log.action.includes('SCROLL') ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'}`}></div>
                         </div>
-                      )}
-                      {log.url && <p className="text-[10px] text-gray-600 mt-1 font-mono truncate">{log.url}</p>}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${actionColor(log.action)}`}>{log.action.replace(/_/g, ' ')}</span>
+                            <span className="text-[10px] text-gray-600 font-mono ml-auto">{new Date(log.created_at).toLocaleTimeString()}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                             {log.details && Object.entries(log.details).map(([k, v]) => (
+                               <span key={k} className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-gray-400 border border-white/5">
+                                 <span className="text-gray-600">{k}:</span> <span className="text-white">{String(v).substring(0, 80)}</span>
+                               </span>
+                             ))}
+                             {log.geo_city && <span className="text-[10px] bg-indigo-500/10 px-2 py-0.5 rounded text-indigo-400 border border-indigo-500/10">📍 {log.geo_city}</span>}
+                          </div>
+                          {log.url && <p className="text-[10px] text-gray-700 mt-2 font-mono truncate hover:text-indigo-400 transition-colors cursor-help" title={log.url}>🔗 {log.url}</p>}
+                        </div>
+                      </div>
+                    ))}
+                 </div>
+
+                 {/* LIVE ANALYTICS HUD */}
+                 <div className="lg:col-span-4 flex flex-col gap-6">
+                    <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6 relative overflow-hidden">
+                       <div className="absolute top-0 right-0 w-16 h-16 bg-red-500/10 blur-xl rounded-full"></div>
+                       <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-red-400 mb-4 opacity-60">Session Viewport</h5>
+                       <div className="mb-6">
+                          <div className="flex justify-between items-end mb-2">
+                             <div className="text-3xl font-black text-white">{shadowLogs.find(l => l.action === 'USER_SCROLL')?.details?.percent || 0}<span className="text-sm text-gray-500 ml-1">%</span></div>
+                             <div className="text-[9px] font-bold text-red-500/60 uppercase">Position Trace</div>
+                          </div>
+                          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                             <div className="h-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] transition-all duration-1000" style={{ width: `${shadowLogs.find(l => l.action === 'USER_SCROLL')?.details?.percent || 0}%` }}></div>
+                          </div>
+                       </div>
+                       <div className="space-y-4">
+                          <div className="flex justify-between items-center text-[10px] font-bold">
+                             <span className="text-gray-600 uppercase tracking-widest">Target Intel</span>
+                             <span className="text-white truncate max-w-[150px]">{shadowTarget}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-[10px] font-bold">
+                             <span className="text-gray-600 uppercase tracking-widest">Active Path</span>
+                             <span className="text-red-400 truncate max-w-[150px]">{shadowLogs[0]?.url?.split('/').pop() || '/dashboard'}</span>
+                          </div>
+                       </div>
                     </div>
-                  </div>
-                ))}
+
+                    <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-2xl p-6 overflow-hidden flex flex-col">
+                       <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-4 opacity-60">Interaction Breadcrumbs</h5>
+                       <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                          {shadowLogs.filter(l => l.action === 'USER_CLICK').slice(0, 10).map((l, i) => (
+                            <div key={i} className="bg-black/40 border border-white/5 rounded-xl p-3 animate-in slide-in-from-right-2">
+                               <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Click Trace</p>
+                               <p className="text-[11px] text-white font-bold leading-tight line-clamp-2">"{l.details?.text}"</p>
+                               <p className="text-[8px] text-gray-600 mt-2 uppercase font-black">{l.details?.tag} • {timeAgo(l.created_at)}</p>
+                            </div>
+                          ))}
+                          {shadowLogs.filter(l => l.action === 'USER_CLICK').length === 0 && (
+                            <div className="h-full flex flex-col items-center justify-center opacity-10">
+                               <div className="text-4xl mb-2">🖱️</div>
+                               <p className="text-[9px] font-black uppercase tracking-widest text-center">Awaiting click telemetry...</p>
+                            </div>
+                          )}
+                       </div>
+                    </div>
+                 </div>
               </div>
             </div>
           )}

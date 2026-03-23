@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import SessionTracker from '@/components/SessionTracker';
+import InteractionTracker from '@/components/InteractionTracker';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 import StudyTimer from '@/components/StudyTimer';
@@ -35,6 +36,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
+        <InteractionTracker />
         <SessionTracker />
         <PWAInstallPrompt />
         <KeyboardShortcuts />
