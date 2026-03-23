@@ -104,11 +104,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, overrideRole: role })
       });
-      if (res.ok) {
-        alert(`${email} updated to ${role}`);
-        refreshPageData();
-      }
-    } catch (err: any) { alert(err.message); }
+        if (res.ok) {
+          alert(`${email} updated to ${role}`);
+          refreshPageData();
+        } else {
+          const errData = await res.json();
+          alert(`Error: ${errData.error || 'Failed to update user role'}`);
+        }
+      } catch (err: any) { alert(`System Error: ${err.message}`); }
   };
 
   const processUploadOrEmbed = async (e: React.FormEvent) => {
@@ -557,7 +560,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail }: Admin
                   <div className="space-y-16 fade-in">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                        <div className="bg-[#101015] border border-white/10 p-12 rounded-[4rem] space-y-10 shadow-3xl relative overflow-hidden">
-                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full"></div>
+                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
                          <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Security Override</h2>
                          <p className="text-sm text-gray-500 font-medium leading-relaxed">Elevate any student to Faculty (Teacher) or God Mode (Superadmin) clearance.</p>
                          <div className="space-y-6">
