@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
     const finalRole = overrideRole || 'teacher';
-    const { data, error } = await supabaseAdmin.from('user_roles').upsert({ email, role: finalRole }).select().single();
+    const { data, error } = await supabaseAdmin.from('user_roles').upsert({ email, role: finalRole }, { onConflict: 'email' }).select().single();
     if (error) throw error;
     
     // Auto-dispatch Native Inbox message if promoting to teacher or superadmin

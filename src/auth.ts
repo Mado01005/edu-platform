@@ -28,9 +28,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (data) {
           dbRole = data.role;
         } else {
-          // This is their absolute first time logging into the platform! 
           // We automatically register them into the database natively as a permanent 'student'
-          await supabaseAdmin.from('user_roles').insert({ email: user.email, role: 'student' });
+          await supabaseAdmin.from('user_roles').upsert({ email: user.email, role: 'student' }, { onConflict: 'email' });
         }
 
         if (dbRole === 'banned') token.isBanned = true;
