@@ -5,12 +5,14 @@ import { supabase } from '@/lib/supabase';
 
 interface LiveActivityFeedProps {
   initialLogs: any[];
+  initialSessions: any[];
 }
 
-type HudTab = 'feed' | 'grid' | 'audit' | 'shadow';
+type HudTab = 'feed' | 'live' | 'grid' | 'audit' | 'shadow';
 
-export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps) {
+export default function LiveActivityFeed({ initialLogs, initialSessions }: LiveActivityFeedProps) {
   const [logs, setLogs] = useState(initialLogs);
+  const [sessions, setSessions] = useState(initialSessions);
   const [hudTab, setHudTab] = useState<HudTab>('feed');
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [shadowTarget, setShadowTarget] = useState<string | null>(null);
@@ -22,7 +24,9 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
 
   useEffect(() => {
     console.log("Initializing Realtime Surveillance...");
-    const channel = supabase
+    
+    // Activity Logs Channel
+    const logChannel = supabase
       .channel('realtime_activity')
       .on(
         'postgres_changes',
@@ -34,14 +38,34 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
         }
       )
       .subscribe((status) => {
-        console.log("Subscription Status Change:", status);
         if (status === 'SUBSCRIBED') setConnectionStatus('connected');
         if (status === 'CLOSED' || status === 'CHANNEL_ERROR') setConnectionStatus('error');
       });
 
+    // Live Sessions Channel
+    const sessionChannel = supabase
+      .channel('realtime_sessions')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'live_sessions' },
+        (payload: any) => {
+          console.log("Session Update:", payload.eventType, payload.new?.user_email);
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            setSessions(prev => {
+              const filtered = prev.filter(s => s.user_email !== payload.new.user_email || s.ip_address !== payload.new.ip_address);
+              return [payload.new, ...filtered];
+            });
+          } else if (payload.eventType === 'DELETE') {
+            setSessions(prev => prev.filter(s => s.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
     return () => { 
       console.log("Deactivating Surveillance...");
-      supabase.removeChannel(channel); 
+      supabase.removeChannel(logChannel); 
+      supabase.removeChannel(sessionChannel);
     };
   }, []);
 
@@ -161,7 +185,7 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
           </button>
         </h2>
         <div className="flex gap-1 bg-black/40 rounded-xl p-1 border border-white/10">
-          {([['feed', '📡 Feed'], ['grid', '🖥️ Grid'], ['audit', '📋 Audit'], ['shadow', '🎯 Shadow']] as const).map(([key, label]) => (
+          {([['feed', '📡 Feed'], ['live', '🛰️ Sessions'], ['grid', '🖥️ Grid'], ['audit', '📋 Audit'], ['shadow', '🎯 Shadow']] as const).map(([key, label]) => (
             <button key={key} onClick={() => setHudTab(key)} className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${hudTab === key ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
               {label}
             </button>
@@ -184,7 +208,9 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-[#1A1A1E]/80 border border-white/5 rounded-xl p-4 text-center">
           <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Active Now</p>
-          <p className="text-2xl font-black text-green-400">{activeStudents.length}</p>
+          <p className="text-2xl font-black text-green-400">
+            {sessions.filter(s => new Date(s.last_active_at).getTime() > Date.now() - 5 * 60 * 1000).length}
+          </p>
         </div>
         <div className="bg-[#1A1A1E]/80 border border-white/5 rounded-xl p-4 text-center">
           <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Total Students</p>
@@ -328,6 +354,59 @@ export default function LiveActivityFeed({ initialLogs }: LiveActivityFeedProps)
                     <td className="px-6 py-4 text-right text-[10px] text-gray-500 font-mono">{timeAgo(log.created_at)}</td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ===== TAB: LIVE SESSIONS ===== */}
+      {hudTab === 'live' && (
+        <div className="bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 to-transparent pointer-events-none"></div>
+          <div className="overflow-x-auto min-h-[300px]">
+            <table className="w-full text-left text-sm text-gray-300 relative z-10">
+              <thead className="bg-[#1A1A1E]/90 text-gray-400 border-b border-white/10">
+                <tr>
+                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Active Identity</th>
+                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest text-center">Status</th>
+                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Sector (Page)</th>
+                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest text-right">Heartbeat</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5 font-medium">
+                {sessions.length === 0 && (
+                  <tr><td colSpan={4} className="px-6 py-12 text-center text-gray-500 italic">Scanning grid... No active student heartbeats detected.</td></tr>
+                )}
+                {sessions.map((session: any, i: number) => {
+                  const isActive = new Date(session.last_active_at).getTime() > Date.now() - 5 * 60 * 1000;
+                  return (
+                    <tr key={session.id || i} className={`hover:bg-white/5 transition-all group ${isActive ? 'opacity-100' : 'opacity-40'}`}>
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-white group-hover:text-green-300 transition">{session.user_email.split('@')[0]}</div>
+                        <div className="text-[10px] text-gray-600 font-mono truncate max-w-[150px]">{session.user_email}</div>
+                        {session.ip_address && <div className="text-[9px] text-indigo-400/50 mt-1 font-mono">{session.ip_address}</div>}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${isActive ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-gray-500/10 text-gray-500 border-gray-500/20'}`}>
+                            {isActive ? 'ONLINE' : 'OFFLINE'}
+                          </span>
+                          {session.is_idle && <span className="text-[7px] text-yellow-500 uppercase font-black tracking-widest">IDLE</span>}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-[10px] bg-white/5 px-3 py-1.5 rounded-xl border border-white/5 inline-block font-mono text-gray-300">
+                           {session.current_page || 'dashboard'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                         <div className="text-[10px] text-gray-500 font-mono italic">{timeAgo(session.last_active_at)}</div>
+                         <div className="text-[8px] text-gray-700 mt-1 uppercase font-bold tracking-tighter truncate max-w-[100px]">{session.user_agent?.split(' ')[0]}</div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
