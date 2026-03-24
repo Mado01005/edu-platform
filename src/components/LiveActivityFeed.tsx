@@ -6,11 +6,12 @@ import { supabase } from '@/lib/supabase';
 interface LiveActivityFeedProps {
   initialLogs: any[];
   initialSessions: any[];
+  initialUsers: any[];
 }
 
 type HudTab = 'feed' | 'live' | 'grid' | 'audit' | 'shadow';
 
-export default function LiveActivityFeed({ initialLogs, initialSessions }: LiveActivityFeedProps) {
+export default function LiveActivityFeed({ initialLogs, initialSessions, initialUsers }: LiveActivityFeedProps) {
   const [logs, setLogs] = useState(initialLogs);
   const [sessions, setSessions] = useState(initialSessions);
   const [hudTab, setHudTab] = useState<HudTab>('feed');
@@ -72,10 +73,32 @@ export default function LiveActivityFeed({ initialLogs, initialSessions }: LiveA
   // Derived data
   const uniqueStudents = useMemo(() => {
     const map = new Map();
+
+    // 1. Initialize with ALL registered users from the global roster
+    initialUsers.forEach((u: any) => {
+      map.set(u.email, {
+        name: u.name || u.email.split('@')[0],
+        email: u.email,
+        completions: 0,
+        logins: 0,
+        pdfReads: 0,
+        videoWatches: 0,
+        actionCount: 0,
+        lastSeen: u.created_at || new Date(0).toISOString(), // Fallback for very old users
+        lastAction: 'Registered',
+        city: 'Unknown',
+        country: 'Unknown',
+        currentScroll: 0,
+        role: u.role
+      });
+    });
+
+    // 2. Overlay with ACTUAL activity logs (most recent state wins)
     logs.forEach((l: any) => {
       if (!map.has(l.user_email)) {
+        // This shouldn't happen often if the roster is full, but as a fallback:
         map.set(l.user_email, {
-          name: l.user_name,
+          name: l.user_name || l.user_email.split('@')[0],
           email: l.user_email,
           completions: 0,
           logins: 0,
@@ -89,8 +112,11 @@ export default function LiveActivityFeed({ initialLogs, initialSessions }: LiveA
           currentScroll: 0
         });
       }
+      
       const student = map.get(l.user_email);
       student.actionCount++;
+      
+      // Update with most recent log info
       if (new Date(l.created_at) > new Date(student.lastSeen)) {
         student.lastSeen = l.created_at;
         student.lastAction = l.action;
@@ -106,11 +132,13 @@ export default function LiveActivityFeed({ initialLogs, initialSessions }: LiveA
 
       if (l.action === 'Completed Lesson') student.completions++;
       if (l.action === 'USER_LOGIN') student.logins++;
-      if (l.action === 'Open PDF') student.pdfReads++;
-      if (l.action === 'Watched Video') student.videoWatches++;
+      // Handle both old and new action names for backward compatibility
+      if (l.action === 'Open PDF' || l.action === 'READ_PDF') student.pdfReads++;
+      if (l.action === 'Watched Video' || l.action === 'WATCH_VIDEO') student.videoWatches++;
     });
+
     return Array.from(map.values()).sort((a,b) => new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime());
-  }, [logs]);
+  }, [logs, initialUsers]);
 
   const totalInteractions = logs.length;
   const uniqueCount = uniqueStudents.length;

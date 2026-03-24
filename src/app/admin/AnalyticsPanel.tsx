@@ -8,8 +8,8 @@ export default async function AnalyticsPanel() {
   // @ts-ignore
   if (!session?.user?.isSuperAdmin) return null;
   
-  // Fetch initial logs and sessions to prevent "Flicker" on load
-  const [{ data: logs }, { data: sessions }] = await Promise.all([
+  // Fetch initial logs, sessions, and the global student registry to ensure 100% visibility
+  const [{ data: logs }, { data: sessions }, { data: users }] = await Promise.all([
     supabaseAdmin
       .from('activity_logs')
       .select('*')
@@ -19,8 +19,16 @@ export default async function AnalyticsPanel() {
       .from('live_sessions')
       .select('*')
       .order('last_active_at', { ascending: false })
-      .limit(50)
+      .limit(50),
+    supabaseAdmin
+      .from('user_roles')
+      .select('*')
+      .order('created_at', { ascending: false })
   ]);
 
-  return <LiveActivityFeed initialLogs={logs || []} initialSessions={sessions || []} />;
+  return <LiveActivityFeed 
+    initialLogs={logs || []} 
+    initialSessions={sessions || []} 
+    initialUsers={users || []} 
+  />;
 }
