@@ -526,7 +526,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                        <p className="text-sm text-gray-500 font-medium">Real-time scan of global session activity and platform load.</p>
                     </div>
                     <div className="bg-white/[0.02] border border-white/5 rounded-[3.5rem] p-4 shadow-3xl">
-                       <LiveActivityFeed initialLogs={initialLogs} initialSessions={initialSessions} />
+                       <LiveActivityFeed initialLogs={initialLogs} initialSessions={initialSessions} initialUsers={allRoles} />
                     </div>
                   </div>
                 )}
