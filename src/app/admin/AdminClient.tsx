@@ -104,6 +104,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     } catch (err: any) { alert(`System Error: ${err.message}`); }
   };
 
+  const getFileType = (mime: string) => {
+    if (mime.includes('pdf')) return 'pdf';
+    if (mime.includes('image')) return 'image';
+    if (mime.includes('video')) return 'video';
+    if (mime.includes('presentation') || mime.includes('powerpoint')) return 'powerpoint';
+    return 'unknown';
+  };
+
   const uploadFileWithProgress = (file: File, signedUrl: string, contentType: string) => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -185,12 +193,15 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
               subjectId: selectedSubjectId,
               lessonId: selectedLessonId,
               fileName: file.name,
-              fileType: file.type.split('/')[0] || 'file',
+              fileType: getFileType(file.type),
               publicUrl
             })
           });
 
-          if (!compRes.ok) throw new Error(`Completion failed for ${file.name}`);
+          if (!compRes.ok) {
+            const errorData = await compRes.json();
+            throw new Error(`Completion failed for ${file.name}: ${errorData.error || 'Unknown database error'}`);
+          }
           
           completed++;
         }
