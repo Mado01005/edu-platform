@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { subjectId, lessonId, fileName, fileType, publicUrl, itemType = 'file' } = await req.json();
+    const { subjectId, lessonId, fileName, fileType, publicUrl, itemType = 'file', vimeoId } = await req.json();
 
     if (!lessonId || !fileName) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
       file_type: fileType,
       name: fileName,
       url: publicUrl,
+      vimeo_id: vimeoId,
     }).select().single();
 
     if (error) {

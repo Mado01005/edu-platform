@@ -164,6 +164,22 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
           setCurrentFileName(file.name);
           setStatusMessage(`Processing: ${file.name} (${completed + 1}/${total})`);
           
+          let itemType = 'file';
+          let vimeoId = '';
+
+          // Support for .vimeo files (which contain the Vimeo ID/URL)
+          if (file.name.toLowerCase().endsWith('.vimeo')) {
+            itemType = 'vimeo';
+            try {
+              const fileContent = await file.text();
+              // Extract ID if it's a URL in the file
+              const idMatch = fileContent.match(/(?:vimeo\.com\/|video\/)(\d+)/);
+              vimeoId = idMatch ? idMatch[1] : fileContent.trim();
+            } catch (e) {
+              console.error('Failed to read .vimeo file', e);
+            }
+          }
+
           // 1. Initiate
           const subject = localSubjects.find(s => s.id === selectedSubjectId);
           const lesson = activeLessons.find((l: any) => l.id === selectedLessonId);
@@ -180,7 +196,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
           });
 
           if (!initRes.ok) throw new Error(`Initiate failed for ${file.name}`);
-          const { signedUrl, publicUrl, storagePath } = await initRes.json();
+          const { signedUrl, publicUrl } = await initRes.json();
 
           // 2. Transmit
           await uploadFileWithProgress(file, signedUrl, file.type);
@@ -194,7 +210,9 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
               lessonId: selectedLessonId,
               fileName: file.name,
               fileType: getFileType(file.type),
-              publicUrl
+              publicUrl,
+              itemType,
+              vimeoId
             })
           });
 
