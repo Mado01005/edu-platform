@@ -164,8 +164,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, icon: '📂' })
       });
-      if (res.ok) refreshPageData();
-    } catch(err: any) { alert(err.message); }
+      if (res.ok) {
+        alert(`Folder "${title}" successfully initialized.`);
+        refreshPageData();
+      } else {
+        const err = await res.json();
+        alert(`Folder Creation Error: ${err.error || 'Identity not authorized or database timeout'}`);
+      }
+    } catch(err: any) { alert(`Diagnostic Alert: ${err.message}`); }
   };
 
   const handleCreateLesson = async () => {
@@ -177,8 +183,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subjectId: selectedSubjectId, title })
       });
-      if (res.ok) refreshPageData();
-    } catch(err: any) { alert(err.message); }
+      if (res.ok) {
+        alert(`Module "${title}" successfully deployed to subject.`);
+        refreshPageData();
+      } else {
+        const err = await res.json();
+        alert(`Module Creation Error: ${err.error || 'Deployment credentials expired or ID mapping is invalid'}`);
+      }
+    } catch(err: any) { alert(`Diagnostic Alert: ${err.message}`); }
   };
 
   const handleDelete = async (type: 'subject' | 'lesson' | 'item', id: string, name: string) => {
@@ -189,9 +201,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, id })
       });
-      if (res.ok) refreshPageData();
-      else throw new Error('Deletion failed');
-    } catch(err: any) { alert(err.message); }
+      if (res.ok) {
+        alert(`Identity "${name}" securely purged.`);
+        refreshPageData();
+      } else {
+         const err = await res.json();
+         alert(`Deletion Error: ${err.error || 'Access Denied'}`);
+      }
+    } catch(err: any) { alert(`Diagnostic Alert: ${err.message}`); }
   };
 
   const handleRename = async (type: 'subject' | 'lesson' | 'item', id: string, oldName: string) => {
@@ -203,9 +220,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, id, title: newName })
       });
-      if (!res.ok) throw new Error('Rename failed');
-      refreshPageData();
-    } catch(err: any) { alert(err.message); }
+      if (res.ok) {
+        alert(`Identity changed to: ${newName}`);
+        refreshPageData();
+      } else {
+        const err = await res.json();
+        alert(`Rename Error: ${err.error || 'Conflict detected'}`);
+      }
+    } catch(err: any) { alert(`Diagnostic Alert: ${err.message}`); }
   };
 
   const handleMove = async (type: 'lesson' | 'item', id: string, name: string) => {
