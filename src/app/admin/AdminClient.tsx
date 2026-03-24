@@ -22,12 +22,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   const [localSubjects, setLocalSubjects] = useState<SubjectMeta[]>(subjects);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedLessonId, setSelectedLessonId] = useState('');
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [inputType, setInputType] = useState<'file' | 'link'>('file');
   const [vimeoUrl, setVimeoUrl] = useState('');
   const [vimeoTitle, setVimeoTitle] = useState('');
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [uploadSpeed, setUploadSpeed] = useState('0 MB/s');
+  const [currentFileName, setCurrentFileName] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const [allRoles, setAllRoles] = useState<any[]>(initialRoles);
   const [newTeacherEmail, setNewTeacherEmail] = useState('');
@@ -102,33 +104,98 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     } catch (err: any) { alert(`System Error: ${err.message}`); }
   };
 
+  const uploadFileWithProgress = (file: File, signedUrl: string, contentType: string) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const startTime = Date.now();
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          setProgress(percent);
+          
+          const duration = (Date.now() - startTime) / 1000;
+          if (duration > 0) {
+            const speed = (e.loaded / 1024 / 1024 / duration).toFixed(2);
+            setUploadSpeed(`${speed} MB/s`);
+          }
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
+        else reject(new Error(`Upload failed with status ${xhr.status}`));
+      });
+
+      xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+      
+      xhr.open('PUT', signedUrl);
+      xhr.setRequestHeader('Content-Type', contentType);
+      xhr.send(file);
+    });
+  };
+
   const processUploadOrEmbed = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedLessonId) return alert('Select a module first');
+    
     setUploading(true);
     setStatusMessage('Preparing transmission...');
-    setProgress(10);
+    setProgress(0);
+    setUploadSpeed('0 MB/s');
 
     try {
-      if (inputType === 'file' && file) {
-        setProgress(30);
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('lessonId', selectedLessonId);
-        formData.append('target', uploadTarget);
+      if (inputType === 'file' && files.length > 0) {
+        let completed = 0;
+        const total = files.length;
+        
+        for (const file of files) {
+          setCurrentFileName(file.name);
+          setStatusMessage(`Processing: ${file.name} (${completed + 1}/${total})`);
+          
+          // 1. Initiate
+          const subject = localSubjects.find(s => s.id === selectedSubjectId);
+          const lesson = activeLessons.find((l: any) => l.id === selectedLessonId);
+          
+          const initRes = await fetch('/api/admin/upload-initiate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileName: file.name,
+              subjectSlug: subject?.slug || 'unknown',
+              lessonSlug: lesson?.title.toLowerCase().replace(/\s+/g, '-') || 'unknown',
+              contentType: file.type
+            })
+          });
 
-        const res = await fetch('/api/admin/upload', {
-          method: 'POST',
-          body: formData,
-        });
+          if (!initRes.ok) throw new Error(`Initiate failed for ${file.name}`);
+          const { signedUrl, publicUrl, storagePath } = await initRes.json();
 
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText || 'Upload failed');
+          // 2. Transmit
+          await uploadFileWithProgress(file, signedUrl, file.type);
+
+          // 3. Complete
+          const compRes = await fetch('/api/admin/upload-complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              subjectId: selectedSubjectId,
+              lessonId: selectedLessonId,
+              fileName: file.name,
+              fileType: file.type.split('/')[0] || 'file',
+              publicUrl
+            })
+          });
+
+          if (!compRes.ok) throw new Error(`Completion failed for ${file.name}`);
+          
+          completed++;
         }
         
-        setStatusMessage('Success: File stored and linked!');
-        setFile(null);
+        setStatusMessage(`Success: ${completed} assets verified and linked!`);
+        setFiles([]);
+        setCurrentFileName('');
+        setUploadSpeed('0 MB/s');
       } else if (inputType === 'link' && vimeoUrl) {
         if (!vimeoTitle) throw new Error('Title required for link');
         const res = await fetch('/api/admin/embed', {
@@ -394,18 +461,51 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                </div>
 
                                {inputType === 'file' ? (
-                                 <label className={`flex flex-col items-center justify-center w-full h-56 border-2 ${file ? 'border-green-500/50 bg-green-500/5' : 'border-dashed border-white/10 hover:border-indigo-500/30 bg-black/50'} rounded-[2.5rem] cursor-pointer transition-all group relative overflow-hidden`}>
-                                   {file && <div className="absolute inset-0 bg-green-500/5 opacity-50"></div>}
+                                 <label className={`flex flex-col items-center justify-center w-full h-56 border-2 ${files.length > 0 ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-dashed border-white/10 hover:border-indigo-500/30 bg-black/50'} rounded-[2.5rem] cursor-pointer transition-all group relative overflow-hidden`}>
                                    <div className="text-center relative z-10">
-                                     <div className={`w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl transition-transform duration-500 group-hover:scale-110 ${file ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-indigo-400 shadow-inner'}`}>{file ? '✓' : '⚡'}</div>
-                                     {file ? <p className="text-sm font-black text-green-300">{file.name}</p> : <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] font-black">Ready for synchronization</p>}
+                                     <div className={`w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl transition-transform duration-500 group-hover:scale-110 ${files.length > 0 ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-indigo-400 shadow-inner'}`}>{files.length > 0 ? '📦' : '⚡'}</div>
+                                     {files.length > 0 ? (
+                                        <div className="space-y-1">
+                                          <p className="text-sm font-black text-indigo-300">{files.length} Assets Selected</p>
+                                          <p className="text-[9px] text-gray-500 uppercase font-black">Click to change selection</p>
+                                        </div>
+                                     ) : (
+                                        <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] font-black">Ready for synchronization</p>
+                                     )}
                                    </div>
-                                   <input type="file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} disabled={uploading}/>
+                                   <input type="file" multiple className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
                                  </label>
                                ) : (
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                    <input type="text" placeholder="Visual Identifier (Title)" value={vimeoTitle} onChange={e => setVimeoTitle(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold placeholder:text-gray-800" />
                                    <input type="text" placeholder="Vimeo / Dynamic Resource URL" value={vimeoUrl} onChange={e => setVimeoUrl(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold placeholder:text-gray-800" />
+                                 </div>
+                               )}
+
+                               {uploading && (
+                                 <div className="space-y-6 animate-in fade-in duration-500">
+                                    <div className="flex justify-between items-end">
+                                      <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Active Transmission</p>
+                                        <p className="text-sm font-black text-white truncate max-w-sm">{currentFileName}</p>
+                                      </div>
+                                      <div className="text-right">
+                                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Network Speed</p>
+                                        <p className="text-sm font-black text-indigo-400">{uploadSpeed}</p>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="relative h-4 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                      <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.4)]" style={{ width: `${progress}%` }}>
+                                        <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.1)_50%,rgba(255,255,255,0.1)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-[pulse_2s_linear_infinite]"></div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex justify-between items-center px-1">
+                                      <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">0%</span>
+                                      <span className="text-[10px] font-black text-white uppercase tracking-widest">{progress}% VERIFIED</span>
+                                      <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">100%</span>
+                                    </div>
                                  </div>
                                )}
 
@@ -415,8 +515,8 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                 </div>
                                )}
 
-                               <button type="submit" disabled={!selectedLessonId || uploading} className="w-full bg-white text-black font-black py-6 rounded-[2rem] hover:bg-gray-200 transition-all duration-500 disabled:opacity-30 uppercase tracking-[0.3em] text-[10px] shadow-2xl hover:scale-[1.01] active:scale-95">
-                                 {uploading ? 'Processing Transmission...' : 'Execute Transaction'}
+                               <button type="submit" disabled={!selectedLessonId || uploading || (inputType === 'file' && files.length === 0)} className="w-full bg-white text-black font-black py-6 rounded-[2rem] hover:bg-gray-200 transition-all duration-500 disabled:opacity-30 uppercase tracking-[0.3em] text-[10px] shadow-2xl hover:scale-[1.01] active:scale-95">
+                                 {uploading ? 'Processing Transmission Cluster...' : 'Execute Transaction'}
                                </button>
                             </div>
                          </div>
