@@ -10,7 +10,6 @@ import MobileNav from '@/components/MobileNav';
 import './globals.css';
 
 import { auth } from '@/auth';
-import SupportChat from '@/components/SupportChat';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
@@ -45,9 +44,21 @@ export default async function RootLayout({
         
         {children}
 
-        {/* Global Support Chat - Only hidden on the Admin Command Center to avoid UI clutter */}
-        {session?.user?.email && <SupportChat userEmail={session.user.email} />}
-        
+        {/* Tawk.to Live Chat Script */}
+        <Script id="tawk-to" strategy="lazyOnload">
+          {`
+            var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+            (function(){
+            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+            s1.async=true;
+            s1.src='https://embed.tawk.to/69beda18efc5d11c3692a4f8/default';
+            s1.charset='UTF-8';
+            s1.setAttribute('crossorigin','*');
+            s0.parentNode.insertBefore(s1,s0);
+            })();
+          `}
+        </Script>
+
         {/* PWA Service Worker Registration */}
         <Script id="register-pwa-sw" strategy="afterInteractive">
           {`

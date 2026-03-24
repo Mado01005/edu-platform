@@ -15,7 +15,7 @@ interface AdminClientProps {
   initialSessions: any[];
 }
 
-type TabId = 'upload' | 'manage' | 'broadcast' | 'inbox' | 'team' | 'telemetry';
+type TabId = 'upload' | 'manage' | 'broadcast' | 'team' | 'telemetry';
 
 export default function AdminClient({ subjects, initialRoles, userEmail, initialLogs, initialSessions }: AdminClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>('upload');
@@ -35,22 +35,12 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   const [storageStats, setStorageStats] = useState<any>(null);
   const [uploadTarget, setUploadTarget] = useState<'supabase' | 'r2'>('r2');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  
-  // Messaging state
-  const [messages, setMessages] = useState<any[]>([]);
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState('');
-  const [activeChatEmail, setActiveChatEmail] = useState<string | null>(null);
-  const [adminReply, setAdminReply] = useState('');
   const [expandedLessons, setExpandedLessons] = useState<Set<string>>(new Set());
 
   const supabase = createClientComponentClient();
 
   const currentUserRole = useMemo(() => {
-    console.log('[DEBUG] Admin Verification:', { userEmail, authorized: ADMIN_EMAILS });
-    // Force superadmin for the master admin email
     if (userEmail && ADMIN_EMAILS.some(e => userEmail.toLowerCase().trim() === e.toLowerCase().trim())) return 'superadmin';
-    
     const found = allRoles.find(r => r.email?.toLowerCase() === userEmail?.toLowerCase());
     return found?.role || 'student';
   }, [allRoles, userEmail]);
@@ -61,7 +51,6 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
       tabs.push(
         { id: 'manage', icon: '📂', label: 'MANAGE' },
         { id: 'broadcast', icon: '📢', label: 'BROADCAST' },
-        { id: 'inbox', icon: '📥', label: 'INBOX' },
         { id: 'team', icon: '👥', label: 'TEAM' },
         { id: 'telemetry', icon: '🌐', label: 'TELEMETRY' }
       );
@@ -70,12 +59,11 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   }, [currentUserRole]);
 
   const refreshPageData = useCallback(async () => {
-    const [subRes, rolesRes, logRes, statRes, msgRes] = await Promise.all([
+    const [subRes, rolesRes, logRes, statRes] = await Promise.all([
       fetch('/api/admin/subjects'),
       fetch('/api/admin/roles'),
       fetch('/api/admin/active-logins'),
-      fetch('/api/admin/storage-stats'),
-      fetch('/api/messages')
+      fetch('/api/admin/storage-stats')
     ]);
 
     if (subRes.ok) setLocalSubjects(await subRes.json());
@@ -85,16 +73,12 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
       setActiveLogins(Array.from(new Set(logs.map((l: any) => l.user_email))).filter(Boolean) as string[]);
     }
     if (statRes.ok) setStorageStats(await statRes.json());
-    if (msgRes.ok) {
-       const data = await msgRes.json();
-       setMessages(data.messages || []);
-    }
   }, []);
 
   useEffect(() => {
     refreshPageData();
     const channel = supabase.channel('admin-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => refreshPageData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {})
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [refreshPageData, supabase]);
@@ -108,14 +92,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, overrideRole: role })
       });
-        if (res.ok) {
-          alert(`${email} updated to ${role}`);
-          refreshPageData();
-        } else {
-          const errData = await res.json();
-          alert(`Error: ${errData.error || 'Failed to update user role'}`);
-        }
-      } catch (err: any) { alert(`System Error: ${err.message}`); }
+      if (res.ok) {
+        alert(`${email} updated to ${role}`);
+        refreshPageData();
+      } else {
+        const errData = await res.json();
+        alert(`Error: ${errData.error || 'Failed to update user role'}`);
+      }
+    } catch (err: any) { alert(`System Error: ${err.message}`); }
   };
 
   const processUploadOrEmbed = async (e: React.FormEvent) => {
@@ -225,7 +209,6 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   };
 
   const handleMove = async (type: 'lesson' | 'item', id: string, name: string) => {
-    // Basic implementation using prompt for now, could be improved with a dropdown UI
     const targetType = type === 'item' ? 'Module' : 'Subject';
     const targetId = prompt(`Enter the ID of the target ${targetType} to move "${name}" to:`);
     if (!targetId) return;
@@ -275,7 +258,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white">
       <div className="max-w-full mx-auto flex flex-col md:flex-row min-h-screen overflow-hidden">
         
-        {/* SIDEBAR NAVIGATION - SECURE DOCKED */}
+        {/* SIDEBAR NAVIGATION */}
         <div className="w-full md:w-[320px] bg-[#0A0A0F] border-r border-white/5 flex flex-col pt-8 p-6 space-y-8 h-screen sticky top-0 md:overflow-y-auto">
           <div className="flex items-center gap-4 px-2 mb-4">
              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-2xl border border-indigo-500/20">⚡</div>
@@ -292,7 +275,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border ${
                   activeTab === tab.id 
-                    ? 'bg-white text-black border-white shadow-[0_10px_30px_rgba(255,255,255,0.1)]' 
+                    ? 'bg-white text-black border-white shadow-xl' 
                     : 'text-gray-500 border-transparent hover:bg-white/5 hover:text-white'
                 }`}
               >
@@ -329,14 +312,12 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
           )}
         </div>
 
-        {/* MAIN CONTENT AREA - FULL WIDTH SCAN */}
         <div className="flex-1 bg-black relative flex flex-col min-h-screen">
            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.05),transparent)] pointer-events-none"></div>
            
            <div className="flex-1 p-6 md:p-10 lg:p-16 relative overflow-y-auto">
               <div className="max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-2 duration-700">
                 
-                {/* CONTENT ROUTER */}
                 {activeTab === 'upload' && (
                   <form onSubmit={processUploadOrEmbed} className="space-y-12">
                     <div className="space-y-4 max-w-2xl text-center md:text-left mx-auto md:mx-0">
@@ -375,7 +356,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">02 Storage Core</label>
                                     <div className="flex gap-3">
                                       {(['r2', 'supabase'] as const).map(target => (
-                                        <button key={target} type="button" onClick={() => setUploadTarget(target)} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${uploadTarget === target ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/20' : 'bg-white/5 text-gray-500 border-white/5 hover:bg-white/10'}`}>
+                                        <button key={target} type="button" onClick={() => setUploadTarget(target)} className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${uploadTarget === target ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg' : 'bg-white/5 text-gray-500 border-white/5 hover:bg-white/10'}`}>
                                           {target === 'r2' ? 'Cloudflare R2' : 'Supabase Storage'}
                                         </button>
                                       ))}
@@ -502,7 +483,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                     </div>
 
                     {selectedItems.size > 0 && (
-                      <div className="fixed bottom-10 left-[calc(320px+50%)] -translate-x-1/2 bg-red-500 text-white p-8 rounded-[3rem] flex items-center gap-12 shadow-[0_40px_80px_rgba(239,68,68,0.4)] z-[100] animate-in zoom-in-95">
+                      <div className="fixed bottom-10 left-[calc(320px+50%)] -translate-x-1/2 bg-red-500 text-white p-8 rounded-[3rem] flex items-center gap-12 shadow-2xl z-[100] animate-in zoom-in-95">
                          <div className="flex items-center gap-5">
                             <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center font-black text-2xl shadow-inner">!</div>
                             <div>
@@ -526,7 +507,11 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                        <p className="text-sm text-gray-500 font-medium">Real-time scan of global session activity and platform load.</p>
                     </div>
                     <div className="bg-white/[0.02] border border-white/5 rounded-[3.5rem] p-4 shadow-3xl">
-                       <LiveActivityFeed initialLogs={initialLogs} initialSessions={initialSessions} initialUsers={allRoles} />
+                       <LiveActivityFeed 
+                          initialLogs={initialLogs} 
+                          initialSessions={initialSessions} 
+                          initialUsers={allRoles.filter(r => r.role === 'student')} 
+                       />
                     </div>
                   </div>
                 )}
@@ -558,70 +543,6 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                   </div>
                 )}
 
-                {activeTab === 'inbox' && (
-                  <div className="space-y-10 fade-in">
-                    <div className="flex justify-between items-end px-4">
-                       <div className="space-y-4">
-                         <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Support Uplink</h2>
-                         <p className="text-sm text-gray-500 font-medium leading-relaxed">Verified student inquiries awaiting administrative clearance.</p>
-                       </div>
-                       <button onClick={refreshPageData} className="px-8 py-4 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase tracking-widest text-white rounded-2xl border border-white/10 transition-all shadow-xl">Reload Feed</button>
-                    </div>
-                    <div className="grid grid-cols-1 gap-12">
-                       {messages.length === 0 && (
-                          <div className="py-40 text-center border-2 border-dashed border-white/5 rounded-[4rem] opacity-20 grayscale">
-                             <div className="text-9xl mb-8">📥</div>
-                             <p className="font-black uppercase tracking-[0.4em] text-xs">Awaiting student signal...</p>
-                          </div>
-                       )}
-                       {messages.map(msg => (
-                         <div key={msg.id} className={`p-10 rounded-[3.5rem] border transition-all duration-700 ${msg.is_read ? 'bg-white/[0.01] border-white/10 opacity-30 shadow-none' : 'bg-[#0A0A0F] border-indigo-500/20 shadow-3xl'}`}>
-                           <div className="flex justify-between items-start mb-8">
-                              <div>
-                                <h3 className="font-black text-3xl text-white tracking-tighter leading-none">{msg.subject}</h3>
-                                <p className="text-[10px] text-indigo-400 font-black uppercase tracking-[0.3em] mt-3">{msg.sender_email} <span className="text-gray-800 mx-3">/</span> {new Date(msg.created_at).toLocaleString()}</p>
-                              </div>
-                              {!msg.is_read && (
-                                <button onClick={async () => {
-                                  await fetch('/api/messages', { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message_id: msg.id, is_read: true })});
-                                  refreshPageData();
-                                }} className="text-[9px] font-black uppercase tracking-widest bg-indigo-500 text-white px-8 py-3 rounded-xl shadow-xl shadow-indigo-500/20 transition hover:scale-105 active:scale-95">Verify</button>
-                              )}
-                           </div>
-                           <div className="bg-black/60 p-10 rounded-[2.5rem] border border-white/5 text-gray-300 text-md mb-8 leading-relaxed font-semibold selection:bg-indigo-500">{msg.body}</div>
-                           
-                           {replyingTo === msg.id ? (
-                             <div className="space-y-6 fade-in pt-10 border-t border-white/5">
-                               <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Draft secure response channel..." className="w-full bg-black border border-white/10 rounded-[2.5rem] p-10 text-md min-h-[220px] outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-white font-semibold" />
-                               <div className="flex justify-end gap-6 items-center">
-                                 <button onClick={() => setReplyingTo(null)} className="text-[10px] font-black uppercase tracking-widest text-gray-600 hover:text-white transition">Abort mission</button>
-                                 <button onClick={async () => {
-                                   if (!replyText) return;
-                                   const res = await fetch('/api/messages', {
-                                     method: 'POST',
-                                     headers: {'Content-Type': 'application/json'},
-                                     body: JSON.stringify({ receiver_email: msg.sender_email, subject: `RE: ${msg.subject}`, body: replyText })
-                                   });
-                                   if (res.ok) {
-                                     setReplyingTo(null);
-                                     setReplyText('');
-                                     refreshPageData();
-                                   }
-                                 }} className="bg-white text-black px-16 py-5 rounded-3xl font-black text-[10px] uppercase tracking-[0.3em] shadow-3xl hover:bg-gray-200 transition-all active:scale-95">Transmit</button>
-                               </div>
-                             </div>
-                           ) : (
-                             <button onClick={() => setReplyingTo(msg.id)} className="text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:text-white transition-all flex items-center gap-4 bg-indigo-500/10 px-10 py-5 rounded-3xl border border-indigo-500/20 hover:bg-indigo-500/20">
-                               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
-                               Secure Direct Link
-                             </button>
-                           )}
-                         </div>
-                       ))}
-                    </div>
-                  </div>
-                )}
-
                 {activeTab === 'team' && (
                   <div className="space-y-16 fade-in">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -643,9 +564,9 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                           <div className="space-y-4">
                              <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Authority Log</h3>
                              <p className="text-xs text-indigo-300 font-bold uppercase tracking-widest leading-loose opacity-60">
-                               — TEACHER: Content Upload privileges only.<br/>
-                               — SUPERADMIN: Full telemetric God Mode override.<br/>
-                               — BANNED: Complete identity sector lockout.
+                                — TEACHER: Content Upload privileges only.<br/>
+                                — SUPERADMIN: Full telemetric God Mode override.<br/>
+                                — BANNED: Complete identity sector lockout.
                              </p>
                           </div>
                           <div className="h-1 bg-white/5 w-full rounded-full overflow-hidden">
@@ -716,25 +637,12 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                          <>
                                            <button onClick={() => updateRole(r.email, 'teacher')} className="w-full px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-gray-500 hover:text-white hover:bg-white/10 border border-white/5 shadow-xl transition-all">Promote: Teacher</button>
                                            <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all">Grant: God Mode</button>
-                                           <div className="flex gap-2 w-full mt-1">
-                                             <button 
-                                                onClick={() => setActiveChatEmail(activeChatEmail === r.email ? null : r.email)}
-                                                className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${activeChatEmail === r.email ? 'bg-white text-black shadow-3xl' : 'bg-white/5 text-gray-600 hover:text-white border border-white/5'}`}
-                                             >
-                                                {activeChatEmail === r.email ? 'Close Dossier' : 'Dossier'}
-                                             </button>
-                                             <button onClick={() => updateRole(r.email, 'banned')} className="px-4 py-3 hover:bg-red-500/20 rounded-xl text-red-500 bg-white/5 border border-white/5 transition-all opacity-40 hover:opacity-100" title="Revoke Identity">🚫</button>
-                                           </div>
+                                           <button onClick={() => updateRole(r.email, 'banned')} className="w-full mt-1 px-4 py-3 hover:bg-red-500/20 rounded-xl text-red-500 bg-white/5 border border-white/5 transition-all opacity-40 hover:opacity-100" title="Revoke Identity">🚫 Revoke Access</button>
                                          </>
                                        ) : (
                                          <button onClick={() => updateRole(r.email, 'student')} className="px-10 py-4 bg-green-600 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">Authorize Re-Entry</button>
                                        )}
                                     </div>
-                                    {activeChatEmail === r.email && (
-                                     <div className="w-full mt-8 animate-in slide-in-from-top-4 duration-500">
-                                        {renderDossierChat(r.email)}
-                                     </div>
-                                    )}
                                  </div>
                                ))}
                                {allRoles.filter(r => r.role === 'student' || r.role === 'banned').length === 0 && (
@@ -746,65 +654,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                     </div>
                   </div>
                 )}
-                </div>
               </div>
             </div>
           </div>
         </div>
-      );
-
-  function renderDossierChat(studentEmail: string) {
-    const chatMessages = messages.filter(m => m.sender_email === studentEmail || m.receiver_email === studentEmail).sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-
-    return (
-      <div className="flex flex-col h-[550px] bg-black/60 rounded-[3.5rem] border border-white/10 overflow-hidden shadow-3xl relative animate-in zoom-in-95 backdrop-blur-3xl z-10">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent pointer-events-none"></div>
-        <div className="flex-1 overflow-y-auto p-12 space-y-12 custom-scrollbar">
-          {chatMessages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full opacity-10 grayscale space-y-10 animate-pulse">
-              <div className="text-9xl">🛰️</div>
-              <p className="text-[11px] font-black uppercase tracking-[0.8em] text-center ml-2">Establishing frequency connection...</p>
-            </div>
-          )}
-          {chatMessages.map(m => (
-            <div key={m.id} className={`flex ${m.sender_email === studentEmail ? 'justify-start' : 'justify-end'}`}>
-               <div className={`max-w-[85%] rounded-[2.5rem] px-10 py-7 text-md leading-relaxed shadow-3xl relative transition-all hover:scale-[1.01] ${m.sender_email === studentEmail ? 'bg-white/5 border border-white/10 text-gray-200 rounded-tl-none' : 'bg-indigo-600 text-white shadow-indigo-600/40 rounded-tr-none'}`}>
-                 <p className="font-bold">{m.body}</p>
-                 <div className="mt-6 opacity-40 text-[10px] font-black uppercase tracking-[0.3em] pt-5 border-t border-white/5 flex justify-between items-center whitespace-nowrap gap-10 italic">
-                    <span>{m.sender_email === studentEmail ? 'SECURE_INBOUND' : 'SYSTEM_OVERRIDE'}</span>
-                    <span>{new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                 </div>
-               </div>
-            </div>
-          ))}
-        </div>
-        <form 
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (!adminReply.trim()) return;
-            const res = await fetch('/api/messages', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ receiver_email: studentEmail, subject: 'Direct Protocol Override Response', body: adminReply })
-            });
-            if (res.ok) {
-              setMessages(prev => [{ id: Math.random().toString(), sender_email: ADMIN_EMAILS[0], receiver_email: studentEmail, body: adminReply, created_at: new Date().toISOString() }, ...prev]);
-              setAdminReply('');
-              refreshPageData();
-            }
-          }}
-          className="p-12 border-t border-white/10 bg-white/5 flex gap-8 backdrop-blur-3xl shadow-inner"
-        >
-          <input 
-            type="text" 
-            placeholder="Initialize response link..." 
-            value={adminReply}
-            onChange={e => setAdminReply(e.target.value)}
-            className="flex-1 bg-black border border-white/10 rounded-[2rem] px-10 py-7 text-md text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-black placeholder:text-gray-900 shadow-inner"
-          />
-          <button type="submit" className="bg-white text-black px-16 py-7 rounded-[2rem] font-black text-[12px] uppercase tracking-[0.4em] shadow-4xl hover:bg-gray-200 transition-all duration-500 active:scale-95">Dispatch</button>
-        </form>
       </div>
     );
-  }
 }
