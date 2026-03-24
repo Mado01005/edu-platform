@@ -131,14 +131,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         setFile(null);
       } else if (inputType === 'link' && vimeoUrl) {
         if (!vimeoTitle) throw new Error('Title required for link');
-        const res = await fetch('/api/admin/content', {
+        const res = await fetch('/api/admin/embed', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            subjectId: selectedSubjectId,
             lessonId: selectedLessonId,
-            type: 'vimeo',
-            name: vimeoTitle,
-            url: vimeoUrl
+            url: vimeoUrl,
+            title: vimeoTitle
           })
         });
         if (!res.ok) throw new Error('Link embedding failed');
@@ -172,10 +172,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     const title = prompt('New Module Title:');
     if (!title || !selectedSubjectId) return;
     try {
-      const res = await fetch('/api/admin/content', {
+      const res = await fetch('/api/admin/lessons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subjectId: selectedSubjectId, title, type: 'lesson' })
+        body: JSON.stringify({ subjectId: selectedSubjectId, title })
       });
       if (res.ok) refreshPageData();
     } catch(err: any) { alert(err.message); }
