@@ -127,7 +127,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         else reject(new Error(`Upload failed with status ${xhr.status}`));
       });
 
-      xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+      xhr.addEventListener('error', () => {
+        const errorMsg = `Network error during upload in R2 (Status: ${xhr.status}, ${xhr.statusText || 'No response'}). Check CORS settings on the bucket.`;
+        reject(new Error(errorMsg));
+      });
       
       xhr.open('PUT', signedUrl);
       xhr.setRequestHeader('Content-Type', contentType);
@@ -164,7 +167,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
               fileName: file.name,
               subjectSlug: subject?.slug || 'unknown',
               lessonSlug: lesson?.title.toLowerCase().replace(/\s+/g, '-') || 'unknown',
-              contentType: file.type
+              contentType: file.type || 'application/octet-stream'
             })
           });
 
