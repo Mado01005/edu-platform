@@ -25,7 +25,32 @@ export async function POST(req: Request) {
     const city = headersList.get('x-vercel-ip-city') || 'Unknown City';
     const country = headersList.get('x-vercel-ip-country') || 'Unknown Country';
 
-    // Upsert into live_sessions based on user_email and ip_address to capture multiple devices (Piracy tracking)
+    // 1. Fetch current session state to detect navigation/path changes
+    const { data: existingSession } = await supabaseAdmin
+      .from('live_sessions')
+      .select('current_page, is_idle')
+      .eq('user_email', session.user.email)
+      .eq('ip_address', ipAddress)
+      .single();
+
+    // 2. If path changed, log a navigation event to activity_logs for the real-time Feed
+    if (!existingSession || existingSession.current_page !== (currentPage || 'UnknownPage')) {
+      await supabaseAdmin.from('activity_logs').insert({
+        user_name: session.user.name || 'Anonymous Student',
+        user_email: session.user.email,
+        action: 'PAGE_VIEW', // Or 'NAVIGATION'
+        url: currentPage || 'UnknownPage',
+        geo_city: city,
+        geo_country: country,
+        details: { 
+          from: existingSession?.current_page || 'initial_load',
+          to: currentPage || 'dashboard',
+          userAgent 
+        }
+      });
+    }
+
+    // 3. Upsert into live_sessions for the real-time Sessions tab visibility
     const { error } = await supabaseAdmin.from('live_sessions').upsert({
       user_email: session.user.email,
       ip_address: ipAddress,
