@@ -49,8 +49,22 @@ export default function SessionTracker() {
     // Run heartbeat every 30 seconds for higher fidelity telemetry
     heartbeatInterval = setInterval(sendHeartbeat, 30000);
     
-    // Initial ping on load
+    const logPageView = () => {
+      fetch('/api/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'PAGE_VIEW',
+          details: { path: pathname }
+        })
+      }).catch(() => {});
+    };
+
+    // Initial ping on load and on every pathname change
     sendHeartbeat();
+    logPageView();
 
     return () => {
       window.removeEventListener('mousemove', updateActivity);

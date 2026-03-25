@@ -206,6 +206,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
     if (action === 'READ_PDF') return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
     if (action === 'WATCH_VIDEO') return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
     if (action === 'ACTIVE_BROWSING') return 'bg-green-500/10 text-green-400 border-green-500/20 animate-pulse';
+    if (action === 'PAGE_VIEW') return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
     if (action === 'IDLE') return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
     return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
   };
