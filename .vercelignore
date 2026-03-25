@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.vercel
+*.mp4
+*.mkv
+*.mov
+*.avi
+*.pptx
+*.JPG
+*.jpg
+*.DNG
+*.png
+*.zip
+*.tar.gz

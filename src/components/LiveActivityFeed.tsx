@@ -137,15 +137,29 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
       if (l.action === 'Watched Video' || l.action === 'WATCH_VIDEO') student.videoWatches++;
     });
 
+    // 3. Overlay with LIVE SESSION heartbeats for real-time presence (high-fidelity)
+    sessions.forEach((s: any) => {
+      const student = map.get(s.user_email);
+      if (student) {
+        // If the heartbeat is more recent than the last log, update the status
+        if (new Date(s.last_active_at) > new Date(student.lastSeen)) {
+          student.lastSeen = s.last_active_at;
+          student.lastAction = s.is_idle ? 'IDLE' : 'ACTIVE_BROWSING';
+          if (s.geo_city && s.geo_city !== 'Unknown') student.city = s.geo_city;
+          if (s.geo_country && s.geo_country !== 'Unknown') student.country = s.geo_country;
+        }
+      }
+    });
+
     return Array.from(map.values()).sort((a,b) => new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime());
-  }, [logs, initialUsers]);
+  }, [logs, sessions, initialUsers]);
 
   const totalInteractions = logs.length;
   const uniqueCount = uniqueStudents.length;
 
-  // Active students = seen in last 15 minutes
+  // Active students = seen in last 5 minutes (Synchronized with "Active Now" header)
   const activeStudents = useMemo(() => {
-    const cutoff = Date.now() - 15 * 60 * 1000;
+    const cutoff = Date.now() - 5 * 60 * 1000;
     return uniqueStudents.filter(s => new Date(s.lastSeen).getTime() > cutoff);
   }, [uniqueStudents]);
 
@@ -191,6 +205,8 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
     if (action === 'Completed Lesson') return 'bg-green-500/10 text-green-400 border-green-500/20';
     if (action === 'READ_PDF') return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
     if (action === 'WATCH_VIDEO') return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+    if (action === 'ACTIVE_BROWSING') return 'bg-green-500/10 text-green-400 border-green-500/20 animate-pulse';
+    if (action === 'IDLE') return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
     return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
   };
 

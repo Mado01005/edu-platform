@@ -21,6 +21,10 @@ export async function POST(req: Request) {
     const ipAddress = forwardedFor ? forwardedFor.split(',')[0].trim() : (realIp || 'Unknown Local IP');
     const userAgent = headersList.get('user-agent') || 'Unknown Browser';
 
+    // Vercel Geolocation headers
+    const city = headersList.get('x-vercel-ip-city') || 'Unknown City';
+    const country = headersList.get('x-vercel-ip-country') || 'Unknown Country';
+
     // Upsert into live_sessions based on user_email and ip_address to capture multiple devices (Piracy tracking)
     const { error } = await supabaseAdmin.from('live_sessions').upsert({
       user_email: session.user.email,
@@ -28,7 +32,9 @@ export async function POST(req: Request) {
       user_agent: userAgent,
       current_page: currentPage || 'UnknownPage',
       is_idle: isIdle || false,
-      last_active_at: new Date().toISOString()
+      last_active_at: new Date().toISOString(),
+      geo_city: city,
+      geo_country: country
     }, {
       onConflict: 'user_email, ip_address'
     });
