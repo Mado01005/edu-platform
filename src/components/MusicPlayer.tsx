@@ -175,7 +175,7 @@ const MusicPlayer = () => {
 
   return (
     <div 
-      className={`fixed bottom-4 right-4 z-[99999] transition-all duration-500 ${
+      className={`fixed bottom-20 left-4 z-[9999] transition-all duration-500 ${
         isCollapsed ? 'w-16 h-16' : 'w-80'
       }`}
     >
@@ -293,10 +293,21 @@ const MusicPlayer = () => {
                       <Image src={currentTrack.albumArt} alt="Art" fill className="object-cover" />
                     )}
                   </div>
-                  <div className="flex flex-col min-w-0 pr-6">
-                    <h4 className="text-[13px] font-bold text-white truncate leading-tight tracking-tight">
-                      {currentTrack?.name || 'Waiting for Music...'}
-                    </h4>
+                  <div className="flex flex-col min-w-0 pr-6 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-[13px] font-bold text-white truncate leading-tight tracking-tight flex-1">
+                        {currentTrack?.name || 'Waiting for Music...'}
+                      </h4>
+                      {isActive && (
+                        <button 
+                          onClick={() => setView('playlists')}
+                          className="p-1 rounded-md hover:bg-white/10 text-indigo-400/60 hover:text-indigo-400 transition-all"
+                          title="Open Library"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                        </button>
+                      )}
+                    </div>
                     <p className="text-[11px] text-gray-400 truncate mt-0.5 tracking-wide">
                       {currentTrack?.artist || 'Open Spotify to Begin'}
                     </p>
