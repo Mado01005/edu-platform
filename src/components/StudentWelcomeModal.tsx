@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface StudentWelcomeModalProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface StudentWelcomeModalProps {
 export default function StudentWelcomeModal({ open, userEmail, userName }: StudentWelcomeModalProps) {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Check if we've already acknowledged to break any loops
@@ -49,21 +51,23 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
       });
 
       if (res.ok) {
+        // 1. Instant Client State Update
         localStorage.setItem(`onb_v2_${emailKey}`, 'true');
         document.cookie = `onb_v2_${emailKey}=true; path=/; max-age=31536000`; // 1 year
         setShow(false);
-        // Clean URL and bust cache
-        window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+        
+        // 2. Silent Server Side Update (Busts Dashboard cache without reload)
+        router.refresh();
       } else {
         const errData = await res.json();
         throw new Error(errData.error || 'Failed to initialize.');
       }
     } catch (err) {
-      console.error('Onboarding Error:', err);
-      // Fallback: even if it fails, we want them to get in, so maybe just close after alert
-      alert('Initialization signal sent. If the dashboard doesn\'t load, please refresh.');
+      console.error('Onboarding Error (Silent):', err);
+      // Fallback: even if it fails, we want them to get in, so just close
+      localStorage.setItem(`onb_v2_${emailKey}`, 'true');
       setShow(false);
-      window.location.reload();
+      router.refresh();
     } finally {
       setLoading(false);
     }
