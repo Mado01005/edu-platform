@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   },
 };
 
+import { SpotifyProvider } from '@/context/SpotifyContext';
+import SpotifyPlayer from '@/components/SpotifyPlayer';
+
 export default async function RootLayout({
   children,
 }: {
@@ -31,6 +34,8 @@ export default async function RootLayout({
 }) {
   const session = await auth();
   const isAdmin = (session?.user as any)?.isAdmin;
+  // @ts-expect-error - Accessing custom property
+  const spotifyToken = session?.user?.accessToken;
 
   return (
     <html lang="en" className="dark">
@@ -42,7 +47,10 @@ export default async function RootLayout({
         <StudyTimer />
         <MobileNav />
         
-        {children}
+        <SpotifyProvider accessToken={spotifyToken}>
+          {children}
+          <SpotifyPlayer />
+        </SpotifyProvider>
 
         {/* Tawk.to Live Chat Script */}
         <Script id="tawk-to" strategy="lazyOnload">

@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
+import Spotify from 'next-auth/providers/spotify';
 import { supabaseAdmin } from '@/lib/supabase';
 
 import { ADMIN_EMAILS } from '@/lib/constants';
@@ -10,6 +11,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    Spotify({
+      clientId: process.env.SPOTIFY_CLIENT_ID!,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
+      authorization: 'https://accounts.spotify.com/authorize?scope=user-read-email,user-read-private,streaming,user-modify-playback-state,user-read-playback-state',
+    }),
   ],
   // Use JWT strategy (no database needed)
   session: { strategy: 'jwt' },
@@ -17,10 +23,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+      }
       if (user && user.email) {
-        // This 'user' object is only present on the very first sign-in moment.
-        // We do our heavy database query here and 'bake' the result into the token forever.
+        // ... (existing role logic)
         const isMasterAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase().trim() === user.email?.toLowerCase().trim());
         let dbRole = 'student';
         
@@ -28,7 +36,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (data) {
           dbRole = data.role;
         } else {
-          // We automatically register them into the database natively as a permanent 'student'
           await supabaseAdmin.from('user_roles').upsert({ email: user.email, role: 'student' }, { onConflict: 'email' });
         }
 
@@ -39,13 +46,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return token;
     },
-    // Make user info available in the session
     async session({ session, token }) {
       if (token && session.user) {
+        // @ts-expect-error
+        session.user.accessToken = token.accessToken;
         session.user.name = token.name ?? session.user.name;
+        // ... (rest of session logic)
         session.user.email = token.email ?? session.user.email;
         session.user.image = token.picture as string | null | undefined ?? session.user.image;
-        // @ts-expect-error - Adding custom property to session user
+        // @ts-expect-error
         session.user.isAdmin = token.isAdmin ?? false;
         // @ts-expect-error
         session.user.isSuperAdmin = token.isSuperAdmin ?? false;
