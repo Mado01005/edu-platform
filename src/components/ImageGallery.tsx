@@ -7,20 +7,32 @@ interface ImageGalleryProps {
   title: string;
 }
 
-const BASE_STORAGE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '') + '/storage/v1/object/public';
+const BASE_IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_HOST || process.env.NEXT_PUBLIC_SUPABASE_URL || "REPLACE_ME_WITH_BUCKET_URL";
 
 export default function ImageGallery({ images, title }: ImageGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const getFullUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    // Prepend base storage URL to relative paths (e.g., /content/...)
-    return `${BASE_STORAGE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  const getFullUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    
+    // Define the specific Supabase storage path if we are using Supabase as the fallback provider
+    let base = BASE_IMAGE_URL;
+    if (base.includes('supabase.co') && !base.includes('/storage/v1/object/public')) {
+      base = base.replace(/\/$/, '') + '/storage/v1/object/public';
+    }
+
+    const cleanPath = path.startsWith('/') ? path : '/' + path;
+    return base === "REPLACE_ME_WITH_BUCKET_URL" ? cleanPath : base.replace(/\/$/, '') + cleanPath;
   };
 
+  const openLightbox = (i: number) => setLightboxIndex(i);
+  const closeLightbox = () => setLightboxIndex(null);
+  const prev = () => setLightboxIndex((i) => (i !== null ? (i - 1 + images.length) % images.length : 0));
+  const next = () => setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : 0));
+
   console.log("[GALLERY DEBUG] Raw Image Data:", images);
-  console.log("[GALLERY DEBUG] Base Storage URL:", BASE_STORAGE_URL);
+  console.log("[GALLERY DEBUG] Configured Base URL:", BASE_IMAGE_URL);
 
   return (
     <>
