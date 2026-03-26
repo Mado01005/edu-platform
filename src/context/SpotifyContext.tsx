@@ -43,31 +43,36 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
   useEffect(() => {
     if (!accessToken) return;
 
-    window.onSpotifyWebPlaybackSDKReady = () => {
+    const initializePlayer = () => {
+      if (typeof window.Spotify === 'undefined') {
+        console.warn('Spotify SDK not loaded yet');
+        return;
+      }
+
+      console.log('Initializing Spotify Player...');
       const newPlayer = new (window.Spotify.Player as any)({
         name: 'EduPortal High-Fidelity Player',
         getOAuthToken: (cb: (token: string) => void) => {
-          console.log('SDK requesting token... Current token exists:', !!accessToken);
+          console.log('SDK requesting token... Token exists:', !!accessToken);
           cb(accessToken!);
         },
         volume: 0.5,
       });
 
+      // Attach listeners BEFORE connecting
       newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
         console.log('SDK Ready! Device ID captured:', device_id);
         setDeviceId(device_id);
       });
 
       newPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
-        console.log('Spotify Device ID has gone offline', device_id);
+        console.log('SDK: Device ID has gone offline', device_id);
       });
 
       newPlayer.addListener('player_state_changed', (state: any) => {
         if (!state) return;
-
         setIsPlaying(!state.paused);
         setIsActive(true);
-
         const track = state.track_window.current_track;
         const newTrack: SpotifyTrack = {
           name: track.name,
@@ -75,14 +80,29 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
           albumArt: track.album.images[0].url,
           uri: track.uri,
         };
-
-        // If track changed, we will log this in the component level via useEffect to keep context clean
         setCurrentTrack(newTrack);
       });
 
-      newPlayer.connect();
+      newPlayer.addListener('initialization_error', ({ message }: { message: string }) => console.error('SDK Init Error:', message));
+      newPlayer.addListener('authentication_error', ({ message }: { message: string }) => console.error('SDK Auth Error:', message));
+      newPlayer.addListener('account_error', ({ message }: { message: string }) => console.error('SDK Account Error:', message));
+
+      newPlayer.connect().then((success: boolean) => {
+        if (success) {
+          console.log('SDK Connected to Spotify successfully! ✅');
+        } else {
+          console.error('SDK failed to connect to Spotify ❌');
+        }
+      });
+      
       setPlayer(newPlayer);
     };
+
+    if (window.Spotify) {
+      initializePlayer();
+    } else {
+      window.onSpotifyWebPlaybackSDKReady = initializePlayer;
+    }
 
     return () => {
       player?.disconnect();
