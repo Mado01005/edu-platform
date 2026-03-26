@@ -41,11 +41,16 @@ const MusicPlayer = () => {
       fetch('https://api.spotify.com/v1/me/playlists?limit=10', {
         headers: { 'Authorization': `Bearer ${accessToken}` }
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then(data => {
         if (data.items) setPlaylists(data.items);
       })
-      .catch(err => console.error('Failed to fetch playlists:', err));
+      .catch(err => {
+        console.error('Playlist Fetch Error:', err);
+      });
     }
   }, [hasToken, accessToken, playlists.length]);
 
@@ -101,7 +106,7 @@ const MusicPlayer = () => {
 
   return (
     <div className={`fixed z-[99999] transition-all duration-700 ease-out 
-      ${isCollapsed ? 'bottom-4 left-4 w-16 h-16' : 'bottom-4 left-4 right-4 w-auto md:bottom-24 md:left-6 md:right-auto md:w-[350px]'}
+      ${isCollapsed ? 'bottom-24 left-6 w-16 h-16' : 'bottom-4 left-4 right-4 w-auto md:bottom-24 md:left-6 md:right-auto md:w-[350px]'}
     `}>
       <div className="relative group p-1">
         {/* Sleek Glass Container */}
