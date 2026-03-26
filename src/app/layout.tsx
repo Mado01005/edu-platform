@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 import { SpotifyProvider } from '@/context/SpotifyContext';
-import SpotifyPlayer from '@/components/SpotifyPlayer';
+import MusicPlayer from '@/components/MusicPlayer';
 
 export default async function RootLayout({
   children,
@@ -49,7 +49,7 @@ export default async function RootLayout({
         
         <SpotifyProvider accessToken={spotifyToken}>
           {children}
-          <SpotifyPlayer />
+          <MusicPlayer />
         </SpotifyProvider>
 
         {/* Tawk.to Live Chat Script */}
