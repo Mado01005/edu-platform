@@ -44,7 +44,11 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                 alt={`${title} — image ${i + 1}`}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 loading="lazy"
-                onError={(e) => console.error(`[GALLERY DEBUG] Load Error for URL: ${src}`)}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.src = "https://placehold.co/600x400/1e1e2e/8b5cf6?text=Image+Not+Found";
+                  console.warn("[GALLERY] Broken Image Link Detected in Database:", src);
+                }}
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                 <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -102,6 +106,11 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               src={images[lightboxIndex]}
               alt={`${title} — image ${lightboxIndex + 1}`}
               className="max-w-full max-h-full object-contain shadow-2xl rounded-lg"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.src = "https://placehold.co/600x400/1e1e2e/8b5cf6?text=Image+Not+Found";
+                console.warn("[GALLERY] Broken Lightbox Link Detected:", images[lightboxIndex]);
+              }}
             />
           </div>
 
