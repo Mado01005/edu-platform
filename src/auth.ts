@@ -7,6 +7,7 @@ import { ADMIN_EMAILS } from '@/lib/constants';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: true,
+  secret: process.env.AUTH_SECRET,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -15,11 +16,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Spotify({
       clientId: process.env.SPOTIFY_CLIENT_ID!,
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          scope: 'user-read-email user-read-private streaming user-modify-playback-state user-read-playback-state'
-        }
-      }
+      authorization: 'https://accounts.spotify.com/authorize?scope=user-read-email%20user-read-private%20streaming%20user-modify-playback-state%20user-read-playback-state',
     }),
   ],
   // Use JWT strategy (no database needed)
