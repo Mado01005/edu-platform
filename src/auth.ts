@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  debug: true,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
