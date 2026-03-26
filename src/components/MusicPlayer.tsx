@@ -8,7 +8,7 @@ import { signIn } from 'next-auth/react';
 
 const MusicPlayer = () => {
   const pathname = usePathname();
-  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, transferPlayback } = useSpotify();
+  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, accessToken, deviceId } = useSpotify();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Hide on public pages
@@ -35,6 +35,34 @@ const MusicPlayer = () => {
       }).catch(err => console.error('Spotify Telemetry Error:', err));
     }
   }, [currentTrack, lastLoggedTrack]);
+
+  const handleActivate = () => {
+    if (!deviceId || !accessToken) {
+      console.warn('Cannot activate: Missing Device ID or Token', { deviceId, hasToken: !!accessToken });
+      return;
+    }
+
+    console.log('Attempting Spotify Transfer to:', deviceId);
+    
+    fetch('https://api.spotify.com/v1/me/player', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        device_ids: [deviceId],
+        play: false
+      })
+    })
+    .then(res => {
+      console.log('Spotify Transfer Status:', res.status);
+      if (res.ok) {
+        window.location.reload();
+      }
+    })
+    .catch(err => console.error('Spotify Transfer Error:', err));
+  };
 
   return (
     <div 
