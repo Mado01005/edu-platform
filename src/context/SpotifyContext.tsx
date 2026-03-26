@@ -24,6 +24,7 @@ interface SpotifyContextType {
   currentTrack: SpotifyTrack | null;
   isPlaying: boolean;
   hasToken: boolean;
+  accessToken: string | null;
   togglePlay: () => void;
   nextTrack: () => void;
   previousTrack: () => void;
@@ -136,6 +137,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         currentTrack,
         isPlaying,
         hasToken: !!accessToken,
+        accessToken: accessToken || null,
         togglePlay,
         nextTrack,
         previousTrack,

@@ -66,7 +66,7 @@ const MusicPlayer = () => {
               <p className="text-[10px] text-gray-400 font-medium">Click to transfer playback here</p>
             </div>
             <button 
-              onClick={transferPlayback}
+              onClick={handleActivate}
               className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-full transition-all scale-hover shadow-xl active:scale-95"
             >
               ACTIVATE NOW
