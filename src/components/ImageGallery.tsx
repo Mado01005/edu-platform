@@ -7,26 +7,20 @@ interface ImageGalleryProps {
   title: string;
 }
 
+const BASE_STORAGE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '') + '/storage/v1/object/public';
+
 export default function ImageGallery({ images, title }: ImageGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
+  const getFullUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    // Prepend base storage URL to relative paths (e.g., /content/...)
+    return `${BASE_STORAGE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   console.log("[GALLERY DEBUG] Raw Image Data:", images);
-
-  function openLightbox(i: number) {
-    setLightboxIndex(i);
-  }
-
-  function closeLightbox() {
-    setLightboxIndex(null);
-  }
-
-  function prev() {
-    setLightboxIndex((i) => (i !== null ? (i - 1 + images.length) % images.length : 0));
-  }
-
-  function next() {
-    setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : 0));
-  }
+  console.log("[GALLERY DEBUG] Base Storage URL:", BASE_STORAGE_URL);
 
   return (
     <>
@@ -40,14 +34,14 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               aria-label={`View image ${i + 1} of ${title}`}
             >
               <img
-                src={src}
+                src={getFullUrl(src)}
                 alt={`${title} — image ${i + 1}`}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 loading="lazy"
                 onError={(e) => {
                   const target = e.currentTarget;
                   target.src = "https://placehold.co/600x400/1e1e2e/8b5cf6?text=Image+Not+Found";
-                  console.warn("[GALLERY] Broken Image Link Detected in Database:", src);
+                  console.warn("[GALLERY] Broken Image Link Detected in Database:", src, "Full attempted URL:", getFullUrl(src));
                 }}
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
@@ -57,8 +51,8 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               </div>
             </button>
             {/* Visual URL Debugging */}
-            <p className="text-[9px] text-white/30 truncate px-2 font-mono" title={src}>
-              URL: {src}
+            <p className="text-[9px] text-white/30 truncate px-2 font-mono" title={getFullUrl(src)}>
+              FULL URL: {getFullUrl(src)}
             </p>
           </div>
         ))}
@@ -103,7 +97,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={images[lightboxIndex]}
+              src={getFullUrl(images[lightboxIndex])}
               alt={`${title} — image ${lightboxIndex + 1}`}
               className="max-w-full max-h-full object-contain shadow-2xl rounded-lg"
               onError={(e) => {
