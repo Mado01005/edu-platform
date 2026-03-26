@@ -8,6 +8,7 @@ import { ADMIN_EMAILS } from '@/lib/constants';
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: true,
   secret: process.env.AUTH_SECRET,
+  trustHost: true,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
