@@ -89,6 +89,25 @@ const MusicPlayer = () => {
     };
   }, [isPlaying, togglePlay]);
 
+  // "Vimeo Smart-Pause": Listen for play events from Vimeo iFrames
+  useEffect(() => {
+    const handleVimeoMessage = (event: MessageEvent) => {
+      try {
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        // Vimeo events usually have the structure { event: "play", ... }
+        if ((data.event === 'play' || data.method === 'play') && isPlaying) {
+          console.log('Vimeo Play detected! Pausing Spotify...');
+          togglePlay();
+        }
+      } catch (e) {
+        // Not a Vimeo message
+      }
+    };
+
+    window.addEventListener('message', handleVimeoMessage);
+    return () => window.removeEventListener('message', handleVimeoMessage);
+  }, [isPlaying, togglePlay]);
+
   // Telemetry Hook: Log when track changes
   useEffect(() => {
     if (currentTrack && currentTrack.uri !== lastLoggedTrack) {
@@ -156,7 +175,7 @@ const MusicPlayer = () => {
 
   return (
     <div 
-      className={`fixed bottom-6 right-6 z-[9999] transition-all duration-500 ${
+      className={`fixed bottom-4 right-4 z-[9999] transition-all duration-500 ${
         isCollapsed ? 'w-16 h-16' : 'w-80'
       }`}
     >
