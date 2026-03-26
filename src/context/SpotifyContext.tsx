@@ -95,7 +95,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
     if (!deviceId || !accessToken) return;
     
     try {
-      await fetch('https://api.spotify.com/v1/me/player', {
+      const res = await fetch('https://api.spotify.com/v1/me/player', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -103,12 +103,18 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         },
         body: JSON.stringify({
           device_ids: [deviceId],
-          play: true,
+          play: false,
         }),
       });
-      setIsActive(true);
+
+      if (res.ok) {
+        setIsActive(true);
+      } else {
+        const error = await res.json().catch(() => ({ message: 'Unknown error' }));
+        console.error(`Spotify Transfer Error (${res.status}):`, error);
+      }
     } catch (err) {
-      console.error('Failed to transfer playback:', err);
+      console.error('Failed to transfer playback (Network Error):', err);
     }
   };
 

@@ -51,7 +51,7 @@ const MusicPlayer = () => {
               Log in with Spotify
             </button>
           </div>
-        ) : !isActive || !currentTrack ? (
+        ) : !isActive ? (
           <div className="p-5 flex flex-col items-center gap-4 text-center">
             <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center animate-pulse">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
@@ -86,17 +86,27 @@ const MusicPlayer = () => {
                 onClick={() => setIsCollapsed(false)}
                 className="w-16 h-16 cursor-pointer relative hover:scale-105 transition-transform"
               >
-                <Image src={currentTrack.albumArt} alt="Art" fill className="object-cover animate-pulse-slow" />
+                {currentTrack?.albumArt ? (
+                  <Image src={currentTrack.albumArt} alt="Art" fill className="object-cover animate-pulse-slow" />
+                ) : (
+                  <div className="w-full h-full bg-white/5" />
+                )}
               </div>
             ) : (
               <div className="p-4 space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="relative w-14 h-14 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10">
-                    <Image src={currentTrack.albumArt} alt="Art" fill className="object-cover" />
+                  <div className="relative w-14 h-14 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-white/5">
+                    {currentTrack?.albumArt && (
+                      <Image src={currentTrack.albumArt} alt="Art" fill className="object-cover" />
+                    )}
                   </div>
                   <div className="flex flex-col min-w-0 pr-6">
-                    <h4 className="text-[13px] font-bold text-white truncate leading-tight tracking-tight">{currentTrack.name}</h4>
-                    <p className="text-[11px] text-gray-400 truncate mt-0.5 tracking-wide">{currentTrack.artist}</p>
+                    <h4 className="text-[13px] font-bold text-white truncate leading-tight tracking-tight">
+                      {currentTrack?.name || 'No Track Selected'}
+                    </h4>
+                    <p className="text-[11px] text-gray-400 truncate mt-0.5 tracking-wide">
+                      {currentTrack?.artist || 'Open Spotify to play music'}
+                    </p>
                   </div>
                 </div>
 
