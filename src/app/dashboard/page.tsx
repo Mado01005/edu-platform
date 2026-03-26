@@ -48,14 +48,14 @@ export default async function DashboardPage() {
   let showStudentWelcomeModal = false;
   // @ts-ignore
   if (!session.user?.isAdmin) {
-    const { data: welcomeLog } = await supabaseAdmin
-      .from('activity_logs')
-      .select('id')
-      .eq('user_email', (session.user?.email || '').toLowerCase())
-      .eq('action', 'Completed Student Onboarding')
-      .limit(1);
+    const { data: roleStatus } = await supabaseAdmin
+      .from('user_roles')
+      .select('is_onboarded')
+      .eq('email', (session.user?.email || '').toLowerCase())
+      .maybeSingle();
     
-    if (!welcomeLog || welcomeLog.length === 0) {
+    // Show modal if they haven't explicitly completed onboarding yet
+    if (!roleStatus?.is_onboarded) {
       showStudentWelcomeModal = true;
     }
   }

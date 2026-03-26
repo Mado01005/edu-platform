@@ -55,6 +55,13 @@ export async function POST(req: Request) {
 
     // WEBHOOK: If a brand new student just initialized their dashboard, autonomously alert the Master Admin!
     if (action === 'Completed Student Onboarding') {
+      // 1. Mark them as onboarded in the permanent roles table for faster re-renders/checks
+      await supabaseAdmin
+        .from('user_roles')
+        .update({ is_onboarded: true })
+        .eq('email', (session.user?.email || '').toLowerCase());
+
+      // 2. Alert the admin
       await supabaseAdmin.from('messages').insert({
         sender_email: 'SYSTEM_ROBOT',
         receiver_email: ADMIN_EMAIL,
