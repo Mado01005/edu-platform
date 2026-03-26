@@ -30,6 +30,13 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '**',
       },
+      // Cloudflare R2 Gallery images
+      {
+        protocol: 'https',
+        hostname: 'pub-7bcb18f4378c4e489916424048e040ec.r2.dev',
+        port: '',
+        pathname: '**',
+      },
     ],
   },
 };

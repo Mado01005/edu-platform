@@ -175,7 +175,7 @@ const MusicPlayer = () => {
 
   return (
     <div 
-      className={`fixed bottom-4 right-4 z-[9999] transition-all duration-500 ${
+      className={`fixed bottom-4 right-4 z-[99999] transition-all duration-500 ${
         isCollapsed ? 'w-16 h-16' : 'w-80'
       }`}
     >
