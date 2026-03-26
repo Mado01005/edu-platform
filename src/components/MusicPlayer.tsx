@@ -63,6 +63,32 @@ const MusicPlayer = () => {
     return () => window.removeEventListener('study-timer-state', handleTimerChange);
   }, [isPlaying, isActive, togglePlay]);
 
+  // "Smart-Pause" Feature: Pause if a video starts playing
+  useEffect(() => {
+    const handleVideoPlay = () => {
+      if (isPlaying) togglePlay();
+    };
+
+    const attachListeners = () => {
+      const videos = document.querySelectorAll('video');
+      videos.forEach(v => {
+        v.removeEventListener('play', handleVideoPlay);
+        v.addEventListener('play', handleVideoPlay);
+      });
+    };
+
+    // Initial attach
+    attachListeners();
+    // MutationObserver to catch videos loaded later
+    const observer = new MutationObserver(attachListeners);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      document.querySelectorAll('video').forEach(v => v.removeEventListener('play', handleVideoPlay));
+    };
+  }, [isPlaying, togglePlay]);
+
   // Telemetry Hook: Log when track changes
   useEffect(() => {
     if (currentTrack && currentTrack.uri !== lastLoggedTrack) {
@@ -130,7 +156,7 @@ const MusicPlayer = () => {
 
   return (
     <div 
-      className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ${
+      className={`fixed bottom-6 right-6 z-[9999] transition-all duration-500 ${
         isCollapsed ? 'w-16 h-16' : 'w-80'
       }`}
     >
@@ -213,7 +239,7 @@ const MusicPlayer = () => {
                 {currentTrack?.albumArt ? (
                   <Image src={currentTrack.albumArt} alt="Art" fill className="object-cover animate-pulse-slow" />
                 ) : (
-                  <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                  <div className="w-full h-full bg-[#12121A] flex items-center justify-center">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/20"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
                   </div>
                 )}
