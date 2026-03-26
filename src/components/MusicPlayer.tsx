@@ -9,6 +9,9 @@ import { signIn } from 'next-auth/react';
 const MusicPlayer = () => {
   const pathname = usePathname();
   const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, accessToken, deviceId } = useSpotify();
+  
+  console.log('Player Token State:', accessToken ? 'Token Exists' : 'Token is MISSING');
+  
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Hide on public pages

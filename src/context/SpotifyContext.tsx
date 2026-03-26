@@ -47,7 +47,8 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
       const newPlayer = new (window.Spotify.Player as any)({
         name: 'EduPortal High-Fidelity Player',
         getOAuthToken: (cb: (token: string) => void) => {
-          cb(accessToken);
+          console.log('SDK requesting token... Current token exists:', !!accessToken);
+          cb(accessToken!);
         },
         volume: 0.5,
       });
@@ -144,10 +145,12 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         transferPlayback
       }}
     >
-      <Script
-        src="https://sdk.scdn.co/spotify-player.js"
-        strategy="afterInteractive"
-      />
+      {accessToken && (
+        <Script
+          src="https://sdk.scdn.co/spotify-player.js"
+          strategy="afterInteractive"
+        />
+      )}
       {children}
     </SpotifyContext.Provider>
   );
