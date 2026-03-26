@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   images: {
+    domains: ['lh3.googleusercontent.com', 'i.scdn.co', 'avatars.githubusercontent.com'],
     remotePatterns: [
       // Google profile images (lh3.googleusercontent.com)
       // Google profile images
