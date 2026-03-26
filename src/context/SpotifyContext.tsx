@@ -95,6 +95,14 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
     if (!deviceId || !accessToken) return;
     
     try {
+      console.log('--- Spotify Transfer Debug ---');
+      console.log('Device ID:', deviceId);
+      console.log('Token Present:', !!accessToken);
+      
+      if (!accessToken) {
+        throw new Error('Spotify Access Token is missing or empty');
+      }
+
       const res = await fetch('https://api.spotify.com/v1/me/player', {
         method: 'PUT',
         headers: {
@@ -108,13 +116,14 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
       });
 
       if (res.ok) {
+        console.log('Spotify Transfer Successful: ✅');
         setIsActive(true);
       } else {
-        const error = await res.json().catch(() => ({ message: 'Unknown error' }));
-        console.error(`Spotify Transfer Error (${res.status}):`, error);
+        const errorData = await res.json().catch(() => ({ message: 'No JSON body' }));
+        console.error(`Spotify Transfer Failed (${res.status}):`, errorData);
       }
-    } catch (err) {
-      console.error('Failed to transfer playback (Network Error):', err);
+    } catch (err: any) {
+      console.error('CRITICAL: Spotify Transfer Exception:', err.message || err);
     }
   };
 
