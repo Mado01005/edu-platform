@@ -21,36 +21,23 @@ export async function POST(req: Request) {
     }
 
     // Insert log securely into Supabase
-    // First attempt: Deep logging with geolocation (requires new schema columns)
+    // Note: 'user_agent' column does not exist in activity_logs, so we put it in details
     const { data, error } = await supabaseAdmin.from('activity_logs').insert({
       user_name: session.user?.name || 'Anonymous Student',
       user_email: (session.user?.email || '').toLowerCase(),
       action,
       url,
-      user_agent: userAgent,
       geo_city: city,
       geo_country: country,
-      details: details || {}
+      details: {
+        ...(details || {}),
+        userAgent
+      }
     }).select().single();
 
     if (error) {
-      console.warn('Advanced logging failed (likely missing columns), falling back to basic log:', error.message);
-      // Fallback: Store info in 'details' instead of dedicated columns to prevent 500 errors
-      const { error: fallbackError } = await supabaseAdmin.from('activity_logs').insert({
-        user_name: session.user?.name || 'Anonymous Student',
-        user_email: (session.user?.email || '').toLowerCase(),
-        action,
-        url,
-        user_agent: userAgent,
-        details: {
-          ...(details || {}),
-          _geo: { city, country },
-          _notice: 'Please run SQL to add geo_city/geo_country columns'
-        }
-      });
-      if (fallbackError) {
-        return NextResponse.json({ error: fallbackError.message }, { status: 500 });
-      }
+      console.warn('Telemetry insert failed:', error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     // WEBHOOK: If a brand new student just initialized their dashboard, autonomously alert the Master Admin!
