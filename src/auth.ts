@@ -15,7 +15,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Spotify({
       clientId: process.env.SPOTIFY_CLIENT_ID!,
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
-      authorization: 'https://accounts.spotify.com/authorize?scope=user-read-email,user-read-private,streaming,user-modify-playback-state,user-read-playback-state',
+      authorization: {
+        params: {
+          scope: 'user-read-email user-read-private streaming user-modify-playback-state user-read-playback-state'
+        }
+      }
     }),
   ],
   // Use JWT strategy (no database needed)
