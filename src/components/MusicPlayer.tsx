@@ -131,11 +131,11 @@ const MusicPlayer = () => {
               </button>
 
               {isCollapsed ? (
-                <div onClick={() => setIsCollapsed(false)} className="w-16 h-16 cursor-pointer relative group/collapsed">
+                <div onClick={() => setIsCollapsed(false)} className="w-16 h-16 cursor-pointer relative group/collapsed transition-all duration-300">
                   {currentTrack?.albumArt ? (
-                    <Image src={currentTrack.albumArt} alt="" fill className="object-cover group-hover/collapsed:opacity-80 transition-opacity" />
+                    <img src={currentTrack.albumArt} alt="" className="absolute inset-0 w-full h-full object-cover group-hover/collapsed:opacity-80 transition-opacity rounded-full" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-indigo-600/20"><span className="text-xl">🎵</span></div>
+                    <div className="w-full h-full flex items-center justify-center bg-indigo-600/20 rounded-full"><span className="text-xl">🎵</span></div>
                   )}
                   {isPlaying && <div className="absolute inset-0 border-2 border-indigo-500 animate-pulse rounded-full m-1" />}
                 </div>
