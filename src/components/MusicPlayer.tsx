@@ -77,6 +77,5 @@ const MusicPlayer = () => {
     </div>
   );
 };
-};
 
 export default MusicPlayer;
