@@ -13,10 +13,55 @@ const MusicPlayer = () => {
   console.log('Player Token State:', accessToken ? 'Token Exists' : 'Token is MISSING');
   
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [view, setView] = useState<'player' | 'playlists'>('player');
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [socialActivities, setSocialActivities] = useState<any[]>([]);
+  const [lastLoggedTrack, setLastLoggedTrack] = useState<string | null>(null);
 
   // Hide on public pages
   if (pathname === '/login' || pathname === '/') return null;
-  const [lastLoggedTrack, setLastLoggedTrack] = useState<string | null>(null);
+
+  // Feature 3: Fetch Social Activities
+  useEffect(() => {
+    const fetchSocial = async () => {
+      try {
+        const res = await fetch('/api/social/spotify');
+        const data = await res.json();
+        if (data.latestActivities) setSocialActivities(data.latestActivities);
+      } catch (err) {
+        console.error('Failed to fetch social activities');
+      }
+    };
+    fetchSocial();
+    const interval = setInterval(fetchSocial, 15000); // Update every 15s
+    return () => clearInterval(interval);
+  }, []);
+
+  // Feature 4: Fetch Playlists
+  useEffect(() => {
+    if (hasToken && accessToken && playlists.length === 0) {
+      fetch('https://api.spotify.com/v1/me/playlists?limit=5', {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.items) setPlaylists(data.items);
+      })
+      .catch(err => console.error('Failed to fetch playlists:', err));
+    }
+  }, [hasToken, accessToken, playlists.length]);
+
+  // Feature 5: Study Timer Sync
+  useEffect(() => {
+    const handleTimerChange = (e: any) => {
+      const { isRunning } = e.detail;
+      if (isRunning && !isPlaying && isActive) {
+        togglePlay();
+      }
+    };
+    window.addEventListener('study-timer-state', handleTimerChange);
+    return () => window.removeEventListener('study-timer-state', handleTimerChange);
+  }, [isPlaying, isActive, togglePlay]);
 
   // Telemetry Hook: Log when track changes
   useEffect(() => {
@@ -67,6 +112,22 @@ const MusicPlayer = () => {
     .catch(err => console.error('Spotify Transfer Error:', err));
   };
 
+  const playPlaylist = (uri: string) => {
+    if (!deviceId || !accessToken) return;
+    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ context_uri: uri })
+    })
+    .then(res => {
+      if (res.ok) setView('player');
+    })
+    .catch(err => console.error('Failed to play playlist:', err));
+  };
+
   return (
     <div 
       className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ${
@@ -108,7 +169,31 @@ const MusicPlayer = () => {
           </div>
         ) : (
           <div className="relative group/content">
-            {/* Toggle Button */}
+            {/* View Toggle (Top Left) */}
+            {!isCollapsed && isActive && (
+              <div className="absolute top-2 left-2 z-20 flex gap-1">
+                <button 
+                  onClick={() => setView('player')}
+                  className={`p-1.5 rounded-lg transition-all border ${
+                    view === 'player' ? 'bg-white/20 border-white/20 text-white' : 'bg-white/5 border-white/5 text-white/40 hover:text-white'
+                  }`}
+                  title="Player"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                </button>
+                <button 
+                  onClick={() => setView('playlists')}
+                  className={`p-1.5 rounded-lg transition-all border ${
+                    view === 'playlists' ? 'bg-white/20 border-white/20 text-white' : 'bg-white/5 border-white/5 text-white/40 hover:text-white'
+                  }`}
+                  title="Playlists"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                </button>
+              </div>
+            )}
+
+            {/* Collapse Toggle (Top Right) */}
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all border border-white/5"
@@ -128,11 +213,35 @@ const MusicPlayer = () => {
                 {currentTrack?.albumArt ? (
                   <Image src={currentTrack.albumArt} alt="Art" fill className="object-cover animate-pulse-slow" />
                 ) : (
-                  <div className="w-full h-full bg-white/5" />
+                  <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/20"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  </div>
                 )}
               </div>
+            ) : view === 'playlists' ? (
+              <div className="p-4 pt-12 space-y-3 min-h-[160px]">
+                <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest pl-1">Your Study Playlists</h3>
+                <div className="space-y-1.5">
+                  {playlists.map((pl: any) => (
+                    <button 
+                      key={pl.id}
+                      onClick={() => playPlaylist(pl.uri)}
+                      className="w-full flex items-center gap-3 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all group/item text-left border border-transparent hover:border-white/10"
+                    >
+                      <img src={pl.images[0]?.url} className="w-8 h-8 rounded-lg shadow-lg group-hover/item:scale-110 transition-transform" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-bold text-white truncate">{pl.name}</p>
+                        <p className="text-[9px] text-gray-500 truncate">{pl.tracks.total} tracks</p>
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             ) : (
-              <div className="p-4 space-y-4">
+              <div className="p-4 pt-10 space-y-4">
                 <div className="flex items-center gap-4">
                   <div className="relative w-14 h-14 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-white/5">
                     {currentTrack?.albumArt && (
@@ -141,13 +250,34 @@ const MusicPlayer = () => {
                   </div>
                   <div className="flex flex-col min-w-0 pr-6">
                     <h4 className="text-[13px] font-bold text-white truncate leading-tight tracking-tight">
-                      {currentTrack?.name || 'No Track Selected'}
+                      {currentTrack?.name || 'Waiting for Music...'}
                     </h4>
                     <p className="text-[11px] text-gray-400 truncate mt-0.5 tracking-wide">
-                      {currentTrack?.artist || 'Open Spotify to play music'}
+                      {currentTrack?.artist || 'Open Spotify to Begin'}
                     </p>
                   </div>
                 </div>
+
+                {/* Feature 3: Social Ticker */}
+                {socialActivities.length > 0 && (
+                  <div className="relative h-5 overflow-hidden bg-white/5 rounded-lg border border-white/5 flex items-center px-2 py-3 overflow-hidden">
+                    <div className="flex animate-marquee gap-8 whitespace-nowrap whitespace-nowrap items-center py-2 h-full">
+                      {socialActivities.map((act, i) => (
+                        <span key={i} className="text-[9px] font-medium text-white/50 inline-flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                          <strong className="text-white/80">{act.userName}</strong> is studying to <em className="text-indigo-300 not-italic">"{act.trackName}"</em>
+                        </span>
+                      ))}
+                      {/* Duplicate for seamless loop */}
+                      {socialActivities.map((act, i) => (
+                        <span key={`dup-${i}`} className="text-[9px] font-medium text-white/50 inline-flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                          <strong className="text-white/80">{act.userName}</strong> is studying to <em className="text-indigo-300 not-italic">"{act.trackName}"</em>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-center gap-8 py-1">
                   <button onClick={previousTrack} className="text-gray-400 hover:text-white transition-all transform hover:scale-110 active:scale-90">

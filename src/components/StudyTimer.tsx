@@ -52,11 +52,13 @@ export default function StudyTimer() {
   const progressPct = ((totalTime - timeLeft) / totalTime) * 100;
 
   const toggleTimer = () => {
-    if (isRunning) {
-      setIsRunning(false);
-    } else {
-      setIsRunning(true);
-    }
+    const newState = !isRunning;
+    setIsRunning(newState);
+    
+    // Feature 5: Sync with Spotify MusicPlayer
+    window.dispatchEvent(new CustomEvent('study-timer-state', { 
+      detail: { isRunning: newState } 
+    }));
   };
 
   const resetTimer = () => {
