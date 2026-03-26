@@ -27,6 +27,7 @@ interface SpotifyContextType {
   togglePlay: () => void;
   nextTrack: () => void;
   previousTrack: () => void;
+  transferPlayback: () => Promise<void>;
 }
 
 const SpotifyContext = createContext<SpotifyContextType | undefined>(undefined);
@@ -90,6 +91,27 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
   const nextTrack = () => player?.nextTrack();
   const previousTrack = () => player?.previousTrack();
 
+  const transferPlayback = async () => {
+    if (!deviceId || !accessToken) return;
+    
+    try {
+      await fetch('https://api.spotify.com/v1/me/player', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          device_ids: [deviceId],
+          play: true,
+        }),
+      });
+      setIsActive(true);
+    } catch (err) {
+      console.error('Failed to transfer playback:', err);
+    }
+  };
+
   return (
     <SpotifyContext.Provider
       value={{
@@ -102,6 +124,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         togglePlay,
         nextTrack,
         previousTrack,
+        transferPlayback
       }}
     >
       <Script

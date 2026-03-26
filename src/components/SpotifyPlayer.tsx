@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 
 const SpotifyPlayer = () => {
-  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken } = useSpotify();
+  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, transferPlayback } = useSpotify();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [lastLoggedTrack, setLastLoggedTrack] = useState<string | null>(null);
 
@@ -52,12 +52,19 @@ const SpotifyPlayer = () => {
   if (!isActive || !currentTrack) {
     return (
       <div className="fixed bottom-6 right-6 z-50">
-        <div className="glass-card flex items-center gap-3 p-4 shadow-2xl scale-hover cursor-pointer" onClick={() => window.open('https://open.spotify.com', '_blank')}>
-          <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center animate-pulse">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <button 
+          onClick={transferPlayback}
+          className="glass-card flex items-center gap-3 p-4 shadow-2xl scale-hover cursor-pointer w-full group overflow-hidden relative"
+        >
+          <div className="absolute inset-0 bg-indigo-600/10 group-hover:bg-indigo-600/20 transition-colors"></div>
+          <div className="relative z-10 w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center animate-pulse shadow-[0_0_20px_rgba(79,70,229,0.4)]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </div>
-          <p className="text-sm font-bold text-white">Open Spotify to Play</p>
-        </div>
+          <div className="relative z-10 flex flex-col items-start pr-2">
+            <p className="text-sm font-bold text-white">Native Player Ready</p>
+            <p className="text-[10px] text-indigo-300 font-medium uppercase tracking-tighter">Click to Activate Desktop Web</p>
+          </div>
+        </button>
       </div>
     );
   }
