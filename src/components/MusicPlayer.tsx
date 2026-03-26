@@ -100,7 +100,9 @@ const MusicPlayer = () => {
   };
 
   return (
-    <div className={`fixed bottom-24 left-6 z-[99999] transition-all duration-700 ease-out ${isCollapsed ? 'w-16 h-16' : 'w-80'}`}>
+    <div className={`fixed z-[99999] transition-all duration-700 ease-out 
+      ${isCollapsed ? 'bottom-4 left-4 w-16 h-16' : 'bottom-4 left-4 right-4 w-auto md:bottom-24 md:left-6 md:right-auto md:w-[350px]'}
+    `}>
       <div className="relative group p-1">
         {/* Sleek Glass Container */}
         <div className="backdrop-blur-3xl bg-[#0F0F15]/80 border border-white/10 rounded-[28px] overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] transition-all duration-500">
@@ -165,12 +167,12 @@ const MusicPlayer = () => {
                   )}
 
                   {/* Playback Controls */}
-                  <div className="flex items-center justify-between px-2">
-                    <button onClick={() => setShowPlaylists(!showPlaylists)} className={`p-2 rounded-xl transition-all ${showPlaylists ? 'bg-indigo-500 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
+                  <div className="flex items-center justify-between px-2 gap-4">
+                    <button onClick={() => setShowPlaylists(!showPlaylists)} className={`p-3 rounded-2xl transition-all ${showPlaylists ? 'bg-indigo-500 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
                     </button>
                     <div className="flex items-center gap-6">
-                      <button onClick={previousTrack} className="text-white/40 hover:text-white transition-all transform active:scale-90"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+                      <button onClick={previousTrack} className="p-2 text-white/40 hover:text-white transition-all transform active:scale-90"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
                       <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all">
                         {isPlaying ? (
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
@@ -178,15 +180,18 @@ const MusicPlayer = () => {
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><path d="M8 5v14l11-7z"/></svg>
                         )}
                       </button>
-                      <button onClick={nextTrack} className="text-white/40 hover:text-white transition-all transform active:scale-90"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg></button>
+                      <button onClick={nextTrack} className="p-2 text-white/40 hover:text-white transition-all transform active:scale-90"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg></button>
                     </div>
-                    <div className="w-8" />
+                    <div className="w-8 hidden md:block" />
                   </div>
 
-                  {/* Playlist Dropdown */}
+                  {/* Playlist Dropdown (Opens Upward) */}
                   {showPlaylists && (
-                    <div className="absolute inset-x-0 bottom-0 top-[110px] bg-[#0F0F15]/95 backdrop-blur-3xl z-40 p-5 space-y-3 overflow-y-auto animate-in slide-in-from-bottom-5 duration-300 rounded-b-[28px] max-h-[220px]">
-                      <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4">Your Playlists</h3>
+                    <div className="absolute inset-x-0 bottom-full mb-4 bg-[#0F0F15]/95 backdrop-blur-3xl z-40 p-5 space-y-3 overflow-y-auto animate-in slide-in-from-bottom-5 duration-300 rounded-[28px] max-h-[300px] shadow-2xl border border-white/10">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Your Playlists</h3>
+                        <button onClick={() => setShowPlaylists(false)} className="text-gray-500 hover:text-white"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+                      </div>
                       <div className="grid gap-2">
                         {playlists.map((pl: any) => (
                           <button key={pl.id} onClick={() => playPlaylist(pl.uri)} className="flex items-center gap-3 p-2 rounded-2xl bg-white/5 hover:bg-white/10 transition-all text-left group/pl">
