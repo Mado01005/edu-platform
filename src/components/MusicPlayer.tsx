@@ -3,11 +3,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSpotify } from '@/context/SpotifyContext';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
 const MusicPlayer = () => {
+  const pathname = usePathname();
   const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, transferPlayback } = useSpotify();
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Hide on public pages
+  if (pathname === '/login' || pathname === '/') return null;
   const [lastLoggedTrack, setLastLoggedTrack] = useState<string | null>(null);
 
   // Telemetry Hook: Log when track changes
