@@ -64,23 +64,40 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         console.log('SDK Ready! Device ID captured:', device_id);
         setDeviceId(device_id);
         
-        // Auto-transfer playback
-        fetch('https://api.spotify.com/v1/me/player', {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            device_ids: [device_id],
-            play: false,
-          }),
-        }).then(res => {
-          if (res.ok) {
-            console.log('Auto-transfer successful!');
-            setIsActive(true);
-          }
-        }).catch(err => console.error('Auto-transfer failed:', err));
+        // Fix: Delay auto-transfer by 1s to resolve race condition
+        setTimeout(() => {
+          fetch('https://api.spotify.com/v1/me/player', {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              device_ids: [device_id],
+              play: true, // Auto-resume on transfer
+            }),
+          }).then(async (res) => {
+            if (res.ok) {
+              console.log('Auto-transfer successful! ✅');
+              setIsActive(true);
+              // Sync state immediately after transfer
+              const state = await newPlayer.getCurrentState();
+              if (state) {
+                const track = state.track_window.current_track;
+                setCurrentTrack({
+                  name: track.name,
+                  artist: track.artists.map((a: any) => a.name).join(', '),
+                  albumArt: track.album.images[0].url,
+                  uri: track.uri,
+                });
+                setIsPlaying(!state.paused);
+              }
+            } else {
+              const errData = await res.json().catch(() => ({}));
+              console.error('Auto-Transfer Failed:', res.status, errData);
+            }
+          }).catch(err => console.error('Auto-Transfer Network Error:', err));
+        }, 1000);
       });
 
       newPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
