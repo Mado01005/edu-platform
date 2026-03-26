@@ -5,37 +5,11 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   images: {
-    domains: ['lh3.googleusercontent.com', 'i.scdn.co', 'avatars.githubusercontent.com'],
+    domains: [],
     remotePatterns: [
-      // Google profile images (lh3.googleusercontent.com)
-      // Google profile images
-      // Google profile images
       {
         protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-        port: '',
-        pathname: '**',
-      },
-      // Spotify album covers
-      {
-        protocol: 'https',
-        hostname: 'i.scdn.co',
-        port: '',
-        pathname: '**',
-      },
-      // GitHub profile images (just in case)
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-        port: '',
-        pathname: '**',
-      },
-      // Cloudflare R2 Gallery images
-      {
-        protocol: 'https',
-        hostname: 'pub-7bcb18f4378c4e489916424048e040ec.r2.dev',
-        port: '',
-        pathname: '**',
+        hostname: '**',
       },
     ],
   },

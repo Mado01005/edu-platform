@@ -63,6 +63,24 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
       newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
         console.log('SDK Ready! Device ID captured:', device_id);
         setDeviceId(device_id);
+        
+        // Auto-transfer playback
+        fetch('https://api.spotify.com/v1/me/player', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            device_ids: [device_id],
+            play: false,
+          }),
+        }).then(res => {
+          if (res.ok) {
+            console.log('Auto-transfer successful!');
+            setIsActive(true);
+          }
+        }).catch(err => console.error('Auto-transfer failed:', err));
       });
 
       newPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
