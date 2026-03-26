@@ -53,7 +53,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
       const newPlayer = new (window.Spotify.Player as any)({
         name: 'EduPortal High-Fidelity Player',
         getOAuthToken: (cb: (token: string) => void) => {
-          console.log('SDK requesting token... Token exists:', !!accessToken);
+          console.log("Token sent to SDK:", typeof accessToken, accessToken ? accessToken.substring(0, 10) + "..." : "null");
           cb(accessToken!);
         },
         volume: 0.5,
