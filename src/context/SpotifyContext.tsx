@@ -43,22 +43,22 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
     window.onSpotifyWebPlaybackSDKReady = () => {
       const newPlayer = new (window.Spotify.Player as any)({
         name: 'EduPortal High-Fidelity Player',
-        getOAuthToken: (cb) => {
+        getOAuthToken: (cb: (token: string) => void) => {
           cb(accessToken);
         },
         volume: 0.5,
       });
 
-      newPlayer.addListener('ready', ({ device_id }) => {
+      newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
         console.log('Spotify Player Ready with Device ID', device_id);
         setDeviceId(device_id);
       });
 
-      newPlayer.addListener('not_ready', ({ device_id }) => {
+      newPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
         console.log('Spotify Device ID has gone offline', device_id);
       });
 
-      newPlayer.addListener('player_state_changed', (state) => {
+      newPlayer.addListener('player_state_changed', (state: any) => {
         if (!state) return;
 
         setIsPlaying(!state.paused);
@@ -67,7 +67,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         const track = state.track_window.current_track;
         const newTrack: SpotifyTrack = {
           name: track.name,
-          artist: track.artists.map((a) => a.name).join(', '),
+          artist: track.artists.map((a: any) => a.name).join(', '),
           albumArt: track.album.images[0].url,
           uri: track.uri,
         };
