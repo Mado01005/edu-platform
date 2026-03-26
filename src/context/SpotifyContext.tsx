@@ -44,16 +44,16 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
     if (!accessToken) return;
 
     const initializePlayer = () => {
+      console.log('[SPOTIFY DEBUG] Initializing SDK... Token exists:', !!accessToken);
       if (typeof window.Spotify === 'undefined') {
-        console.warn('Spotify SDK not loaded yet');
+        console.warn('[SPOTIFY DEBUG] Spotify SDK not loaded yet');
         return;
       }
 
-      console.log('Initializing Spotify Player...');
       const newPlayer = new (window.Spotify.Player as any)({
         name: 'EduPortal High-Fidelity Player',
         getOAuthToken: (cb: (token: string) => void) => {
-          console.log("Spotify Token sent to SDK:", typeof accessToken, accessToken ? accessToken.substring(0, 10) + "..." : "null");
+          console.log("[SPOTIFY DEBUG] Token requested by SDK");
           cb(accessToken!);
         },
         volume: 0.5,
@@ -61,28 +61,34 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
 
       // Attach listeners BEFORE connecting
       newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
-        console.log('SDK Ready! Device ID captured:', device_id);
+        console.log('[SPOTIFY DEBUG] SDK Ready! Device ID captured:', device_id);
         setDeviceId(device_id);
         
         // Fix: Delay auto-transfer by 1s to resolve race condition
-        setTimeout(() => {
-          fetch('https://api.spotify.com/v1/me/player', {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              device_ids: [device_id],
-              play: true, // Auto-resume on transfer
-            }),
-          }).then(async (res) => {
+        setTimeout(async () => {
+          try {
+            console.log('[SPOTIFY DEBUG] Attempting Auto-Transfer...');
+            const res = await fetch('https://api.spotify.com/v1/me/player', {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                device_ids: [device_id],
+                play: true, // Auto-resume on transfer
+              }),
+            });
+
+            console.log('[SPOTIFY DEBUG] Transfer API Status:', res.status);
+
             if (res.ok) {
-              console.log('Auto-transfer successful! ✅');
+              console.log('[SPOTIFY DEBUG] Auto-transfer successful! ✅');
               setIsActive(true);
               // Sync state immediately after transfer
               const state = await newPlayer.getCurrentState();
               if (state) {
+                console.log('[SPOTIFY DEBUG] Initial state synced after transfer');
                 const track = state.track_window.current_track;
                 setCurrentTrack({
                   name: track.name,
@@ -93,40 +99,50 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
                 setIsPlaying(!state.paused);
               }
             } else {
-              const errData = await res.json().catch(() => ({}));
-              console.error('Auto-Transfer Failed:', res.status, errData);
+              const errData = await res.json().catch(() => ({ message: 'No body' }));
+              console.error('[SPOTIFY DEBUG] Auto-Transfer Failed Reason:', errData);
             }
-          }).catch(err => console.error('Auto-Transfer Network Error:', err));
+          } catch (err) {
+            console.error('[SPOTIFY DEBUG] Auto-Transfer Network Error:', err);
+          }
         }, 1000);
       });
 
       newPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
-        console.log('SDK: Device ID has gone offline', device_id);
+        console.log('[SPOTIFY DEBUG] Device ID has gone offline', device_id);
       });
 
       newPlayer.addListener('player_state_changed', (state: any) => {
-        if (!state) return;
+        if (!state) {
+          console.log('[SPOTIFY DEBUG] State Changed: NULL (likely no active playback)');
+          return;
+        }
+        console.log('[SPOTIFY DEBUG] State Changed. Paused:', state.paused, 'Track:', state.track_window?.current_track?.name);
         setIsPlaying(!state.paused);
         setIsActive(true);
         const track = state.track_window.current_track;
-        const newTrack: SpotifyTrack = {
-          name: track.name,
-          artist: track.artists.map((a: any) => a.name).join(', '),
-          albumArt: track.album.images[0].url,
-          uri: track.uri,
-        };
-        setCurrentTrack(newTrack);
+        if (track) {
+          const newTrack: SpotifyTrack = {
+            name: track.name,
+            artist: track.artists.map((a: any) => a.name).join(', '),
+            albumArt: track.album.images[0].url,
+            uri: track.uri,
+          };
+          setCurrentTrack(newTrack);
+        }
       });
 
-      newPlayer.addListener('initialization_error', ({ message }: { message: string }) => console.error('SDK Init Error:', message));
-      newPlayer.addListener('authentication_error', ({ message }: { message: string }) => console.error('SDK Auth Error:', message));
-      newPlayer.addListener('account_error', ({ message }: { message: string }) => console.error('SDK Account Error:', message));
+      // Detailed Error Listeners
+      newPlayer.addListener('initialization_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Initialization Error:', message));
+      newPlayer.addListener('authentication_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Authentication Error:', message));
+      newPlayer.addListener('account_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Account Error:', message));
+      newPlayer.addListener('playback_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Playback Error:', message));
 
       newPlayer.connect().then((success: boolean) => {
         if (success) {
-          console.log('SDK Connected to Spotify successfully! ✅');
+          console.log('[SPOTIFY DEBUG] SDK Connected successfully! ✅');
         } else {
-          console.error('SDK failed to connect to Spotify ❌');
+          console.error('[SPOTIFY DEBUG] SDK failed to connect ❌');
         }
       });
       
