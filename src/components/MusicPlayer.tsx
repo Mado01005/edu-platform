@@ -98,9 +98,12 @@ const MusicPlayer = () => {
             </div>
             <button 
               onClick={handleActivate}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-full transition-all scale-hover shadow-xl active:scale-95"
+              disabled={!deviceId}
+              className={`px-6 py-2 text-white text-xs font-black rounded-full transition-all scale-hover shadow-xl active:scale-95 ${
+                !deviceId ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-indigo-600 hover:bg-indigo-500'
+              }`}
             >
-              ACTIVATE NOW
+              {deviceId ? 'ACTIVATE NOW' : 'CAPTURING DEVICE...'}
             </button>
           </div>
         ) : (

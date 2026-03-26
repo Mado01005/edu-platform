@@ -54,7 +54,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
       });
 
       newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
-        console.log('Spotify Player Ready with Device ID', device_id);
+        console.log('SDK Ready! Device ID captured:', device_id);
         setDeviceId(device_id);
       });
 
