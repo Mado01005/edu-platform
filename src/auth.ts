@@ -25,16 +25,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user, account }) {
       if (account) {
-        token.accessToken = account.access_token;
+        if (account.provider === 'spotify') {
+          token.spotifyAccessToken = account.access_token;
+        } else {
+          token.accessToken = account.access_token;
+        }
       }
       if (user && user.email) {
-        // ... (existing role logic)
+        // ...Existing role logic...
         const isMasterAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase().trim() === user.email?.toLowerCase().trim());
         let dbRole = 'student';
         
-        const { data } = await supabaseAdmin.from('user_roles').select('role').eq('email', user.email).maybeSingle();
+        const { data } = await supabaseAdmin.from('user_roles').select('role, is_onboarded').eq('email', user.email).maybeSingle();
         if (data) {
           dbRole = data.role;
+          token.isOnboarded = data.is_onboarded;
         } else {
           await supabaseAdmin.from('user_roles').upsert({ email: user.email, role: 'student' }, { onConflict: 'email' });
         }
@@ -50,8 +55,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token && session.user) {
         // @ts-expect-error
         session.user.accessToken = token.accessToken;
+        // @ts-expect-error
+        session.user.spotifyAccessToken = token.spotifyAccessToken;
         session.user.name = token.name ?? session.user.name;
-        // ... (rest of session logic)
         session.user.email = token.email ?? session.user.email;
         session.user.image = token.picture as string | null | undefined ?? session.user.image;
         // @ts-expect-error
@@ -60,6 +66,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.isSuperAdmin = token.isSuperAdmin ?? false;
         // @ts-expect-error
         session.user.isBanned = token.isBanned ?? false;
+        // @ts-expect-error
+        session.user.isOnboarded = token.isOnboarded ?? false;
       }
       return session;
     },

@@ -35,7 +35,7 @@ export default async function RootLayout({
   const session = await auth();
   const isAdmin = (session?.user as any)?.isAdmin;
   // @ts-expect-error - Accessing custom property
-  const spotifyToken = session?.user?.accessToken;
+  const spotifyToken = session?.user?.spotifyAccessToken;
 
   return (
     <html lang="en" className="dark">
