@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSpotify } from '@/context/SpotifyContext';
 import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 
 const SpotifyPlayer = () => {
-  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive } = useSpotify();
+  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken } = useSpotify();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [lastLoggedTrack, setLastLoggedTrack] = useState<string | null>(null);
 
@@ -30,7 +31,36 @@ const SpotifyPlayer = () => {
     }
   }, [currentTrack, lastLoggedTrack]);
 
-  if (!isActive || !currentTrack) return null;
+  // "Connect Spotify" Fallback UI
+  if (!hasToken) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50 animate-bounce-slow">
+        <button 
+          onClick={() => signIn('spotify')}
+          className="flex items-center gap-2 bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold py-3 px-6 rounded-full shadow-2xl transition-all scale-hover active:scale-95"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.49 17.306c-.215.353-.675.466-1.026.25-2.887-1.764-6.522-2.162-10.803-1.18-.403.093-.807-.16-.897-.562-.092-.403.16-.807.562-.897 4.693-1.072 8.694-.616 11.913 1.35.352.216.464.675.251 1.039zm1.464-3.262c-.27.44-.846.58-1.286.31-3.303-2.03-8.34-2.617-12.246-1.432-.496.15-1.022-.13-1.17-.624-.15-.496.13-1.022.625-1.17 4.456-1.353 10.003-.703 13.787 1.625.44.27.58.847.31 1.287zm.126-3.41c-3.96-2.352-10.493-2.57-14.288-1.417-.607.185-1.246-.164-1.431-.772-.185-.607.164-1.246.772-1.43 4.38-1.33 11.58-1.07 16.14 1.64.545.324.723 1.033.4 1.579-.323.546-1.033.723-1.579.4z"/>
+          </svg>
+          Connect Spotify
+        </button>
+      </div>
+    );
+  }
+
+  // If connected but nothing playing, show simplified search or "Start listening" hint
+  if (!isActive || !currentTrack) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="glass-card flex items-center gap-3 p-4 shadow-2xl scale-hover cursor-pointer" onClick={() => window.open('https://open.spotify.com', '_blank')}>
+          <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center animate-pulse">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <p className="text-sm font-bold text-white">Open Spotify to Play</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 

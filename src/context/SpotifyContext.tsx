@@ -23,6 +23,7 @@ interface SpotifyContextType {
   isActive: boolean;
   currentTrack: SpotifyTrack | null;
   isPlaying: boolean;
+  hasToken: boolean;
   togglePlay: () => void;
   nextTrack: () => void;
   previousTrack: () => void;
@@ -97,6 +98,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         isActive,
         currentTrack,
         isPlaying,
+        hasToken: !!accessToken,
         togglePlay,
         nextTrack,
         previousTrack,
