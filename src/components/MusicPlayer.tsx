@@ -187,7 +187,7 @@ const MusicPlayer = () => {
 
                   {/* Playlist Dropdown (Opens Upward) */}
                   {showPlaylists && (
-                    <div className="absolute inset-x-0 bottom-full mb-4 bg-[#0F0F15]/95 backdrop-blur-3xl z-40 p-5 space-y-3 overflow-y-auto animate-in slide-in-from-bottom-5 duration-300 rounded-[28px] max-h-[300px] shadow-2xl border border-white/10">
+                    <div className="absolute bottom-full left-0 mb-2 max-h-48 overflow-y-auto z-[99999] bg-[#0F0F15]/95 backdrop-blur-3xl p-5 space-y-3 animate-in slide-in-from-bottom-5 duration-300 rounded-[28px] shadow-2xl border border-white/10 w-full">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Your Playlists</h3>
                         <button onClick={() => setShowPlaylists(false)} className="text-gray-500 hover:text-white"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
