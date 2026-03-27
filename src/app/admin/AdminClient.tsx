@@ -36,6 +36,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   const [activeLogins, setActiveLogins] = useState<string[]>([]);
   const [storageStats, setStorageStats] = useState<any>(null);
   const [uploadTarget, setUploadTarget] = useState<'supabase' | 'r2'>('r2');
+  const [subfolder, setSubfolder] = useState('');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [expandedLessons, setExpandedLessons] = useState<Set<string>>(new Set());
 
@@ -191,7 +192,8 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
               fileName: file.name,
               subjectSlug: subject?.slug || 'unknown',
               lessonSlug: lesson?.title.toLowerCase().replace(/\s+/g, '-') || 'unknown',
-              contentType: file.type || 'application/octet-stream'
+              contentType: file.type || 'application/octet-stream',
+              subfolder: subfolder.trim() || undefined
             })
           });
 
@@ -492,22 +494,61 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                  </div>
                                </div>
 
+                               {/* 04 Subfolder (Optional) */}
+                               <div className="space-y-4">
+                                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">04 Subfolder Name (Optional)</label>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g., Chapter 1 or Labs/Week 2"
+                                    value={subfolder}
+                                    onChange={e => setSubfolder(e.target.value)}
+                                    disabled={uploading}
+                                    className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold placeholder:text-gray-700"
+                                  />
+                                  {subfolder && (
+                                    <p className="text-[9px] text-indigo-400/60 font-bold uppercase tracking-widest">Path: {`[subject]/[module]/${subfolder.trim().replace(/^\/+|\/+$/g, '')}/[file]`}</p>
+                                  )}
+                               </div>
+
                                {inputType === 'file' ? (
-                                 <label className={`flex flex-col items-center justify-center w-full h-56 border-2 ${files.length > 0 ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-dashed border-white/10 hover:border-indigo-500/30 bg-black/50'} rounded-[2.5rem] cursor-pointer transition-all group relative overflow-hidden`}>
-                                   <div className="text-center relative z-10">
-                                     <div className={`w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl transition-transform duration-500 group-hover:scale-110 ${files.length > 0 ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-indigo-400 shadow-inner'}`}>{files.length > 0 ? '📦' : '⚡'}</div>
-                                     {files.length > 0 ? (
-                                        <div className="space-y-1">
-                                          <p className="text-sm font-black text-indigo-300">{files.length} Assets Selected</p>
-                                          <p className="text-[9px] text-gray-500 uppercase font-black">Click to change selection</p>
-                                        </div>
-                                     ) : (
-                                        <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] font-black">Drop files or entire folders here</p>
-                                     )}
-                                   </div>
+                                 <div className="space-y-4">
+                                   {/* Hidden inputs: one for files, one for folders */}
+                                   <input id="file-input" type="file" multiple className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
                                    {/* @ts-ignore — webkitdirectory is non-standard but widely supported */}
-                                   <input type="file" multiple webkitdirectory="" directory="" className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
-                                 </label>
+                                   <input id="folder-input" type="file" webkitdirectory="" directory="" className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
+
+                                   {/* Status display */}
+                                   {files.length > 0 && (
+                                     <div className="p-4 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl text-center space-y-1">
+                                       <p className="text-sm font-black text-indigo-300">📦 {files.length} Assets Selected</p>
+                                       <p className="text-[9px] text-gray-500 uppercase font-black">Ready for transmission</p>
+                                     </div>
+                                   )}
+
+                                   {/* Dual buttons */}
+                                   <div className="grid grid-cols-2 gap-4">
+                                     <button
+                                       type="button"
+                                       onClick={() => document.getElementById('file-input')?.click()}
+                                       disabled={uploading}
+                                       className={`flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-[2rem] transition-all group cursor-pointer ${files.length > 0 ? 'border-indigo-500/30 bg-indigo-500/5' : 'border-white/10 hover:border-indigo-500/30 bg-black/50'}`}
+                                     >
+                                       <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform">📄</div>
+                                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-hover:text-white transition-colors">Select Files</p>
+                                       <p className="text-[8px] text-gray-700 font-bold mt-1">Individual PDFs, images, videos</p>
+                                     </button>
+                                     <button
+                                       type="button"
+                                       onClick={() => document.getElementById('folder-input')?.click()}
+                                       disabled={uploading}
+                                       className={`flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-[2rem] transition-all group cursor-pointer ${files.length > 0 ? 'border-indigo-500/30 bg-indigo-500/5' : 'border-white/10 hover:border-indigo-500/30 bg-black/50'}`}
+                                     >
+                                       <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform">📂</div>
+                                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-hover:text-white transition-colors">Select Folder</p>
+                                       <p className="text-[8px] text-gray-700 font-bold mt-1">Upload entire directory tree</p>
+                                     </button>
+                                   </div>
+                                 </div>
                                ) : (
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                    <input type="text" placeholder="Visual Identifier (Title)" value={vimeoTitle} onChange={e => setVimeoTitle(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold placeholder:text-gray-800" />

@@ -10,19 +10,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { fileName, subjectSlug, lessonSlug, contentType } = await req.json();
+    const { fileName, subjectSlug, lessonSlug, contentType, subfolder } = await req.json();
 
     if (!fileName || !subjectSlug || !lessonSlug) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    // Construct the path where the file will be stored: e.g. physics/Photos/1234567_file.jpg
+    // Construct the path: [subject]/[lesson]/[optional_subfolder]/[timestamp]_[filename]
     const safeSubjectSlug = subjectSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
     const safeLessonSlug = lessonSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
     const timestamp = Date.now();
     const cleanFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, '');
     
-    const storagePath = `${safeSubjectSlug}/${safeLessonSlug}/${timestamp}_${cleanFileName}`;
+    // Sanitize optional subfolder: strip leading/trailing slashes & spaces, allow slashes for nesting
+    let subfolderSegment = '';
+    if (subfolder && typeof subfolder === 'string') {
+      subfolderSegment = subfolder
+        .trim()
+        .replace(/^\/+|\/+$/g, '')       // strip leading/trailing slashes
+        .replace(/[^a-zA-Z0-9\s/\-_]/g, '') // remove unsafe chars (keep / for nesting)
+        .replace(/\/+/g, '/')            // collapse consecutive slashes
+        .trim();
+    }
+
+    const storagePath = subfolderSegment
+      ? `${safeSubjectSlug}/${safeLessonSlug}/${subfolderSegment}/${timestamp}_${cleanFileName}`
+      : `${safeSubjectSlug}/${safeLessonSlug}/${timestamp}_${cleanFileName}`;
 
     // Generate a presigned upload URL from Cloudflare R2 (valid for 1 hour)
     const signedUrl = await getPresignedUploadUrl(storagePath, contentType || 'application/octet-stream');
