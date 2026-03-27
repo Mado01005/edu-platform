@@ -71,7 +71,7 @@ export default function StudyTimer() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 left-4 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.4)] flex items-center justify-center hover:scale-110 transition-transform border border-white/20 sm:bottom-6"
+        className="fixed bottom-4 right-4 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.4)] flex items-center justify-center hover:scale-110 transition-transform border border-white/20"
         title="Study Timer"
       >
         <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,7 +85,7 @@ export default function StudyTimer() {
   }
 
   return (
-    <div className="fixed bottom-20 left-4 z-50 sm:bottom-6">
+    <div className="fixed bottom-4 right-4 z-50">
       <div className="bg-[#12121A]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_10px_40px_rgba(0,0,0,0.6)] w-64">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">

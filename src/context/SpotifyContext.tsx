@@ -43,6 +43,9 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
   useEffect(() => {
     if (!accessToken) return;
 
+    // Track the player instance locally to avoid stale closure in cleanup
+    let localPlayer: any = null;
+
     const initializePlayer = () => {
       console.log('[SPOTIFY DEBUG] Initializing SDK... Token exists:', !!accessToken);
       if (typeof window.Spotify === 'undefined') {
@@ -58,13 +61,14 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         },
         volume: 0.5,
       });
+      localPlayer = newPlayer;
 
       // Attach listeners BEFORE connecting
       newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
         console.log('[SPOTIFY DEBUG] SDK Ready! Device ID captured:', device_id);
         setDeviceId(device_id);
         
-        // Fix: Delay auto-transfer by 1s to resolve race condition
+        // Delay auto-transfer by 1s to resolve race condition
         setTimeout(async () => {
           try {
             console.log('[SPOTIFY DEBUG] Attempting Auto-Transfer...');
@@ -76,7 +80,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
               },
               body: JSON.stringify({
                 device_ids: [device_id],
-                play: true, // Auto-resume on transfer
+                play: true,
               }),
             });
 
@@ -85,7 +89,6 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
             if (res.ok) {
               console.log('[SPOTIFY DEBUG] Auto-transfer successful! ✅');
               setIsActive(true);
-              // Sync state immediately after transfer
               const state = await newPlayer.getCurrentState();
               if (state) {
                 console.log('[SPOTIFY DEBUG] Initial state synced after transfer');
@@ -132,7 +135,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         }
       });
 
-      // Detailed Error Listeners
+      // Error listeners
       newPlayer.addListener('initialization_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Initialization Error:', message));
       newPlayer.addListener('authentication_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Authentication Error:', message));
       newPlayer.addListener('account_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Account Error:', message));
@@ -156,7 +159,8 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
     }
 
     return () => {
-      player?.disconnect();
+      // Use localPlayer (captured at effect time) not stale `player` state
+      localPlayer?.disconnect();
     };
   }, [accessToken]);
 
