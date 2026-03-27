@@ -45,12 +45,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const isMasterAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase().trim() === user.email?.toLowerCase().trim());
           let dbRole = 'student';
           
-          const { data } = await supabaseAdmin.from('user_roles').select('role, is_onboarded').eq('email', user.email).maybeSingle();
+          const { data } = await supabaseAdmin.from('user_roles').select('id, role, is_onboarded').eq('email', user.email).maybeSingle();
           if (data) {
             dbRole = data.role;
+            token.dbUserId = data.id; // Sync real DB ID so streaks & profile load correctly
             token.isOnboarded = data.is_onboarded;
           } else {
-            await supabaseAdmin.from('user_roles').upsert({ email: user.email, role: 'student' }, { onConflict: 'email' });
+            const { data: newUser } = await supabaseAdmin.from('user_roles').upsert({ email: user.email, role: 'student' }, { onConflict: 'email' }).select('id').single();
+            if (newUser) token.dbUserId = newUser.id;
           }
 
           if (dbRole === 'banned') token.isBanned = true;
@@ -67,6 +69,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (token && session.user) {
         // @ts-expect-error
+        session.user.id = token.dbUserId ?? token.sub;
+        // @ts-expect-error
         session.user.accessToken = token.accessToken;
         // @ts-expect-error
         session.user.spotifyAccessToken = token.spotifyAccessToken;
@@ -81,6 +85,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.isBanned = token.isBanned ?? false;
         // @ts-expect-error
         session.user.isOnboarded = token.isOnboarded ?? false;
+
+        // Hardcoded God Mode override for primary admin
+        if (session.user.email === 'abdallahsaad2150@gmail.com') {
+          // @ts-expect-error
+          session.user.isAdmin = true;
+          // @ts-expect-error
+          session.user.isSuperAdmin = true;
+          // @ts-expect-error
+          session.user.role = 'ADMIN';
+        }
       }
       return session;
     },
