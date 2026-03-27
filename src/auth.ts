@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
-import Spotify from 'next-auth/providers/spotify';
+import SpotifyProvider from 'next-auth/providers/spotify';
 import { supabaseAdmin } from '@/lib/supabase';
 
 import { ADMIN_EMAILS } from '@/lib/constants';
@@ -14,13 +14,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    Spotify({
-      clientId: process.env.SPOTIFY_CLIENT_ID!,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
+    SpotifyProvider({
+      clientId: process.env.SPOTIFY_CLIENT_ID || "",
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET || "",
       authorization: {
         params: {
-          scope: 'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state playlist-read-private playlist-read-collaborative',
-          prompt: 'consent'
+          scope: "streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state playlist-read-private playlist-read-collaborative",
+          prompt: "consent",
         }
       }
     }),
