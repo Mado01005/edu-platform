@@ -8,7 +8,7 @@ import SupportTicketModal from '@/components/SupportTicketModal';
 import PromotionModal from '@/components/PromotionModal';
 import StudentWelcomeModal from '@/components/StudentWelcomeModal';
 import DashboardLogger from '@/components/DashboardLogger';
-import DailyStreak from '@/components/DailyStreak';
+import StreakBadge from '@/components/UI/StreakBadge';
 import BookmarkedLessons from '@/components/BookmarkedLessons';
 import WhatsNewBanner from '@/components/WhatsNewBanner';
 
@@ -95,7 +95,8 @@ export default async function DashboardPage() {
           <p className="text-indigo-400 text-sm font-bold tracking-widest uppercase mb-3 flex items-center gap-3">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)] animate-pulse"></span>
             Welcome back, {session.user?.name?.split(' ')[0]} 👋
-            <DailyStreak userEmail={session.user?.email || ''} />
+            {/* @ts-ignore */}
+            <StreakBadge count={session.user?.streakCount || 0} />
           </p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-4 select-none">
             Your Courses
