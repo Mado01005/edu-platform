@@ -12,17 +12,22 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
   const getFullUrl = (path: string) => {
     if (!path) return '';
+    // Already a full URL (R2, Supabase, etc.) → use as-is
     if (path.startsWith('http')) return path;
     
+    // Relative path → construct Supabase Storage public URL
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '') || 'https://placeholder.supabase.co';
+    const bucketName = 'edu-content';
     
-    // Clean and encode path. Paths in DB may already be URI-encoded (e.g. PHY%202%20LAB).
-    // Only encode if NOT already encoded to avoid double-encoding (%20 → %2520).
-    const cleanPath = path.startsWith('/') ? path : '/' + path;
-    const isAlreadyEncoded = cleanPath !== decodeURI(cleanPath);
+    // Strip leading slash for clean construction
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    
+    // Detect if path is already URI-encoded (contains %XX patterns)
+    // to avoid double-encoding (%20 → %2520)
+    const isAlreadyEncoded = /%[0-9A-Fa-f]{2}/.test(cleanPath);
     const encodedPath = isAlreadyEncoded ? cleanPath : encodeURI(cleanPath);
     
-    return `${baseUrl}/storage/v1/object/public${encodedPath}`;
+    return `${baseUrl}/storage/v1/object/public/${bucketName}/${encodedPath}`;
   };
 
   const openLightbox = (i: number) => setLightboxIndex(i);
