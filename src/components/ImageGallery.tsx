@@ -16,10 +16,11 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
     
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '') || 'https://placeholder.supabase.co';
     
-    // Ensure the path starts with a slash and is URI encoded to handle spaces/special characters
-    // Example: /content/PHY 2 LAB/photo.jpg -> /content/PHY%202%20LAB/photo.jpg
+    // Clean and encode path. Paths in DB may already be URI-encoded (e.g. PHY%202%20LAB).
+    // Only encode if NOT already encoded to avoid double-encoding (%20 → %2520).
     const cleanPath = path.startsWith('/') ? path : '/' + path;
-    const encodedPath = encodeURI(cleanPath);
+    const isAlreadyEncoded = cleanPath !== decodeURI(cleanPath);
+    const encodedPath = isAlreadyEncoded ? cleanPath : encodeURI(cleanPath);
     
     return `${baseUrl}/storage/v1/object/public${encodedPath}`;
   };

@@ -10,7 +10,7 @@ const MusicPlayer = () => {
   const pathname = usePathname();
   const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, accessToken, deviceId } = useSpotify();
   
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [showPlaylists, setShowPlaylists] = useState(false);
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [socialActivities, setSocialActivities] = useState<any[]>([]);
