@@ -13,9 +13,15 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
   const getFullUrl = (path: string) => {
     if (!path) return '';
     if (path.startsWith('http')) return path;
+    
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '') || 'https://placeholder.supabase.co';
+    
+    // Ensure the path starts with a slash and is URI encoded to handle spaces/special characters
+    // Example: /content/PHY 2 LAB/photo.jpg -> /content/PHY%202%20LAB/photo.jpg
     const cleanPath = path.startsWith('/') ? path : '/' + path;
-    return `${baseUrl}/storage/v1/object/public${cleanPath}`;
+    const encodedPath = encodeURI(cleanPath);
+    
+    return `${baseUrl}/storage/v1/object/public${encodedPath}`;
   };
 
   const openLightbox = (i: number) => setLightboxIndex(i);
