@@ -106,7 +106,7 @@ const MusicPlayer = () => {
 
   return (
     <div className={`fixed z-[99999] transition-all duration-700 ease-out 
-      ${isCollapsed ? 'bottom-24 left-6 w-16 h-16' : 'bottom-4 left-4 right-4 w-auto md:bottom-24 md:left-6 md:right-auto md:w-[350px]'}
+      ${isCollapsed && hasToken ? 'bottom-24 left-6 w-16 h-16' : 'bottom-4 left-4 right-4 w-auto md:bottom-24 md:left-6 md:right-auto md:w-[350px]'}
     `}>
       <div className="relative group p-1">
         {/* Sleek Glass Container */}
