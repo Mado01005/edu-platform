@@ -502,10 +502,11 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                           <p className="text-[9px] text-gray-500 uppercase font-black">Click to change selection</p>
                                         </div>
                                      ) : (
-                                        <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] font-black">Ready for synchronization</p>
+                                        <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] font-black">Drop files or entire folders here</p>
                                      )}
                                    </div>
-                                   <input type="file" multiple className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
+                                   {/* @ts-ignore — webkitdirectory is non-standard but widely supported */}
+                                   <input type="file" multiple webkitdirectory="" directory="" className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
                                  </label>
                                ) : (
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -549,6 +550,32 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
 
                                <button type="submit" disabled={!selectedLessonId || uploading || (inputType === 'file' && files.length === 0)} className="w-full bg-white text-black font-black py-6 rounded-[2rem] hover:bg-gray-200 transition-all duration-500 disabled:opacity-30 uppercase tracking-[0.3em] text-[10px] shadow-2xl hover:scale-[1.01] active:scale-95">
                                  {uploading ? 'Processing Transmission Cluster...' : 'Execute Transaction'}
+                               </button>
+
+                               {/* Purge Ghost Links */}
+                               <button
+                                 type="button"
+                                 disabled={!selectedLessonId || uploading}
+                                 onClick={async () => {
+                                   if (!confirm('⚠️ DANGER: This will permanently delete ALL content items linked to this module from the database. Physical files on R2 will remain. Continue?')) return;
+                                   try {
+                                     const res = await fetch('/api/admin/purge-content', {
+                                       method: 'POST',
+                                       headers: { 'Content-Type': 'application/json' },
+                                       body: JSON.stringify({ lessonId: selectedLessonId })
+                                     });
+                                     const data = await res.json();
+                                     if (res.ok) {
+                                       alert(`Purged ${data.purged} ghost links from this module.`);
+                                       refreshPageData();
+                                     } else {
+                                       alert(`Purge Error: ${data.error}`);
+                                     }
+                                   } catch (err: any) { alert(`Purge Failed: ${err.message}`); }
+                                 }}
+                                 className="w-full bg-red-500/10 text-red-400 border border-red-500/20 font-black py-4 rounded-2xl hover:bg-red-500/20 transition-all disabled:opacity-20 uppercase tracking-[0.2em] text-[9px]"
+                               >
+                                 🗑️ Clear Old Content (Purge Ghost Links)
                                </button>
                             </div>
                          </div>
