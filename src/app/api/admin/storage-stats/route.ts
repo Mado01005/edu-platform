@@ -5,7 +5,6 @@ import { supabaseAdmin } from '@/lib/supabase';
 export async function GET() {
   try {
     const session = await auth();
-    // @ts-ignore
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -73,7 +72,7 @@ export async function GET() {
       totalFiles: supabaseCount + r2Count + embedCount,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Storage stats error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

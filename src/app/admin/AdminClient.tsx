@@ -2,24 +2,23 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import ActiveSessionsFeed from '@/components/ActiveSessionsFeed';
 import LiveActivityFeed from '@/components/LiveActivityFeed';
-import { SubjectMeta } from '@/lib/content';
+import { Subject, UserRole, ActivityLog, StorageStats, SubjectMeta, LessonMeta, ContentNode } from '@/types';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
 interface AdminClientProps {
-  subjects: SubjectMeta[];
-  initialRoles: any[];
+  subjects: Subject[];
+  initialRoles: UserRole[];
   userEmail: string;
-  initialLogs: any[];
-  initialSessions: any[];
+  initialLogs: ActivityLog[];
+  initialSessions: unknown[]; // Removed any
 }
 
 type TabId = 'upload' | 'manage' | 'broadcast' | 'team' | 'telemetry';
 
 export default function AdminClient({ subjects, initialRoles, userEmail, initialLogs, initialSessions }: AdminClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>('upload');
-  const [localSubjects, setLocalSubjects] = useState<SubjectMeta[]>(subjects);
+  const [localSubjects, setLocalSubjects] = useState<SubjectMeta[]>(subjects as SubjectMeta[]);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedLessonId, setSelectedLessonId] = useState('');
   const [files, setFiles] = useState<File[]>([]);
@@ -31,10 +30,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   const [uploadSpeed, setUploadSpeed] = useState('0 MB/s');
   const [currentFileName, setCurrentFileName] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
-  const [allRoles, setAllRoles] = useState<any[]>(initialRoles);
+  const [allRoles, setAllRoles] = useState<UserRole[]>(initialRoles);
   const [newTeacherEmail, setNewTeacherEmail] = useState('');
   const [activeLogins, setActiveLogins] = useState<string[]>([]);
-  const [storageStats, setStorageStats] = useState<any>(null);
+  const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
   const [uploadTarget, setUploadTarget] = useState<'supabase' | 'r2'>('r2');
   const [subfolder, setSubfolder] = useState('');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -69,11 +68,14 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
       fetch('/api/admin/storage-stats')
     ]);
 
-    if (subRes.ok) setLocalSubjects(await subRes.json());
+    if (subRes.ok) {
+      const data = await subRes.json();
+      setLocalSubjects(data as SubjectMeta[]);
+    }
     if (rolesRes.ok) setAllRoles(await rolesRes.json());
     if (logRes.ok) {
-      const logs = await logRes.json();
-      setActiveLogins(Array.from(new Set(logs.map((l: any) => l.user_email))).filter(Boolean) as string[]);
+      const logs: ActivityLog[] = await logRes.json();
+      setActiveLogins(Array.from(new Set(logs.map((l) => l.user_email))).filter(Boolean) as string[]);
     }
     if (statRes.ok) setStorageStats(await statRes.json());
   }, []);
@@ -86,7 +88,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     return () => { supabase.removeChannel(channel); };
   }, [refreshPageData, supabase]);
 
-  const activeLessons = localSubjects.find(s => s.id === selectedSubjectId)?.lessons || [];
+  const activeLessons = (localSubjects.find(s => s.id === selectedSubjectId)?.lessons as LessonMeta[]) || [];
 
   const updateRole = async (email: string, role: string) => {
     try {
@@ -102,7 +104,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         const errData = await res.json();
         alert(`Error: ${errData.error || 'Failed to update user role'}`);
       }
-    } catch (err: any) { alert(`System Error: ${err.message}`); }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      alert(`System Error: ${message}`);
+    }
   };
 
   const getFileType = (mime: string) => {
@@ -162,8 +167,16 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         const total = files.length;
         
         for (const file of files) {
-          setCurrentFileName(file.name);
-          setStatusMessage(`Processing: ${file.name} (${completed + 1}/${total})`);
+          // Extract relative path if inside a folder upload
+          const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
+          // Strip the top-level folder name (e.g., "Physics Labs/Lab 1/file.png" -> "Lab 1/file.png")
+          const pathSegments = relativePath.split('/');
+          const relativeFilePath = pathSegments.length > 1 
+            ? pathSegments.slice(1).join('/') 
+            : file.name;
+
+          setCurrentFileName(relativeFilePath);
+          setStatusMessage(`Processing: ${relativeFilePath} (${completed + 1}/${total})`);
           
           let itemType = 'file';
           let vimeoId = '';
@@ -183,21 +196,28 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
 
           // 1. Initiate
           const subject = localSubjects.find(s => s.id === selectedSubjectId);
-          const lesson = activeLessons.find((l: any) => l.id === selectedLessonId);
+          const lesson = activeLessons.find(l => l.id === selectedLessonId);
           
+          if (!lesson) {
+            setStatusMessage('Error: No lesson selected');
+            setUploading(false);
+            return;
+          }
+
           const initRes = await fetch('/api/admin/upload-initiate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               fileName: file.name,
+              relativeFilePath, // Preserves the nested folder structure
               subjectSlug: subject?.slug || 'unknown',
-              lessonSlug: lesson?.title.toLowerCase().replace(/\s+/g, '-') || 'unknown',
+              lessonSlug: lesson.slug || 'unknown',
               contentType: file.type || 'application/octet-stream',
               subfolder: subfolder.trim() || undefined
             })
           });
 
-          if (!initRes.ok) throw new Error(`Initiate failed for ${file.name}`);
+          if (!initRes.ok) throw new Error(`Initiate failed for ${relativeFilePath}`);
           const { signedUrl, publicUrl } = await initRes.json();
 
           // 2. Transmit
@@ -210,7 +230,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
             body: JSON.stringify({
               subjectId: selectedSubjectId,
               lessonId: selectedLessonId,
-              fileName: file.name,
+              fileName: relativeFilePath, // Use full relative path as the identifier
               fileType: getFileType(file.type),
               publicUrl,
               itemType,
@@ -248,8 +268,9 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         setVimeoTitle('');
       }
       refreshPageData();
-    } catch (err: any) {
-      setStatusMessage(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setStatusMessage(`Error: ${message}`);
     } finally {
       setUploading(false);
       setProgress(0);
@@ -272,7 +293,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         const err = await res.json();
         alert(`Folder Creation Error: ${err.error || 'Identity not authorized or database timeout'}`);
       }
-    } catch(err: any) { alert(`Diagnostic Alert: ${err.message}`); }
+    } catch(err: unknown) {
+       const message = err instanceof Error ? err.message : 'Unknown error';
+       alert(`Diagnostic Alert: ${message}`); 
+    }
   };
 
   const handleCreateLesson = async () => {
@@ -291,7 +315,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         const err = await res.json();
         alert(`Module Creation Error: ${err.error || 'Deployment credentials expired or ID mapping is invalid'}`);
       }
-    } catch(err: any) { alert(`Diagnostic Alert: ${err.message}`); }
+    } catch(err: unknown) {
+       const message = err instanceof Error ? err.message : 'Unknown error';
+       alert(`Diagnostic Alert: ${message}`); 
+    }
   };
 
   const handleDelete = async (type: 'subject' | 'lesson' | 'item', id: string, name: string) => {
@@ -309,7 +336,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
          const err = await res.json();
          alert(`Deletion Error: ${err.error || 'Access Denied'}`);
       }
-    } catch(err: any) { alert(`Diagnostic Alert: ${err.message}`); }
+    } catch(err: unknown) {
+       const message = err instanceof Error ? err.message : 'Unknown error';
+       alert(`Diagnostic Alert: ${message}`); 
+    }
   };
 
   const handleRename = async (type: 'subject' | 'lesson' | 'item', id: string, oldName: string) => {
@@ -328,7 +358,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         const err = await res.json();
         alert(`Rename Error: ${err.error || 'Conflict detected'}`);
       }
-    } catch(err: any) { alert(`Diagnostic Alert: ${err.message}`); }
+    } catch(err: unknown) {
+       const message = err instanceof Error ? err.message : 'Unknown error';
+       alert(`Diagnostic Alert: ${message}`); 
+    }
   };
 
   const handleMove = async (type: 'lesson' | 'item', id: string, name: string) => {
@@ -345,7 +378,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
       if (!res.ok) throw new Error('Move failed');
       alert(`Successfully moved to target ${targetId}`);
       refreshPageData();
-    } catch(err: any) { alert(err.message); }
+    } catch(err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      alert(message);
+    }
   };
 
   const toggleSelectItem = (id: string) => {
@@ -374,7 +410,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         setSelectedItems(new Set());
         refreshPageData();
       } else throw new Error('Batch deletion failed');
-    } catch(err: any) { alert(err.message); }
+    } catch(err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      alert(message);
+    }
   };
 
   return (
@@ -460,7 +499,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                 {selectedSubjectId && (
                                   <select className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all animate-in slide-in-from-top-2" value={selectedLessonId} onChange={(e) => setSelectedLessonId(e.target.value)} disabled={uploading}>
                                     <option value="">-- Select Deployment Unit --</option>
-                                    {activeLessons.map((l: any) => <option key={l.id} value={l.id}>{l.title}</option>)}
+                                    {activeLessons.map((l: LessonMeta) => <option key={l.id} value={l.id}>{l.title}</option>)}
                                   </select>
                                 )}
                                 <div className="flex gap-2 pt-2">
@@ -514,8 +553,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                  <div className="space-y-4">
                                    {/* Hidden inputs: one for files, one for folders */}
                                    <input id="file-input" type="file" multiple className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
-                                   {/* @ts-ignore — webkitdirectory is non-standard but widely supported */}
-                                   <input id="folder-input" type="file" webkitdirectory="" directory="" className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
+                                   <input id="folder-input" type="file" {...({ webkitdirectory: "", directory: "" } as Record<string, string | boolean>)} className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
 
                                    {/* Status display */}
                                    {files.length > 0 && (
@@ -612,7 +650,10 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                      } else {
                                        alert(`Purge Error: ${data.error}`);
                                      }
-                                   } catch (err: any) { alert(`Purge Failed: ${err.message}`); }
+                                   } catch (err: unknown) {
+                                     const message = err instanceof Error ? err.message : 'Unknown error';
+                                     alert(`Purge Failed: ${message}`);
+                                   }
                                  }}
                                  className="w-full bg-red-500/10 text-red-400 border border-red-500/20 font-black py-4 rounded-2xl hover:bg-red-500/20 transition-all disabled:opacity-20 uppercase tracking-[0.2em] text-[9px]"
                                >
@@ -643,7 +684,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                             </div>
                           </div>
                           <div className="divide-y divide-white/5">
-                            {subject.lessons?.map((lesson: any) => (
+                            {(subject.lessons as LessonMeta[]).map((lesson: LessonMeta) => (
                               <div key={lesson.id} className="p-8 pb-10 group">
                                 <div className={`flex items-center justify-between cursor-pointer rounded-2xl p-4 transition-all duration-300 ${expandedLessons.has(lesson.id!) ? 'bg-white/5 mb-6' : 'hover:bg-white/[0.02]'}`} onClick={() => toggleLesson(lesson.id!)}>
                                   <div className="flex items-center gap-4">
@@ -661,7 +702,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                                     {lesson.content?.length === 0 && (
                                       <p className="text-[9px] text-gray-700 italic px-6">Folder is currently empty</p>
                                     )}
-                                    {lesson.content?.map((item: any) => (
+                                    {lesson.content?.map((item: ContentNode) => (
                                       <li key={item.id} className="flex justify-between items-center text-xs py-4 px-6 rounded-2xl hover:bg-white/5 transition border border-transparent hover:border-white/5 group/item bg-black/40">
                                         <div className="flex items-center gap-4">
                                           <input type="checkbox" checked={selectedItems.size > 0 && selectedItems.has(item.id)} onChange={() => toggleSelectItem(item.id)} className="accent-indigo-500 w-4 h-4 rounded-lg" />

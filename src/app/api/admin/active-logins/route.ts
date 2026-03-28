@@ -21,7 +21,7 @@ export async function GET() {
     // Return the raw logs structure that AdminClient expects
     // AdminClient does: logs.map((l: any) => l.user_email)
     return NextResponse.json(sessions || []);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Fetch active logins error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     
     if (error) throw error;
     return NextResponse.json({ success: true, data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Announcement deployment error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

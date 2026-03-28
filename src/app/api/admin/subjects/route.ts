@@ -11,23 +11,24 @@ import { getAllSubjects } from '@/lib/content';
 export async function GET() {
   try {
     const session = await auth();
-    // @ts-ignore
+    // @ts-expect-error - session.user.isAdmin is added in the auth callback
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const subjects = await getAllSubjects();
     return NextResponse.json(subjects);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Fetch subjects error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-ignore
+    // @ts-expect-error - session.user.isAdmin is added in the auth callback
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -51,10 +52,10 @@ export async function POST(req: Request) {
     }
     
     // Attach an empty lessons array strictly for the React frontend state ingestion
-    data.lessons = [];
+    const subjectWithLessons = { ...data, lessons: [] };
 
-    return NextResponse.json({ success: true, subject: data });
-  } catch (error: any) {
+    return NextResponse.json({ success: true, subject: subjectWithLessons });
+  } catch (error: unknown) {
     console.error('Create subject crash:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

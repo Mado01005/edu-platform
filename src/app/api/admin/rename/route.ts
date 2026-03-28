@@ -5,7 +5,6 @@ import { supabaseAdmin } from '@/lib/supabase';
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-ignore
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -20,17 +19,17 @@ export async function POST(req: Request) {
     else return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
 
     // Update the title string
-    const updatePayload: any = type === 'item' ? { name: title } : { title: title };
+    const updatePayload = type === 'item' ? { name: title } : { title: title };
 
-    const { data, error } = await supabaseAdmin.from(table).update(updatePayload).eq('id', id).select().single();
+    const { data: updatedData, error } = await supabaseAdmin.from(table).update(updatePayload).eq('id', id).select().single();
     
     if (error) {
        console.error(`Rename ${type} error:`, error);
        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, updated: data });
-  } catch (error: any) {
+    return NextResponse.json({ success: true, updated: updatedData });
+  } catch (error: unknown) {
     console.error('Rename crash:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

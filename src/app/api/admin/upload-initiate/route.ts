@@ -1,54 +1,69 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getPresignedUploadUrl, getPublicUrl } from '@/lib/r2';
+import { UploadInitiateResponse } from '@/types';
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-ignore
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { fileName, subjectSlug, lessonSlug, contentType, subfolder } = await req.json();
+    const { fileName, relativeFilePath, subjectSlug, lessonSlug, contentType, subfolder } = await req.json();
 
     if (!fileName || !subjectSlug || !lessonSlug) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    // Construct the path: [subject]/[lesson]/[optional_subfolder]/[timestamp]_[filename]
+    // Construct the path: [subject]/[lesson]/[optional_subfolder]/[nested_path]
     const safeSubjectSlug = subjectSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
     const safeLessonSlug = lessonSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
     const timestamp = Date.now();
-    const cleanFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, '');
     
-    // Sanitize optional subfolder: strip leading/trailing slashes & spaces, allow slashes for nesting
+    // Sanitize the relative path but preserve slashes for nesting
+    // e.g., "Physics 1/Lab 2/image.png"
+    const nestedPath = (relativeFilePath || fileName || 'unnamed_file')
+      .replace(/[^a-zA-Z0-9.\s/_\-]/g, '') // remove unsafe chars but keep /
+      .replace(/\/+/g, '/')                 // collapse slashes
+      .trim();
+
+    // If it's just a filename (no slashes), prefix it with timestamp
+    // If it's a path, prefix the LAST segment with timestamp
+    const segments = nestedPath.split('/');
+    const lastIdx = segments.length - 1;
+    segments[lastIdx] = `${timestamp}_${segments[lastIdx]}`;
+    const finalizedNestedPath = segments.join('/');
+    
+    // Sanitize optional manual subfolder segment
     let subfolderSegment = '';
     if (subfolder && typeof subfolder === 'string') {
       subfolderSegment = subfolder
         .trim()
-        .replace(/^\/+|\/+$/g, '')       // strip leading/trailing slashes
-        .replace(/[^a-zA-Z0-9\s/\-_]/g, '') // remove unsafe chars (keep / for nesting)
-        .replace(/\/+/g, '/')            // collapse consecutive slashes
+        .replace(/^\/+|\/+$/g, '')
+        .replace(/[^a-zA-Z0-9\s/\-_]/g, '')
+        .replace(/\/+/g, '/')
         .trim();
     }
 
     const storagePath = subfolderSegment
-      ? `${safeSubjectSlug}/${safeLessonSlug}/${subfolderSegment}/${timestamp}_${cleanFileName}`
-      : `${safeSubjectSlug}/${safeLessonSlug}/${timestamp}_${cleanFileName}`;
+      ? `${safeSubjectSlug}/${safeLessonSlug}/${subfolderSegment}/${finalizedNestedPath}`
+      : `${safeSubjectSlug}/${safeLessonSlug}/${finalizedNestedPath}`;
 
     // Generate a presigned upload URL from Cloudflare R2 (valid for 1 hour)
     const signedUrl = await getPresignedUploadUrl(storagePath, contentType || 'application/octet-stream');
     const publicUrl = getPublicUrl(storagePath);
 
-    return NextResponse.json({ 
+    const response: UploadInitiateResponse = { 
       signedUrl,
       path: storagePath,
       publicUrl,
       contentType: contentType || 'application/octet-stream'
-    });
+    };
 
-  } catch (error: any) {
+    return NextResponse.json(response);
+
+  } catch (error: unknown) {
     console.error('Upload initiate error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

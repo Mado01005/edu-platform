@@ -5,8 +5,9 @@ import { supabaseAdmin } from '@/lib/supabase';
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-ignore
-    if (!session || !session.user?.isAdmin) {
+    const isAdmin = (session?.user as { role?: string })?.role === 'admin' || (session?.user as { role?: string })?.role === 'superadmin';
+    
+    if (!session || !isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -50,8 +51,9 @@ export async function POST(req: Request) {
       path: storagePath,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Supabase upload error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

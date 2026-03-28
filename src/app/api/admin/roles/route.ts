@@ -13,8 +13,9 @@ export async function GET() {
     const { data, error } = await supabaseAdmin.from('user_roles').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -44,16 +45,15 @@ export async function POST(req: Request) {
     }
     
     return NextResponse.json({ success: true, role: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request) {
   try {
     const session = await auth();
-    // Use isAdmin check for DELETE as it was originally designed, but with isMasterAdmin fallback
-    // @ts-ignore
     const isAdmin = session?.user?.isAdmin || isMasterAdmin(session?.user?.email);
     if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -65,7 +65,8 @@ export async function DELETE(req: Request) {
     if (error) throw error;
     
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

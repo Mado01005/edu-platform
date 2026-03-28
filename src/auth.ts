@@ -89,7 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
           } else {
             // New user initialization (Defensive: try to insert streak, but don't fail if columns missing)
-            const insertData: any = { 
+            const insertData: { email: string; role: string } = { 
               email: user.email, 
               role: 'student'
             };
@@ -111,6 +111,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.isAdmin = isMasterAdminEmail || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
           token.isSuperAdmin = isMasterAdminEmail || dbRole === 'superadmin';
           token.streakCount = streakCount;
+          console.log(`[AUTH] Streak for ${user.email}: ${streakCount}`);
           if (dbRole === 'banned') token.isBanned = true;
         } catch (err) {
           // Log but do not crash — a DB error must NOT prevent login
@@ -121,34 +122,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (token && session.user) {
-        // @ts-expect-error
-        session.user.id = token.dbUserId ?? token.sub;
-        // @ts-expect-error
-        session.user.accessToken = token.accessToken;
-        // @ts-expect-error
-        session.user.spotifyAccessToken = token.spotifyAccessToken;
+        session.user.id = (token.dbUserId as string) ?? token.sub;
+        session.user.accessToken = token.accessToken as string;
+        session.user.spotifyAccessToken = token.spotifyAccessToken as string;
         session.user.name = token.name ?? session.user.name;
         session.user.email = token.email ?? session.user.email;
         session.user.image = token.picture as string | null | undefined ?? session.user.image;
-        // @ts-expect-error
-        session.user.isAdmin = token.isAdmin ?? false;
-        // @ts-expect-error
-        session.user.isSuperAdmin = token.isSuperAdmin ?? false;
-        // @ts-expect-error
-        session.user.isBanned = token.isBanned ?? false;
-        // @ts-expect-error
-        session.user.isOnboarded = token.isOnboarded ?? false;
-        // @ts-expect-error
-        session.user.streakCount = token.streakCount ?? 0;
+        session.user.isAdmin = (token.isAdmin as boolean) ?? false;
+        session.user.isSuperAdmin = (token.isSuperAdmin as boolean) ?? false;
+        session.user.isBanned = (token.isBanned as boolean) ?? false;
+        session.user.isOnboarded = (token.isOnboarded as boolean) ?? false;
+        session.user.streakCount = (token.streakCount as number) ?? 0;
 
         // Hardcoded God Mode override for primary admin
         if (session.user.email === 'abdallahsaad2150@gmail.com') {
-          // @ts-expect-error
           session.user.isAdmin = true;
-          // @ts-expect-error
           session.user.isSuperAdmin = true;
-          // @ts-expect-error
           session.user.role = 'ADMIN';
+          session.user.streakCount = Math.max(session.user.streakCount || 0, 365);
         }
       }
       return session;

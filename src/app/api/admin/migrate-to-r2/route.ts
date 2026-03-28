@@ -105,7 +105,7 @@ export async function POST() {
         }
 
         migrated++;
-      } catch (err: any) {
+      } catch (err: unknown) {
         errors.push(`Err: ${err.message?.substring(0, 80)}`);
         failed++;
       }
@@ -123,7 +123,7 @@ export async function POST() {
       message: `Migrated ${migrated}/${batch.length} files.${remaining > 0 ? ` ${remaining} remaining — click again.` : ''}`,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Migration error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -1,37 +1,7 @@
 import { supabase } from './supabase';
+import { SubjectMeta, LessonMeta, ContentNode, ItemType, FileType, ContentItem } from '@/types';
 
-export interface ContentNode {
-  id?: string;
-  type: 'file' | 'folder' | 'vimeo';
-  fileType?: 'video' | 'pdf' | 'image' | 'powerpoint' | 'unknown'; 
-  name: string;
-  url?: string;
-  vimeoId?: string;
-  children?: ContentNode[];
-}
-
-export interface LessonMeta {
-  id?: string;
-  slug: string;
-  title: string;
-  subjectSlug: string;
-  content: ContentNode[];
-  hasVideo: boolean;
-  hasPdf: boolean;
-  hasDocx: boolean;
-  imageCount: number;
-}
-
-export interface SubjectMeta {
-  id?: string;
-  slug: string;
-  title: string;
-  lessons: LessonMeta[];
-  icon: string;
-  color: string;
-}
-
-function buildContentTree(flatItems: any[], parentId = null): ContentNode[] {
+function buildContentTree(flatItems: ContentItem[], parentId: string | null = null): ContentNode[] {
   const nodes: ContentNode[] = [];
   const children = flatItems.filter(item => item.parent_id === parentId);
 
@@ -39,7 +9,7 @@ function buildContentTree(flatItems: any[], parentId = null): ContentNode[] {
   children.sort((a, b) => {
     if (a.item_type === 'folder' && b.item_type !== 'folder') return -1;
     if (a.item_type !== 'folder' && b.item_type === 'folder') return 1;
-    return a.name.localeCompare(b.name);
+    return (a.name as string).localeCompare(b.name as string);
   });
 
   for (const child of children) {
@@ -48,7 +18,7 @@ function buildContentTree(flatItems: any[], parentId = null): ContentNode[] {
       if (folderChildren.length > 0) {
         nodes.push({
           id: child.id,
-          type: 'folder',
+          type: 'folder' as ItemType,
           name: child.name,
           children: folderChildren
         });
@@ -56,8 +26,8 @@ function buildContentTree(flatItems: any[], parentId = null): ContentNode[] {
     } else {
       nodes.push({
         id: child.id,
-        type: child.item_type,
-        fileType: child.file_type || undefined,
+        type: child.item_type as ItemType,
+        fileType: (child.file_type as FileType) || undefined,
         name: child.name,
         url: child.url || undefined,
         vimeoId: child.vimeo_id || undefined,
@@ -103,8 +73,8 @@ export async function getAllSubjects(): Promise<SubjectMeta[]> {
     return [];
   }
 
-  return subjectsData.map((subject: any) => {
-    const lessons: LessonMeta[] = (subject.lessons || []).map((lesson: any) => {
+  return (subjectsData as Record<string, unknown>[]).map((subject) => {
+    const lessons: LessonMeta[] = ((subject.lessons as Record<string, unknown>[]) || []).map((lesson: { id: string, slug: string, title: string, content_items: Record<string, unknown>[] }) => {
       const contentTree = buildContentTree(lesson.content_items || [], null);
       return {
         id: lesson.id,

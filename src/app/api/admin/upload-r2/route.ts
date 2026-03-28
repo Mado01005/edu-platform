@@ -6,7 +6,7 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-ignore
+    // @ts-expect-error - session.user.isAdmin is added in the auth callback
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -47,8 +47,9 @@ export async function POST(req: Request) {
       path: storagePath,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('R2 proxy upload error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

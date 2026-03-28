@@ -91,7 +91,7 @@ export async function POST(req: Request) {
       message: `Purged ${data?.length || 0} items from lesson`,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Purge content crash:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

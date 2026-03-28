@@ -9,7 +9,6 @@ function generateSlug(title: string) {
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-ignore
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -32,7 +31,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, lesson: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create lesson crash:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, item: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Embed video crash:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
