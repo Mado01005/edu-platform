@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { getLesson, getSubject } from '@/lib/content';
 import { supabaseAdmin } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
-import FolderTree from '@/components/FolderTree';
+import FolderExplorer from '@/components/FolderExplorer';
 import ViewTracker from '@/components/ViewTracker';
 import CompleteButton from '@/components/CompleteButton';
 import BookmarkButton from '@/components/BookmarkButton';
@@ -55,23 +55,7 @@ export default async function LessonPage({ params }: Props) {
           details={{ subject: subject.title, lesson: lesson.title }} 
         />
 
-        {/* Cyber-Breadcrumb */}
-        <nav className="flex items-center gap-3 text-xs md:text-sm text-gray-500 mb-10 fade-in flex-wrap font-mono tracking-widest uppercase bg-white/5 border border-white/10 px-4 py-2 rounded-lg inline-flex" aria-label="Breadcrumb">
-          <Link href="/dashboard" className="hover:text-indigo-400 transition-colors flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/50"></span>
-            SYS
-          </Link>
-          <svg className="w-4 h-4 flex-shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <Link href={`/subjects/${encodeURIComponent(subjectSlug)}`} className="hover:text-indigo-400 transition-colors">
-            {subject.title}
-          </Link>
-          <svg className="w-4 h-4 flex-shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <span className="text-white font-bold">{lesson.title}</span>
-        </nav>
+        {/* Breadcrumbs moved into FolderExplorer */}
 
         {/* Lesson Payload Header */}
         <div className="mb-14 fade-in">
@@ -89,7 +73,7 @@ export default async function LessonPage({ params }: Props) {
         {/* Content sections */}
         <div className="space-y-6">
           {lesson.content && lesson.content.length > 0 ? (
-             <FolderTree node={{ type: 'folder', name: 'Root', children: lesson.content }} isRoot={true} />
+             <FolderExplorer content={lesson.content} subject={{ title: subject.title, slug: subjectSlug }} lesson={{ title: lesson.title, slug: lessonSlug }} />
           ) : (
             <div className="text-center py-20 text-gray-500">
               <div className="text-5xl mb-4">📭</div>
