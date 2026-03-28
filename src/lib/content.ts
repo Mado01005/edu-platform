@@ -73,8 +73,8 @@ export async function getAllSubjects(): Promise<SubjectMeta[]> {
     return [];
   }
 
-  return (subjectsData as Record<string, unknown>[]).map((subject) => {
-    const lessons: LessonMeta[] = ((subject.lessons as Record<string, unknown>[]) || []).map((lesson: { id: string, slug: string, title: string, content_items: Record<string, unknown>[] }) => {
+  return (subjectsData as any[]).map((subject: any) => {
+    const lessons: LessonMeta[] = ((subject.lessons as any[]) || []).map((lesson: any) => {
       const contentTree = buildContentTree(lesson.content_items || [], null);
       return {
         id: lesson.id,

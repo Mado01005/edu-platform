@@ -10,7 +10,6 @@ import AnalyticsPanel from './AnalyticsPanel';
 export default async function AdminPage() {
   const session = await auth();
   
-  // @ts-ignore
   const isAdmin = session?.user?.isAdmin || isMasterAdmin(session?.user?.email);
   if (!session || !isAdmin) {
     redirect('/dashboard');
@@ -43,7 +42,6 @@ export default async function AdminPage() {
         <Navbar
           userName={session.user?.name ?? undefined}
           userImage={session.user?.image ?? undefined}
-          // @ts-ignore
           isAdmin={session.user?.isAdmin}
         />
         <div className="flex flex-col items-center py-10 text-center fade-in">

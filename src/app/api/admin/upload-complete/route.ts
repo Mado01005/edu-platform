@@ -27,7 +27,8 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Database insert error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
     }
 
     // Auto-log the upload as an activity event for "What's New" notifications (non-blocking)

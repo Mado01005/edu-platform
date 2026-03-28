@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ContentNode } from '@/lib/content';
+import { ContentNode } from '@/types';
 import VideoPlayer from '@/components/VideoPlayer';
 import PDFViewer from '@/components/PDFViewer';
 import ImageGallery from '@/components/ImageGallery';

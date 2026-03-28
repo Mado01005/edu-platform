@@ -11,7 +11,6 @@ import { getAllSubjects } from '@/lib/content';
 export async function GET() {
   try {
     const session = await auth();
-    // @ts-expect-error - session.user.isAdmin is added in the auth callback
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -28,7 +27,6 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-expect-error - session.user.isAdmin is added in the auth callback
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -48,7 +46,8 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Create subject error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
     
     // Attach an empty lessons array strictly for the React frontend state ingestion

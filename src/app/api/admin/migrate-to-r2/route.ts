@@ -10,7 +10,6 @@ export const maxDuration = 60;
 export async function POST() {
   try {
     const session = await auth();
-    // @ts-ignore
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -31,7 +30,8 @@ export async function POST() {
       .select('id, url, file_type, item_type');
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
 
     // Filter: anything not already in R2 and not an embed/vimeo
@@ -59,7 +59,6 @@ export async function POST() {
     for (const item of batch) {
       try {
         // The URLs are relative paths like /content/academic-writing/Week%201/file.pdf
-        // These are served from Next.js public/ folder, so we can fetch them from our own site
         const fullUrl = item.url.startsWith('http') ? item.url : `${baseUrl}${item.url}`;
 
         const response = await fetch(fullUrl);
@@ -79,7 +78,6 @@ export async function POST() {
         }
 
         // Preserve original path structure in R2
-        // /content/academic-writing/Week%201/file.pdf → content/academic-writing/Week 1/file.pdf
         const key = item.url.startsWith('/') ? decodeURIComponent(item.url.substring(1)) : decodeURIComponent(item.url);
 
         // Upload to R2
@@ -106,7 +104,8 @@ export async function POST() {
 
         migrated++;
       } catch (err: unknown) {
-        errors.push(`Err: ${err.message?.substring(0, 80)}`);
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        errors.push(`Err: ${msg.substring(0, 80)}`);
         failed++;
       }
     }
@@ -125,6 +124,7 @@ export async function POST() {
 
   } catch (error: unknown) {
     console.error('Migration error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

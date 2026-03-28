@@ -5,7 +5,6 @@ import { supabaseAdmin } from '@/lib/supabase';
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-ignore
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -53,7 +52,8 @@ export async function POST(req: Request) {
 
       if (error) {
         console.error('Purge error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        const message = error instanceof Error ? error.message : 'Internal Server Error';
+        return NextResponse.json({ error: message }, { status: 500 });
       }
 
       // Log the purge action
@@ -75,7 +75,8 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Purge error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
 
     // Log the purge action

@@ -5,24 +5,25 @@ import { supabaseAdmin } from '@/lib/supabase';
 export async function GET() {
   try {
     const session = await auth();
-    // @ts-ignore
-    if (!session || !session.user?.isSuperAdmin) {
+    if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch unique active user emails from live_sessions table
     const { data: sessions, error } = await supabaseAdmin
       .from('live_sessions')
-      .select('user_email')
-      .gt('last_active_at', new Date(Date.now() - 5 * 60 * 1000).toISOString()); // Last 5 minutes
+      .select('user_email, last_active_at')
+      .order('last_active_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Fetch active logins error:', error);
+      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
 
-    // Return the raw logs structure that AdminClient expects
-    // AdminClient does: logs.map((l: any) => l.user_email)
     return NextResponse.json(sessions || []);
   } catch (error: unknown) {
     console.error('Fetch active logins error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

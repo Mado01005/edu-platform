@@ -6,50 +6,45 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-expect-error - session.user.isAdmin is added in the auth callback
     if (!session || !session.user?.isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const formData = await req.formData();
     const file = formData.get('file') as File;
-    const subjectSlug = formData.get('subjectSlug') as string;
-    const lessonSlug = formData.get('lessonSlug') as string;
+    const key = formData.get('key') as string;
+    const contentType = formData.get('contentType') as string;
 
-    if (!file || !subjectSlug) {
-      return NextResponse.json({ error: 'Missing file or subject' }, { status: 400 });
+    if (!file || !key) {
+      return NextResponse.json({ error: 'Missing file or key' }, { status: 400 });
     }
 
-    // Read file into buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
-    
-    // Construct storage path
-    const timestamp = Date.now();
-    const cleanName = file.name.replace(/[^a-zA-Z0-9.\-_()]/g, '_');
-    const storagePath = `${subjectSlug}/${lessonSlug}/${timestamp}_${cleanName}`;
+    const bucketName = process.env.R2_BUCKET_NAME;
+    if (!bucketName) {
+      return NextResponse.json({ error: 'R2_BUCKET_NAME is not configured' }, { status: 500 });
+    }
 
-    // Upload to R2 Storage via Server-Proxy (bypasses CORS)
-    const command = new PutObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME || 'eduportal-media',
-      Key: storagePath,
-      Body: buffer,
-      ContentType: file.type || 'application/octet-stream',
-    });
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    await r2Client.send(command);
+    await r2Client.send(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: contentType || file.type || 'application/octet-stream',
+      })
+    );
 
-    // Get public URL
-    const publicBase = process.env.R2_PUBLIC_URL || '';
-    const publicUrl = `${publicBase}/${storagePath}`;
+    const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
 
     return NextResponse.json({ 
-      publicUrl,
-      path: storagePath,
+      success: true, 
+      url: publicUrl 
     });
-
   } catch (error: unknown) {
+    console.error('R2 Upload Error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('R2 proxy upload error:', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

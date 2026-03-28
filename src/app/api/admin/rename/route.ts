@@ -25,7 +25,8 @@ export async function POST(req: Request) {
     
     if (error) {
        console.error(`Rename ${type} error:`, error);
-       return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, updated: updatedData });

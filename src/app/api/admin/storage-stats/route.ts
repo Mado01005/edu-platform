@@ -15,7 +15,8 @@ export async function GET() {
       .select('url, file_type, item_type');
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
     }
 
     // Average file sizes for estimation (in MB)

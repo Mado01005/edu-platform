@@ -1,51 +1,68 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { isMasterAdmin } from '@/lib/constants';
 
 export async function GET() {
   try {
     const session = await auth();
-    // @ts-ignore
-    const isSuperAdmin = session?.user?.isSuperAdmin || isMasterAdmin(session?.user?.email);
-    if (!isSuperAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || !session.user?.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const { data, error } = await supabaseAdmin.from('user_roles').select('*').order('created_at', { ascending: false });
-    if (error) throw error;
-    return NextResponse.json(data);
+    const { data: roles, error } = await supabaseAdmin
+      .from('user_roles')
+      .select('*');
+
+    if (error) {
+      console.error('Fetch roles error:', error);
+      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
+
+    return NextResponse.json(roles);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Fetch roles crash:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    // @ts-ignore
-    const isSuperAdmin = session?.user?.isSuperAdmin || isMasterAdmin(session?.user?.email);
-    if (!isSuperAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || !session.user?.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { email, overrideRole } = await req.json();
-    if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
-    const finalRole = overrideRole || 'teacher';
-    const { data, error } = await supabaseAdmin.from('user_roles').upsert({ email, role: finalRole }, { onConflict: 'email' }).select().single();
-    if (error) throw error;
-    
-    // Auto-dispatch Native Inbox message if promoting to teacher or superadmin
-    if (finalRole === 'teacher' || finalRole === 'superadmin') {
-      await supabaseAdmin.from('messages').insert({
-        sender_email: session?.user?.email || 'SYSTEM_ADMIN',
-        receiver_email: email,
-        subject: `🎓 Access Level Updated: ${finalRole.toUpperCase()} (Important)`,
-        body: `Congratulations!\n\nYou have been officially granted ${finalRole} permissions.\n\nYou now have clearance to access the Command Center. ${finalRole === 'teacher' ? 'Your access is currently focused on content management and uploads.' : 'You have full God Mode access to all platform telemetry.'}\n\nClick the "Command Center" navigation button on your dashboard or navigate to /admin to begin.`,
-        is_read: false
-      });
+    if (!email || !overrideRole) {
+      return NextResponse.json({ error: 'Missing email or role' }, { status: 400 });
     }
-    
-    return NextResponse.json({ success: true, role: data });
+
+    // Upsert the role
+    const { data, error } = await supabaseAdmin
+      .from('user_roles')
+      .upsert({ email: email.toLowerCase().trim(), role: overrideRole }, { onConflict: 'email' })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Upsert role error:', error);
+      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
+
+    // Log the change
+    Promise.resolve(supabaseAdmin.from('activity_logs').insert({
+      user_email: session.user?.email || 'admin',
+      user_name: session.user?.name || 'Admin',
+      action: 'ROLE_UPDATED',
+      details: { target_email: email, new_role: overrideRole },
+    })).catch(() => {});
+
+    return NextResponse.json({ success: true, user: data });
   } catch (error: unknown) {
+    console.error('Upsert role crash:', error);
     const message = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: message }, { status: 500 });
   }
@@ -54,18 +71,28 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await auth();
-    const isAdmin = session?.user?.isAdmin || isMasterAdmin(session?.user?.email);
-    if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || !session.user?.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { email } = await req.json();
-    if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
-    // Downgrade them back to 'student' so they remain in the platform's global registry
-    const { error } = await supabaseAdmin.from('user_roles').update({ role: 'student' }).eq('email', email);
-    if (error) throw error;
-    
+    if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 });
+
+    const { error } = await supabaseAdmin
+      .from('user_roles')
+      .delete()
+      .eq('email', email);
+
+    if (error) {
+      console.error('Delete role error:', error);
+      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
+
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
+    console.error('Delete role crash:', error);
     const message = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: message }, { status: 500 });
   }
