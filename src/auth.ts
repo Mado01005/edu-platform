@@ -7,6 +7,18 @@ import { ADMIN_EMAILS } from '@/lib/constants';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, ...message) {
+      const errStr = String((code as any)?.message || code || '');
+      if (errStr.includes('JWTSessionError') || errStr.includes('307')) return;
+      console.error(code, ...message);
+    },
+    warn(code, ...message) {
+      const warnStr = String((code as any)?.message || code || '');
+      if (warnStr.includes('JWTSessionError') || warnStr.includes('307')) return;
+      console.warn(code, ...message);
+    },
+  },
   secret: process.env.AUTH_SECRET,
   trustHost: true,
   providers: [

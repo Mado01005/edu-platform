@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ContentNode } from '@/types';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -21,22 +21,45 @@ interface FolderExplorerProps {
 }
 
 export default function FolderExplorer({ content, subject, lesson }: FolderExplorerProps) {
-  const [currentPath, setCurrentPath] = useState<ContentNode[]>([]);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathQuery = searchParams.get('path') || '';
 
-  const currentNodes = currentPath.length === 0 
-    ? content 
-    : (currentPath[currentPath.length - 1].children || []);
+  // Reconstruct currentPath from the URL pathQuery
+  const currentPath: ContentNode[] = [];
+  let currentNodes = content;
+
+  if (pathQuery) {
+    const segments = pathQuery.split('/').filter(Boolean);
+    for (const segment of segments) {
+      const found = currentNodes.find(n => n.type === 'folder' && n.name === segment);
+      if (found) {
+        currentPath.push(found);
+        currentNodes = found.children || [];
+      } else {
+        break;
+      }
+    }
+  }
 
   const handleFolderClick = (folder: ContentNode) => {
-    setCurrentPath([...currentPath, folder]);
+    const newPath = currentPath.length > 0 
+      ? `${pathQuery}/${folder.name}` 
+      : folder.name;
+    const url = new URL(window.location.href);
+    url.searchParams.set('path', newPath);
+    router.push(url.pathname + url.search);
   };
 
   const handleCrumbClick = (index: number) => {
+    const url = new URL(window.location.href);
     if (index === -1) {
-      setCurrentPath([]);
+      url.searchParams.delete('path');
     } else {
-      setCurrentPath(currentPath.slice(0, index + 1));
+      const newPath = currentPath.slice(0, index + 1).map(f => f.name).join('/');
+      url.searchParams.set('path', newPath);
     }
+    router.push(url.pathname + url.search);
   };
 
   const folders = currentNodes.filter(n => n.type === 'folder');
