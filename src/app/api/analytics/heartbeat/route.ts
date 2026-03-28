@@ -31,42 +31,53 @@ export async function POST(req: Request) {
       .select('current_page, is_idle')
       .eq('user_email', session.user.email)
       .eq('ip_address', ipAddress)
-      .single();
+      .maybeSingle();
+
+    const tasks: Promise<any>[] = [];
 
     // 2. If path changed, log a navigation event to activity_logs for the real-time Feed
     if (!existingSession || existingSession.current_page !== (currentPage || 'UnknownPage')) {
-      await supabaseAdmin.from('activity_logs').insert({
-        user_name: session.user.name || 'Anonymous Student',
-        user_email: session.user.email,
-        action: 'PAGE_VIEW', // Or 'NAVIGATION'
-        url: currentPage || 'UnknownPage',
-        geo_city: city,
-        geo_country: country,
-        details: { 
-          from: existingSession?.current_page || 'initial_load',
-          to: currentPage || 'dashboard',
-          userAgent 
-        }
-      });
+      tasks.push(
+        supabaseAdmin.from('activity_logs').insert({
+          user_name: session.user.name || 'Anonymous Student',
+          user_email: session.user.email,
+          action: 'PAGE_VIEW',
+          url: currentPage || 'UnknownPage',
+          geo_city: city,
+          geo_country: country,
+          details: { 
+            from: existingSession?.current_page || 'initial_load',
+            to: currentPage || 'dashboard',
+            userAgent 
+          }
+        }) as unknown as Promise<any>
+      );
     }
 
     // 3. Upsert into live_sessions for the real-time Sessions tab visibility
-    const { error } = await supabaseAdmin.from('live_sessions').upsert({
-      user_email: session.user.email,
-      ip_address: ipAddress,
-      user_agent: userAgent,
-      current_page: currentPage || 'UnknownPage',
-      is_idle: isIdle || false,
-      last_active_at: new Date().toISOString(),
-      geo_city: city,
-      geo_country: country
-    }, {
-      onConflict: 'user_email, ip_address'
-    });
+    tasks.push(
+      supabaseAdmin.from('live_sessions').upsert({
+        user_email: session.user.email,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        current_page: currentPage || 'UnknownPage',
+        is_idle: isIdle || false,
+        last_active_at: new Date().toISOString(),
+        geo_city: city,
+        geo_country: country
+      }, {
+        onConflict: 'user_email, ip_address'
+      }) as unknown as Promise<any>
+    );
 
-    if (error) {
-      console.error('Session upsert error:', error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    // Run parallel DB writes to prevent slow API response times
+    const results = await Promise.all(tasks);
+    const dbError = results.find(r => r?.error)?.error;
+
+    if (dbError) {
+      console.error('Session DB Error:', dbError.message);
+      // Fail silently for analytics rather than crashing the heartbeat for the user
+      return NextResponse.json({ success: false, error: dbError.message }, { status: 200 });
     }
 
     return NextResponse.json({ success: true, status: isIdle ? 'Idle' : 'Active' });
