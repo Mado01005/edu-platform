@@ -8,6 +8,7 @@ interface AdminSidebarProps {
   availableTabs: Array<{ id: string; icon: string; label: string }>;
   currentUserRole: string;
   storageStats: StorageStats | null;
+  handleAuditR2: () => void;
 }
 
 export default function AdminSidebar({ 
@@ -15,7 +16,8 @@ export default function AdminSidebar({
   setActiveTab, 
   availableTabs, 
   currentUserRole, 
-  storageStats 
+  storageStats,
+  handleAuditR2
 }: AdminSidebarProps) {
   return (
     <div className="w-full md:w-[320px] bg-[#0A0A0F] border-r border-white/5 flex flex-col pt-8 p-6 space-y-8 h-screen sticky top-0 md:overflow-y-auto">
@@ -67,6 +69,12 @@ export default function AdminSidebar({
                </div>
             </div>
           </div>
+          <button 
+            onClick={handleAuditR2}
+            className="w-full mt-4 py-3 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 font-bold uppercase tracking-widest text-[10px] transition-colors border border-orange-500/30 flex items-center justify-center gap-2"
+          >
+            <span className="text-sm">🔍</span> Audit Orphaned Files
+          </button>
         </div>
       )}
     </div>

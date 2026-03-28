@@ -185,6 +185,46 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     } catch(e) { alert('Network Error'); }
   };
 
+  const handleAuditR2 = async () => {
+    if (!confirm('Run a full recursive audit of the Cloudflare R2 bucket to identify orphaned files?')) return;
+    
+    try {
+      // 1. Dry Run
+      const res = await fetch('/api/admin/purge-orphans', { method: 'POST' });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        return alert(`Audit Failed: ${data.error}`);
+      }
+
+      const { orphanedCount, totalR2Objects, totalDbLinks } = data;
+      
+      if (orphanedCount === 0) {
+        return alert(`✅ Clean! Checked ${totalR2Objects} bucket items against ${totalDbLinks} database links. No orphaned files detected.`);
+      }
+
+      // 2. Execute Purge Prompt
+      const wantPurge = confirm(`⚠️ Found ${orphanedCount} orphaned files occupying bucket space.\n\nTotal R2 Objects: ${totalR2Objects}\nRegistered DB Links: ${totalDbLinks}\n\nExecute permanent deletion? This cannot be undone.`);
+      
+      if (!wantPurge) return;
+
+      const purgeRes = await fetch('/api/admin/purge-orphans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ purge: true })
+      });
+      
+      const purgeData = await purgeRes.json();
+      
+      if (purgeRes.ok) {
+        alert(`🗑️ Purged ${purgeData.purged} stray files successfully.`);
+      } else {
+        alert(`Error during purge: ${purgeData.error}`);
+      }
+      
+    } catch(e) { alert('Network Error during R2 Audit'); }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white">
       <div className="max-w-full mx-auto flex flex-col md:flex-row min-h-screen overflow-hidden">
@@ -195,6 +235,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
           availableTabs={availableTabs} 
           currentUserRole={currentUserRole} 
           storageStats={storageStats} 
+          handleAuditR2={handleAuditR2}
         />
 
         <div className="flex-1 bg-black relative flex flex-col min-h-screen">

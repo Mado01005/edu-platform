@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const R2_ACCOUNT_ENDPOINT = process.env.R2_ENDPOINT || '';
@@ -48,4 +48,34 @@ export async function deleteR2Object(key: string) {
 export function getPublicUrl(key: string) {
   const publicBase = process.env.R2_PUBLIC_URL || '';
   return `${publicBase}/${key}`;
+}
+
+/**
+ * List all objects currently in the R2 Bucket.
+ * Handles pagination automatically.
+ */
+export async function listAllR2Objects(): Promise<string[]> {
+  const keys: string[] = [];
+  let isTruncated = true;
+  let continuationToken: string | undefined = undefined;
+
+  while (isTruncated) {
+    const command: ListObjectsV2Command = new ListObjectsV2Command({
+      Bucket: R2_BUCKET,
+      ContinuationToken: continuationToken,
+    });
+
+    const response = await r2Client.send(command);
+    
+    if (response.Contents) {
+      response.Contents.forEach((item) => {
+        if (item.Key) keys.push(item.Key);
+      });
+    }
+
+    isTruncated = response.IsTruncated ?? false;
+    continuationToken = response.NextContinuationToken;
+  }
+
+  return keys;
 }
