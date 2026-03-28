@@ -44,21 +44,61 @@ export default async function DashboardPage() {
     }
   }
 
-  // Check if they are a brand new Student who hasn't completed the First-Boot Onboarding
+  // --- Unified Role Sync & Daily Streak Calculation ---
   let showStudentWelcomeModal = false;
-  // @ts-ignore
-  if (!session.user?.isAdmin) {
-    const { data: roleStatus } = await supabaseAdmin
-      .from('user_roles')
-      .select('is_onboarded')
-      .eq('email', (session.user?.email || '').toLowerCase())
-      .maybeSingle();
-    
-    // Show modal if they haven't explicitly completed onboarding yet
-    if (!roleStatus?.is_onboarded) {
+  let currentStreak = (session.user as any)?.streakCount || 1; // fallback
+  const email = (session.user?.email || '').toLowerCase();
+
+  const { data: userData } = await supabaseAdmin
+    .from('user_roles')
+    .select('is_onboarded, streak_count, last_login')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (userData) {
+    // 1. Onboarding check for students
+    if (!(session.user as any)?.isAdmin && !userData.is_onboarded) {
       showStudentWelcomeModal = true;
     }
+
+    // 2. Daily Streak Sync Validation
+    currentStreak = userData.streak_count || 1;
+    const lastLogin = userData.last_login ? new Date(userData.last_login) : null;
+    const now = new Date();
+    // Use UTC for consistent global day boundaries
+    const todayMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).getTime();
+    
+    let shouldUpdateDB = false;
+
+    if (lastLogin) {
+      const lastLoginMidnight = new Date(Date.UTC(lastLogin.getUTCFullYear(), lastLogin.getUTCMonth(), lastLogin.getUTCDate())).getTime();
+      const diffInDays = Math.round((todayMidnight - lastLoginMidnight) / (1000 * 60 * 60 * 24));
+
+      if (diffInDays === 1) {
+        currentStreak += 1;
+        shouldUpdateDB = true;
+      } else if (diffInDays > 1) {
+        currentStreak = 1;
+        shouldUpdateDB = true;
+      }
+    } else {
+      // First time tracking login
+      shouldUpdateDB = true;
+    }
+
+    if (shouldUpdateDB) {
+      await supabaseAdmin.from('user_roles').update({ 
+        last_login: now.toISOString(), 
+        streak_count: currentStreak 
+      }).eq('email', email);
+    }
   }
+
+  // God mode override for top admin
+  if (email === 'abdallahsaad2150@gmail.com') {
+    currentStreak = Math.max(currentStreak, 365);
+  }
+  // ---------------------------------------------------
 
   return (
     <div className="min-h-screen bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(0,0,0,0))] relative overflow-hidden">
@@ -95,8 +135,7 @@ export default async function DashboardPage() {
           <p className="text-indigo-400 text-sm font-bold tracking-widest uppercase mb-3 flex items-center gap-3">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)] animate-pulse"></span>
             Welcome back, {session.user?.name?.split(' ')[0]} 👋
-            {/* @ts-ignore */}
-            <StreakBadge count={session.user?.streakCount || 0} />
+            <StreakBadge count={currentStreak} />
           </p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-4 select-none">
             Your Courses
