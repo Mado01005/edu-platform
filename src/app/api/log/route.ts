@@ -60,13 +60,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('--- Telemetry API Crash ---');
-    console.error('Error Message:', error.message);
-    console.error('Full Stacktrace:', error.stack);
-    return NextResponse.json({ 
-      error: 'Internal Server Error', 
-      debug: error.message 
-    }, { status: 500 });
+    if (error instanceof Error) {
+      console.error('Error Message:', error.message);
+      console.error('Stacktrace:', error.stack);
+    }
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

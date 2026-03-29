@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { getAllSubjects } from '@/lib/content';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isMasterAdmin } from '@/lib/constants';
 import Navbar from '@/components/Navbar';
 import SubjectCard from '@/components/SubjectCard';
 import SupportTicketModal from '@/components/SupportTicketModal';
@@ -95,7 +96,7 @@ export default async function DashboardPage() {
   }
 
   // God mode override for top admin
-  if (email === 'abdallahsaad2150@gmail.com') {
+  if (isMasterAdmin(email)) {
     currentStreak = Math.max(currentStreak, 365);
   }
   // ---------------------------------------------------

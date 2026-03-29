@@ -2,17 +2,26 @@ import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/api/auth'];
+const PUBLIC_PATHS = ['/login', '/api/auth', '/api/whats-new'];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public/static paths
+  // Allow public/static paths, PWA assets, and all API routes that handle their own auth
   if (
     PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon')
+    pathname.startsWith('/favicon') ||
+    pathname === '/sw.js' ||
+    pathname === '/manifest.json' ||
+    pathname.startsWith('/icon-')
   ) {
+    return NextResponse.next();
+  }
+
+  // For API routes, let them handle their own auth and return JSON 401s
+  // instead of redirecting to /login (which causes the 307 flood)
+  if (pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
 

@@ -104,8 +104,47 @@ export async function getAllSubjects(): Promise<SubjectMeta[]> {
 }
 
 export async function getSubject(slug: string): Promise<SubjectMeta | null> {
-  const subjects = await getAllSubjects();
-  return subjects.find((s) => s.slug === slug) || null;
+  const { data: subject, error } = await supabase
+    .from('subjects')
+    .select(`
+      id, slug, title, icon, color,
+      lessons (
+        id, slug, title,
+        content_items (
+          id, parent_id, item_type, file_type, name, url, vimeo_id
+        )
+      )
+    `)
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error || !subject) return null;
+
+  const lessons: LessonMeta[] = ((subject.lessons as unknown as any[]) || []).map((lesson: any) => {
+    const contentTree = buildContentTree(lesson.content_items || [], null);
+    return {
+      id: lesson.id,
+      slug: lesson.slug,
+      title: lesson.title,
+      subjectSlug: subject.slug,
+      content: contentTree,
+      hasVideo: hasFilesOfType(contentTree, 'video') || hasFilesOfType(contentTree, 'vimeo'),
+      hasPdf: hasFilesOfType(contentTree, 'pdf'),
+      hasDocx: contentTree.some(node => node.url && (node.name.toLowerCase().endsWith('.doc') || node.name.toLowerCase().endsWith('.docx'))),
+      imageCount: countImages(contentTree),
+    };
+  });
+
+  lessons.sort((a, b) => a.title.localeCompare(b.title));
+
+  return {
+    id: subject.id,
+    slug: subject.slug,
+    title: subject.title,
+    icon: subject.icon,
+    color: subject.color,
+    lessons,
+  };
 }
 
 export async function getLesson(subjectSlug: string, lessonSlug: string): Promise<LessonMeta | null> {

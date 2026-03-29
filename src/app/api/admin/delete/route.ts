@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { deleteR2Object } from '@/lib/r2';
 
 export async function POST(req: Request) {
   try {
@@ -20,6 +21,28 @@ export async function POST(req: Request) {
     else if (type === 'lesson') table = 'lessons';
     else if (type === 'item') table = 'content_items';
     else return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+
+    // For content_items, clean up the R2 object BEFORE deleting the DB row
+    if (type === 'item') {
+      const { data: item } = await supabaseAdmin
+        .from('content_items')
+        .select('url')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (item?.url) {
+        const publicBase = process.env.R2_PUBLIC_URL || '';
+        if (publicBase && item.url.startsWith(publicBase)) {
+          const r2Key = item.url.substring(publicBase.length).replace(/^\/+/, '');
+          try {
+            await deleteR2Object(r2Key);
+          } catch (r2Err) {
+            // Log but don't block the DB delete — the orphan cleanup can catch stragglers
+            console.warn(`[Delete] R2 cleanup failed for key "${r2Key}":`, r2Err);
+          }
+        }
+      }
+    }
 
     const { error } = await supabaseAdmin.from(table).delete().eq('id', id);
     if (error) {

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isMasterAdmin } from '@/lib/constants';
+
+const ELEVATED_ROLES = ['superadmin', 'admin', 'teacher'];
 
 export async function GET() {
   try {
@@ -39,10 +42,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing email or role' }, { status: 400 });
     }
 
+    const targetEmail = email.toLowerCase().trim();
+
+    // Prevent modifying master admin accounts
+    if (isMasterAdmin(targetEmail)) {
+      return NextResponse.json({ error: 'Cannot modify a master admin account' }, { status: 403 });
+    }
+
+    // Only superadmins can assign elevated roles (admin, superadmin, teacher)
+    if (ELEVATED_ROLES.includes(overrideRole) && !session.user.isSuperAdmin) {
+      return NextResponse.json({ error: 'Only superadmins can assign elevated roles' }, { status: 403 });
+    }
+
     // Upsert the role
     const { data, error } = await supabaseAdmin
       .from('user_roles')
-      .upsert({ email: email.toLowerCase().trim(), role: overrideRole }, { onConflict: 'email' })
+      .upsert({ email: targetEmail, role: overrideRole }, { onConflict: 'email' })
       .select()
       .single();
 

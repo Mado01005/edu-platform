@@ -3,7 +3,7 @@ import Google from 'next-auth/providers/google';
 import SpotifyProvider from 'next-auth/providers/spotify';
 import { supabaseAdmin } from '@/lib/supabase';
 
-import { ADMIN_EMAILS } from '@/lib/constants';
+import { ADMIN_EMAILS, isMasterAdmin } from '@/lib/constants';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: process.env.NODE_ENV === 'development',
@@ -64,49 +64,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             .eq('email', user.email)
             .maybeSingle();
 
-          let streakCount = 1;
-          const now = new Date();
-          const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+          let streakCount = data?.streak_count || 1;
 
           if (data) {
             dbRole = data.role;
-            token.id = data.id; // Corrected: token.id is more standard for JWT
+            token.id = data.id;
             token.dbUserId = data.id;
             token.isOnboarded = data.is_onboarded;
-
-            // 2. Calendar-Day Streak Logic (Defensive check for columns)
-            if ('streak_count' in data && 'last_login' in data) {
-              const lastLoginDate = data.last_login ? new Date(data.last_login) : null;
-              if (lastLoginDate) {
-                const lastLoginMidnight = new Date(lastLoginDate.getFullYear(), lastLoginDate.getMonth(), lastLoginDate.getDate()).getTime();
-                const diffInDays = Math.round((todayMidnight - lastLoginMidnight) / (1000 * 60 * 60 * 24));
-
-                if (diffInDays === 1) {
-                  streakCount = (data.streak_count || 0) + 1;
-                } else if (diffInDays === 0) {
-                  streakCount = data.streak_count || 1;
-                } else {
-                  streakCount = 1;
-                }
-              }
-
-              // 3. Update last login and streak in DB
-              await supabaseAdmin
-                .from('user_roles')
-                .update({ 
-                  last_login: now.toISOString(),
-                  streak_count: streakCount 
-                })
-                .eq('email', user.email);
-            }
           } else {
-            // New user initialization (Defensive: try to insert streak, but don't fail if columns missing)
+            // New user initialization
             const insertData: { email: string; role: string } = { 
               email: user.email, 
               role: 'student'
             };
             
-            // We'll check if columns exist by attempting to insert them - but for now just keep it simple
             const { data: newUser } = await supabaseAdmin
               .from('user_roles')
               .upsert(insertData, { onConflict: 'email' })
@@ -123,7 +94,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.isAdmin = isMasterAdminEmail || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
           token.isSuperAdmin = isMasterAdminEmail || dbRole === 'superadmin';
           token.streakCount = streakCount;
-          console.log(`[AUTH] Streak for ${user.email}: ${streakCount}`);
           if (dbRole === 'banned') token.isBanned = true;
         } catch (err) {
           // Log but do not crash — a DB error must NOT prevent login
@@ -146,11 +116,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.isOnboarded = (token.isOnboarded as boolean) ?? false;
         session.user.streakCount = (token.streakCount as number) ?? 0;
 
-        // Hardcoded God Mode override for primary admin
-        if (session.user.email === 'abdallahsaad2150@gmail.com') {
+        // God Mode override for master admins
+        if (isMasterAdmin(session.user.email)) {
           session.user.isAdmin = true;
           session.user.isSuperAdmin = true;
-          session.user.role = 'ADMIN';
           session.user.streakCount = Math.max(session.user.streakCount || 0, 365);
         }
       }
