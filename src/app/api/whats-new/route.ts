@@ -29,7 +29,9 @@ export async function GET() {
     // Also return lesson IDs that have new content (for "NEW" badges)
     const newLessonIds = [...new Set(items.map(i => i.lessonId).filter(Boolean))];
 
-    return NextResponse.json({ items, newLessonIds });
+    return NextResponse.json({ items, newLessonIds }, {
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' }
+    });
   } catch {
     return NextResponse.json({ items: [], newLessonIds: [] });
   }

@@ -71,6 +71,8 @@ export async function GET() {
       },
       embeds: embedCount,
       totalFiles: supabaseCount + r2Count + embedCount,
+    }, {
+      headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=120' }
     });
 
   } catch (error: unknown) {

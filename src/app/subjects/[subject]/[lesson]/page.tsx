@@ -25,14 +25,16 @@ export default async function LessonPage({ params }: Props) {
   // @ts-ignore
   if (session.user?.isBanned) redirect('/banned');
 
-  const subject = await getSubject(subjectSlug);
-  const lesson = await getLesson(subjectSlug, lessonSlug);
+  // Run all data fetches in parallel instead of sequential waterfall
+  const [subject, lesson, { data: logs }] = await Promise.all([
+    getSubject(subjectSlug),
+    getLesson(subjectSlug, lessonSlug),
+    supabaseAdmin.from('activity_logs')
+      .select('details')
+      .eq('action', 'Completed Lesson')
+      .eq('user_email', session.user?.email || '')
+  ]);
   
-  // Calculate historical gamification status
-  const { data: logs } = await supabaseAdmin.from('activity_logs')
-    .select('details')
-    .eq('action', 'Completed Lesson')
-    .eq('user_email', session.user?.email || '');
   const isCompleted = logs?.some(l => l.details?.subjectSlug === subjectSlug && l.details?.lessonSlug === lessonSlug) || false;
   
   if (!subject || !lesson) notFound();

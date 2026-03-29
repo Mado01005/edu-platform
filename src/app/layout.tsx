@@ -3,10 +3,7 @@ import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import SessionTracker from '@/components/SessionTracker';
 import InteractionTracker from '@/components/InteractionTracker';
-import PWAInstallPrompt from '@/components/PWAInstallPrompt';
-import KeyboardShortcuts from '@/components/KeyboardShortcuts';
-import StudyTimer from '@/components/StudyTimer';
-import MobileNav from '@/components/MobileNav';
+import { PWAInstallPrompt, KeyboardShortcuts, StudyTimer, MobileNav, MusicPlayer } from '@/components/LazyWidgets';
 import './globals.css';
 
 import { auth } from '@/auth';
@@ -25,7 +22,6 @@ export const metadata: Metadata = {
 };
 
 import { SpotifyProvider } from '@/context/SpotifyContext';
-import MusicPlayer from '@/components/MusicPlayer';
 
 export default async function RootLayout({
   children,
@@ -33,7 +29,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  const isAdmin = (session?.user as any)?.isAdmin;
   const spotifyToken = session?.user?.spotifyAccessToken;
 
   return (

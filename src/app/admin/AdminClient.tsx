@@ -1,17 +1,21 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Subject, UserRole, ActivityLog, StorageStats, SubjectMeta, LessonMeta } from '@/types';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
-// Sub-components
+// Eagerly loaded — shown on first admin page render
 import AdminSidebar from './components/AdminSidebar';
 import UploadTab from './components/UploadTab';
 import ManageTab from './components/ManageTab';
-import TelemetryTab from './components/TelemetryTab';
-import BroadcastTab from './components/BroadcastTab';
-import TeamTab from './components/TeamTab';
+
+// Lazy loaded — only fetched when the admin clicks the tab
+const TabLoader = () => <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
+const TelemetryTab = dynamic(() => import('./components/TelemetryTab'), { loading: TabLoader, ssr: false });
+const BroadcastTab = dynamic(() => import('./components/BroadcastTab'), { loading: TabLoader, ssr: false });
+const TeamTab = dynamic(() => import('./components/TeamTab'), { loading: TabLoader, ssr: false });
 
 interface AdminClientProps {
   subjects: Subject[];

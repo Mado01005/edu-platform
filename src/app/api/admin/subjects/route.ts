@@ -16,7 +16,9 @@ export async function GET() {
     }
 
     const subjects = await getAllSubjects();
-    return NextResponse.json(subjects);
+    return NextResponse.json(subjects, {
+      headers: { 'Cache-Control': 'private, s-maxage=30, stale-while-revalidate=60' }
+    });
   } catch (error: unknown) {
     console.error('Fetch subjects error:', error);
     const message = error instanceof Error ? error.message : 'Internal Server Error';

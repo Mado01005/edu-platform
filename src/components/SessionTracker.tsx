@@ -1,55 +1,58 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
 export default function SessionTracker() {
   const pathname = usePathname();
+  const lastActivityTime = useRef(Date.now());
+  const isIdle = useRef(false);
 
   useEffect(() => {
-    let lastActivityTime = Date.now();
-    let isIdle = false;
-    let heartbeatInterval: NodeJS.Timeout;
-
-    // Reset idle timer on user activity
+    // Throttled activity tracker — fires max once per second
+    let activityThrottled = false;
     const updateActivity = () => {
-      lastActivityTime = Date.now();
-      if (isIdle) {
-        isIdle = false;
-        // Instantly ping if they came back from being idle
-        sendHeartbeat();
+      if (activityThrottled) return;
+      activityThrottled = true;
+      setTimeout(() => { activityThrottled = false; }, 1000);
+
+      lastActivityTime.current = Date.now();
+      if (isIdle.current) {
+        isIdle.current = false;
+        sendHeartbeat(); // Instant ping on return from idle
       }
     };
 
     const sendHeartbeat = () => {
+      // Skip heartbeat when tab is hidden — no point pinging if the user can't see the page
+      if (document.hidden) return;
+
       const now = Date.now();
-      // If no activity for 5 minutes (300,000 ms), mark as idle
-      if (now - lastActivityTime > 300000) {
-        isIdle = true;
+      // If no activity for 5 minutes, mark as idle
+      if (now - lastActivityTime.current > 300000) {
+        isIdle.current = true;
       }
 
       fetch('/api/analytics/heartbeat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           currentPage: pathname,
-          isIdle: isIdle,
+          isIdle: isIdle.current,
         })
-      }).catch(() => {}); // Silent ignore
+      }).catch(() => {});
     };
 
-    // Attach listeners
-    window.addEventListener('mousemove', updateActivity);
-    window.addEventListener('keydown', updateActivity);
-    window.addEventListener('scroll', updateActivity);
-    window.addEventListener('click', updateActivity);
+    // Use passive listeners for scroll — avoids blocking the main thread
+    window.addEventListener('mousemove', updateActivity, { passive: true });
+    window.addEventListener('keydown', updateActivity, { passive: true });
+    window.addEventListener('scroll', updateActivity, { passive: true });
+    window.addEventListener('click', updateActivity, { passive: true });
 
-    // Run heartbeat every 30 seconds for higher fidelity telemetry
-    heartbeatInterval = setInterval(sendHeartbeat, 30000);
+    // Heartbeat every 60 seconds (was 30s — halves Vercel function invocations)
+    const heartbeatInterval = setInterval(sendHeartbeat, 60000);
     
-    // Initial ping on load and on every pathname change
+    // Initial ping
     sendHeartbeat();
 
     return () => {
@@ -61,5 +64,5 @@ export default function SessionTracker() {
     };
   }, [pathname]);
 
-  return null; // Headless component
+  return null;
 }
