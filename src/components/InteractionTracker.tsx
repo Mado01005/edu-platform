@@ -11,25 +11,30 @@ interface TrackedEvent {
 
 export default function InteractionTracker() {
   const pathname = usePathname();
-  const eventBuffer = useRef<TrackedEvent[]>([]);
-  const flushTimer = useRef<NodeJS.Timeout | null>(null);
+  const workerRef = useRef<Worker | null>(null);
 
-  const flush = useCallback(() => {
-    if (eventBuffer.current.length === 0) return;
-
-    const events = [...eventBuffer.current];
-    eventBuffer.current = [];
-
-    // Send all buffered events in a single request
-    fetch('/api/log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'USER_INTERACTIONS_BATCH',
-        details: { events, count: events.length }
-      })
-    }).catch(() => {});
+  useEffect(() => {
+    // Initialize the Web Worker on mount
+    workerRef.current = new Worker('/telemetry-worker.js');
+    
+    return () => {
+      // Terminate on unmount
+      if (workerRef.current) workerRef.current.terminate();
+    };
   }, []);
+
+  const dispatchEvent = useCallback((action: string, details: Record<string, string>) => {
+    if (workerRef.current) {
+      workerRef.current.postMessage({
+        type: 'EVENT',
+        payload: {
+          action,
+          details: { ...details, path: pathname },
+          timestamp: Date.now()
+        }
+      });
+    }
+  }, [pathname]);
 
   useEffect(() => {
     // CLICK TRACKER — buffers events instead of firing per-click
@@ -43,11 +48,7 @@ export default function InteractionTracker() {
 
       // Only track interactive elements
       if (['button', 'a', 'input', 'select', 'label'].includes(tag) || target.onclick || target.closest('button') || target.closest('a')) {
-        eventBuffer.current.push({
-          action: 'USER_CLICK',
-          details: { tag, text, id, path: pathname },
-          timestamp: Date.now()
-        });
+        dispatchEvent('USER_CLICK', { tag, text, id });
       }
     };
 
@@ -65,22 +66,17 @@ export default function InteractionTracker() {
       if (isNaN(scrollPercent)) return;
 
       lastScrollLog = now;
-      eventBuffer.current.push({
-        action: 'USER_SCROLL',
-        details: { percent: String(scrollPercent), path: pathname },
-        timestamp: now
-      });
+      dispatchEvent('USER_SCROLL', { percent: String(scrollPercent) });
     };
 
     window.addEventListener('click', handleClick);
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Flush every 10 seconds
-    flushTimer.current = setInterval(flush, 10000);
-
-    // Flush on tab hide or page unload
+    // Force flush on tab hide or page unload
     const handleVisibilityChange = () => {
-      if (document.hidden) flush();
+      if (document.hidden && workerRef.current) {
+        workerRef.current.postMessage({ type: 'FLUSH' });
+      }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
@@ -88,10 +84,9 @@ export default function InteractionTracker() {
       window.removeEventListener('click', handleClick);
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (flushTimer.current) clearInterval(flushTimer.current);
-      flush(); // Final flush on unmount
+      if (workerRef.current) workerRef.current.postMessage({ type: 'FLUSH' });
     };
-  }, [pathname, flush]);
+  }, [dispatchEvent]);
 
   return null;
 }

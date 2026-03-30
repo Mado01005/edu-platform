@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ContentNode } from '@/types';
 import VideoPlayer from '@/components/VideoPlayer';
 import PDFViewer from '@/components/PDFViewer';
@@ -70,6 +71,26 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
     
   const otherFiles = currentNodes.filter(c => !(c.type === 'file' && c.fileType === 'image') && c.type !== 'folder');
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    },
+    exit: { opacity: 0 }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 15, scale: 0.98 },
+    show: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { type: 'spring', bounce: 0.4, duration: 0.6 }
+    },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
+  };
+
   return (
     <div className="w-full">
       {/* Dynamic Breadcrumbs */}
@@ -122,126 +143,156 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
       </nav>
 
       {/* Folders Grid */}
-      {folders.length > 0 && (
-        <div className="mb-10 fade-in">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Folders</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {folders.map((folder, idx) => (
-              <button
-                key={`folder-${idx}`}
-                onClick={() => handleFolderClick(folder)}
-                className="group flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-500/30 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-[0_10px_30px_-10px_rgba(99,102,241,0.2)] text-left"
-              >
-                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-300">
-                  📁
-                </div>
-                <div className="overflow-hidden">
-                  <h4 className="font-bold text-white truncate text-base group-hover:text-indigo-300 transition-colors">{folder.name}</h4>
-                  <p className="text-xs text-gray-500 mt-1">{folder.children?.length || 0} items</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={pathQuery + 'folders'}
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          exit="exit"
+        >
+          {folders.length > 0 && (
+            <div className="mb-10">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Folders</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {folders.map((folder, idx) => (
+                  <motion.button
+                    variants={itemVariants}
+                    key={folder.name || `folder-${idx}`}
+                    onClick={() => handleFolderClick(folder)}
+                    className="group flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-500/30 rounded-2xl p-4 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(99,102,241,0.2)] text-left"
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-2xl shrink-0 group-hover:bg-indigo-500/20 transition-all duration-300">
+                      📁
+                    </div>
+                    <div className="overflow-hidden">
+                      <h4 className="font-bold text-white truncate text-base group-hover:text-indigo-300 transition-colors">{folder.name}</h4>
+                      <p className="text-xs text-gray-500 mt-1">{folder.children?.length || 0} items</p>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Files Display */}
-      {images.length > 0 && (
-        <div className="mb-10 fade-in">
-          <ImageGallery images={images} title="Gallery" />
-        </div>
-      )}
-
-      {otherFiles.length > 0 && (
-        <div className="space-y-8 fade-in">
-          {otherFiles.length > 0 && folders.length > 0 && (
-             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Files</h3>
+      <AnimatePresence mode="wait">
+        <motion.div
+           key={pathQuery + 'files'}
+           variants={containerVariants}
+           initial="hidden"
+           animate="show"
+           exit="exit"
+        >
+          {images.length > 0 && (
+            <motion.div variants={itemVariants} className="mb-10">
+              <ImageGallery images={images} title="Gallery" />
+            </motion.div>
           )}
-          {otherFiles.map((node, idx) => {
-            if (node.type === 'vimeo' && node.vimeoId) {
-              return (
-                <div key={`vimeo-${idx}`} className="fade-in">
-                  <VimeoPlayer vimeoId={node.vimeoId} title={node.name} />
-                </div>
-              );
-            }
-            if (node.fileType === 'video' && node.url) {
-              return (
-                <div key={`video-${idx}`} className="fade-in">
-                  <div className="flex items-center gap-2 mb-2 ml-1 text-sm text-gray-400">
-                    <span>🎬</span> <span>{node.name}</span>
-                  </div>
-                  <VideoPlayer src={node.url} title={node.name} />
-                </div>
-              );
-            }
-            if (node.fileType === 'pdf' && node.url) {
-              return (
-                <div key={`pdf-${idx}`} className="fade-in">
-                  <PDFViewer src={node.url} title={node.name} />
-                </div>
-              );
-            }
-            if (node.fileType === 'powerpoint' && node.url) {
-              const encodedUrl = encodeURIComponent(node.url);
-              return (
-                <div key={`ppt-${idx}`} className="fade-in min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
-                  <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                  <div className="flex items-center gap-3 mb-4 ml-1">
-                    <span className="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-sm shadow-inner">📊</span>
-                    <span className="text-sm font-bold text-orange-400 tracking-wide uppercase">{node.name}</span>
-                  </div>
-                  <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
-                    <iframe 
-                      src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
-                      className="w-full h-full bg-white"
-                      title={node.name}
-                    />
-                  </div>
-                </div>
-              );
-            }
-            if (node.url && (node.name.toLowerCase().endsWith('.doc') || node.name.toLowerCase().endsWith('.docx'))) {
-              const encodedUrl = encodeURIComponent(node.url);
-              return (
-                <div key={`doc-${idx}`} className="fade-in min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
-                  <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                  <div className="flex items-center justify-between mb-4 ml-1">
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-sm shadow-inner">📝</span>
-                      <span className="text-sm font-bold text-blue-400 tracking-wide uppercase">{node.name}</span>
-                    </div>
-                    <a 
-                      href={node.url} 
-                      download 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition-all"
-                    >
-                      Download Original
-                    </a>
-                  </div>
-                  <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
-                    <iframe 
-                      src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
-                      className="w-full h-full bg-white"
-                      title={node.name}
-                    />
-                  </div>
-                </div>
-              );
-            }
-            return null;
-          })}
-        </div>
-      )}
+
+          {otherFiles.length > 0 && (
+            <div className="space-y-8">
+              {otherFiles.length > 0 && folders.length > 0 && (
+                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Files</h3>
+              )}
+              {otherFiles.map((node, idx) => {
+                const uniqueKey = node.name || `file-${idx}`;
+                if (node.type === 'vimeo' && node.vimeoId) {
+                  return (
+                    <motion.div variants={itemVariants} key={`vimeo-${uniqueKey}`}>
+                      <VimeoPlayer vimeoId={node.vimeoId} title={node.name} />
+                    </motion.div>
+                  );
+                }
+                if (node.fileType === 'video' && node.url) {
+                  return (
+                    <motion.div variants={itemVariants} key={`video-${uniqueKey}`}>
+                      <div className="flex items-center gap-2 mb-2 ml-1 text-sm text-gray-400">
+                        <span>🎬</span> <span>{node.name}</span>
+                      </div>
+                      <VideoPlayer src={node.url} title={node.name} />
+                    </motion.div>
+                  );
+                }
+                if (node.fileType === 'pdf' && node.url) {
+                  return (
+                    <motion.div variants={itemVariants} key={`pdf-${uniqueKey}`}>
+                      <PDFViewer src={node.url} title={node.name} />
+                    </motion.div>
+                  );
+                }
+                if (node.fileType === 'powerpoint' && node.url) {
+                  const encodedUrl = encodeURIComponent(node.url);
+                  return (
+                    <motion.div variants={itemVariants} key={`ppt-${uniqueKey}`} className="min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                      <div className="flex items-center gap-3 mb-4 ml-1">
+                        <span className="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-sm shadow-inner">📊</span>
+                        <span className="text-sm font-bold text-orange-400 tracking-wide uppercase">{node.name}</span>
+                      </div>
+                      <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
+                        <iframe 
+                          src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
+                          className="w-full h-full bg-white"
+                          title={node.name}
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                }
+                if (node.url && (node.name.toLowerCase().endsWith('.doc') || node.name.toLowerCase().endsWith('.docx'))) {
+                  const encodedUrl = encodeURIComponent(node.url);
+                  return (
+                    <motion.div variants={itemVariants} key={`doc-${uniqueKey}`} className="min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                      <div className="flex items-center justify-between mb-4 ml-1">
+                        <div className="flex items-center gap-3">
+                          <span className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-sm shadow-inner">📝</span>
+                          <span className="text-sm font-bold text-blue-400 tracking-wide uppercase">{node.name}</span>
+                        </div>
+                        <a 
+                          href={node.url} 
+                          download 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition-all"
+                        >
+                          Download Original
+                        </a>
+                      </div>
+                      <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
+                        <iframe 
+                          src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
+                          className="w-full h-full bg-white"
+                          title={node.name}
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
 
       {currentNodes.length === 0 && (
-        <div className="text-center py-20 text-gray-500 fade-in border border-dashed border-white/10 rounded-3xl">
-          <div className="text-5xl mb-4">📭</div>
-          <p className="text-lg font-medium">This folder is empty</p>
-          <p className="text-sm mt-2">No files or subfolders found here.</p>
-        </div>
+        <AnimatePresence>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-20 text-gray-500 border border-dashed border-white/10 rounded-3xl"
+          >
+            <div className="text-5xl mb-4">📭</div>
+            <p className="text-lg font-medium">This folder is empty</p>
+            <p className="text-sm mt-2">No files or subfolders found here.</p>
+          </motion.div>
+        </AnimatePresence>
       )}
     </div>
   );

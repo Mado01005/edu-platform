@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 
 interface LessonCardProps {
   subjectSlug: string;
@@ -25,11 +28,37 @@ export default function LessonCard({
   isNew,
   hasDocx,
 }: LessonCardProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (cardRef.current) observer.unobserve(cardRef.current);
+        }
+      },
+      { rootMargin: '100px' }
+    );
+
+    if (cardRef.current) observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
-      className="group relative flex flex-row items-stretch sm:items-center gap-4 md:gap-6 transition-all duration-500"
-      style={{ animationDelay: `${index * 60}ms` }}
+      ref={cardRef}
+      className={`group relative flex flex-row items-stretch sm:items-center gap-4 md:gap-6 transition-all duration-700 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+      style={{ transitionDelay: `${(index % 10) * 50}ms` }}
     >
+      {/* Fallback rendering of height when not visible so scrollbar doesn't jump */}
+      {!isVisible && <div className="h-20 md:h-24 w-full" />}
+      
+      {isVisible && (
+        <>
       {/* Node / Index circle */}
       <div className="relative flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[#05050A] border border-white/20 flex items-center justify-center text-gray-500 font-black text-lg group-hover:text-white transition-all duration-500 z-10 shadow-2xl group-hover:scale-110 group-hover:border-white/40 overflow-hidden self-start sm:self-auto mt-4 sm:mt-0">
          <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
@@ -112,6 +141,8 @@ export default function LessonCard({
           </svg>
         </div>
       </Link>
+      </>
+      )}
     </div>
   );
 }
