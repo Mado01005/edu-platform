@@ -5,11 +5,25 @@ import { getSubject } from '@/lib/content';
 import { supabaseAdmin } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import LessonCard from '@/components/LessonCard';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ subject: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { subject: subjectParam } = await params;
+  const subjectSlug = decodeURIComponent(subjectParam);
+  const subject = await getSubject(subjectSlug);
+  
+  if (!subject) return { title: 'Subject Not Found' };
+  
+  return {
+    title: `${subject.title} - EduPortal`,
+    description: `Explore the ${subject.title} curriculum on EduPortal featuring ${subject.lessons.length} active modules.`,
+  };
 }
 
 export default async function SubjectPage({ params }: Props) {

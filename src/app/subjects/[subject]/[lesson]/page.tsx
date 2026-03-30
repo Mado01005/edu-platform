@@ -8,11 +8,26 @@ import FolderExplorer from '@/components/FolderExplorer';
 import ViewTracker from '@/components/ViewTracker';
 import CompleteButton from '@/components/CompleteButton';
 import BookmarkButton from '@/components/BookmarkButton';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ subject: string; lesson: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { subject: subjectParam, lesson: lessonParam } = await params;
+  const subjectSlug = decodeURIComponent(subjectParam);
+  const lessonSlug = decodeURIComponent(lessonParam);
+  
+  const lesson = await getLesson(subjectSlug, lessonSlug);
+  if (!lesson) return { title: 'Lesson Not Found' };
+  
+  return {
+    title: `${lesson.title} - EduPortal`,
+    description: `Study ${lesson.title} on EduPortal. Includes video lessons, PDF materials, and interactive content.`,
+  };
 }
 
 export default async function LessonPage({ params }: Props) {
