@@ -2,9 +2,9 @@ import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/api/auth', '/api/whats-new'];
+const PUBLIC_PATHS = ['/login', '/api/auth', '/api/whats-new', '/sitemap.xml', '/robots.txt'];
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public/static paths, PWA assets, and all API routes that handle their own auth

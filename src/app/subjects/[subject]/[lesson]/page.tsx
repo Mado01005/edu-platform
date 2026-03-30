@@ -28,6 +28,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${lesson.title} - EduPortal`,
     description: `Study ${lesson.title} on EduPortal. Includes video lessons, PDF materials, and interactive content.`,
+    openGraph: {
+      title: `${lesson.title} — Learning Module`,
+      description: `Study ${lesson.title} and master the curriculum.`,
+      url: `/subjects/${subjectSlug}/${lessonSlug}`,
+      type: 'article',
+    },
+    alternates: {
+      canonical: `/subjects/${subjectSlug}/${lessonSlug}`,
+    },
   };
 }
 

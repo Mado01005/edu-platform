@@ -55,7 +55,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://embed.tawk.to https://*.tawk.to; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://*.supabase.co https://*.r2.dev https://qsvsmyikvylnryhicfuk.supabase.co https://pub-*; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tawk.to wss://*.tawk.to; frame-src 'self' https://player.vimeo.com https://open.spotify.com;"
+        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://embed.tawk.to https://*.tawk.to; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tawk.to; img-src 'self' blob: data: https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://*.supabase.co https://*.r2.dev https://qsvsmyikvylnryhicfuk.supabase.co https://pub-* https://*.tawk.to; font-src 'self' https://fonts.gstatic.com https://*.tawk.to; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tawk.to wss://*.tawk.to; frame-src 'self' https://player.vimeo.com https://open.spotify.com;"
           }
         ],
       },
