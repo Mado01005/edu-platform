@@ -29,6 +29,8 @@ interface SpotifyContextType {
   nextTrack: () => void;
   previousTrack: () => void;
   transferPlayback: () => Promise<void>;
+  isPremiumRequired: boolean;
+  isTokenExpired: boolean;
 }
 
 const SpotifyContext = createContext<SpotifyContextType | undefined>(undefined);
@@ -39,6 +41,8 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
   const [isActive, setIsActive] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<SpotifyTrack | null>(null);
+  const [isPremiumRequired, setIsPremiumRequired] = useState(false);
+  const [isTokenExpired, setIsTokenExpired] = useState(false);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -137,8 +141,17 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
 
       // Error listeners
       newPlayer.addListener('initialization_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Initialization Error:', message));
-      newPlayer.addListener('authentication_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Authentication Error:', message));
-      newPlayer.addListener('account_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Account Error:', message));
+      
+      newPlayer.addListener('authentication_error', ({ message }: { message: string }) => {
+        console.error('[SPOTIFY DEBUG] Authentication Error:', message);
+        setIsTokenExpired(true);
+      });
+      
+      newPlayer.addListener('account_error', ({ message }: { message: string }) => {
+        console.error('[SPOTIFY DEBUG] Account Error:', message);
+        setIsPremiumRequired(true);
+      });
+      
       newPlayer.addListener('playback_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Playback Error:', message));
 
       newPlayer.connect().then((success: boolean) => {
@@ -217,7 +230,9 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         togglePlay,
         nextTrack,
         previousTrack,
-        transferPlayback
+        transferPlayback,
+        isPremiumRequired,
+        isTokenExpired
       }}
     >
       {accessToken && (

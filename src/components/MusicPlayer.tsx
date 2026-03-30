@@ -8,7 +8,7 @@ import { signIn } from 'next-auth/react';
 
 const MusicPlayer = () => {
   const pathname = usePathname();
-  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, accessToken, deviceId } = useSpotify();
+  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, accessToken, deviceId, isPremiumRequired, isTokenExpired } = useSpotify();
   
   const [isMinimized, setIsMinimized] = useState(true);
   const [showPlaylists, setShowPlaylists] = useState(false);
@@ -146,14 +146,18 @@ const MusicPlayer = () => {
             </svg>
           </button>
 
-          {!hasToken ? (
+          {(!hasToken || isTokenExpired) ? (
             /* ── Connect Spotify Panel ── */
             <div className="p-6 text-center space-y-4">
               <div className="w-12 h-12 bg-[#1DB954] rounded-full mx-auto flex items-center justify-center shadow-[0_0_20px_rgba(29,185,84,0.4)]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="black"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.49 17.306c-.215.353-.675.466-1.026.25-2.887-1.764-6.522-2.162-10.803-1.18-.403.093-.807-.16-.897-.562-.092-.403.16-.807.562-.897 4.693-1.072 8.694-.616 11.913 1.35.352.216.464.675.251 1.039zm1.464-3.262c-.27.44-.846.58-1.286.31-3.303-2.03-8.34-2.617-12.246-1.432-.496.15-1.022-.13-1.17-.624-.15-.496.13-1.022.625-1.17 4.456-1.353 10.003-.703 13.787 1.625.44.27.58.847.31 1.287zm.126-3.41c-3.96-2.352-10.493-2.57-14.288-1.417-.607.185-1.246-.164-1.431-.772-.185-.607.164-1.246.772-1.43 4.38-1.33 11.58-1.07 16.14 1.64.545.324.723 1.033.4 1.579-.323.546-1.033.723-1.579.4z"/></svg>
               </div>
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40">Music Offline</p>
-              <button onClick={() => signIn('spotify')} className="w-full h-12 bg-white text-black font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl">Connect Spotify</button>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40">
+                {isTokenExpired ? 'Session Expired' : 'Music Offline'}
+              </p>
+              <button onClick={() => signIn('spotify')} className="w-full h-12 bg-white text-black font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl">
+                {isTokenExpired ? 'Reconnect Spotify' : 'Connect Spotify'}
+              </button>
             </div>
           ) : (
             /* ── Player Content ── */
@@ -168,8 +172,19 @@ const MusicPlayer = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0 pr-8">
-                  <h4 className="text-[15px] font-black text-white truncate">{currentTrack?.name || 'Nothing Playing'}</h4>
-                  <p className="text-xs font-semibold text-gray-500 truncate">{currentTrack?.artist || 'EduPortal Radio'}</p>
+                  {isPremiumRequired ? (
+                    <>
+                      <h4 className="text-[13px] font-black text-[#1DB954] truncate">Premium Required</h4>
+                      <p className="text-xs font-semibold text-gray-500 max-w-[200px] whitespace-normal leading-tight mt-1">
+                        Spotify requires a Premium account to control playback from EduPortal. You can still use the official app to manage playback visually.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <h4 className="text-[15px] font-black text-white truncate">{currentTrack?.name || 'Nothing Playing'}</h4>
+                      <p className="text-xs font-semibold text-gray-500 truncate">{currentTrack?.artist || 'EduPortal Radio'}</p>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -188,18 +203,18 @@ const MusicPlayer = () => {
 
               {/* Playback Controls */}
               <div className="flex items-center justify-center gap-6">
-                <button onClick={() => setShowPlaylists(!showPlaylists)} className={`p-3 rounded-2xl transition-all ${showPlaylists ? 'bg-indigo-500 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
+                <button onClick={() => setShowPlaylists(!showPlaylists)} className={`p-3 rounded-2xl transition-all ${showPlaylists ? 'bg-[#1DB954] text-white shadow-[0_0_15px_rgba(29,185,84,0.4)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
                 </button>
-                <button onClick={previousTrack} className="p-2 text-white/40 hover:text-white transition-all active:scale-90"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
-                <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all">
+                <button onClick={previousTrack} disabled={isPremiumRequired} className="p-2 text-white/40 hover:text-white transition-all active:scale-90 disabled:opacity-30"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+                <button onClick={togglePlay} disabled={isPremiumRequired} className="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:scale-100">
                   {isPlaying ? (
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                   ) : (
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><path d="M8 5v14l11-7z"/></svg>
                   )}
                 </button>
-                <button onClick={nextTrack} className="p-2 text-white/40 hover:text-white transition-all active:scale-90"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg></button>
+                <button onClick={nextTrack} disabled={isPremiumRequired} className="p-2 text-white/40 hover:text-white transition-all active:scale-90 disabled:opacity-30"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg></button>
                 <div className="w-10 hidden md:block" />
               </div>
 
