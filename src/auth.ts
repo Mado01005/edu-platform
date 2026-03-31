@@ -44,11 +44,57 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (account.provider === 'spotify') {
           token.spotifyAccessToken = account.access_token;
           token.spotifyRefreshToken = account.refresh_token;
+          // Store expiry timestamp (Spotify tokens expire in 1 hour / 3600s)
+          token.spotifyTokenExpiresAt = Date.now() + (account.expires_in as number) * 1000;
           // Spotify is music-only — skip DB role lookup for Spotify sign-ins.
           // The user's profile role is already in the token from their Google sign-in.
           return token;
         } else {
           token.accessToken = account.access_token;
+        }
+      }
+
+      // Auto-refresh Spotify token if expired or about to expire (5 min buffer)
+      if (token.spotifyRefreshToken && token.spotifyTokenExpiresAt) {
+        const expiresAt = token.spotifyTokenExpiresAt as number;
+        const now = Date.now();
+        const FIVE_MINUTES = 5 * 60 * 1000;
+
+        if (now >= expiresAt - FIVE_MINUTES) {
+          try {
+            console.log('[AUTH] Spotify token expired or expiring soon, refreshing...');
+            const clientId = process.env.SPOTIFY_CLIENT_ID;
+            const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+            if (clientId && clientSecret) {
+              const response = await fetch('https://accounts.spotify.com/api/token', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+                },
+                body: new URLSearchParams({
+                  grant_type: 'refresh_token',
+                  refresh_token: token.spotifyRefreshToken as string,
+                }),
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                token.spotifyAccessToken = data.access_token;
+                token.spotifyTokenExpiresAt = Date.now() + data.expires_in * 1000;
+                // Spotify may rotate the refresh token
+                if (data.refresh_token) {
+                  token.spotifyRefreshToken = data.refresh_token;
+                }
+                console.log('[AUTH] Spotify token refreshed successfully ✅');
+              } else {
+                console.error('[AUTH] Spotify token refresh failed:', response.status);
+              }
+            }
+          } catch (err) {
+            console.error('[AUTH] Spotify token refresh exception (non-fatal):', err);
+          }
         }
       }
 

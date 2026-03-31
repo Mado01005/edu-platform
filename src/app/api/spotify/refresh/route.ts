@@ -5,31 +5,45 @@ export async function POST() {
   try {
     const session = await auth();
     if (!session?.user?.spotifyRefreshToken) {
-      return NextResponse.json({ error: 'No refresh token available' }, { status: 401 });
+      return NextResponse.json({ error: 'No refresh token available. Please reconnect Spotify.' }, { status: 401 });
     }
 
+    const refreshToken = session.user.spotifyRefreshToken;
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      console.error('[SPOTIFY REFRESH] Missing SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+
+    // Call Spotify token endpoint to refresh
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`,
+        'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       },
       body: new URLSearchParams({
         grant_type: 'refresh_token',
-        refresh_token: session.user.spotifyRefreshToken,
+        refresh_token: refreshToken,
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('[SPOTIFY REFRESH] Token refresh failed:', errorData);
-      return NextResponse.json({ error: 'Token refresh failed' }, { status: response.status });
+      console.error('[SPOTIFY REFRESH] Token refresh failed:', response.status, errorData);
+      return NextResponse.json({ error: 'Failed to refresh token', details: errorData }, { status: response.status });
     }
 
     const data = await response.json();
-    return NextResponse.json({ 
+    
+    console.log('[SPOTIFY REFRESH] Token refreshed successfully ✅');
+
+    return NextResponse.json({
       access_token: data.access_token,
-      expires_in: data.expires_in 
+      expires_in: data.expires_in,
+      refresh_token: data.refresh_token, // Spotify may return a new refresh token
     });
   } catch (error) {
     console.error('[SPOTIFY REFRESH] Exception:', error);

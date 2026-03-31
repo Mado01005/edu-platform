@@ -155,6 +155,11 @@ const MusicPlayer = () => {
               <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40">
                 {isTokenExpired ? 'Session Expired' : 'Music Offline'}
               </p>
+              <p className="text-[10px] text-gray-500 max-w-[200px] mx-auto">
+                {isTokenExpired 
+                  ? 'Your Spotify session has expired. Reconnect to continue listening.'
+                  : 'Connect your Spotify account to enable music playback while studying.'}
+              </p>
               <button onClick={() => signIn('spotify')} className="w-full h-12 bg-white text-black font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl">
                 {isTokenExpired ? 'Reconnect Spotify' : 'Connect Spotify'}
               </button>

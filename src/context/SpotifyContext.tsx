@@ -49,6 +49,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken }: { child
   const refreshSpotifyToken = async (): Promise<string | null> => {
     if (!refreshToken) {
       console.error('[SPOTIFY DEBUG] No refresh token available');
+      setIsTokenExpired(true);
       return null;
     }
 
@@ -64,6 +65,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken }: { child
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('[SPOTIFY DEBUG] Token refresh failed:', errorData);
+        setIsTokenExpired(true);
         return null;
       }
 
@@ -71,9 +73,18 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken }: { child
       console.log('[SPOTIFY DEBUG] Token refresh successful ✅');
       setCurrentAccessToken(data.access_token);
       setIsTokenExpired(false);
+      
+      // Force page reload to sync new token with NextAuth session
+      // This ensures the server-side JWT also has the refreshed token
+      if (data.refresh_token) {
+        console.log('[SPOTIFY DEBUG] Refresh token rotated, reloading to sync session...');
+        window.location.reload();
+      }
+      
       return data.access_token;
     } catch (error) {
       console.error('[SPOTIFY DEBUG] Token refresh exception:', error);
+      setIsTokenExpired(true);
       return null;
     }
   };
