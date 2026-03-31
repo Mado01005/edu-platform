@@ -8,23 +8,36 @@ import VideoPlayer from '@/components/VideoPlayer';
 import PDFViewer from '@/components/PDFViewer';
 import ImageGallery from '@/components/ImageGallery';
 import VimeoPlayer from '@/components/VimeoPlayer';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import ContentUploader from '@/components/Admin/ContentUploader';
 
 interface FolderExplorerProps {
   content: ContentNode[];
   subject: {
+    id: string;
     title: string;
     slug: string;
   };
   lesson: {
+    id: string;
     title: string;
     slug: string;
   };
 }
 
 export default function FolderExplorer({ content, subject, lesson }: FolderExplorerProps) {
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.isAdmin;
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathQuery = searchParams.get('path') || '';
+
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [showUploader, setShowUploader] = useState(false);
 
   // Reconstruct currentPath from the URL pathQuery
   const currentPath: ContentNode[] = [];
@@ -61,6 +74,46 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
       url.searchParams.set('path', newPath);
     }
     router.push(url.pathname + url.search);
+  };
+
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return;
+    try {
+      const parentId = currentPath[currentPath.length - 1]?.id || null;
+      const res = await fetch('/api/admin/create-folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lessonId: lesson.id,
+          folderName: newFolderName.trim(),
+          parentId
+        })
+      });
+      if (!res.ok) throw new Error('Failed to create folder');
+      setNewFolderName('');
+      setIsCreatingFolder(false);
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error creating folder');
+    }
+  };
+
+  const handleDeleteItem = async (itemId: string, fileUrl?: string) => {
+    if (!confirm('Are you sure you want to delete this item? This cannot be undone.')) return;
+    setIsDeleting(itemId);
+    try {
+      const res = await fetch('/api/admin/delete-item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId, fileUrl })
+      });
+      if (!res.ok) throw new Error('Failed to delete item');
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error deleting item');
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const folders = currentNodes.filter(n => n.type === 'folder');
@@ -142,6 +195,93 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
         })}
       </nav>
 
+      {/* Admin Action Bar */}
+      {isAdmin && (
+        <div className="mb-10 animate-in slide-in-from-top-4 duration-500">
+           <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-[2.5rem] p-6 backdrop-blur-md">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h3 className="text-sm font-black text-indigo-300 uppercase tracking-widest mb-1">Contextual Admin Controls</h3>
+                  <p className="text-[10px] text-gray-500 font-medium">Target: {pathQuery || 'Root Module'}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => setShowUploader(!showUploader)}
+                    className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${showUploader ? 'bg-white text-black' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-500'}`}
+                  >
+                    {showUploader ? 'Close Uploader' : '↑ Transmission Hub'}
+                  </button>
+                  <button 
+                    onClick={() => setIsCreatingFolder(true)}
+                    className="px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 hover:bg-white/5 text-gray-400 hover:text-white transition-all"
+                  >
+                    + New Subfolder
+                  </button>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {showUploader && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }} 
+                    animate={{ height: 'auto', opacity: 1 }} 
+                    exit={{ height: 0, opacity: 0 }} 
+                    className="overflow-hidden mt-6"
+                  >
+                    <ContentUploader 
+                      variant="compact"
+                      selectedSubjectId={subject.id}
+                      selectedLessonId={lesson.id}
+                      currentPathId={currentPath[currentPath.length - 1]?.id}
+                      currentPath={pathQuery}
+                      subjectSlug={subject.slug}
+                      lessonSlug={lesson.slug}
+                      onComplete={() => {
+                        setShowUploader(false);
+                        router.refresh();
+                      }}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {isCreatingFolder && (
+                   <motion.div 
+                     initial={{ height: 0, opacity: 0 }} 
+                     animate={{ height: 'auto', opacity: 1 }} 
+                     exit={{ height: 0, opacity: 0 }} 
+                     className="overflow-hidden mt-6"
+                   >
+                     <div className="flex items-center gap-3 p-4 bg-black/40 border border-white/5 rounded-2xl">
+                        <input 
+                           autoFocus
+                           placeholder="Enter folder name..."
+                           className="flex-1 bg-transparent border-none outline-none text-sm text-white px-2"
+                           value={newFolderName}
+                           onChange={e => setNewFolderName(e.target.value)}
+                           onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
+                        />
+                        <button 
+                          onClick={handleCreateFolder}
+                          className="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase"
+                        >
+                          Create
+                        </button>
+                        <button 
+                          onClick={() => setIsCreatingFolder(false)}
+                          className="text-gray-500 hover:text-white px-2 py-2"
+                        >
+                          ✕
+                        </button>
+                     </div>
+                   </motion.div>
+                )}
+              </AnimatePresence>
+           </div>
+        </div>
+      )}
+
       {/* Folders Grid */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -167,10 +307,22 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-2xl shrink-0 group-hover:bg-indigo-500/20 transition-all duration-300">
                       📁
                     </div>
-                    <div className="overflow-hidden">
+                    <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-white truncate text-base group-hover:text-indigo-300 transition-colors">{folder.name}</h4>
                       <p className="text-xs text-gray-500 mt-1">{folder.children?.length || 0} items</p>
                     </div>
+                    {isAdmin && (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteItem(folder.id!);
+                        }}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-all"
+                        disabled={isDeleting === folder.id}
+                      >
+                        {isDeleting === folder.id ? '...' : '🗑️'}
+                      </button>
+                    )}
                   </motion.button>
                 ))}
               </div>
@@ -203,16 +355,36 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                 const uniqueKey = node.name || `file-${idx}`;
                 if (node.type === 'vimeo' && node.vimeoId) {
                   return (
-                    <motion.div variants={itemVariants} key={`vimeo-${uniqueKey}`}>
+                    <motion.div variants={itemVariants} key={`vimeo-${uniqueKey}`} className="group relative">
                       <VimeoPlayer vimeoId={node.vimeoId} title={node.name} />
+                      {isAdmin && (
+                        <button 
+                          onClick={() => handleDeleteItem(node.id!)}
+                          className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 backdrop-blur-md rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all"
+                          disabled={isDeleting === node.id}
+                        >
+                          {isDeleting === node.id ? '...' : '🗑️'}
+                        </button>
+                      )}
                     </motion.div>
                   );
                 }
                 if (node.fileType === 'video' && node.url) {
                   return (
-                    <motion.div variants={itemVariants} key={`video-${uniqueKey}`}>
-                      <div className="flex items-center gap-2 mb-2 ml-1 text-sm text-gray-400">
-                        <span>🎬</span> <span>{node.name}</span>
+                    <motion.div variants={itemVariants} key={`video-${uniqueKey}`} className="group relative">
+                      <div className="flex items-center justify-between mb-2 ml-1">
+                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                          <span>🎬</span> <span>{node.name}</span>
+                        </div>
+                        {isAdmin && (
+                          <button 
+                            onClick={() => handleDeleteItem(node.id!, node.url)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all"
+                            disabled={isDeleting === node.id}
+                          >
+                            {isDeleting === node.id ? '...' : '🗑️'}
+                          </button>
+                        )}
                       </div>
                       <VideoPlayer src={node.url} title={node.name} />
                     </motion.div>
@@ -220,7 +392,16 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                 }
                 if (node.fileType === 'pdf' && node.url) {
                   return (
-                    <motion.div variants={itemVariants} key={`pdf-${uniqueKey}`}>
+                    <motion.div variants={itemVariants} key={`pdf-${uniqueKey}`} className="group relative">
+                      {isAdmin && (
+                        <button 
+                          onClick={() => handleDeleteItem(node.id!, node.url)}
+                          className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 backdrop-blur-md rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all"
+                          disabled={isDeleting === node.id}
+                        >
+                          {isDeleting === node.id ? '...' : '🗑️'}
+                        </button>
+                      )}
                       <PDFViewer src={node.url} title={node.name} />
                     </motion.div>
                   );
@@ -230,9 +411,20 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                   return (
                     <motion.div variants={itemVariants} key={`ppt-${uniqueKey}`} className="min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
                       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                      <div className="flex items-center gap-3 mb-4 ml-1">
-                        <span className="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-sm shadow-inner">📊</span>
-                        <span className="text-sm font-bold text-orange-400 tracking-wide uppercase">{node.name}</span>
+                      <div className="flex items-center justify-between mb-4 ml-1">
+                        <div className="flex items-center gap-3">
+                          <span className="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-sm shadow-inner">📊</span>
+                          <span className="text-sm font-bold text-orange-400 tracking-wide uppercase">{node.name}</span>
+                        </div>
+                        {isAdmin && (
+                          <button 
+                            onClick={() => handleDeleteItem(node.id!, node.url)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/20 text-red-400 border border-white/10 transition-all shadow-lg"
+                            disabled={isDeleting === node.id}
+                          >
+                            {isDeleting === node.id ? '...' : '🗑️'}
+                          </button>
+                        )}
                       </div>
                       <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
                         <iframe 
@@ -254,15 +446,26 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                           <span className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-sm shadow-inner">📝</span>
                           <span className="text-sm font-bold text-blue-400 tracking-wide uppercase">{node.name}</span>
                         </div>
-                        <a 
-                          href={node.url} 
-                          download 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition-all"
-                        >
-                          Download Original
-                        </a>
+                        <div className="flex items-center gap-2">
+                          {isAdmin && (
+                            <button 
+                              onClick={() => handleDeleteItem(node.id!, node.url)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/20 text-red-400 border border-white/10 transition-all shadow-lg"
+                              disabled={isDeleting === node.id}
+                            >
+                              {isDeleting === node.id ? '...' : '🗑️'}
+                            </button>
+                          )}
+                          <a 
+                            href={node.url} 
+                            download 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition-all"
+                          >
+                            Download Original
+                          </a>
+                        </div>
                       </div>
                       <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
                         <iframe 

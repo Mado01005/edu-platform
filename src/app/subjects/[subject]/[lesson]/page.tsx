@@ -100,7 +100,11 @@ export default async function LessonPage({ params }: Props) {
         {/* Content sections */}
         <div className="space-y-6">
           {lesson.content && lesson.content.length > 0 ? (
-             <FolderExplorer content={lesson.content} subject={{ title: subject.title, slug: subjectSlug }} lesson={{ title: lesson.title, slug: lessonSlug }} />
+             <FolderExplorer 
+               content={lesson.content} 
+               subject={{ title: subject.title, slug: subjectSlug, id: subject.id }} 
+               lesson={{ title: lesson.title, slug: lessonSlug, id: lesson.id }} 
+             />
           ) : (
             <div className="text-center py-20 text-gray-500">
               <div className="text-5xl mb-4">📭</div>
