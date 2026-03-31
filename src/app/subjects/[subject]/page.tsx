@@ -67,11 +67,6 @@ export default async function SubjectPage({ params }: Props) {
       />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Diagnostic Log for Identity Fix */}
-        <script dangerouslySetInnerHTML={{ 
-          __html: `console.log("Admin Status (Hydrated):", ${!!(session.user as any)?.isAdmin});` 
-        }} />
-
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8 fade-in" aria-label="Breadcrumb">
           <Link href="/dashboard" className="hover:text-indigo-400 transition-colors">Dashboard</Link>
@@ -80,17 +75,6 @@ export default async function SubjectPage({ params }: Props) {
           </svg>
           <span className="text-gray-300">{subject.title}</span>
         </nav>
-
-        {/* Admin Action Bar */}
-        {((session.user as any)?.isAdmin || (session.user as any)?.isSuperAdmin) && (
-          <AdminActionBar 
-            subject={{
-              id: subject.id,
-              slug: subject.slug,
-              title: subject.title
-            }}
-          />
-        )}
 
         {/* Subject header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-12 fade-in text-center md:text-left mt-6">
@@ -109,7 +93,19 @@ export default async function SubjectPage({ params }: Props) {
           </div>
         </div>
 
+        {/* Admin Action Bar — positioned right after subject header */}
+        {((session.user as any)?.isAdmin || (session.user as any)?.isSuperAdmin) && (
+          <AdminActionBar 
+            subject={{
+              id: subject.id,
+              slug: subject.slug,
+              title: subject.title
+            }}
+          />
+        )}
+
         <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-12" />
+
 
         {/* Cyber-Timeline Lessons list */}
         {subject.lessons.length === 0 ? (

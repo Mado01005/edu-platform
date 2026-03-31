@@ -4,6 +4,7 @@ import Script from 'next/script';
 import SessionTracker from '@/components/SessionTracker';
 import InteractionTracker from '@/components/InteractionTracker';
 import { PWAInstallPrompt, KeyboardShortcuts, StudyTimer, MobileNav, MusicPlayer } from '@/components/LazyWidgets';
+import Providers from '@/components/Providers';
 import './globals.css';
 
 import { auth } from '@/auth';
@@ -69,10 +70,12 @@ export default async function RootLayout({
         <StudyTimer />
         <MobileNav />
         
+        <Providers>
         <SpotifyProvider accessToken={spotifyToken}>
           {children}
           <MusicPlayer />
         </SpotifyProvider>
+        </Providers>
 
         {/* Tawk.to Live Chat Script */}
         <Script id="tawk-to" strategy="lazyOnload">
