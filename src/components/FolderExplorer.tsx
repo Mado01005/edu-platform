@@ -11,6 +11,7 @@ import VimeoPlayer from '@/components/VimeoPlayer';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import ContentUploader from '@/components/Admin/ContentUploader';
+import AdminActionBar from '@/components/Admin/AdminActionBar';
 
 interface FolderExplorerProps {
   content: ContentNode[];
@@ -34,10 +35,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
   const router = useRouter();
   const pathQuery = searchParams.get('path') || '';
 
-  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [showUploader, setShowUploader] = useState(false);
 
   // Reconstruct currentPath from the URL pathQuery
   const currentPath: ContentNode[] = [];
@@ -76,27 +74,6 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
     router.push(url.pathname + url.search);
   };
 
-  const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) return;
-    try {
-      const parentId = currentPath[currentPath.length - 1]?.id || null;
-      const res = await fetch('/api/admin/create-folder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lessonId: lesson.id,
-          folderName: newFolderName.trim(),
-          parentId
-        })
-      });
-      if (!res.ok) throw new Error('Failed to create folder');
-      setNewFolderName('');
-      setIsCreatingFolder(false);
-      router.refresh();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error creating folder');
-    }
-  };
 
   const handleDeleteItem = async (itemId: string, fileUrl?: string) => {
     if (!confirm('Are you sure you want to delete this item? This cannot be undone.')) return;
@@ -113,6 +90,44 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
       alert(err instanceof Error ? err.message : 'Error deleting item');
     } finally {
       setIsDeleting(null);
+    }
+  };
+
+  const handleMoveItem = async (itemId: string) => {
+    const targetName = prompt('Enter the name of the folder to move this to (e.g. "Drafts"). Leave empty to move to root.');
+    if (targetName === null) return;
+    
+    // Find the target folder ID in the current nodes or peer nodes
+    // Simplified for now: just prompt for a folder ID or name
+    // A better UI would be a dropdown of folders in the lesson.
+    // We'll search for the folder by name in the WHOLE lesson content.
+    
+    let targetId: string | null = null;
+    if (targetName.trim()) {
+      const findFolder = (nodes: ContentNode[]): string | null => {
+        for (const n of nodes) {
+          if (n.type === 'folder' && n.name.toLowerCase() === targetName.toLowerCase()) return n.id!;
+          if (n.children) {
+            const found = findFolder(n.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      targetId = findFolder(content);
+      if (!targetId) return alert(`Folder "${targetName}" not found in this module.`);
+    }
+
+    try {
+      const res = await fetch('/api/admin/move-item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId, targetParentId: targetId })
+      });
+      if (!res.ok) throw new Error('Failed to move item');
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error moving item');
     }
   };
 
@@ -197,89 +212,12 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
 
       {/* Admin Action Bar */}
       {isAdmin && (
-        <div className="mb-10 animate-in slide-in-from-top-4 duration-500">
-           <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-[2.5rem] p-6 backdrop-blur-md">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                  <h3 className="text-sm font-black text-indigo-300 uppercase tracking-widest mb-1">Contextual Admin Controls</h3>
-                  <p className="text-[10px] text-gray-500 font-medium">Target: {pathQuery || 'Root Module'}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => setShowUploader(!showUploader)}
-                    className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${showUploader ? 'bg-white text-black' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-500'}`}
-                  >
-                    {showUploader ? 'Close Uploader' : '↑ Transmission Hub'}
-                  </button>
-                  <button 
-                    onClick={() => setIsCreatingFolder(true)}
-                    className="px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 hover:bg-white/5 text-gray-400 hover:text-white transition-all"
-                  >
-                    + New Subfolder
-                  </button>
-                </div>
-              </div>
-
-              <AnimatePresence>
-                {showUploader && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }} 
-                    animate={{ height: 'auto', opacity: 1 }} 
-                    exit={{ height: 0, opacity: 0 }} 
-                    className="overflow-hidden mt-6"
-                  >
-                    <ContentUploader 
-                      variant="compact"
-                      selectedSubjectId={subject.id}
-                      selectedLessonId={lesson.id}
-                      currentPathId={currentPath[currentPath.length - 1]?.id}
-                      currentPath={pathQuery}
-                      subjectSlug={subject.slug}
-                      lessonSlug={lesson.slug}
-                      onComplete={() => {
-                        setShowUploader(false);
-                        router.refresh();
-                      }}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <AnimatePresence>
-                {isCreatingFolder && (
-                   <motion.div 
-                     initial={{ height: 0, opacity: 0 }} 
-                     animate={{ height: 'auto', opacity: 1 }} 
-                     exit={{ height: 0, opacity: 0 }} 
-                     className="overflow-hidden mt-6"
-                   >
-                     <div className="flex items-center gap-3 p-4 bg-black/40 border border-white/5 rounded-2xl">
-                        <input 
-                           autoFocus
-                           placeholder="Enter folder name..."
-                           className="flex-1 bg-transparent border-none outline-none text-sm text-white px-2"
-                           value={newFolderName}
-                           onChange={e => setNewFolderName(e.target.value)}
-                           onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
-                        />
-                        <button 
-                          onClick={handleCreateFolder}
-                          className="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase"
-                        >
-                          Create
-                        </button>
-                        <button 
-                          onClick={() => setIsCreatingFolder(false)}
-                          className="text-gray-500 hover:text-white px-2 py-2"
-                        >
-                          ✕
-                        </button>
-                     </div>
-                   </motion.div>
-                )}
-              </AnimatePresence>
-           </div>
-        </div>
+        <AdminActionBar 
+          subject={subject}
+          lesson={lesson}
+          currentPath={pathQuery}
+          currentPathId={currentPath[currentPath.length - 1]?.id}
+        />
       )}
 
       {/* Folders Grid */}
@@ -312,16 +250,27 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                       <p className="text-xs text-gray-500 mt-1">{folder.children?.length || 0} items</p>
                     </div>
                     {isAdmin && (
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteItem(folder.id!);
-                        }}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-all"
-                        disabled={isDeleting === folder.id}
-                      >
-                        {isDeleting === folder.id ? '...' : '🗑️'}
-                      </button>
+                      <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteItem(folder.id!);
+                          }}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-all"
+                          disabled={isDeleting === folder.id}
+                        >
+                          {isDeleting === folder.id ? '...' : '🗑️'}
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMoveItem(folder.id!);
+                          }}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-indigo-500/20 text-gray-500 hover:text-indigo-400 transition-all"
+                        >
+                          📦
+                        </button>
+                      </div>
                     )}
                   </motion.button>
                 ))}
@@ -377,13 +326,21 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                           <span>🎬</span> <span>{node.name}</span>
                         </div>
                         {isAdmin && (
-                          <button 
-                            onClick={() => handleDeleteItem(node.id!, node.url)}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all"
-                            disabled={isDeleting === node.id}
-                          >
-                            {isDeleting === node.id ? '...' : '🗑️'}
-                          </button>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                            <button 
+                              onClick={() => handleMoveItem(node.id!)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-indigo-500/20 text-indigo-400 border border-white/10 transition-all shadow-lg"
+                            >
+                              📦
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteItem(node.id!, node.url)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/20 text-red-400 border border-white/10 transition-all shadow-lg"
+                              disabled={isDeleting === node.id}
+                            >
+                              {isDeleting === node.id ? '...' : '🗑️'}
+                            </button>
+                          </div>
                         )}
                       </div>
                       <VideoPlayer src={node.url} title={node.name} />

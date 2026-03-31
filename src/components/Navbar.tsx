@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { useState } from 'react';
+import CommandSearch from './CommandSearch';
 
 interface NavbarProps {
   userName?: string;
@@ -51,6 +52,11 @@ export default function Navbar({ userName, userImage, isAdmin }: NavbarProps) {
             </div>
             <span className="font-bold text-lg text-white hidden sm:block">EduPortal</span>
           </Link>
+
+          {/* Search Trigger */}
+          <div className="hidden md:block flex-1 max-w-md mx-8">
+            <CommandSearch />
+          </div>
 
           {/* Desktop right */}
           <div className="hidden sm:flex items-center gap-4">
@@ -100,19 +106,24 @@ export default function Navbar({ userName, userImage, isAdmin }: NavbarProps) {
           </div>
 
           {/* Mobile hamburger */}
-          <button
-            className="sm:hidden text-gray-400 hover:text-white p-2"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="md:hidden">
+              <CommandSearch />
+            </div>
+            <button
+              className="sm:hidden text-gray-400 hover:text-white p-2"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {menuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}

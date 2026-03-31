@@ -79,3 +79,42 @@ export async function listAllR2Objects(): Promise<string[]> {
 
   return keys;
 }
+
+/**
+ * Recursively delete a "folder" from R2 by listing and deleting all keys with the same prefix.
+ */
+export async function deleteR2Folder(prefix: string) {
+  if (!prefix) return;
+  
+  // S3 prefix matching is exact. Ensure trailing slash if intended.
+  // But here we'll just use the provided prefix (e.g. "Biology/Cell-Structure")
+  
+  let isTruncated = true;
+  let continuationToken: string | undefined = undefined;
+
+  while (isTruncated) {
+    const listCommand: ListObjectsV2Command = new ListObjectsV2Command({
+      Bucket: R2_BUCKET,
+      Prefix: prefix,
+      ContinuationToken: continuationToken,
+    });
+
+    const response = await r2Client.send(listCommand);
+    
+    if (response.Contents && response.Contents.length > 0) {
+      const deleteKeys = response.Contents
+        .map(item => item.Key)
+        .filter((key): key is string => !!key);
+
+      if (deleteKeys.length > 0) {
+        // Simple delete for each (batching is better but this is safer for R2 limits)
+        for (const key of deleteKeys) {
+          await deleteR2Object(key);
+        }
+      }
+    }
+
+    isTruncated = response.IsTruncated ?? false;
+    continuationToken = response.NextContinuationToken;
+  }
+}

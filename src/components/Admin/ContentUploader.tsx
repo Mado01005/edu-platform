@@ -5,7 +5,7 @@ import { SubjectMeta, LessonMeta } from '@/types';
 
 interface ContentUploaderProps {
   selectedSubjectId: string;
-  selectedLessonId: string;
+  selectedLessonId?: string;
   currentPathId?: string; // DB ID of the current folder
   currentPath?: string; // Virtual path target
   onComplete: () => void;

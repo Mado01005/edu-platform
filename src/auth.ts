@@ -110,10 +110,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.name = token.name ?? session.user.name;
         session.user.email = token.email ?? session.user.email;
         session.user.image = token.picture as string | null | undefined ?? session.user.image;
-        session.user.isAdmin = (token.isAdmin as boolean) ?? false;
-        session.user.isSuperAdmin = (token.isSuperAdmin as boolean) ?? false;
-        session.user.isBanned = (token.isBanned as boolean) ?? false;
-        session.user.isOnboarded = (token.isOnboarded as boolean) ?? false;
+        session.user.isAdmin = !!token.isAdmin;
+        session.user.isSuperAdmin = !!token.isSuperAdmin;
+        session.user.isBanned = !!token.isBanned;
+        session.user.isOnboarded = !!token.isOnboarded;
         session.user.streakCount = (token.streakCount as number) ?? 0;
 
         // God Mode override for master admins

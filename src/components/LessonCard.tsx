@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface LessonCardProps {
   subjectSlug: string;
@@ -28,7 +30,11 @@ export default function LessonCard({
   isNew,
   hasDocx,
 }: LessonCardProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const isAdmin = (session?.user as any)?.isAdmin;
   const [isVisible, setIsVisible] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,6 +51,26 @@ export default function LessonCard({
     if (cardRef.current) observer.observe(cardRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!confirm(`Are you sure you want to delete "${title}"? This will remove all its content permanently.`)) return;
+    
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/admin/delete-lesson', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lessonSlug: slug, subjectSlug })
+      });
+      if (!res.ok) throw new Error('Failed to delete lesson');
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error deleting lesson');
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div
@@ -129,16 +155,28 @@ export default function LessonCard({
           </div>
         </div>
 
-        {/* Action Arrow */}
-        <div className="relative z-10 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-white/10 transition-all duration-300 ml-4 flex-shrink-0">
-          <svg
-            className="w-5 h-5 text-white transform -translate-x-1 group-hover:translate-x-0 transition-transform duration-300"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-          </svg>
+        {/* Action Arrow & Trash */}
+        <div className="relative z-10 flex items-center gap-2 ml-4 flex-shrink-0">
+          {isAdmin && (
+            <button 
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="w-10 h-10 rounded-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 flex items-center justify-center text-red-400 transition-all duration-300 hover:scale-110 active:scale-95"
+              title="Delete Module"
+            >
+              {isDeleting ? '...' : '🗑️'}
+            </button>
+          )}
+          <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-white/10 transition-all duration-300">
+            <svg
+              className="w-5 h-5 text-white transform -translate-x-1 group-hover:translate-x-0 transition-transform duration-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
         </div>
       </Link>
       </>

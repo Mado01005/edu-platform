@@ -9,22 +9,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { lessonId, folderName, parentId } = await req.json();
+    const { lessonId, subjectId, folderName, parentId } = await req.json();
 
-    if (!lessonId || !folderName) {
+    if (!folderName || (!lessonId && !subjectId)) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    // Insert the new folder record into the content_items SQL table
-    const { data, error } = await supabaseAdmin.from('content_items').insert({
-      lesson_id: lessonId,
-      parent_id: parentId || null,
-      item_type: 'folder',
-      name: folderName,
-      file_type: null,
-      url: null,
-      vimeo_id: null,
-    }).select().single();
+    let data, error;
+
+    if (!lessonId && subjectId) {
+      // Create a new LESSON (Module)
+      const slug = folderName.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+      const result = await supabaseAdmin.from('lessons').insert({
+        subject_id: subjectId,
+        title: folderName,
+        slug
+      }).select().single();
+      data = result.data;
+      error = result.error;
+    } else {
+      // Create a new FOLDER inside a lesson
+      const result = await supabaseAdmin.from('content_items').insert({
+        lesson_id: lessonId,
+        parent_id: parentId || null,
+        item_type: 'folder',
+        name: folderName,
+      }).select().single();
+      data = result.data;
+      error = result.error;
+    }
 
     if (error) {
       console.error('Database insert error:', error);
@@ -32,11 +45,15 @@ export async function POST(req: Request) {
     }
 
     // Optional: log activity
+    const activityDetails = lessonId 
+      ? { lessonId, folderName, parentId } 
+      : { subjectId, lessonTitle: folderName };
+
     Promise.resolve(supabaseAdmin.from('activity_logs').insert({
       user_email: session.user?.email || 'admin',
       user_name: session.user?.name || 'Admin',
-      action: 'FOLDER_CREATED',
-      details: { lessonId, folderName, parentId },
+      action: lessonId ? 'FOLDER_CREATED' : 'LESSON_CREATED',
+      details: activityDetails,
     })).catch(() => {});
 
     return NextResponse.json({ success: true, data });
