@@ -35,7 +35,7 @@ interface SpotifyContextType {
 
 const SpotifyContext = createContext<SpotifyContextType | undefined>(undefined);
 
-export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode; accessToken?: string }) => {
+export const SpotifyProvider = ({ children, accessToken, refreshToken }: { children: ReactNode; accessToken?: string; refreshToken?: string }) => {
   const [player, setPlayer] = useState<any | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [isActive, setIsActive] = useState(false);
@@ -43,9 +43,44 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
   const [currentTrack, setCurrentTrack] = useState<SpotifyTrack | null>(null);
   const [isPremiumRequired, setIsPremiumRequired] = useState(false);
   const [isTokenExpired, setIsTokenExpired] = useState(false);
+  const [currentAccessToken, setCurrentAccessToken] = useState<string | undefined>(accessToken);
+
+  // Function to refresh the Spotify access token via secure API route
+  const refreshSpotifyToken = async (): Promise<string | null> => {
+    if (!refreshToken) {
+      console.error('[SPOTIFY DEBUG] No refresh token available');
+      return null;
+    }
+
+    try {
+      console.log('[SPOTIFY DEBUG] Attempting to refresh access token via API...');
+      const response = await fetch('/api/spotify/refresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[SPOTIFY DEBUG] Token refresh failed:', errorData);
+        return null;
+      }
+
+      const data = await response.json();
+      console.log('[SPOTIFY DEBUG] Token refresh successful ✅');
+      setCurrentAccessToken(data.access_token);
+      setIsTokenExpired(false);
+      return data.access_token;
+    } catch (error) {
+      console.error('[SPOTIFY DEBUG] Token refresh exception:', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
-    if (!accessToken) return;
+    const tokenToUse = currentAccessToken || accessToken;
+    if (!tokenToUse) return;
 
     // Track the player instance locally to avoid stale closure in cleanup
     let localPlayer: any = null;
@@ -61,7 +96,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         name: 'EduPortal High-Fidelity Player',
         getOAuthToken: (cb: (token: string) => void) => {
           console.log("[SPOTIFY DEBUG] Token requested by SDK");
-          cb(accessToken!);
+          cb(currentAccessToken || accessToken!);
         },
         volume: 0.5,
       });
@@ -142,9 +177,16 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
       // Error listeners
       newPlayer.addListener('initialization_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Initialization Error:', message));
       
-      newPlayer.addListener('authentication_error', ({ message }: { message: string }) => {
+      newPlayer.addListener('authentication_error', async ({ message }: { message: string }) => {
         console.error('[SPOTIFY DEBUG] Authentication Error:', message);
-        setIsTokenExpired(true);
+        console.log('[SPOTIFY DEBUG] Attempting automatic token refresh...');
+        const newToken = await refreshSpotifyToken();
+        if (!newToken) {
+          console.error('[SPOTIFY DEBUG] Token refresh failed, user needs to re-authenticate');
+          setIsTokenExpired(true);
+        } else {
+          console.log('[SPOTIFY DEBUG] Token refreshed successfully, player should reconnect');
+        }
       });
       
       newPlayer.addListener('account_error', ({ message }: { message: string }) => {
@@ -175,7 +217,7 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
       // Use localPlayer (captured at effect time) not stale `player` state
       localPlayer?.disconnect();
     };
-  }, [accessToken]);
+  }, [currentAccessToken, accessToken]);
 
   const togglePlay = () => player?.togglePlay();
   const nextTrack = () => player?.nextTrack();
@@ -225,8 +267,8 @@ export const SpotifyProvider = ({ children, accessToken }: { children: ReactNode
         isActive,
         currentTrack,
         isPlaying,
-        hasToken: !!accessToken,
-        accessToken: accessToken || null,
+        hasToken: !!(currentAccessToken || accessToken),
+        accessToken: (currentAccessToken || accessToken) || null,
         togglePlay,
         nextTrack,
         previousTrack,

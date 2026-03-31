@@ -43,6 +43,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account) {
         if (account.provider === 'spotify') {
           token.spotifyAccessToken = account.access_token;
+          token.spotifyRefreshToken = account.refresh_token;
           // Spotify is music-only — skip DB role lookup for Spotify sign-ins.
           // The user's profile role is already in the token from their Google sign-in.
           return token;
@@ -107,6 +108,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = (token.dbUserId as string) ?? token.sub;
         session.user.accessToken = token.accessToken as string;
         session.user.spotifyAccessToken = token.spotifyAccessToken as string;
+        session.user.spotifyRefreshToken = token.spotifyRefreshToken as string;
         session.user.name = token.name ?? session.user.name;
         session.user.email = token.email ?? session.user.email;
         session.user.image = token.picture as string | null | undefined ?? session.user.image;

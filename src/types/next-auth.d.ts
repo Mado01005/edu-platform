@@ -11,6 +11,7 @@ declare module "next-auth" {
       streakCount: number
       accessToken?: string
       spotifyAccessToken?: string
+      spotifyRefreshToken?: string
     } & DefaultSession["user"]
   }
 
@@ -30,5 +31,6 @@ declare module "next-auth/jwt" {
     streakCount?: number
     accessToken?: string
     spotifyAccessToken?: string
+    spotifyRefreshToken?: string
   }
 }
