@@ -12,6 +12,7 @@ declare module "next-auth" {
       accessToken?: string
       spotifyAccessToken?: string
       spotifyRefreshToken?: string
+      spotifyTokenExpiresAt?: number
     } & DefaultSession["user"]
   }
 

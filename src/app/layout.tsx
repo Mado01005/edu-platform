@@ -60,6 +60,7 @@ export default async function RootLayout({
   const session = await auth();
   const spotifyToken = session?.user?.spotifyAccessToken;
   const spotifyRefreshToken = session?.user?.spotifyRefreshToken;
+  const spotifyTokenExpiresAt = session?.user?.spotifyTokenExpiresAt;
 
   return (
     <html lang="en" className="dark">
@@ -72,7 +73,7 @@ export default async function RootLayout({
         <MobileNav />
         
         <Providers>
-        <SpotifyProvider accessToken={spotifyToken} refreshToken={spotifyRefreshToken}>
+        <SpotifyProvider accessToken={spotifyToken} refreshToken={spotifyRefreshToken} tokenExpiresAt={spotifyTokenExpiresAt}>
           {children}
           <MusicPlayer />
         </SpotifyProvider>

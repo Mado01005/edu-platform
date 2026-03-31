@@ -35,6 +35,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Bypass service worker for third-party SDK requests (Spotify SDK, etc.)
+  // This prevents TypeError when third-party WebSocket or fetch requests fail
+  if (
+    url.hostname === 'sdk.scdn.co' ||
+    url.hostname === 'accounts.spotify.com' ||
+    url.hostname === 'api.spotify.com' ||
+    url.hostname.endsWith('.spotify.com')
+  ) {
+    return;
+  }
+
   // Strategy 1: Cache-First for static assets (images, fonts, Next.js static chunks)
   // These assets are fingerprinted and won't change, so checking cache first is fastest.
   if (
@@ -52,6 +63,13 @@ self.addEventListener('fetch', (event) => {
             cache.put(event.request, responseToCache);
           });
           return networkResponse;
+        }).catch(() => {
+          // Return a proper 503 Response instead of undefined to prevent TypeError
+          return new Response('Service Unavailable', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: new Headers({ 'Content-Type': 'text/plain' }),
+          });
         });
       })
     );
@@ -69,7 +87,12 @@ self.addEventListener('fetch', (event) => {
         });
         return networkResponse;
       }).catch(() => {
-        // If offline and fetching fails, just return the cached response
+        // Return a proper 503 Response instead of undefined to prevent TypeError
+        return new Response('Service Unavailable', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: new Headers({ 'Content-Type': 'text/plain' }),
+        });
       });
 
       return cachedResponse || fetchPromise;
