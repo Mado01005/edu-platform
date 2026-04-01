@@ -12,26 +12,23 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
   const getFullUrl = (path: string) => {
     if (!path) return '';
-    // Already a full URL (R2, Supabase, etc.) → use as-is
-    if (path.startsWith('http')) return path;
     
-    // Relative path → construct Supabase Storage public URL
-    const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '') || 'https://placeholder.supabase.co';
-    const bucketName = 'edu-content';
+    // First, determine the physical absolute URL mapping to the image resource
+    let finalUrl = path;
+    if (!path.startsWith('http')) {
+      const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '') || 'https://placeholder.supabase.co';
+      const bucketName = 'edu-content';
+      
+      const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+      const isAlreadyEncoded = /%[0-9A-Fa-f]{2}/.test(cleanPath);
+      const encodedPath = isAlreadyEncoded ? cleanPath : encodeURI(cleanPath);
+      
+      finalUrl = `${baseUrl}/storage/v1/object/public/${bucketName}/${encodedPath}`;
+    }
     
-    // Strip leading slash for clean construction
-    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    
-    // Detect if path is already URI-encoded (contains %XX patterns)
-    // to avoid double-encoding (%20 → %2520)
-    const isAlreadyEncoded = /%[0-9A-Fa-f]{2}/.test(cleanPath);
-    const encodedPath = isAlreadyEncoded ? cleanPath : encodeURI(cleanPath);
-    
-    const finalUrl = `${baseUrl}/storage/v1/object/public/${bucketName}/${encodedPath}`;
-    
-    // BACKWARD COMPATIBILITY: If the file is a known unsupported format (like existing DB records), funnel it through the proxy
-    const lowerPath = cleanPath.toLowerCase();
-    const isUnsupported = lowerPath.endsWith('.dng') || lowerPath.endsWith('.heic') || lowerPath.endsWith('.heif');
+    // BACKWARD COMPATIBILITY: Funnel known unsupported formats through the webp proxy
+    // Using Regex to safely catch .DNG, .heic, etc. regardless of trailing slashes or query parameters
+    const isUnsupported = /\.(dng|heic|heif)(\?.*)?$/i.test(path.trim());
     
     if (isUnsupported) {
       return `/api/render-image?url=${encodeURIComponent(finalUrl)}`;
@@ -63,8 +60,11 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               loading="lazy"
               onError={(e) => {
                 const target = e.currentTarget;
-                target.src = "https://placehold.co/600x400/1e1e2e/8b5cf6?text=Image+Not+Found";
-                console.warn("[GALLERY] Broken Image Link Detected in Database:", src, "Full attempted URL:", getFullUrl(src));
+                // Fallback to a sleek dark mode SVG instead of the external placeholder
+                target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.2)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E";
+                target.style.objectFit = "contain";
+                target.style.padding = "2rem";
+                console.warn("[GALLERY] Broken Link or Timeout:", src);
               }}
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
@@ -120,7 +120,9 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               className="max-w-full max-h-full object-contain shadow-2xl rounded-lg"
               onError={(e) => {
                 const target = e.currentTarget;
-                target.src = "https://placehold.co/600x400/1e1e2e/8b5cf6?text=Image+Not+Found";
+                target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.2)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E";
+                target.style.objectFit = "contain";
+                target.style.padding = "4rem";
                 console.warn("[GALLERY] Broken Lightbox Link Detected:", images[lightboxIndex]);
               }}
             />
