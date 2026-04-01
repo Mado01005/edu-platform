@@ -40,12 +40,37 @@ export default function ContentUploader({
   const [currentFileName, setCurrentFileName] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
 
-  const getFileType = (mime: string) => {
-    if (mime.includes('pdf')) return 'pdf';
-    if (mime.includes('image')) return 'image';
-    if (mime.includes('video')) return 'video';
-    if (mime.includes('presentation') || mime.includes('powerpoint')) return 'powerpoint';
+  const getFileType = (mime: string, fileName?: string) => {
+    const m = mime.toLowerCase();
+    const f = (fileName || '').toLowerCase();
+    if (m.includes('pdf') || f.endsWith('.pdf')) return 'pdf';
+    if (m.includes('image') || f.endsWith('.heic') || f.endsWith('.heif') || f.endsWith('.dng') || f.endsWith('.webp')) return 'image';
+    if (m.includes('video') || f.endsWith('.mp4') || f.endsWith('.mov')) return 'video';
+    if (m.includes('presentation') || m.includes('powerpoint') || f.endsWith('.pptx')) return 'powerpoint';
     return 'unknown';
+  };
+
+  const processImageBeforeUpload = async (file: File): Promise<File> => {
+    const isHEIC = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+    if (!isHEIC) return file;
+
+    try {
+      setStatusMessage(`Optimizing HEIC: ${file.name}...`);
+      // Dynamic import to keep bundle small
+      const heic2any = (await import('heic2any')).default;
+      const result = await heic2any({
+        blob: file,
+        toType: 'image/webp',
+        quality: 0.8
+      });
+
+      const blob = Array.isArray(result) ? result[0] : result;
+      const newName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+      return new File([blob], newName, { type: 'image/webp' });
+    } catch (err) {
+      console.warn('HEIC conversion failed, uploading original:', err);
+      return file;
+    }
   };
 
   const uploadFileWithProgress = (file: File, signedUrl: string, contentType: string) => {
@@ -94,7 +119,10 @@ export default function ContentUploader({
         let completed = 0;
         const total = files.length;
         
-        for (const file of files) {
+        for (let file of files) {
+          // 0. Pre-process non-web-safe images (HEIC -> WebP)
+          file = await processImageBeforeUpload(file);
+
           const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
           const pathSegments = relativePath.split('/');
           const relativeFilePath = pathSegments.length > 1 ? pathSegments.slice(1).join('/') : file.name;
@@ -117,22 +145,64 @@ export default function ContentUploader({
           const sSlug = subjectSlug || localSubjects.find(s => s.id === selectedSubjectId)?.slug || 'unknown';
           const lSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
           
-          const initRes = await fetch('/api/admin/upload-initiate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              fileName: file.name,
-              relativeFilePath,
-              subjectSlug: sSlug,
-              lessonSlug: lSlug,
-              contentType: file.type || 'application/octet-stream',
-              subfolder: currentPath.trim() || undefined
-            })
-          });
+          let publicUrl = '';
+          const isRAW = file.name.toLowerCase().endsWith('.dng');
+          let updatedFilePath = relativeFilePath;
 
-          if (!initRes.ok) throw new Error(`Initiate failed for ${relativeFilePath}`);
-          const { signedUrl, publicUrl } = await initRes.json();
-          await uploadFileWithProgress(file, signedUrl, file.type);
+          if (isRAW) {
+            setStatusMessage(`Processing RAW: ${file.name}...`);
+            const initRes = await fetch('/api/admin/upload-initiate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                fileName: file.name,
+                relativeFilePath,
+                subjectSlug: sSlug,
+                lessonSlug: lSlug,
+                contentType: 'image/dng',
+                subfolder: currentPath.trim() || undefined
+              })
+            });
+
+            if (!initRes.ok) throw new Error(`Initiate failed for RAW ${relativeFilePath}`);
+            const { path } = await initRes.json();
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('path', path);
+
+            const rawRes = await fetch('/api/admin/upload-raw', {
+              method: 'POST',
+              body: formData
+            });
+
+            if (!rawRes.ok) throw new Error(`RAW processing failed for ${file.name}`);
+            const rawData = await rawRes.json();
+            publicUrl = rawData.publicUrl;
+            
+            const segments = relativeFilePath.split('/');
+            segments[segments.length - 1] = rawData.fileName;
+            updatedFilePath = segments.join('/');
+            
+          } else {
+            const initRes = await fetch('/api/admin/upload-initiate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                fileName: file.name,
+                relativeFilePath,
+                subjectSlug: sSlug,
+                lessonSlug: lSlug,
+                contentType: file.type || 'application/octet-stream',
+                subfolder: currentPath.trim() || undefined
+              })
+            });
+
+            if (!initRes.ok) throw new Error(`Initiate failed for ${relativeFilePath}`);
+            const { signedUrl, publicUrl: pUrl } = await initRes.json();
+            await uploadFileWithProgress(file, signedUrl, file.type);
+            publicUrl = pUrl;
+          }
 
           const compRes = await fetch('/api/admin/upload-complete', {
             method: 'POST',
@@ -141,8 +211,8 @@ export default function ContentUploader({
               subjectId: selectedSubjectId,
               lessonId: selectedLessonId,
               parentId: currentPathId || null,
-              fileName: relativeFilePath,
-              fileType: getFileType(file.type),
+              fileName: updatedFilePath,
+              fileType: getFileType(file.type, updatedFilePath),
               publicUrl,
               itemType,
               vimeoId

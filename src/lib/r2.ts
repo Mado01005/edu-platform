@@ -31,6 +31,20 @@ export async function getPresignedUploadUrl(key: string, contentType: string) {
 }
 
 /**
+ * Upload a raw buffer directly from the server.
+ */
+export async function putR2Object(key: string, body: Buffer | Uint8Array, contentType: string) {
+  const command = new PutObjectCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+    Body: body,
+    ContentType: contentType,
+  });
+  await r2Client.send(command);
+  return getPublicUrl(key);
+}
+
+/**
  * Delete a file from R2 (used when admin deletes content).
  */
 export async function deleteR2Object(key: string) {
