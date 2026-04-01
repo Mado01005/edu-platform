@@ -27,7 +27,17 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
     const isAlreadyEncoded = /%[0-9A-Fa-f]{2}/.test(cleanPath);
     const encodedPath = isAlreadyEncoded ? cleanPath : encodeURI(cleanPath);
     
-    return `${baseUrl}/storage/v1/object/public/${bucketName}/${encodedPath}`;
+    const finalUrl = `${baseUrl}/storage/v1/object/public/${bucketName}/${encodedPath}`;
+    
+    // BACKWARD COMPATIBILITY: If the file is a known unsupported format (like existing DB records), funnel it through the proxy
+    const lowerPath = cleanPath.toLowerCase();
+    const isUnsupported = lowerPath.endsWith('.dng') || lowerPath.endsWith('.heic') || lowerPath.endsWith('.heif');
+    
+    if (isUnsupported) {
+      return `/api/render-image?url=${encodeURIComponent(finalUrl)}`;
+    }
+    
+    return finalUrl;
   };
 
   const openLightbox = (i: number) => setLightboxIndex(i);
