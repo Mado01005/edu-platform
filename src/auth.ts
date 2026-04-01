@@ -44,109 +44,79 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (account.provider === 'spotify') {
           token.spotifyAccessToken = account.access_token;
           token.spotifyRefreshToken = account.refresh_token;
-          // Store expiry timestamp (Spotify tokens expire in 1 hour / 3600s)
           token.spotifyTokenExpiresAt = Date.now() + (account.expires_in as number) * 1000;
-          // Spotify is music-only — skip DB role lookup for Spotify sign-ins.
-          // The user's profile role is already in the token from their Google sign-in.
-          return token;
+          // Don't return here! Continue below to ensure dbUserId and roles are preserved.
         } else {
           token.accessToken = account.access_token;
         }
       }
 
-      // Auto-refresh Spotify token if expired or about to expire (5 min buffer)
-      if (token.spotifyRefreshToken && token.spotifyTokenExpiresAt) {
-        const expiresAt = token.spotifyTokenExpiresAt as number;
-        const now = Date.now();
-        const FIVE_MINUTES = 5 * 60 * 1000;
+      // The Spotify Token lifecycle is now robustly managed client-side in `SpotifyContext.tsx`.
+      // We removed the synchronous server-side fetch to `accounts.spotify.com` from this callback
+      // because NextAuth fires the `jwt` callback on almost every page transition/window focus.
+      // Doing external API calls here caused massive latency, rate limits, and random 401s when it timed out.
 
-        if (now >= expiresAt - FIVE_MINUTES) {
-          try {
-            console.log('[AUTH] Spotify token expired or expiring soon, refreshing...');
-            const clientId = process.env.SPOTIFY_CLIENT_ID;
-            const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-
-            if (clientId && clientSecret) {
-              const response = await fetch('https://accounts.spotify.com/api/token', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                  'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-                },
-                body: new URLSearchParams({
-                  grant_type: 'refresh_token',
-                  refresh_token: token.spotifyRefreshToken as string,
-                }),
-              });
-
-              if (response.ok) {
-                const data = await response.json();
-                token.spotifyAccessToken = data.access_token;
-                token.spotifyTokenExpiresAt = Date.now() + data.expires_in * 1000;
-                // Spotify may rotate the refresh token
-                if (data.refresh_token) {
-                  token.spotifyRefreshToken = data.refresh_token;
-                }
-                console.log('[AUTH] Spotify token refreshed successfully ✅');
-              } else {
-                console.error('[AUTH] Spotify token refresh failed:', response.status);
-              }
-            }
-          } catch (err) {
-            console.error('[AUTH] Spotify token refresh exception (non-fatal):', err);
-          }
-        }
-      }
-
-      // Only perform DB role lookup on initial Google sign-in (when user object is present)
-      if (user && user.email) {
+      // Perform DB role lookup if we have an email
+      // This is wrapped in a try/catch to NEVER drop the session if Supabase has a transient timeout.
+      const email = user?.email || (token?.email as string | undefined);
+      if (email) {
         try {
-          const isMasterAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase().trim() === user.email?.toLowerCase().trim());
+          const isMasterAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase().trim() === email.toLowerCase().trim());
           let dbRole = 'student';
           
-          // 1. Fetch user role and streak data
-          const { data } = await supabaseAdmin
-            .from('user_roles')
-            .select('id, role, is_onboarded, streak_count, last_login')
-            .eq('email', user.email)
-            .maybeSingle();
-
-          let streakCount = data?.streak_count || 1;
-
-          if (data) {
-            dbRole = data.role;
-            token.id = data.id;
-            token.dbUserId = data.id;
-            token.isOnboarded = data.is_onboarded;
-          } else {
-            // New user initialization
-            const insertData: { email: string; role: string } = { 
-              email: user.email, 
-              role: 'student'
-            };
-            
-            const { data: newUser } = await supabaseAdmin
+          // Only hit the DB if we are missing critical identity claims, or if this is a fresh login (user object exists)
+          // This drastically reduces DB load and prevents "Poisoned Sessions" from timeouts.
+          if (user || !token.dbUserId) {
+            // 1. Fetch user role and streak data
+            const { data, error } = await supabaseAdmin
               .from('user_roles')
-              .upsert(insertData, { onConflict: 'email' })
-              .select('id')
-              .single();
-            
-            if (newUser) {
-              token.dbUserId = newUser.id;
-              token.id = newUser.id;
-            }
-            streakCount = 1;
-          }
+              .select('id, role, is_onboarded, streak_count, last_login')
+              .eq('email', email)
+              .maybeSingle();
 
-          token.isAdmin = isMasterAdminEmail || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
-          token.isSuperAdmin = isMasterAdminEmail || dbRole === 'superadmin';
-          token.streakCount = streakCount;
-          if (dbRole === 'banned') token.isBanned = true;
+            if (error) throw error;
+
+            let streakCount = data?.streak_count || 1;
+
+            if (data) {
+              dbRole = data.role;
+              token.id = data.id;
+              token.dbUserId = data.id;
+              token.isOnboarded = data.is_onboarded;
+            } else {
+              // New user initialization (graceful provisioning)
+              const insertData: { email: string; role: string } = { 
+                email: email, 
+                role: 'student'
+              };
+              
+              const { data: newUser, error: insertError } = await supabaseAdmin
+                .from('user_roles')
+                .upsert(insertData, { onConflict: 'email' })
+                .select('id')
+                .single();
+              
+              if (insertError) throw insertError;
+
+              if (newUser) {
+                token.dbUserId = newUser.id;
+                token.id = newUser.id;
+              }
+              streakCount = 1;
+              token.isOnboarded = false;
+            }
+
+            token.isAdmin = isMasterAdminEmail || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
+            token.isSuperAdmin = isMasterAdminEmail || dbRole === 'superadmin';
+            token.streakCount = streakCount;
+            token.isBanned = (dbRole === 'banned');
+          }
         } catch (err) {
-          // Log but do not crash — a DB error must NOT prevent login
-          console.error('[AUTH] Supabase role lookup failed (non-fatal):', err);
+          // A DB error must NOT rewrite the token to blank. We gracefully exit and keep the old claims.
+          console.warn('[AUTH] Supabase identity lookup failed (retaining cached claims):', err);
         }
       }
+      
       return token;
     },
     async session({ session, token }) {

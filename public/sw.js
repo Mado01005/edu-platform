@@ -1,13 +1,12 @@
-const CACHE_NAME = 'eduportal-pwa-v2';
-const STATIC_ASSETS_CACHE = 'eduportal-static-v2';
+const CACHE_NAME = 'eduportal-pwa-v4';
+const STATIC_ASSETS_CACHE = 'eduportal-static-v4';
 
-// Assets that never change should be cached immediately
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
-  '/sw.js'
 ];
 
+// ─── Install ───────────────────────────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -15,87 +14,100 @@ self.addEventListener('install', (event) => {
   );
 });
 
+// ─── Activate ──────────────────────────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== STATIC_ASSETS_CACHE)
-          .map((name) => caches.delete(name))
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then((names) =>
+      Promise.all(
+        names
+          .filter((n) => n !== CACHE_NAME && n !== STATIC_ASSETS_CACHE)
+          .map((n) => caches.delete(n))
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
+// ─── Helper: guaranteed safe Response ──────────────────────────────────────────
+function offlineResponse(status = 503) {
+  return new Response('Service Unavailable', {
+    status,
+    statusText: 'Service Unavailable',
+    headers: new Headers({ 'Content-Type': 'text/plain' }),
+  });
+}
+
+// ─── Fetch ─────────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  const { request } = event;
 
-  // Ignore non-GET requests and API calls (let them hit network)
-  if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
-    return;
-  }
+  // 1. Only intercept GET
+  if (request.method !== 'GET') return;
 
-  // Bypass service worker for third-party SDK requests (Spotify SDK, etc.)
-  // This prevents TypeError when third-party WebSocket or fetch requests fail
-  if (
-    url.hostname === 'sdk.scdn.co' ||
-    url.hostname === 'accounts.spotify.com' ||
-    url.hostname === 'api.spotify.com' ||
-    url.hostname.endsWith('.spotify.com')
-  ) {
-    return;
-  }
+  const url = new URL(request.url);
 
-  // Strategy 1: Cache-First for static assets (images, fonts, Next.js static chunks)
-  // These assets are fingerprinted and won't change, so checking cache first is fastest.
+  // 2. Never intercept API routes
+  if (url.pathname.startsWith('/api/')) return;
+
+  // 3. Bypass ALL third-party / cross-origin requests.
+  //    This catches Spotify SDK (sdk.scdn.co, *.spotify.com), Tawk.to,
+  //    Google Fonts loaded from JS, analytics, and any browser-extension
+  //    injections — none of them should be routed through our PWA cache.
+  if (url.origin !== self.location.origin) return;
+
+  // ── Strategy 1: Cache-First for fingerprinted static assets ──────────────
   if (
     url.pathname.startsWith('/_next/static/') ||
-    url.pathname.match(/\.(png|jpg|jpeg|gif|svg|woff2|woff|ttf)$/) ||
-    url.hostname === 'fonts.googleapis.com' ||
-    url.hostname === 'fonts.gstatic.com'
+    /\.(png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/i.test(url.pathname)
   ) {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
-        return fetch(event.request).then((networkResponse) => {
-          const responseToCache = networkResponse.clone();
-          caches.open(STATIC_ASSETS_CACHE).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return networkResponse;
-        }).catch(() => {
-          // Return a proper 503 Response instead of undefined to prevent TypeError
-          return new Response('Service Unavailable', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({ 'Content-Type': 'text/plain' }),
-          });
-        });
-      })
+      (async () => {
+        try {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+
+          const networkRes = await fetch(request);
+          // Only cache successful, non-opaque responses
+          if (networkRes.ok) {
+            const clone = networkRes.clone();
+            caches.open(STATIC_ASSETS_CACHE).then((c) => c.put(request, clone));
+          }
+          return networkRes;
+        } catch {
+          return offlineResponse();
+        }
+      })()
     );
     return;
   }
 
-  // Strategy 2: Stale-While-Revalidate for HTML pages and dynamic content
-  // Serve from cache immediately, then fetch in background to update cache for next time.
+  // ── Strategy 2: Stale-While-Revalidate for navigation / HTML ─────────────
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return networkResponse;
-      }).catch(() => {
-        // Return a proper 503 Response instead of undefined to prevent TypeError
-        return new Response('Service Unavailable', {
-          status: 503,
-          statusText: 'Service Unavailable',
-          headers: new Headers({ 'Content-Type': 'text/plain' }),
-        });
-      });
+    (async () => {
+      try {
+        const cached = await caches.match(request);
 
-      return cachedResponse || fetchPromise;
-    })
+        const fetchPromise = fetch(request)
+          .then((networkRes) => {
+            if (networkRes.ok) {
+              const clone = networkRes.clone();
+              caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+            }
+            return networkRes;
+          })
+          .catch(() => offlineResponse());
+
+        // Return cache immediately if available, otherwise await network
+        return cached || (await fetchPromise);
+      } catch {
+        return offlineResponse();
+      }
+    })()
   );
+});
+
+// ─── Global safety net: catch any unhandled promise rejections ─────────────────
+// Prevents "Uncaught (in promise) TypeError: Failed to convert value to 'Response'"
+self.addEventListener('unhandledrejection', (event) => {
+  console.warn('[SW] Swallowed unhandled rejection:', event.reason);
+  event.preventDefault();
 });

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { deleteR2Folder } from '@/lib/r2';
+import { deleteR2Object } from '@/lib/r2';
 
 export async function POST(req: Request) {
   try {
@@ -16,17 +16,41 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing slugs' }, { status: 400 });
     }
 
-    // 1. Recursive R2 deletion for the entire lesson folder
-    const r2Prefix = `${subjectSlug}/${lessonSlug}/`;
-    try {
-      await deleteR2Folder(r2Prefix);
-      console.log(`Deleted R2 folder: ${r2Prefix}`);
-    } catch (r2Error) {
-      console.error('R2 lesson folder deletion failed:', r2Error);
+    // 1. Fetch exact R2 object keys attached to this lesson before database cascade drops them.
+    // This entirely solves R2 drift: if slugs are renamed, folder deletion fails, leaving massive orphaned storage.
+    const { data: lessonData } = await supabaseAdmin
+      .from('lessons')
+      .select('id')
+      .eq('slug', lessonSlug)
+      .eq('subject_id', (await supabaseAdmin.from('subjects').select('id').eq('slug', subjectSlug).single()).data?.id)
+      .single();
+
+    if (lessonData?.id) {
+      const { data: contentItems } = await supabaseAdmin
+        .from('content_items')
+        .select('url')
+        .eq('lesson_id', lessonData.id);
+
+      if (contentItems && contentItems.length > 0) {
+        const publicBase = process.env.R2_PUBLIC_URL || '';
+        for (const item of contentItems) {
+          if (publicBase && item.url?.startsWith(publicBase)) {
+            let key = item.url.replace(publicBase, '');
+            if (key.startsWith('/')) key = key.substring(1);
+            key = decodeURIComponent(key);
+
+            try {
+              await deleteR2Object(key);
+              console.log(`Deleted exact R2 object (Lesson Tier): ${key}`);
+            } catch (err) {
+              console.warn(`[Delete Lesson] Orphan capture failed for R2 key: ${key}`);
+            }
+          }
+        }
+      }
     }
 
-    // 2. Delete the lesson record (with CASCADE enabled in DB it should delete content_items)
-    // If not enabled, we do it explicitly.
+    // 2. Delete the lesson record (database cascade should handle content_items internally)
     const { error: dbError } = await supabaseAdmin
       .from('lessons')
       .delete()

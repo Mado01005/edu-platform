@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { cookies } from 'next/headers';
+import { encode } from 'next-auth/jwt';
 
 export async function POST() {
   try {
     const session = await auth();
     if (!session?.user?.spotifyRefreshToken) {
-      return NextResponse.json({ error: 'No refresh token available. Please reconnect Spotify.' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'No refresh token available. Please reconnect Spotify.' },
+        { status: 401 }
+      );
     }
 
     const refreshToken = session.user.spotifyRefreshToken;
@@ -33,17 +38,19 @@ export async function POST() {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('[SPOTIFY REFRESH] Token refresh failed:', response.status, errorData);
-      return NextResponse.json({ error: 'Failed to refresh token', details: errorData }, { status: response.status });
+      return NextResponse.json(
+        { error: 'Failed to refresh token', details: errorData },
+        { status: response.status }
+      );
     }
 
     const data = await response.json();
-    
     console.log('[SPOTIFY REFRESH] Token refreshed successfully ✅');
 
     return NextResponse.json({
       access_token: data.access_token,
       expires_in: data.expires_in,
-      refresh_token: data.refresh_token, // Spotify may return a new refresh token
+      refresh_token: data.refresh_token || null,
     });
   } catch (error) {
     console.error('[SPOTIFY REFRESH] Exception:', error);

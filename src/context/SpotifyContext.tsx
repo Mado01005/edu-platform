@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react';
 import Script from 'next/script';
+import { useSession } from 'next-auth/react';
 
 declare global {
   interface Window {
@@ -31,6 +32,10 @@ interface SpotifyContextType {
   transferPlayback: () => Promise<void>;
   isPremiumRequired: boolean;
   isTokenExpired: boolean;
+  volume: number;
+  setSpotifyVolume: (v: number) => void;
+  isMuted: boolean;
+  setIsMuted: (m: boolean) => void;
 }
 
 const SpotifyContext = createContext<SpotifyContextType | undefined>(undefined);
@@ -45,134 +50,177 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   const [isTokenExpired, setIsTokenExpired] = useState(false);
   const [currentAccessToken, setCurrentAccessToken] = useState<string | undefined>(accessToken);
   const [currentTokenExpiresAt, setCurrentTokenExpiresAt] = useState<number | undefined>(tokenExpiresAt);
+  const [volume, setVolume] = useState(0.5);
+  const [isMuted, setIsMuted] = useState(false);
+  const refreshInFlightRef = useRef<Promise<string | null> | null>(null);
+  const { update: updateSession } = useSession();
 
-  // Function to refresh the Spotify access token via secure API route
-  const refreshSpotifyToken = async (): Promise<string | null> => {
-    if (!refreshToken) {
-      console.error('[SPOTIFY DEBUG] No refresh token available');
-      setIsTokenExpired(true);
-      return null;
+  // Sync props into state when layout re-renders with fresh server-side tokens
+  useEffect(() => {
+    if (accessToken && accessToken !== currentAccessToken) {
+      setCurrentAccessToken(accessToken);
+    }
+    if (tokenExpiresAt && tokenExpiresAt !== currentTokenExpiresAt) {
+      setCurrentTokenExpiresAt(tokenExpiresAt);
+    }
+  }, [accessToken, tokenExpiresAt]);
+
+  // Deduplicated refresh: prevents multiple concurrent refresh calls
+  const refreshSpotifyToken = useCallback(async (): Promise<string | null> => {
+    // If a refresh is already in-flight, piggyback on it
+    if (refreshInFlightRef.current) {
+      return refreshInFlightRef.current;
     }
 
-    try {
-      console.log('[SPOTIFY DEBUG] Attempting to refresh access token via API...');
-      const response = await fetch('/api/spotify/refresh', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('[SPOTIFY DEBUG] Token refresh failed:', errorData);
+    const doRefresh = async (): Promise<string | null> => {
+      if (!refreshToken) {
+        console.error('[SPOTIFY] No refresh token available');
         setIsTokenExpired(true);
         return null;
       }
 
-      const data = await response.json();
-      console.log('[SPOTIFY DEBUG] Token refresh successful ✅');
-      setCurrentAccessToken(data.access_token);
-      setIsTokenExpired(false);
-      
-      // Force page reload to sync new token with NextAuth session
-      // This ensures the server-side JWT also has the refreshed token
-      if (data.refresh_token) {
-        console.log('[SPOTIFY DEBUG] Refresh token rotated, reloading to sync session...');
-        window.location.reload();
+      try {
+        console.log('[SPOTIFY] Refreshing access token via /api/spotify/refresh...');
+        const response = await fetch('/api/spotify/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('[SPOTIFY] Token refresh failed:', response.status, errorData);
+          // Only mark as expired on 401 (truly revoked), not on transient 5xx
+          if (response.status === 401 || response.status === 400) {
+            setIsTokenExpired(true);
+          }
+          return null;
+        }
+
+        const data = await response.json();
+        const newToken = data.access_token as string;
+        const newExpiresIn = (data.expires_in as number) || 3600;
+
+        // Update local state immediately so the SDK picks it up
+        setCurrentAccessToken(newToken);
+        setCurrentTokenExpiresAt(Date.now() + newExpiresIn * 1000);
+        setIsTokenExpired(false);
+
+        console.log('[SPOTIFY] Token refreshed ✅ (expires in', newExpiresIn, 's)');
+
+        // Force NextAuth to re-sync the session on the server and client
+        try {
+          await updateSession({
+            user: {
+              spotifyAccessToken: newToken,
+              spotifyTokenExpiresAt: Date.now() + newExpiresIn * 1000
+            }
+          });
+          console.log('[SPOTIFY] NextAuth session updated ✅');
+        } catch (sessionErr) {
+          console.warn('[SPOTIFY] NextAuth session update failed (ignoring):', sessionErr);
+          // Fallback to the lightweight session poke
+          fetch('/api/auth/session').catch(() => {});
+        }
+
+        return newToken;
+      } catch (error) {
+        console.error('[SPOTIFY] Token refresh exception:', error);
+        return null;
+      } finally {
+        refreshInFlightRef.current = null;
       }
-      
-      return data.access_token;
-    } catch (error) {
-      console.error('[SPOTIFY DEBUG] Token refresh exception:', error);
-      setIsTokenExpired(true);
-      return null;
-    }
-  };
+    };
+
+    refreshInFlightRef.current = doRefresh();
+    return refreshInFlightRef.current;
+  }, [refreshToken]);
+
+  // Proactive background refresh: fires 5 min before expiry so the SDK never sees an expired token
+  useEffect(() => {
+    if (!refreshToken || !currentTokenExpiresAt) return;
+
+    const scheduleRefresh = () => {
+      const msUntilExpiry = currentTokenExpiresAt! - Date.now();
+      const FIVE_MINUTES = 5 * 60 * 1000;
+      const delay = Math.max(msUntilExpiry - FIVE_MINUTES, 0);
+
+      console.log('[SPOTIFY] Proactive refresh scheduled in', Math.round(delay / 1000), 's');
+      return setTimeout(() => {
+        refreshSpotifyToken();
+      }, delay);
+    };
+
+    const timerId = scheduleRefresh();
+    return () => clearTimeout(timerId);
+  }, [currentTokenExpiresAt, refreshToken, refreshSpotifyToken]);
+
+  // Access-token ref for closures that need the live value
+  const tokenRef = useRef(currentAccessToken || accessToken);
+  useEffect(() => {
+    tokenRef.current = currentAccessToken || accessToken;
+  }, [currentAccessToken, accessToken]);
 
   useEffect(() => {
     const tokenToUse = currentAccessToken || accessToken;
     if (!tokenToUse) return;
 
-    // Track the player instance locally to avoid stale closure in cleanup
     let localPlayer: any = null;
 
     const initializePlayer = () => {
-      console.log('[SPOTIFY DEBUG] Initializing SDK... Token exists:', !!accessToken);
+      console.log('[SPOTIFY] Initializing SDK...');
       if (typeof window.Spotify === 'undefined') {
-        console.warn('[SPOTIFY DEBUG] Spotify SDK not loaded yet');
+        console.warn('[SPOTIFY] SDK script not loaded yet');
         return;
       }
-
-      // Helper to get a valid token, refreshing if expired
-      const getValidToken = async (): Promise<string> => {
-        const token = currentAccessToken || accessToken!;
-        const expiresAt = currentTokenExpiresAt;
-        
-        // If no expiry info, return token as-is (will handle auth_error if invalid)
-        if (!expiresAt) {
-          return token;
-        }
-        
-        // Check if token is expired or expiring within 5 minutes
-        const now = Date.now();
-        const FIVE_MINUTES = 5 * 60 * 1000;
-        
-        if (now >= expiresAt - FIVE_MINUTES) {
-          console.log('[SPOTIFY DEBUG] Token expired or expiring soon, refreshing proactively...');
-          const newToken = await refreshSpotifyToken();
-          return newToken || token; // Return new token or fall back to current
-        }
-        
-        return token;
-      };
 
       const newPlayer = new (window.Spotify.Player as any)({
         name: 'EduPortal High-Fidelity Player',
         getOAuthToken: async (cb: (token: string) => void) => {
-          console.log("[SPOTIFY DEBUG] Token requested by SDK");
           try {
-            const validToken = await getValidToken();
-            cb(validToken);
+            // Always read the latest token from the ref
+            const liveToken = tokenRef.current;
+            const expiresAt = currentTokenExpiresAt;
+            const FIVE_MINUTES = 5 * 60 * 1000;
+
+            if (expiresAt && Date.now() >= expiresAt - FIVE_MINUTES) {
+              console.log('[SPOTIFY] Token expiring, refreshing before handing to SDK...');
+              const freshToken = await refreshSpotifyToken();
+              cb(freshToken || liveToken || '');
+            } else {
+              cb(liveToken || '');
+            }
           } catch (err) {
-            console.error('[SPOTIFY DEBUG] Error getting valid token:', err);
-            // Fall back to current token
-            cb(currentAccessToken || accessToken!);
+            console.error('[SPOTIFY] getOAuthToken error:', err);
+            cb(tokenRef.current || '');
           }
         },
         volume: 0.5,
       });
       localPlayer = newPlayer;
 
-      // Attach listeners BEFORE connecting
       newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
-        console.log('[SPOTIFY DEBUG] SDK Ready! Device ID captured:', device_id);
+        console.log('[SPOTIFY] SDK Ready — Device:', device_id);
         setDeviceId(device_id);
-        
-        // Delay auto-transfer by 1s to resolve race condition
+
+        // Auto-transfer using the LIVE token (not the stale prop)
         setTimeout(async () => {
+          const liveToken = tokenRef.current;
+          if (!liveToken) return;
           try {
-            console.log('[SPOTIFY DEBUG] Attempting Auto-Transfer...');
             const res = await fetch('https://api.spotify.com/v1/me/player', {
               method: 'PUT',
               headers: {
-                'Authorization': `Bearer ${accessToken}`,
+                'Authorization': `Bearer ${liveToken}`,
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                device_ids: [device_id],
-                play: true,
-              }),
+              body: JSON.stringify({ device_ids: [device_id], play: true }),
             });
 
-            console.log('[SPOTIFY DEBUG] Transfer API Status:', res.status);
-
             if (res.ok) {
-              console.log('[SPOTIFY DEBUG] Auto-transfer successful! ✅');
+              console.log('[SPOTIFY] Auto-transfer ✅');
               setIsActive(true);
               const state = await newPlayer.getCurrentState();
               if (state) {
-                console.log('[SPOTIFY DEBUG] Initial state synced after transfer');
                 const track = state.track_window.current_track;
                 setCurrentTrack({
                   name: track.name,
@@ -182,70 +230,79 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
                 });
                 setIsPlaying(!state.paused);
               }
+            } else if (res.status === 401) {
+              // Token was stale — refresh and retry once
+              console.warn('[SPOTIFY] Auto-transfer 401 — refreshing token and retrying...');
+              const freshToken = await refreshSpotifyToken();
+              if (freshToken) {
+                const retry = await fetch('https://api.spotify.com/v1/me/player', {
+                  method: 'PUT',
+                  headers: {
+                    'Authorization': `Bearer ${freshToken}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ device_ids: [device_id], play: true }),
+                });
+                if (retry.ok) {
+                  console.log('[SPOTIFY] Auto-transfer retry ✅');
+                  setIsActive(true);
+                }
+              }
             } else {
-              const errData = await res.json().catch(() => ({ message: 'No body' }));
-              console.error('[SPOTIFY DEBUG] Auto-Transfer Failed Reason:', errData);
+              const errData = await res.json().catch(() => ({}));
+              console.error('[SPOTIFY] Auto-transfer failed:', res.status, errData);
             }
           } catch (err) {
-            console.error('[SPOTIFY DEBUG] Auto-Transfer Network Error:', err);
+            console.error('[SPOTIFY] Auto-transfer network error:', err);
           }
         }, 1000);
       });
 
       newPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
-        console.log('[SPOTIFY DEBUG] Device ID has gone offline', device_id);
+        console.log('[SPOTIFY] Device offline:', device_id);
       });
 
       newPlayer.addListener('player_state_changed', (state: any) => {
-        if (!state) {
-          console.log('[SPOTIFY DEBUG] State Changed: NULL (likely no active playback)');
-          return;
-        }
-        console.log('[SPOTIFY DEBUG] State Changed. Paused:', state.paused, 'Track:', state.track_window?.current_track?.name);
+        if (!state) return;
         setIsPlaying(!state.paused);
         setIsActive(true);
         const track = state.track_window.current_track;
         if (track) {
-          const newTrack: SpotifyTrack = {
+          setCurrentTrack({
             name: track.name,
             artist: track.artists.map((a: any) => a.name).join(', '),
             albumArt: track.album.images[0].url,
             uri: track.uri,
-          };
-          setCurrentTrack(newTrack);
+          });
         }
       });
 
-      // Error listeners
-      newPlayer.addListener('initialization_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Initialization Error:', message));
-      
+      newPlayer.addListener('initialization_error', ({ message }: { message: string }) =>
+        console.error('[SPOTIFY] Init error:', message)
+      );
+
       newPlayer.addListener('authentication_error', async ({ message }: { message: string }) => {
-        console.error('[SPOTIFY DEBUG] Authentication Error:', message);
-        console.log('[SPOTIFY DEBUG] Attempting automatic token refresh...');
+        console.error('[SPOTIFY] Auth error:', message);
         const newToken = await refreshSpotifyToken();
         if (!newToken) {
-          console.error('[SPOTIFY DEBUG] Token refresh failed, user needs to re-authenticate');
           setIsTokenExpired(true);
-        } else {
-          console.log('[SPOTIFY DEBUG] Token refreshed successfully, player should reconnect');
         }
+        // SDK will re-call getOAuthToken automatically after this
       });
-      
+
       newPlayer.addListener('account_error', ({ message }: { message: string }) => {
-        console.error('[SPOTIFY DEBUG] Account Error:', message);
+        console.error('[SPOTIFY] Account error:', message);
         setIsPremiumRequired(true);
       });
-      
-      newPlayer.addListener('playback_error', ({ message }: { message: string }) => console.error('[SPOTIFY DEBUG] Playback Error:', message));
+
+      newPlayer.addListener('playback_error', ({ message }: { message: string }) =>
+        console.error('[SPOTIFY] Playback error:', message)
+      );
 
       newPlayer.connect().then((success: boolean) => {
-        if (success) {
-          console.log('[SPOTIFY DEBUG] SDK Connected successfully! ✅');
-        } else {
-          console.error('[SPOTIFY DEBUG] SDK failed to connect ❌');
-        }
+        console.log(success ? '[SPOTIFY] Connected ✅' : '[SPOTIFY] Connection failed ❌');
       });
-      
+
       setPlayer(newPlayer);
     };
 
@@ -256,7 +313,6 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
     }
 
     return () => {
-      // Use localPlayer (captured at effect time) not stale `player` state
       localPlayer?.disconnect();
     };
   }, [currentAccessToken, accessToken]);
@@ -265,39 +321,70 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   const nextTrack = () => player?.nextTrack();
   const previousTrack = () => player?.previousTrack();
 
+  const setSpotifyVolume = useCallback(async (v: number) => {
+    // 1. Context check
+    if (!player) return;
+    
+    // 2. SDK Method validation (Strict Requirement)
+    if (typeof player.setVolume !== 'function') {
+      console.warn('[SPOTIFY] setVolume method not yet attached to player instance.');
+      return;
+    }
+
+    try {
+      // 3. Promise Handling (Strict Requirement)
+      await player.setVolume(v).catch((err: any) => {
+        console.error('[SPOTIFY] API rejected volume change:', err);
+      });
+      setVolume(v);
+      if (v > 0) setIsMuted(false);
+    } catch (err) {
+      console.error('[SPOTIFY] Fatal volume control exception:', err);
+    }
+  }, [player]);
+
   const transferPlayback = async () => {
-    if (!deviceId || !accessToken) return;
+    const liveToken = currentAccessToken || accessToken;
+    if (!deviceId || !liveToken) return;
     
     try {
-      console.log('--- Spotify Transfer Debug ---');
-      console.log('Device ID:', deviceId);
-      console.log('Token Present:', !!accessToken);
-      
-      if (!accessToken) {
-        throw new Error('Spotify Access Token is missing or empty');
-      }
+      let tokenToUse = liveToken;
 
       const res = await fetch('https://api.spotify.com/v1/me/player', {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${tokenToUse}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          device_ids: [deviceId],
-          play: false,
-        }),
+        body: JSON.stringify({ device_ids: [deviceId], play: false }),
       });
 
       if (res.ok) {
-        console.log('Spotify Transfer Successful: ✅');
+        console.log('[SPOTIFY] Transfer ✅');
         setIsActive(true);
+      } else if (res.status === 401) {
+        // Stale token — refresh and retry once
+        const freshToken = await refreshSpotifyToken();
+        if (freshToken) {
+          const retry = await fetch('https://api.spotify.com/v1/me/player', {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${freshToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ device_ids: [deviceId], play: false }),
+          });
+          if (retry.ok) {
+            console.log('[SPOTIFY] Transfer retry ✅');
+            setIsActive(true);
+          }
+        }
       } else {
-        const errorData = await res.json().catch(() => ({ message: 'No JSON body' }));
-        console.error(`Spotify Transfer Failed (${res.status}):`, errorData);
+        const errorData = await res.json().catch(() => ({}));
+        console.error('[SPOTIFY] Transfer failed:', res.status, errorData);
       }
     } catch (err: any) {
-      console.error('CRITICAL: Spotify Transfer Exception:', err.message || err);
+      console.error('[SPOTIFY] Transfer exception:', err.message || err);
     }
   };
 
@@ -316,7 +403,11 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         previousTrack,
         transferPlayback,
         isPremiumRequired,
-        isTokenExpired
+        isTokenExpired,
+        volume,
+        setSpotifyVolume,
+        isMuted,
+        setIsMuted
       }}
     >
       {accessToken && (

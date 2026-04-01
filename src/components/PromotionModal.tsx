@@ -73,7 +73,7 @@ export default function PromotionModal({ open, userEmail }: PromotionModalProps)
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-green-400 text-lg mt-0.5">✓</span>
-                <span className="text-gray-300 text-sm">Broadcast Emergency Override notifications directly to all active student dashboards.</span>
+                <span className="text-gray-300 text-sm">Publish Global Announcements directly to all active student dashboards.</span>
               </li>
             </ul>
           </div>

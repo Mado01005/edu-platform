@@ -1,14 +1,57 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSpotify } from '@/context/SpotifyContext';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
-const MusicPlayer = () => {
+// Error Boundary for the Music Player to prevent whole-app crashes
+class SpotifyErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: any) { console.error('[SPOTIFY CRASH]:', error); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-[90vw] md:w-[400px] z-[99999]">
+          <div className="bg-[#0f0f13]/90 backdrop-blur-xl border border-white/5 shadow-2xl rounded-2xl p-6 text-center">
+            <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5L6 9H2V15H6L11 19V5Z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            </div>
+            <p className="text-sm font-black uppercase tracking-widest text-gray-400">Radio Unavailable</p>
+            <p className="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto">The Spotify interface encountered a temporary hitch.</p>
+            <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-bold text-white transition-all uppercase tracking-widest">Restart Interface</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const MusicPlayerContent = () => {
   const pathname = usePathname();
-  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack, isActive, hasToken, accessToken, deviceId, isPremiumRequired, isTokenExpired } = useSpotify();
+  const { 
+    currentTrack, 
+    isPlaying, 
+    togglePlay, 
+    nextTrack, 
+    previousTrack, 
+    isActive, 
+    hasToken, 
+    accessToken, 
+    deviceId, 
+    isPremiumRequired, 
+    isTokenExpired,
+    volume,
+    setSpotifyVolume,
+    isMuted,
+    setIsMuted
+  } = useSpotify();
   
   const [isMinimized, setIsMinimized] = useState(true);
   const [showPlaylists, setShowPlaylists] = useState(false);
@@ -94,6 +137,32 @@ const MusicPlayer = () => {
       }).catch(() => {});
     }
   }, [currentTrack, lastLoggedTrack]);
+
+  const lastVolumeRef = useRef(volume);
+
+  const toggleMute = async () => {
+    // 1. Initial State Checks (Strict Requirement)
+    if (!hasToken || isPremiumRequired) return;
+
+    try {
+      if (isMuted) {
+        // 2. Restore logic with local reference fallback
+        const restoreVolume = lastVolumeRef.current || 0.5;
+        console.log('[SPOTIFY] Restoring volume to:', restoreVolume);
+        await setSpotifyVolume(restoreVolume);
+        setIsMuted(false);
+      } else {
+        // 3. Mute logic ensuring volume is captured before zeroing
+        console.log('[SPOTIFY] Muting — current volume:', volume);
+        lastVolumeRef.current = volume;
+        await setSpotifyVolume(0);
+        setIsMuted(true);
+      }
+    } catch (err) {
+      // 4. Promise Handling/Error Catching (Strict Requirement)
+      console.error('[SPOTIFY] Heavily fortified volume toggle caught exception:', err);
+    }
+  };
 
   const playPlaylist = (uri: string) => {
     if (!deviceId || !accessToken) return;
@@ -220,7 +289,21 @@ const MusicPlayer = () => {
                   )}
                 </button>
                 <button onClick={nextTrack} disabled={isPremiumRequired} className="p-2 text-white/40 hover:text-white transition-all active:scale-90 disabled:opacity-30"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg></button>
-                <div className="w-10 hidden md:block" />
+                
+                {/* Volume/Mute Toggle - Fixed to prevent crashes */}
+                <button 
+                  onClick={toggleMute} 
+                  disabled={isPremiumRequired || !hasToken}
+                  className="p-3 rounded-2xl text-gray-500 hover:text-white hover:bg-white/5 transition-all active:scale-90 relative group"
+                >
+                  {isMuted || volume === 0 ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 5L6 9H2V15H6L11 19V5Z"/><path d="M23 9L17 15"/><path d="M17 9L23 15"/></svg>
+                  ) : volume < 0.5 ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 5L6 9H2V15H6L11 19V5Z"/><path d="M15.54 8.46A5 5 0 0 1 15.54 15.54"/></svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 5L6 9H2V15H6L11 19V5Z"/><path d="M15.54 8.46A5 5 0 0 1 15.54 15.54"/><path d="M19.07 4.93A10 10 0 0 1 19.07 19.07"/></svg>
+                  )}
+                </button>
               </div>
 
               {/* Playlist Dropdown */}
@@ -236,7 +319,7 @@ const MusicPlayer = () => {
                         <img src={pl.images[0]?.url} className="w-10 h-10 rounded-lg shadow-lg" alt="" />
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-bold text-white truncate">{pl.name}</p>
-                          <p className="text-[10px] text-gray-500 font-medium">Playlist • {pl.tracks.total} tracks</p>
+                          <p className="text-[10px] text-gray-500 font-medium">Playlist • {pl.tracks?.total || 0} tracks</p>
                         </div>
                       </button>
                     ))}
@@ -248,6 +331,14 @@ const MusicPlayer = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const MusicPlayer = () => {
+  return (
+    <SpotifyErrorBoundary>
+      <MusicPlayerContent />
+    </SpotifyErrorBoundary>
   );
 };
 

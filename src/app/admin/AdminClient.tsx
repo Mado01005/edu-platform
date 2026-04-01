@@ -14,7 +14,7 @@ import ManageTab from './components/ManageTab';
 // Lazy loaded — only fetched when the admin clicks the tab
 const TabLoader = () => <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
 const TelemetryTab = dynamic(() => import('./components/TelemetryTab'), { loading: TabLoader, ssr: false });
-const BroadcastTab = dynamic(() => import('./components/BroadcastTab'), { loading: TabLoader, ssr: false });
+const AnnouncementTab = dynamic(() => import('./components/AnnouncementTab'), { loading: TabLoader, ssr: false });
 const TeamTab = dynamic(() => import('./components/TeamTab'), { loading: TabLoader, ssr: false });
 
 interface AdminClientProps {
@@ -25,7 +25,7 @@ interface AdminClientProps {
   initialSessions: unknown[];
 }
 
-type TabId = 'upload' | 'manage' | 'broadcast' | 'team' | 'telemetry';
+type TabId = 'upload' | 'manage' | 'Announcement' | 'team' | 'telemetry';
 
 export default function AdminClient({ subjects, initialRoles, userEmail, initialLogs, initialSessions }: AdminClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>('upload');
@@ -49,7 +49,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     if (currentUserRole === 'superadmin') {
       tabs.push(
         { id: 'manage', icon: '📂', label: 'MANAGE' },
-        { id: 'broadcast', icon: '📢', label: 'BROADCAST' },
+        { id: 'Announcement', icon: '📢', label: 'Announcement' },
         { id: 'team', icon: '👥', label: 'TEAM' },
         { id: 'telemetry', icon: '🌐', label: 'TELEMETRY' }
       );
@@ -280,7 +280,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                 />
               )}
 
-              {activeTab === 'broadcast' && <BroadcastTab />}
+              {activeTab === 'Announcement' && <AnnouncementTab />}
 
               {activeTab === 'team' && (
                 <TeamTab 

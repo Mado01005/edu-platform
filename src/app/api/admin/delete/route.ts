@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     else if (type === 'item') table = 'content_items';
     else return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
 
-    // For content_items, clean up the R2 object BEFORE deleting the DB row
+    // For entity cascading, clean up the exact R2 objects BEFORE deleting the DB row(s)
     if (type === 'item') {
       const { data: item } = await supabaseAdmin
         .from('content_items')
@@ -33,12 +33,42 @@ export async function POST(req: Request) {
       if (item?.url) {
         const publicBase = process.env.R2_PUBLIC_URL || '';
         if (publicBase && item.url.startsWith(publicBase)) {
-          const r2Key = item.url.substring(publicBase.length).replace(/^\/+/, '');
+          let r2Key = item.url.substring(publicBase.length).replace(/^\/+/, '');
+          r2Key = decodeURIComponent(r2Key);
           try {
             await deleteR2Object(r2Key);
           } catch (r2Err) {
-            // Log but don't block the DB delete — the orphan cleanup can catch stragglers
             console.warn(`[Delete] R2 cleanup failed for key "${r2Key}":`, r2Err);
+          }
+        }
+      }
+    } else if (type === 'lesson' || type === 'subject') {
+      // If deleting a Subject or Lesson, we must pull exact URLs of ALL nested content_items
+      // because slug-based folder deletion fails if the item was ever renamed (R2 Drift).
+      let lessonIds: string[] = [];
+      
+      if (type === 'lesson') {
+        lessonIds.push(id);
+      } else {
+        // Find all lessons in this subject
+        const { data: lessons } = await supabaseAdmin.from('lessons').select('id').eq('subject_id', id);
+        if (lessons) lessonIds = lessons.map(l => l.id);
+      }
+
+      if (lessonIds.length > 0) {
+        const { data: items } = await supabaseAdmin.from('content_items').select('url').in('lesson_id', lessonIds);
+        if (items && items.length > 0) {
+          const publicBase = process.env.R2_PUBLIC_URL || '';
+          for (const item of items) {
+             if (publicBase && item.url?.startsWith(publicBase)) {
+                let r2Key = item.url.substring(publicBase.length).replace(/^\/+/, '');
+                r2Key = decodeURIComponent(r2Key);
+                try {
+                   await deleteR2Object(r2Key);
+                } catch (r2Err) {
+                   console.warn(`[Cascade Delete] Orphan capture failed for R2 key "${r2Key}":`, r2Err);
+                }
+             }
           }
         }
       }

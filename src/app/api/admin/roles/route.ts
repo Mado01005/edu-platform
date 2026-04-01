@@ -49,9 +49,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Cannot modify a master admin account' }, { status: 403 });
     }
 
-    // Only superadmins can assign elevated roles (admin, superadmin, teacher)
-    if (ELEVATED_ROLES.includes(overrideRole) && !session.user.isSuperAdmin) {
-      return NextResponse.json({ error: 'Only superadmins can assign elevated roles' }, { status: 403 });
+    // Fetch the target user's current role to prevent standard admins from demoting peers or superiors
+    const { data: currentTargetRole, error: fetchErr } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('email', targetEmail)
+      .maybeSingle();
+
+    if (fetchErr) {
+      return NextResponse.json({ error: 'Failed to verify target role' }, { status: 500 });
+    }
+
+    const isTargetElevated = currentTargetRole && ELEVATED_ROLES.includes(currentTargetRole.role);
+
+    // Only superadmins can assign or MODIFY elevated roles (admin, superadmin, teacher)
+    // If a standard admin tries to modify an ALREADY elevated user, block it.
+    if (!session.user.isSuperAdmin) {
+      if (ELEVATED_ROLES.includes(overrideRole)) {
+        return NextResponse.json({ error: 'Only superadmins can assign elevated roles' }, { status: 403 });
+      }
+      if (isTargetElevated) {
+        return NextResponse.json({ error: 'Only superadmins can modify existing administrators' }, { status: 403 });
+      }
     }
 
     // Upsert the role
@@ -93,6 +112,16 @@ export async function DELETE(req: Request) {
     const { email } = await req.json();
 
     if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 });
+
+    const { data: targetData } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (targetData && ELEVATED_ROLES.includes(targetData.role) && !session.user.isSuperAdmin) {
+      return NextResponse.json({ error: 'Only superadmins can delete existing administrators' }, { status: 403 });
+    }
 
     const { error } = await supabaseAdmin
       .from('user_roles')
