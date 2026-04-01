@@ -11,13 +11,23 @@ import { auth } from '@/auth';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://eduportal.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL 
+  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://eduportal.app');
 
 export const metadata: Metadata = {
   title: 'EduPortal — Your Learning Hub',
   description: 'A modern education platform for students. Access courses in Dynamics, Physics, Chemistry, Communication Skills, Academic Writing, Calculus, and Programming.',
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon-512x512.png' },
+    ],
+  },
   openGraph: {
     title: 'EduPortal — Your Learning Hub',
     description: 'A modern education platform for students.',
@@ -25,7 +35,7 @@ export const metadata: Metadata = {
     siteName: 'EduPortal',
     images: [
       {
-        url: '/og-image.png', // Fallback to public/og-image.png
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'EduPortal Learning Hub',

@@ -24,8 +24,8 @@ export default function SessionTracker() {
     };
 
     const sendHeartbeat = () => {
-      // Skip heartbeat when tab is hidden — no point pinging if the user can't see the page
-      if (document.hidden) return;
+      // Skip heartbeat on login page or for hidden tabs
+      if (document.hidden || pathname === '/login') return;
 
       const now = Date.now();
       // If no activity for 5 minutes, mark as idle
