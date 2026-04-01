@@ -6,16 +6,22 @@ import { SubjectMeta, LessonMeta } from '@/types';
 interface ContentUploaderProps {
   selectedSubjectId: string;
   selectedLessonId?: string;
-  currentPathId?: string; // DB ID of the current folder
-  currentPath?: string; // Virtual path target
+  currentPathId?: string;
+  currentPath?: string;
   onComplete: () => void;
-  // Optional: only needed if uploader needs to find slugs itself
   localSubjects?: SubjectMeta[];
   activeLessons?: LessonMeta[];
-  // If slugs are already known (e.g. in FolderExplorer)
   subjectSlug?: string;
   lessonSlug?: string;
   variant?: 'full' | 'compact';
+}
+
+// Formats that browsers CANNOT render. These must be converted before upload.
+const UNSUPPORTED_IMAGE_EXTENSIONS = ['.heic', '.heif', '.dng'];
+
+function isUnsupportedImage(fileName: string): boolean {
+  const lower = fileName.toLowerCase();
+  return UNSUPPORTED_IMAGE_EXTENSIONS.some(ext => lower.endsWith(ext));
 }
 
 export default function ContentUploader({
@@ -44,33 +50,70 @@ export default function ContentUploader({
     const m = mime.toLowerCase();
     const f = (fileName || '').toLowerCase();
     if (m.includes('pdf') || f.endsWith('.pdf')) return 'pdf';
-    if (m.includes('image') || f.endsWith('.heic') || f.endsWith('.heif') || f.endsWith('.dng') || f.endsWith('.webp')) return 'image';
+    if (m.includes('image') || f.endsWith('.webp') || f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png') || f.endsWith('.gif')) return 'image';
     if (m.includes('video') || f.endsWith('.mp4') || f.endsWith('.mov')) return 'video';
     if (m.includes('presentation') || m.includes('powerpoint') || f.endsWith('.pptx')) return 'powerpoint';
     return 'unknown';
   };
 
-  const processImageBeforeUpload = async (file: File): Promise<File> => {
-    const isHEIC = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
-    if (!isHEIC) return file;
+  /**
+   * BULLETPROOF CLIENT-SIDE CONVERSION
+   * Converts ALL non-web-safe image formats to .webp BEFORE any network call.
+   * - .heic / .heif → converted via heic2any
+   * - .dng → converted via heic2any (it handles some RAW) with canvas fallback
+   * If conversion fails entirely, the file is REJECTED — it never reaches R2.
+   */
+  const convertToWebSafe = async (file: File): Promise<File> => {
+    const lower = file.name.toLowerCase();
 
+    if (!isUnsupportedImage(file.name)) {
+      return file; // Already web-safe, pass through
+    }
+
+    const newName = file.name.replace(/\.[^/.]+$/, '') + '.webp';
+    setStatusMessage(`Converting ${file.name} → ${newName}...`);
+
+    // Attempt 1: heic2any (works for HEIC/HEIF, may work for some DNG)
     try {
-      setStatusMessage(`Optimizing HEIC: ${file.name}...`);
-      // Dynamic import to keep bundle small
       const heic2any = (await import('heic2any')).default;
       const result = await heic2any({
         blob: file,
         toType: 'image/webp',
-        quality: 0.8
+        quality: 0.85
       });
-
       const blob = Array.isArray(result) ? result[0] : result;
-      const newName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
       return new File([blob], newName, { type: 'image/webp' });
-    } catch (err) {
-      console.warn('HEIC conversion failed, uploading original:', err);
-      return file;
+    } catch (heicErr) {
+      console.warn(`heic2any failed for ${file.name}, trying canvas fallback:`, heicErr);
     }
+
+    // Attempt 2: Canvas fallback (for DNG or any file the browser CAN decode)
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas context unavailable');
+      ctx.drawImage(bitmap, 0, 0);
+      const webpBlob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (b) => b ? resolve(b) : reject(new Error('Canvas toBlob returned null')),
+          'image/webp',
+          0.85
+        );
+      });
+      bitmap.close();
+      return new File([webpBlob], newName, { type: 'image/webp' });
+    } catch (canvasErr) {
+      console.warn(`Canvas fallback failed for ${file.name}:`, canvasErr);
+    }
+
+    // BOTH conversion paths failed → REJECT the file
+    throw new Error(
+      `Cannot convert ${file.name} to a web-safe format. ` +
+      `Please convert it to .jpg or .png manually before uploading.`
+    );
   };
 
   const uploadFileWithProgress = (file: File, signedUrl: string, contentType: string) => {
@@ -120,8 +163,10 @@ export default function ContentUploader({
         const total = files.length;
         
         for (let file of files) {
-          // 0. Pre-process non-web-safe images (HEIC -> WebP)
-          file = await processImageBeforeUpload(file);
+          // ── STEP 0: Convert non-web-safe images to .webp ──
+          // This happens BEFORE any network call. If conversion fails, the file
+          // is rejected and never touches R2 or the database.
+          file = await convertToWebSafe(file);
 
           const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
           const pathSegments = relativePath.split('/');
@@ -145,65 +190,27 @@ export default function ContentUploader({
           const sSlug = subjectSlug || localSubjects.find(s => s.id === selectedSubjectId)?.slug || 'unknown';
           const lSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
           
-          let publicUrl = '';
-          const isRAW = file.name.toLowerCase().endsWith('.dng');
-          let updatedFilePath = relativeFilePath;
+          // ── STEP 1: Initiate presigned upload (always standard path now) ──
+          const initRes = await fetch('/api/admin/upload-initiate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileName: file.name,
+              relativeFilePath,
+              subjectSlug: sSlug,
+              lessonSlug: lSlug,
+              contentType: file.type || 'application/octet-stream',
+              subfolder: currentPath.trim() || undefined
+            })
+          });
 
-          if (isRAW) {
-            setStatusMessage(`Processing RAW: ${file.name}...`);
-            const initRes = await fetch('/api/admin/upload-initiate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                fileName: file.name,
-                relativeFilePath,
-                subjectSlug: sSlug,
-                lessonSlug: lSlug,
-                contentType: 'image/dng',
-                subfolder: currentPath.trim() || undefined
-              })
-            });
+          if (!initRes.ok) throw new Error(`Initiate failed for ${relativeFilePath}`);
+          const { signedUrl, publicUrl } = await initRes.json();
 
-            if (!initRes.ok) throw new Error(`Initiate failed for RAW ${relativeFilePath}`);
-            const { path } = await initRes.json();
+          // ── STEP 2: Upload directly to R2 via presigned URL ──
+          await uploadFileWithProgress(file, signedUrl, file.type);
 
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('path', path);
-
-            const rawRes = await fetch('/api/admin/upload-raw', {
-              method: 'POST',
-              body: formData
-            });
-
-            if (!rawRes.ok) throw new Error(`RAW processing failed for ${file.name}`);
-            const rawData = await rawRes.json();
-            publicUrl = rawData.publicUrl;
-            
-            const segments = relativeFilePath.split('/');
-            segments[segments.length - 1] = rawData.fileName;
-            updatedFilePath = segments.join('/');
-            
-          } else {
-            const initRes = await fetch('/api/admin/upload-initiate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                fileName: file.name,
-                relativeFilePath,
-                subjectSlug: sSlug,
-                lessonSlug: lSlug,
-                contentType: file.type || 'application/octet-stream',
-                subfolder: currentPath.trim() || undefined
-              })
-            });
-
-            if (!initRes.ok) throw new Error(`Initiate failed for ${relativeFilePath}`);
-            const { signedUrl, publicUrl: pUrl } = await initRes.json();
-            await uploadFileWithProgress(file, signedUrl, file.type);
-            publicUrl = pUrl;
-          }
-
+          // ── STEP 3: Register in Supabase ──
           const compRes = await fetch('/api/admin/upload-complete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -211,8 +218,8 @@ export default function ContentUploader({
               subjectId: selectedSubjectId,
               lessonId: selectedLessonId,
               parentId: currentPathId || null,
-              fileName: updatedFilePath,
-              fileType: getFileType(file.type, updatedFilePath),
+              fileName: relativeFilePath,
+              fileType: getFileType(file.type, relativeFilePath),
               publicUrl,
               itemType,
               vimeoId
@@ -265,8 +272,6 @@ export default function ContentUploader({
           onChange={(e) => {
             const selectedFiles = Array.from(e.target.files || []);
             setFiles(selectedFiles);
-            // Auto-submit if files selected in compact mode? 
-            // Better to show a small "Upload" button after selection.
           }} 
           disabled={uploading}
         />

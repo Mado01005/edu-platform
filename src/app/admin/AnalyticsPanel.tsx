@@ -14,12 +14,12 @@ export default async function AnalyticsPanel() {
       .from('activity_logs')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(50),
+      .limit(500),
     supabaseAdmin
       .from('live_sessions')
       .select('*')
       .order('last_active_at', { ascending: false })
-      .limit(50),
+      .limit(500),
     supabaseAdmin
       .from('user_roles')
       .select('*')
