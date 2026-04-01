@@ -60,8 +60,9 @@ export async function deleteR2Object(key: string) {
  * Uses the R2.dev subdomain or a custom domain.
  */
 export function getPublicUrl(key: string) {
-  const publicBase = process.env.R2_PUBLIC_URL || '';
-  return `${publicBase}/${key}`;
+  const publicBase = process.env.R2_PUBLIC_URL?.replace(/\/+$/, '') || '';
+  const cleanKey = key.replace(/^\/+/, '');
+  return `${publicBase}/${cleanKey}`;
 }
 
 /**

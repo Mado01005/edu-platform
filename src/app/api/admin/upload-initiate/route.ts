@@ -46,9 +46,14 @@ export async function POST(req: Request) {
         .trim();
     }
 
+    // Ensure no leading/trailing slashes on any segment to prevent double-slashes in the final key
+    const cleanSubject = safeSubjectSlug.replace(/^\/+|\/+$/g, '');
+    const cleanLesson = safeLessonSlug.replace(/^\/+|\/+$/g, '');
+    const cleanFinalPath = finalizedNestedPath.replace(/^\/+|\/+$/g, '');
+    
     const storagePath = subfolderSegment
-      ? `${safeSubjectSlug}/${safeLessonSlug}/${subfolderSegment}/${finalizedNestedPath}`
-      : `${safeSubjectSlug}/${safeLessonSlug}/${finalizedNestedPath}`;
+      ? `${cleanSubject}/${cleanLesson}/${subfolderSegment}/${cleanFinalPath}`
+      : `${cleanSubject}/${cleanLesson}/${cleanFinalPath}`;
 
     // Generate a presigned upload URL from Cloudflare R2 (valid for 1 hour)
     const signedUrl = await getPresignedUploadUrl(storagePath, contentType || 'application/octet-stream');

@@ -1,5 +1,6 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 import { getAllSubjects } from '@/lib/content';
 import { supabaseAdmin } from '@/lib/supabase';
 import { isMasterAdmin } from '@/lib/constants';
@@ -20,8 +21,11 @@ export default async function AdminPage() {
     getAllSubjects(),
     supabaseAdmin.from('user_roles').select('*'),
     supabaseAdmin.from('activity_logs').select('user_email'),
-    supabaseAdmin.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200),
-    supabaseAdmin.from('live_sessions').select('*').order('last_active_at', { ascending: false }).limit(50)
+    supabaseAdmin.from('activity_logs').select('*')
+      .gt('created_at', new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString())
+      .order('created_at', { ascending: false })
+      .limit(2000),
+    supabaseAdmin.from('live_sessions').select('*').order('last_active_at', { ascending: false }).limit(200)
   ]);
 
   // Merge legacy users who interacted with the platform before the internal `user_roles` table existed

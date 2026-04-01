@@ -109,16 +109,16 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
 
         // Force NextAuth to re-sync the session on the server and client
         try {
+          // IMPORTANT: next-auth v5 session update requires specific flat object structure
+          // to be merged into the session.
           await updateSession({
-            user: {
-              spotifyAccessToken: newToken,
-              spotifyTokenExpiresAt: Date.now() + newExpiresIn * 1000
-            }
+            spotifyAccessToken: newToken,
+            spotifyTokenExpiresAt: Date.now() + newExpiresIn * 1000
           });
           console.log('[SPOTIFY] NextAuth session updated ✅');
         } catch (sessionErr) {
           console.warn('[SPOTIFY] NextAuth session update failed (ignoring):', sessionErr);
-          // Fallback to the lightweight session poke
+          // Fallback: browser-side session reload
           fetch('/api/auth/session').catch(() => {});
         }
 
@@ -281,11 +281,22 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         console.error('[SPOTIFY] Init error:', message)
       );
 
+      const authFailureCount = { current: 0 };
+
       newPlayer.addListener('authentication_error', async ({ message }: { message: string }) => {
         console.error('[SPOTIFY] Auth error:', message);
+        authFailureCount.current++;
+        
         const newToken = await refreshSpotifyToken();
         if (!newToken) {
           setIsTokenExpired(true);
+        } else if (authFailureCount.current > 3) {
+          // If we keep getting auth errors despite refreshing (SDK stuck?), 
+          // perform total teardown and retry
+          console.warn('[SPOTIFY] Persistent auth errors. Re-initializing link...');
+          newPlayer.disconnect();
+          setTimeout(() => newPlayer.connect(), 2000);
+          authFailureCount.current = 0;
         }
         // SDK will re-call getOAuthToken automatically after this
       });

@@ -76,9 +76,6 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
 
     // 1. Initialize with ALL registered users from the global roster
     initialUsers.forEach((u: any) => {
-      // Use last_login as the most accurate "last seen" source from user_roles.
-      // Falls back to created_at (registration date) only as a last resort.
-      const bestLastSeen = u.last_login || u.created_at || new Date(0).toISOString();
       map.set(u.email, {
         name: u.name || u.email.split('@')[0],
         email: u.email,
@@ -87,7 +84,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
         pdfReads: 0,
         videoWatches: 0,
         actionCount: 0,
-        lastSeen: bestLastSeen,
+        lastSeen: u.created_at || new Date(0).toISOString(), // Fallback for very old users
         lastAction: 'Registered',
         city: 'Unknown',
         country: 'Unknown',
@@ -97,9 +94,11 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
     });
 
     // 2. Overlay with ACTUAL activity logs (most recent state wins)
-    logs.forEach((l: any) => {
+    // We process from oldest to newest so that the absolute latest state correctly overwrites previous ones
+    const sortedLogs = [...logs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    
+    sortedLogs.forEach((l: any) => {
       if (!map.has(l.user_email)) {
-        // This shouldn't happen often if the roster is full, but as a fallback:
         map.set(l.user_email, {
           name: l.user_name || l.user_email.split('@')[0],
           email: l.user_email,
@@ -112,7 +111,8 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
           lastAction: l.action,
           city: l.geo_city || 'Unknown',
           country: l.geo_country || 'Unknown',
-          currentScroll: 0
+          currentScroll: 0,
+          role: 'student'
         });
       }
       
@@ -120,33 +120,51 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
       student.actionCount++;
       
       // Update with most recent log info
-      if (new Date(l.created_at) > new Date(student.lastSeen)) {
+      const logTime = new Date(l.created_at).getTime();
+      const studentTime = new Date(student.lastSeen).getTime();
+      
+      if (logTime >= studentTime) {
         student.lastSeen = l.created_at;
         student.lastAction = l.action;
         if (l.geo_city) student.city = l.geo_city;
         if (l.geo_country) student.country = l.geo_country;
       }
       
-      if (l.action === 'USER_SCROLL' && l.details?.percent !== undefined) {
-         if (new Date(l.created_at) >= new Date(student.lastSeen)) {
-           student.currentScroll = l.details.percent;
-         }
-      }
+      // Process internal events if it's a batch
+      const events = l.action === 'USER_INTERACTIONS_BATCH' ? (l.details?.events || []) : [l];
+      
+      events.forEach((ev: any) => {
+        const action = ev.action || l.action;
+        if (action === 'Completed Lesson') student.completions++;
+        if (action === 'USER_LOGIN') student.logins++;
+        if (action === 'Open PDF' || action === 'READ_PDF') student.pdfReads++;
+        if (action === 'Watched Video' || action === 'WATCH_VIDEO') student.videoWatches++;
+        
+        if (action === 'USER_SCROLL' && ev.details?.percent !== undefined) {
+           student.currentScroll = Number(ev.details.percent);
+        }
 
-      if (l.action === 'Completed Lesson') student.completions++;
-      if (l.action === 'USER_LOGIN') student.logins++;
-      // Handle both old and new action names for backward compatibility
-      if (l.action === 'Open PDF' || l.action === 'READ_PDF') student.pdfReads++;
-      if (l.action === 'Watched Video' || l.action === 'WATCH_VIDEO') student.videoWatches++;
+        // Extract a better "lastAction" from the batch if available
+        if (l.action === 'USER_INTERACTIONS_BATCH' && logTime >= studentTime) {
+           if (action === 'USER_CLICK') student.lastAction = `Click: ${ev.details?.text || 'Element'}`;
+           else if (action === 'USER_SCROLL') student.lastAction = 'Browsing';
+           else student.lastAction = action;
+        }
+      });
     });
 
-    // 3. Overlay with LIVE SESSION heartbeats for real-time presence (high-fidelity)
-    sessions.forEach((s: any) => {
+    // 3. Check sessions (these represent users currently active or who were active recently)
+    sessions.forEach(s => {
       const student = map.get(s.user_email);
       if (student) {
-        // If the heartbeat is more recent than the last log, update the status
-        if (new Date(s.last_active_at) > new Date(student.lastSeen)) {
+        student.isOnline = true;
+        
+        const sessionTime = new Date(s.last_active_at).getTime();
+        const currentLastSeenTime = new Date(student.lastSeen).getTime();
+        
+        if (sessionTime > currentLastSeenTime) {
           student.lastSeen = s.last_active_at;
+          student.lastPage = s.current_page || 'dashboard';
           student.lastAction = s.is_idle ? 'IDLE' : 'ACTIVE_BROWSING';
           if (s.geo_city && s.geo_city !== 'Unknown') student.city = s.geo_city;
           if (s.geo_country && s.geo_country !== 'Unknown') student.country = s.geo_country;
@@ -162,7 +180,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
 
   // Active students = seen in last 5 minutes (Synchronized with "Active Now" header)
   const activeStudents = useMemo(() => {
-    const cutoff = Date.now() - 15 * 60 * 1000;
+    const cutoff = Date.now() - 5 * 60 * 1000;
     return uniqueStudents.filter(s => new Date(s.lastSeen).getTime() > cutoff);
   }, [uniqueStudents]);
 
