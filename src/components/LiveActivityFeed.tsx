@@ -76,6 +76,9 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
 
     // 1. Initialize with ALL registered users from the global roster
     initialUsers.forEach((u: any) => {
+      // Use last_login as the most accurate "last seen" source from user_roles.
+      // Falls back to created_at (registration date) only as a last resort.
+      const bestLastSeen = u.last_login || u.created_at || new Date(0).toISOString();
       map.set(u.email, {
         name: u.name || u.email.split('@')[0],
         email: u.email,
@@ -84,7 +87,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
         pdfReads: 0,
         videoWatches: 0,
         actionCount: 0,
-        lastSeen: u.created_at || new Date(0).toISOString(), // Fallback for very old users
+        lastSeen: bestLastSeen,
         lastAction: 'Registered',
         city: 'Unknown',
         country: 'Unknown',
@@ -159,7 +162,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
 
   // Active students = seen in last 5 minutes (Synchronized with "Active Now" header)
   const activeStudents = useMemo(() => {
-    const cutoff = Date.now() - 5 * 60 * 1000;
+    const cutoff = Date.now() - 15 * 60 * 1000;
     return uniqueStudents.filter(s => new Date(s.lastSeen).getTime() > cutoff);
   }, [uniqueStudents]);
 
