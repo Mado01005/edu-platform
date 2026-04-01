@@ -1,5 +1,5 @@
-const CACHE_NAME = 'eduportal-pwa-v4';
-const STATIC_ASSETS_CACHE = 'eduportal-static-v4';
+const CACHE_NAME = 'eduportal-pwa-v5';
+const STATIC_ASSETS_CACHE = 'eduportal-static-v5';
 
 const PRECACHE_ASSETS = [
   '/',
