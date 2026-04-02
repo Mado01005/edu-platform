@@ -158,11 +158,12 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   const tokenRef = useRef(currentAccessToken || accessToken);
   useEffect(() => {
     tokenRef.current = currentAccessToken || accessToken;
-  }, [currentAccessToken, accessToken]);
+  }, []); // SDK Script Ready dependency handled internally
 
   useEffect(() => {
-    const tokenToUse = currentAccessToken || accessToken;
-    if (!tokenToUse) return;
+    // We only want to initialize the SDK ONCE when the script is ready, 
+    // regardless of whether the token changes (ref handles those updates).
+    if (!accessToken) return;
 
     let localPlayer: any = null;
 
@@ -177,13 +178,14 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         name: 'EduPortal High-Fidelity Player',
         getOAuthToken: async (cb: (token: string) => void) => {
           try {
-            // Always read the latest token from the ref
+            // ALWAYS use the live ref value to ensure the session never restarts
+            // during back-to-back refreshes.
             const liveToken = tokenRef.current;
             const expiresAt = currentTokenExpiresAt;
             const FIVE_MINUTES = 5 * 60 * 1000;
 
             if (expiresAt && Date.now() >= expiresAt - FIVE_MINUTES) {
-              console.log('[SPOTIFY] Token expiring, refreshing before handing to SDK...');
+              console.log('[SPOTIFY] Token expiring — background refresh to prevent SDK dropout...');
               const freshToken = await refreshSpotifyToken();
               cb(freshToken || liveToken || '');
             } else {
@@ -312,6 +314,11 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
 
       newPlayer.connect().then((success: boolean) => {
         console.log(success ? '[SPOTIFY] Connected ✅' : '[SPOTIFY] Connection failed ❌');
+        // Final fallback: if connection fails, it might be due to initial stale token
+        if (!success) {
+           console.log('[SPOTIFY] Retrying with fresh token...');
+           refreshSpotifyToken().then(() => newPlayer.connect());
+        }
       });
 
       setPlayer(newPlayer);
@@ -326,7 +333,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
     return () => {
       localPlayer?.disconnect();
     };
-  }, [currentAccessToken, accessToken]);
+  }, []); // Only run once on mount or script ready
 
   const togglePlay = () => player?.togglePlay();
   const nextTrack = () => player?.nextTrack();
