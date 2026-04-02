@@ -51,7 +51,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://embed.tawk.to https://*.tawk.to; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tawk.to; img-src 'self' blob: data: https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://i.scdn.co https://*.scdn.co https://*.supabase.co https://*.r2.dev https://*.tawk.to; font-src 'self' https://fonts.gstatic.com https://*.tawk.to; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tawk.to wss://*.tawk.to; frame-src 'self' https://player.vimeo.com https://open.spotify.com;"
+            value: "default-src 'self' https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://embed.tawk.to https://*.tawk.to; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tawk.to; img-src 'self' blob: data: https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://i.scdn.co https://*.scdn.co https://*.supabase.co https://*.r2.dev https://*.tawk.to; font-src 'self' https://fonts.gstatic.com https://*.tawk.to; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tawk.to wss://*.tawk.to; frame-src 'self' https://player.vimeo.com https://open.spotify.com https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev; child-src 'self' https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev;"
           }
         ],
       },
