@@ -38,6 +38,8 @@ interface SpotifyContextType {
   setIsMuted: (m: boolean) => void;
   spotifyFetch: (url: string, options?: RequestInit) => Promise<any>;
   playUri: (uri?: string, contextUri?: string) => Promise<void>;
+  isReauthRequired: boolean;
+  setIsReauthRequired: (v: boolean) => void;
 }
 
 const SpotifyContext = createContext<SpotifyContextType | undefined>(undefined);
@@ -54,6 +56,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   const [currentTokenExpiresAt, setCurrentTokenExpiresAt] = useState<number | undefined>(tokenExpiresAt);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
+  const [isReauthRequired, setIsReauthRequired] = useState(false);
   const refreshInFlightRef = useRef<Promise<string | null> | null>(null);
   const { update: updateSession } = useSession();
 
@@ -228,8 +231,9 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         return;
       }
 
+      const playerInstanceId = Math.random().toString(36).substring(7);
       const newPlayer = new (window.Spotify.Player as any)({
-        name: 'EduPortal High-Fidelity Player',
+        name: `EduPortal-Radio-${playerInstanceId}`,
         getOAuthToken: async (cb: (token: string) => void) => {
           try {
             // ALWAYS use the live ref value to ensure the session never restarts
@@ -348,6 +352,10 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         const newToken = await refreshSpotifyToken();
         if (!newToken) {
           setIsTokenExpired(true);
+        } else if (message.includes('Handshake failed') || message.includes('Authentication failed')) {
+          // If the SDK fails despite having a token, it's often a missing scope (401 on melody/v1/check_scope)
+          console.warn('[SPOTIFY] Internal Handshake failed. Pushing re-auth state...');
+          setIsReauthRequired(true);
         } else if (authFailureCount.current > 3) {
           // If we keep getting auth errors despite refreshing (SDK stuck?), 
           // perform total teardown and retry
@@ -490,7 +498,9 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         isMuted,
         setIsMuted,
         spotifyFetch,
-        playUri
+        playUri,
+        isReauthRequired,
+        setIsReauthRequired
       }}
     >
       {accessToken && (
