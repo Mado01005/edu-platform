@@ -76,13 +76,20 @@ export default function PDFViewer({ src, title }: PDFViewerProps) {
             </a>
           </div>
           <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50 h-[600px] md:h-[800px]">
-            <iframe
-              src={src}
+            <object
+              data={encodeURI(src)}
+              type="application/pdf"
               className="w-full h-full"
-              title={title}
-              id="lesson-pdf-viewer"
-              onError={() => setFallback(true)}
-            />
+              aria-label={title}
+            >
+              <iframe
+                src={encodeURI(src)}
+                className="w-full h-full"
+                title={title}
+                id="lesson-pdf-viewer"
+                onError={() => setFallback(true)}
+              />
+            </object>
           </div>
         </>
       )}
