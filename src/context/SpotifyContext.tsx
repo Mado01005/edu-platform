@@ -207,11 +207,12 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
     return () => clearTimeout(timerId);
   }, [currentTokenExpiresAt, refreshToken, refreshSpotifyToken]);
 
-  // Access-token ref for closures that need the live value
+  // Access-token ref for SDK closures that need the live, un-stale value.
+  // CRITICAL: This MUST sync with state/props to prevent WebSocket heartbeats from using old tokens.
   const tokenRef = useRef(currentAccessToken || accessToken);
   useEffect(() => {
     tokenRef.current = currentAccessToken || accessToken;
-  }, []); // SDK Script Ready dependency handled internally
+  }, [currentAccessToken, accessToken]);
 
   useEffect(() => {
     // We only want to initialize the SDK ONCE when the script is ready, 
@@ -236,6 +237,8 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
             const liveToken = tokenRef.current;
             const expiresAt = currentTokenExpiresAt;
             const FIVE_MINUTES = 5 * 60 * 1000;
+
+            console.log('[SPOTIFY] getOAuthToken requested by SDK...');
 
             if (expiresAt && Date.now() >= expiresAt - FIVE_MINUTES) {
               console.log('[SPOTIFY] Token expiring — background refresh to prevent SDK dropout...');
@@ -348,9 +351,11 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         } else if (authFailureCount.current > 3) {
           // If we keep getting auth errors despite refreshing (SDK stuck?), 
           // perform total teardown and retry
-          console.warn('[SPOTIFY] Persistent auth errors. Re-initializing link...');
+          console.warn('[SPOTIFY] Persistent auth errors. Force re-syncing connection...');
           newPlayer.disconnect();
-          setTimeout(() => newPlayer.connect(), 2000);
+          setTimeout(() => {
+            refreshSpotifyToken().then(() => newPlayer.connect());
+          }, 2000);
           authFailureCount.current = 0;
         }
         // SDK will re-call getOAuthToken automatically after this
@@ -365,12 +370,17 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         console.error('[SPOTIFY] Playback error:', message)
       );
 
-      newPlayer.connect().then((success: boolean) => {
+      newPlayer.connect().then(async (success: boolean) => {
         console.log(success ? '[SPOTIFY] Connected ✅' : '[SPOTIFY] Connection failed ❌');
-        // Final fallback: if connection fails, it might be due to initial stale token
+        // Final fallback: if connection fails, it's almost certainly because the initial Token 
+        // provided during `new Spotify.Player` creation was stale.
         if (!success) {
-           console.log('[SPOTIFY] Retrying with fresh token...');
-           refreshSpotifyToken().then(() => newPlayer.connect());
+           console.log('[SPOTIFY] Handshake failed — proactively refreshing for retry...');
+           const newToken = await refreshSpotifyToken();
+           if (newToken) {
+              console.log('[SPOTIFY] Retrying connection with fresh handshake token...');
+              newPlayer.connect();
+           }
         }
       });
 
