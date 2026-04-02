@@ -53,8 +53,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // 1. PERFORM SPOTIFY TOKEN REFRESH ROTATION
       // If we have a Spotify refresh token and it's expired (or close to it), refresh now.
-      if (token.spotifyRefreshToken && token.spotifyTokenExpiresAt && Date.now() > (token.spotifyTokenExpiresAt as number) - 300000) {
-        token = await refreshSpotifyAccessToken(token);
+      // Also refresh if tokenExpiresAt is missing (edge case)
+      if (token.spotifyRefreshToken) {
+        const shouldRefresh = 
+          !token.spotifyTokenExpiresAt || 
+          Date.now() > (token.spotifyTokenExpiresAt as number) - 300000;
+        
+        if (shouldRefresh) {
+          token = await refreshSpotifyAccessToken(token);
+        }
       }
 
       // Perform DB role lookup if we have an email

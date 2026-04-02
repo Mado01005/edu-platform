@@ -131,13 +131,37 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
     }
   };
 
+  // Always show folders if they exist - regardless of lesson name or any other condition
   const folders = currentNodes.filter(n => n.type === 'folder');
   
+  // Detect images more robustly - also check by file extension if fileType is missing
   const images = currentNodes
-    .filter(c => c.type === 'file' && c.fileType === 'image' && c.url)
+    .filter(c => {
+      if (c.type !== 'file') return false;
+      if (!c.url) return false;
+      // Check by fileType first
+      if (c.fileType === 'image') return true;
+      // Fallback: check by file extension
+      const name = c.name.toLowerCase();
+      return name.endsWith('.jpg') || name.endsWith('.jpeg') || 
+             name.endsWith('.png') || name.endsWith('.gif') ||
+             name.endsWith('.webp') || name.endsWith('.svg');
+    })
     .map(c => c.url!) as string[];
     
-  const otherFiles = currentNodes.filter(c => !(c.type === 'file' && c.fileType === 'image') && c.type !== 'folder');
+  const otherFiles = currentNodes.filter(c => {
+    if (c.type === 'folder') return false;
+    if (c.type === 'file') {
+      // Exclude files we already identified as images
+      if (c.fileType === 'image') return false;
+      const name = c.name.toLowerCase();
+      const isImage = name.endsWith('.jpg') || name.endsWith('.jpeg') || 
+                      name.endsWith('.png') || name.endsWith('.gif') ||
+                      name.endsWith('.webp') || name.endsWith('.svg');
+      return !isImage;
+    }
+    return true; // vimeo or other types
+  });
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },

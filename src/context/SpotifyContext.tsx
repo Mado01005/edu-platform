@@ -38,8 +38,6 @@ interface SpotifyContextType {
   setIsMuted: (m: boolean) => void;
   spotifyFetch: (url: string, options?: RequestInit) => Promise<any>;
   playUri: (uri?: string, contextUri?: string) => Promise<void>;
-  isReauthRequired: boolean;
-  setIsReauthRequired: (v: boolean) => void;
 }
 
 const SpotifyContext = createContext<SpotifyContextType | undefined>(undefined);
@@ -56,7 +54,6 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   const [currentTokenExpiresAt, setCurrentTokenExpiresAt] = useState<number | undefined>(tokenExpiresAt);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
-  const [isReauthRequired, setIsReauthRequired] = useState(false);
   const refreshInFlightRef = useRef<Promise<string | null> | null>(null);
   const { update: updateSession } = useSession();
 
@@ -124,7 +121,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         } catch (sessionErr) {
           console.warn('[SPOTIFY] NextAuth session update failed (ignoring):', sessionErr);
           // Fallback: browser-side session reload
-          fetch('/api/auth/session').catch(() => {});
+          fetch('/api/auth/session').catch(() => { });
         }
 
         return newToken;
@@ -175,14 +172,14 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
 
   const playUri = useCallback(async (uri?: string, contextUri?: string) => {
     if (!deviceId) return;
-    
+
     const body: any = {};
     if (uri) body.uris = [uri];
     if (contextUri) body.context_uri = contextUri;
-    
+
     // If no URI is provided, we use the Study Beats fallback to prevent 'no list loaded'
     if (!uri && !contextUri) {
-       body.context_uri = 'spotify:playlist:37i9dQZF1DX8U76H9SBrpf';
+      body.context_uri = 'spotify:playlist:37i9dQZF1DX8U76H9SBrpf';
     }
 
     await spotifyFetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
@@ -231,9 +228,8 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         return;
       }
 
-      const playerInstanceId = Math.random().toString(36).substring(7);
       const newPlayer = new (window.Spotify.Player as any)({
-        name: `EduPortal-Radio-${playerInstanceId}`,
+        name: 'EduPortal High-Fidelity Player',
         getOAuthToken: async (cb: (token: string) => void) => {
           try {
             // ALWAYS use the live ref value to ensure the session never restarts
@@ -348,14 +344,10 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
       newPlayer.addListener('authentication_error', async ({ message }: { message: string }) => {
         console.error('[SPOTIFY] Auth error:', message);
         authFailureCount.current++;
-        
+
         const newToken = await refreshSpotifyToken();
         if (!newToken) {
           setIsTokenExpired(true);
-        } else if (message.includes('Handshake failed') || message.includes('Authentication failed')) {
-          // If the SDK fails despite having a token, it's often a missing scope (401 on melody/v1/check_scope)
-          console.warn('[SPOTIFY] Internal Handshake failed. Pushing re-auth state...');
-          setIsReauthRequired(true);
         } else if (authFailureCount.current > 3) {
           // If we keep getting auth errors despite refreshing (SDK stuck?), 
           // perform total teardown and retry
@@ -383,12 +375,12 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         // Final fallback: if connection fails, it's almost certainly because the initial Token 
         // provided during `new Spotify.Player` creation was stale.
         if (!success) {
-           console.log('[SPOTIFY] Handshake failed — proactively refreshing for retry...');
-           const newToken = await refreshSpotifyToken();
-           if (newToken) {
-              console.log('[SPOTIFY] Retrying connection with fresh handshake token...');
-              newPlayer.connect();
-           }
+          console.log('[SPOTIFY] Handshake failed — proactively refreshing for retry...');
+          const newToken = await refreshSpotifyToken();
+          if (newToken) {
+            console.log('[SPOTIFY] Retrying connection with fresh handshake token...');
+            newPlayer.connect();
+          }
         }
       });
 
@@ -413,7 +405,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   const setSpotifyVolume = useCallback(async (v: number) => {
     // 1. Context check
     if (!player) return;
-    
+
     // 2. SDK Method validation (Strict Requirement)
     if (typeof player.setVolume !== 'function') {
       console.warn('[SPOTIFY] setVolume method not yet attached to player instance.');
@@ -435,7 +427,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   const transferPlayback = async () => {
     const liveToken = currentAccessToken || accessToken;
     if (!deviceId || !liveToken) return;
-    
+
     try {
       let tokenToUse = liveToken;
 
@@ -498,9 +490,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         isMuted,
         setIsMuted,
         spotifyFetch,
-        playUri,
-        isReauthRequired,
-        setIsReauthRequired
+        playUri
       }}
     >
       {accessToken && (
