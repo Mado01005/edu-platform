@@ -67,7 +67,7 @@ export async function checkAndUnlockAchievements(email: string, stats: any) {
       const toInsert = newlyunlocked.map(ach => ({
         user_email: email,
         achievement_id: ach.id,
-        unlocked_at: new Date().toISOString()
+        awarded_at: new Date().toISOString()
       }));
 
       const { error } = await supabaseAdmin
