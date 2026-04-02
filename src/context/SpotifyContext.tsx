@@ -36,6 +36,8 @@ interface SpotifyContextType {
   setSpotifyVolume: (v: number) => void;
   isMuted: boolean;
   setIsMuted: (m: boolean) => void;
+  spotifyFetch: (url: string, options?: RequestInit) => Promise<any>;
+  playUri: (uri?: string, contextUri?: string) => Promise<void>;
 }
 
 const SpotifyContext = createContext<SpotifyContextType | undefined>(undefined);
@@ -133,7 +135,58 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
 
     refreshInFlightRef.current = doRefresh();
     return refreshInFlightRef.current;
-  }, [refreshToken]);
+  }, [refreshToken, updateSession]);
+
+  // Authenticated Spotify Fetch Wrapper
+  const spotifyFetch = useCallback(async (url: string, options: RequestInit = {}) => {
+    const liveToken = tokenRef.current;
+    if (!liveToken) return null;
+
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Authorization': `Bearer ${liveToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (res.status === 401) {
+      console.log('[SPOTIFY] 401 on fetch — refreshing and retrying once...');
+      const freshToken = await refreshSpotifyToken();
+      if (freshToken) {
+        return fetch(url, {
+          ...options,
+          headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${freshToken}`,
+            'Content-Type': 'application/json',
+          },
+        }).then(r => r.json());
+      }
+    }
+
+    if (res.status === 204) return true;
+    return res.json();
+  }, [refreshSpotifyToken]);
+
+  const playUri = useCallback(async (uri?: string, contextUri?: string) => {
+    if (!deviceId) return;
+    
+    const body: any = {};
+    if (uri) body.uris = [uri];
+    if (contextUri) body.context_uri = contextUri;
+    
+    // If no URI is provided, we use the Study Beats fallback to prevent 'no list loaded'
+    if (!uri && !contextUri) {
+       body.context_uri = 'spotify:playlist:37i9dQZF1DX8U76H9SBrpf';
+    }
+
+    await spotifyFetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }, [deviceId, spotifyFetch]);
 
   // Proactive background refresh: fires 5 min before expiry so the SDK never sees an expired token
   useEffect(() => {
@@ -425,7 +478,9 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         volume,
         setSpotifyVolume,
         isMuted,
-        setIsMuted
+        setIsMuted,
+        spotifyFetch,
+        playUri
       }}
     >
       {accessToken && (
