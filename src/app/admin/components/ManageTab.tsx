@@ -82,7 +82,8 @@ export default function ManageTab({
                           <div className="flex items-center gap-4">
                             <input type="checkbox" checked={selectedItems.has(item.id ?? '')} onChange={() => toggleSelectItem(item.id ?? '')} className="accent-indigo-500 w-4 h-4 rounded-lg" />
                             <span className="text-gray-500 font-normal text-lg">
-                              {item.type === 'vimeo' ? '🎬' : 
+                              {item.type === 'folder' ? '📁' :
+                               item.type === 'vimeo' ? '🎬' : 
                                item.fileType === 'video' ? '📽️' : 
                                item.fileType === 'pdf' ? '📕' : 
                                item.fileType === 'image' ? '🖼️' : 
@@ -93,15 +94,18 @@ export default function ManageTab({
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-gray-300">{item.name}</span>
                                 <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-md border ${
+                                  item.type === 'folder' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
                                   item.type === 'vimeo' || item.fileType === 'video' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' :
                                   item.fileType === 'pdf' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
                                   item.name.toLowerCase().includes('.doc') ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
                                   'bg-white/5 border-white/10 text-gray-500'
                                 }`}>
-                                  {item.type === 'vimeo' ? 'VIMEO' : (item.fileType || 'FILE').toUpperCase()}
+                                  {item.type === 'folder' ? 'FOLDER' : item.type === 'vimeo' ? 'VIMEO' : (item.fileType || 'FILE').toUpperCase()}
                                 </span>
                               </div>
-                              <span className="text-[8px] text-gray-700 font-mono tracking-tighter opacity-50 uppercase">{item.id}</span>
+                              {item.type !== 'folder' && (
+                                <span className="text-[8px] text-gray-700 font-mono tracking-tighter opacity-50 uppercase">{item.id}</span>
+                              )}
                             </div>
                           </div>
                           <div className="flex gap-3 opacity-0 group-hover/item:opacity-100 transition-all">

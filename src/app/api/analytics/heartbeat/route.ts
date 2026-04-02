@@ -25,6 +25,17 @@ export async function POST(req: Request) {
     const city = headersList.get('x-vercel-ip-city') || 'Unknown City';
     const country = headersList.get('x-vercel-ip-country') || 'Unknown Country';
 
+    // 0. STALE SESSION CLEANUP
+    // Mark sessions as idle if they haven't sent a heartbeat in 5 minutes
+    // OR delete them if they are truly ancient (> 30 mins)
+    const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+
+    await Promise.all([
+      supabaseAdmin.from('live_sessions').update({ is_idle: true }).lt('last_active_at', fiveMinsAgo).eq('is_idle', false),
+      supabaseAdmin.from('live_sessions').delete().lt('last_active_at', thirtyMinsAgo)
+    ]);
+
     // 1. Fetch current session state to detect navigation/path changes
     const { data: existingSession } = await supabaseAdmin
       .from('live_sessions')

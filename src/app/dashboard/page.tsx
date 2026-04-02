@@ -12,6 +12,8 @@ import DashboardLogger from '@/components/DashboardLogger';
 import StreakBadge from '@/components/UI/StreakBadge';
 import BookmarkedLessons from '@/components/BookmarkedLessons';
 import WhatsNewBanner from '@/components/WhatsNewBanner';
+import BadgeGallery from '@/components/UI/BadgeGallery';
+import { checkAndUnlockAchievements } from '@/lib/achievements';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,6 +95,23 @@ export default async function DashboardPage() {
         streak_count: currentStreak 
       }).eq('email', email);
     }
+
+    // 3. Achievement Synchronization Pulse
+    // We calculate a lightweight version of the user stats for the criteria check
+    const { data: activityLogs } = await supabaseAdmin
+      .from('activity_logs')
+      .select('action')
+      .eq('user_email', email);
+    
+    const completedCount = activityLogs?.filter(l => l.action === 'Completed Lesson').length || 0;
+    
+    // Perform the unlock check
+    await checkAndUnlockAchievements(email, {
+      streakCount: currentStreak,
+      completedCount,
+      lastLoginAt: now.toISOString(),
+      totalMinutes: 0 // Placeholder for now - can be expanded with duration tracking
+    });
   }
 
   // God mode override for top admin
@@ -191,6 +210,19 @@ export default async function DashboardPage() {
 
         {/* Bookmarked Lessons */}
         <BookmarkedLessons />
+
+        {/* Global Achievements Section */}
+        <div className="mb-14 fade-in scale-in" style={{ animationDelay: '0.2s' }}>
+           <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Identity Badges</h3>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Unlock premium credentials through consistent study.</p>
+              </div>
+              <div className="h-px flex-1 bg-white/5 mx-8 hidden md:block"></div>
+              <span className="px-5 py-2 bg-indigo-500/10 text-indigo-400 text-[9px] font-black uppercase tracking-widest rounded-xl border border-indigo-500/20">Pro Suite Beta</span>
+           </div>
+           <BadgeGallery />
+        </div>
 
         {/* Subject grid */}
         {subjects.length === 0 ? (

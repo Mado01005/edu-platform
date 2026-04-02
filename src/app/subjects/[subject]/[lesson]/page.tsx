@@ -9,6 +9,7 @@ import ViewTracker from '@/components/ViewTracker';
 import CompleteButton from '@/components/CompleteButton';
 import BookmarkButton from '@/components/BookmarkButton';
 import ShareButton from '@/components/ShareButton';
+import SnippetTool from '@/components/UI/SnippetTool';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -82,7 +83,9 @@ export default async function LessonPage({ params }: Props) {
           details={{ subject: subject.title, lesson: lesson.title }} 
         />
 
-        {/* Breadcrumbs moved into FolderExplorer */}
+        <SnippetTool sourceTitle={lesson.title} />
+
+        {/* ... existing breadcrumbs logic ... */}
 
         {/* Lesson Payload Header */}
         <div className="mb-14 fade-in">

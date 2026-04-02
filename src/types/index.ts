@@ -62,6 +62,7 @@ export interface UserRole {
   role: Role;
   is_onboarded: boolean;
   streak_count: number;
+  internal_notes: string | null;
   last_login: string | null;
   created_at: string;
 }

@@ -6,6 +6,7 @@ import InteractionTracker from '@/components/InteractionTracker';
 import { PWAInstallPrompt, KeyboardShortcuts, StudyTimer, MobileNav, MusicPlayer } from '@/components/LazyWidgets';
 import Providers from '@/components/Providers';
 import './globals.css';
+import PrefetchEngine from '@/components/PrefetchEngine';
 
 import { auth } from '@/auth';
 
@@ -79,6 +80,7 @@ export default async function RootLayout({
         <SessionTracker />
         <PWAInstallPrompt />
         <KeyboardShortcuts />
+        <PrefetchEngine />
         <StudyTimer />
         <MobileNav />
         

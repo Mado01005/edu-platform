@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { getAllSubjects } from '@/lib/content';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import Notebook from '@/components/UI/Notebook';
 
 export const dynamic = 'force-dynamic';
 
@@ -147,6 +148,19 @@ export default async function ProfilePage() {
               <div className="w-3 h-3 rounded-sm bg-indigo-400"></div>
               <span className="text-[10px] text-gray-500">More</span>
             </div>
+          </div>
+
+          {/* Pro Notebook Section */}
+          <div className="mb-14 fade-in" style={{ animationDelay: '0.25s' }}>
+             <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Pro Notebook</h3>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Your captured insights and PDF annotations.</p>
+                </div>
+                <div className="h-px flex-1 bg-white/5 mx-8"></div>
+                <span className="px-5 py-2 bg-indigo-500/10 text-indigo-400 text-[9px] font-black uppercase tracking-widest rounded-xl border border-indigo-500/20">Synced</span>
+             </div>
+             <Notebook />
           </div>
 
           {/* Recent Activity Feed */}

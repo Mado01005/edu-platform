@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
 import SpotifyProvider from 'next-auth/providers/spotify';
 import { supabaseAdmin } from '@/lib/supabase';
+import { refreshSpotifyAccessToken } from '@/lib/spotify-auth';
 
 import { ADMIN_EMAILS, isMasterAdmin } from '@/lib/constants';
 
@@ -45,29 +46,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.spotifyAccessToken = account.access_token;
           token.spotifyRefreshToken = account.refresh_token;
           token.spotifyTokenExpiresAt = Date.now() + (account.expires_in as number) * 1000;
-          // Don't return here! Continue below to ensure dbUserId and roles are preserved.
         } else {
           token.accessToken = account.access_token;
         }
       }
 
-      // The Spotify Token lifecycle is now robustly managed client-side in `SpotifyContext.tsx`.
-      // We removed the synchronous server-side fetch to `accounts.spotify.com` from this callback
-      // because NextAuth fires the `jwt` callback on almost every page transition/window focus.
-      // Doing external API calls here caused massive latency, rate limits, and random 401s when it timed out.
+      // 1. PERFORM SPOTIFY TOKEN REFRESH ROTATION
+      // If we have a Spotify refresh token and it's expired (or close to it), refresh now.
+      if (token.spotifyRefreshToken && token.spotifyTokenExpiresAt && Date.now() > (token.spotifyTokenExpiresAt as number) - 300000) {
+        token = await refreshSpotifyAccessToken(token);
+      }
 
       // Perform DB role lookup if we have an email
-      // This is wrapped in a try/catch to NEVER drop the session if Supabase has a transient timeout.
       const email = user?.email || (token?.email as string | undefined);
       if (email) {
         try {
           const isMasterAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase().trim() === email.toLowerCase().trim());
           let dbRole = 'student';
           
-          // Only hit the DB if we are missing critical identity claims, or if this is a fresh login (user object exists)
-          // This drastically reduces DB load and prevents "Poisoned Sessions" from timeouts.
           if (user || !token.dbUserId) {
-            // 1. Fetch user role and streak data
             const { data, error } = await supabaseAdmin
               .from('user_roles')
               .select('id, role, is_onboarded, streak_count, last_login')
@@ -80,11 +77,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
             if (data) {
               dbRole = data.role;
-              token.id = data.id;
               token.dbUserId = data.id;
               token.isOnboarded = data.is_onboarded;
             } else {
-              // New user initialization (graceful provisioning)
               const insertData: { email: string; role: string } = { 
                 email: email, 
                 role: 'student'
@@ -100,7 +95,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
               if (newUser) {
                 token.dbUserId = newUser.id;
-                token.id = newUser.id;
               }
               streakCount = 1;
               token.isOnboarded = false;
@@ -112,7 +106,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.isBanned = (dbRole === 'banned');
           }
         } catch (err) {
-          // A DB error must NOT rewrite the token to blank. We gracefully exit and keep the old claims.
           console.warn('[AUTH] Supabase identity lookup failed (retaining cached claims):', err);
         }
       }
@@ -135,7 +128,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.isOnboarded = !!token.isOnboarded;
         session.user.streakCount = (token.streakCount as number) ?? 0;
 
-        // God Mode override for master admins
         if (isMasterAdmin(session.user.email)) {
           session.user.isAdmin = true;
           session.user.isSuperAdmin = true;

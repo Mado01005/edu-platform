@@ -287,6 +287,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                   allRoles={allRoles}
                   activeLogins={activeLogins}
                   updateRole={updateRole}
+                  refreshPageData={refreshPageData}
                 />
               )}
             </div>

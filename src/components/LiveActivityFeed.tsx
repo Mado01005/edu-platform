@@ -24,49 +24,81 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
   const [showRawStream, setShowRawStream] = useState(false);
 
   useEffect(() => {
-    console.log("Initializing Realtime Surveillance...");
-    
-    // Activity Logs Channel
-    const logChannel = supabase
-      .channel('realtime_activity')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'activity_logs' },
-        (payload) => {
-          console.log("New Event Captured:", payload.new.action);
-          setLogs(prev => [payload.new, ...prev].slice(0, 500));
-          setEventCount(c => c + 1);
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') setConnectionStatus('connected');
-        if (status === 'CLOSED' || status === 'CHANNEL_ERROR') setConnectionStatus('error');
-      });
+    let logChannel: any;
+    let sessionChannel: any;
+    let reconnectTimeout: NodeJS.Timeout;
 
-    // Live Sessions Channel
-    const sessionChannel = supabase
-      .channel('realtime_sessions')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'live_sessions' },
-        (payload: any) => {
-          console.log("Session Update:", payload.eventType, payload.new?.user_email);
-          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            setSessions(prev => {
-              const filtered = prev.filter(s => s.user_email !== payload.new.user_email || s.ip_address !== payload.new.ip_address);
-              return [payload.new, ...filtered];
-            });
-          } else if (payload.eventType === 'DELETE') {
-            setSessions(prev => prev.filter(s => s.id !== payload.old.id));
+    const subscribeToChannels = () => {
+      console.log("Initializing Realtime Surveillance...");
+      
+      // Activity Logs Channel
+      logChannel = supabase
+        .channel('realtime_activity')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'activity_logs' },
+          (payload) => {
+            console.log("New Event Captured:", payload.new.action);
+            setLogs(prev => [payload.new, ...prev].slice(0, 500));
+            setEventCount(c => c + 1);
           }
+        );
+
+      // Live Sessions Channel
+      sessionChannel = supabase
+        .channel('realtime_sessions')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'live_sessions' },
+          (payload: any) => {
+            console.log("Session Update:", payload.eventType, payload.new?.user_email);
+            if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+              setSessions(prev => {
+                const filtered = prev.filter(s => s.user_email !== payload.new.user_email || s.ip_address !== payload.new.ip_address);
+                return [payload.new, ...filtered];
+              });
+            } else if (payload.eventType === 'DELETE') {
+              setSessions(prev => prev.filter(s => s.id !== payload.old.id));
+            }
+          }
+        );
+
+      // Subscribe both and handle reconnection
+      const handleStatus = (status: string) => {
+        if (status === 'SUBSCRIBED') {
+          setConnectionStatus('connected');
+          clearTimeout(reconnectTimeout);
         }
-      )
-      .subscribe();
+        if (status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.warn(`Realtime channel ${status}. Retrying in 5s...`);
+          setConnectionStatus('error');
+          
+          // Exponential backoff or simple retry
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = setTimeout(() => {
+            console.log("Attempting Realtime reconnection...");
+            setConnectionStatus('connecting');
+            cleanup();
+            subscribeToChannels();
+          }, 5000);
+        }
+      };
+
+      logChannel.subscribe(handleStatus);
+      sessionChannel.subscribe();
+    };
+
+    const cleanup = () => {
+      if (logChannel) supabase.removeChannel(logChannel);
+      if (sessionChannel) supabase.removeChannel(sessionChannel);
+    };
+
+    subscribeToChannels();
 
     return () => { 
       console.log("Deactivating Surveillance...");
-      supabase.removeChannel(logChannel); 
-      supabase.removeChannel(sessionChannel);
+      cleanup();
+      clearTimeout(reconnectTimeout);
     };
   }, []);
 

@@ -15,14 +15,12 @@ function buildContentTree(flatItems: ContentItem[], parentId: string | null = nu
   for (const child of children) {
     if (child.item_type === 'folder') {
       const folderChildren = buildContentTree(flatItems, child.id);
-      if (folderChildren.length > 0) {
-        nodes.push({
-          id: child.id,
-          type: 'folder' as ItemType,
-          name: child.name,
-          children: folderChildren
-        });
-      }
+      nodes.push({
+        id: child.id,
+        type: 'folder' as ItemType,
+        name: child.name,
+        children: folderChildren
+      });
     } else {
       nodes.push({
         id: child.id,

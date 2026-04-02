@@ -16,18 +16,7 @@ interface UploadTabProps {
 }
 
 import ContentUploader from '@/components/Admin/ContentUploader';
-
-interface UploadTabProps {
-  selectedSubjectId: string;
-  setSelectedSubjectId: (id: string) => void;
-  selectedLessonId: string;
-  setSelectedLessonId: (id: string) => void;
-  localSubjects: SubjectMeta[];
-  activeLessons: LessonMeta[];
-  handleCreateSubject: () => void;
-  handleCreateLesson: () => void;
-  refreshPageData: () => void;
-}
+import { useMemo } from 'react';
 
 export default function UploadTab({
   selectedSubjectId,
@@ -41,6 +30,26 @@ export default function UploadTab({
   refreshPageData
 }: UploadTabProps) {
   const [subfolder, setSubfolder] = useState('');
+  const [selectedFolderId, setSelectedFolderId] = useState('');
+
+  const currentLesson = useMemo(() => 
+    activeLessons.find(l => l.id === selectedLessonId),
+    [activeLessons, selectedLessonId]
+  );
+
+  const availableFolders = useMemo(() => {
+    const folders: { id: string; name: string; level: number }[] = [];
+    const traverse = (nodes: any[], level: number) => {
+      nodes.forEach(node => {
+        if (node.type === 'folder') {
+          folders.push({ id: node.id, name: node.name, level });
+          if (node.children) traverse(node.children, level + 1);
+        }
+      });
+    };
+    if (currentLesson?.content) traverse(currentLesson.content, 0);
+    return folders;
+  }, [currentLesson]);
 
   return (
     <div className="space-y-12 pb-20">
@@ -74,15 +83,33 @@ export default function UploadTab({
 
          {selectedLessonId && (
            <div className="xl:col-span-8 space-y-8 animate-in slide-in-from-right-4 duration-500">
-              <div className="mb-4">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 block">04 Subfolder (Optional)</label>
-                <input type="text" placeholder="e.g., Chapter 1 or Labs/Week 2" value={subfolder} onChange={e => setSubfolder(e.target.value)} className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold placeholder:text-gray-700" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 block">03 Target Folder</label>
+                  <select 
+                    className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all cursor-pointer"
+                    value={selectedFolderId}
+                    onChange={(e) => setSelectedFolderId(e.target.value)}
+                  >
+                    <option value="">-- Lesson Root --</option>
+                    {availableFolders.map(f => (
+                      <option key={f.id} value={f.id}>
+                        {'\u00A0'.repeat(f.level * 3)} ↳ {f.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 block">04 Virtual Path (Optional)</label>
+                  <input type="text" placeholder="e.g., Chapter 1" value={subfolder} onChange={e => setSubfolder(e.target.value)} className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold placeholder:text-gray-700" />
+                </div>
               </div>
               
               <ContentUploader 
                 selectedSubjectId={selectedSubjectId}
                 selectedLessonId={selectedLessonId}
                 currentPath={subfolder}
+                currentPathId={selectedFolderId || undefined}
                 onComplete={refreshPageData}
                 localSubjects={localSubjects}
                 activeLessons={activeLessons}

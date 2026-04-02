@@ -3,22 +3,42 @@
 import { useState } from 'react';
 import { UserRole } from '@/types';
 import { ADMIN_EMAILS } from '@/lib/constants';
+import ManageUserModal from './ManageUserModal';
 
 interface TeamTabProps {
   allRoles: UserRole[];
   activeLogins: string[];
   updateRole: (email: string, role: string) => void;
+  refreshPageData?: () => void;
 }
 
 export default function TeamTab({
   allRoles,
   activeLogins,
-  updateRole
+  updateRole,
+  refreshPageData
 }: TeamTabProps) {
   const [newTeacherEmail, setNewTeacherEmail] = useState('');
+  const [selectedUser, setSelectedUser] = useState<UserRole | null>(null);
+
+  const handleUpdate = () => {
+    if (refreshPageData) {
+      refreshPageData();
+    } else {
+      // Fallback: reload the page to refresh data
+      window.location.reload();
+    }
+  };
 
   return (
     <div className="space-y-16 animate-in fade-in duration-700">
+      {selectedUser && (
+        <ManageUserModal 
+          user={selectedUser} 
+          onClose={() => setSelectedUser(null)} 
+          onUpdate={handleUpdate} 
+        />
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
          <div className="bg-[#101015] border border-white/10 p-12 rounded-[4rem] space-y-10 shadow-3xl relative overflow-hidden">
            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
@@ -72,14 +92,19 @@ export default function TeamTab({
                         </p>
                       </div>
                    </div>
-                   <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-10 group-hover:translate-x-0 min-w-[200px]">
-                       {r.role !== 'superadmin' && (
-                         <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl hover:bg-indigo-500 transition-all">Grant God Mode</button>
-                       )}
-                       {!ADMIN_EMAILS.some(e => r.email.toLowerCase().trim() === e.toLowerCase().trim()) && (
-                         <button onClick={() => updateRole(r.email, 'student')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-red-500/40 hover:text-red-500 border border-white/10 hover:bg-red-500/10 transition-all">Demote to Student</button>
-                       )}
-                    </div>
+                   <div className="flex items-center gap-4">
+                     <button onClick={() => setSelectedUser(r)} className="p-4 bg-white/5 rounded-2xl border border-white/10 text-gray-500 hover:text-indigo-400 hover:border-indigo-500/30 transition-all opacity-0 group-hover:opacity-100">
+                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                     </button>
+                     <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-10 group-hover:translate-x-0 min-w-[200px]">
+                         {r.role !== 'superadmin' && (
+                           <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl hover:bg-indigo-500 transition-all">Grant God Mode</button>
+                         )}
+                         {!ADMIN_EMAILS.some(e => r.email.toLowerCase().trim() === e.toLowerCase().trim()) && (
+                           <button onClick={() => updateRole(r.email, 'student')} className="w-full px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-red-500/40 hover:text-red-500 border border-white/10 hover:bg-red-500/10 transition-all">Demote to Student</button>
+                         )}
+                      </div>
+                   </div>
                 </div>
               ))}
            </div>
@@ -104,16 +129,21 @@ export default function TeamTab({
                             <p className={`text-[9px] font-black uppercase tracking-[0.3em] mt-2 ${r.role === 'banned' ? 'text-red-600' : 'text-gray-700'}`}>{r.role === 'banned' ? '✘ Identity Sector Revoked' : '✓ Verified connection'}</p>
                          </div>
                       </div>
-                      <div className="flex flex-col gap-2 min-w-[200px] items-end justify-center w-full md:w-auto">
-                         {r.role !== 'banned' ? (
-                           <>
-                             <button onClick={() => updateRole(r.email, 'teacher')} className="w-full px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-gray-500 hover:text-white hover:bg-white/10 border border-white/5 shadow-xl transition-all">Promote: Teacher</button>
-                             <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all">Grant: God Mode</button>
-                             <button onClick={() => updateRole(r.email, 'banned')} className="w-full mt-1 px-4 py-3 hover:bg-red-500/20 rounded-xl text-red-500 bg-white/5 border border-white/5 transition-all opacity-40 hover:opacity-100">🚫 Revoke Access</button>
-                           </>
-                         ) : (
-                           <button onClick={() => updateRole(r.email, 'student')} className="px-10 py-4 bg-green-600 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">Authorize Re-Entry</button>
-                         )}
+                      <div className="flex items-center gap-6">
+                        <button onClick={() => setSelectedUser(r)} className="p-4 bg-white/5 rounded-2xl border border-white/10 text-gray-500 hover:text-indigo-400 hover:border-indigo-500/30 transition-all opacity-0 group-hover/student:opacity-100">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                        <div className="flex flex-col gap-2 min-w-[200px] items-end justify-center w-full md:w-auto">
+                           {r.role !== 'banned' ? (
+                             <>
+                               <button onClick={() => updateRole(r.email, 'teacher')} className="w-full px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white/5 text-gray-500 hover:text-white hover:bg-white/10 border border-white/5 shadow-xl transition-all">Promote: Teacher</button>
+                               <button onClick={() => updateRole(r.email, 'superadmin')} className="w-full px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all">Grant: God Mode</button>
+                               <button onClick={() => updateRole(r.email, 'banned')} className="w-full mt-1 px-4 py-3 hover:bg-red-500/20 rounded-xl text-red-500 bg-white/5 border border-white/5 transition-all opacity-40 hover:opacity-100">🚫 Revoke Access</button>
+                             </>
+                           ) : (
+                             <button onClick={() => updateRole(r.email, 'student')} className="px-10 py-4 bg-green-600 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">Authorize Re-Entry</button>
+                           )}
+                        </div>
                       </div>
                    </div>
                  ))}

@@ -8,13 +8,15 @@ function flush() {
   eventBuffer = []; // Clear buffer immediately
 
   // Send all buffered events in a single network request
+  // keepalive: true ensures the request finishes even if the tab is closed
   fetch('/api/log', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       action: 'USER_INTERACTIONS_BATCH',
       details: { events, count: events.length }
-    })
+    }),
+    keepalive: true
   }).catch((err) => {
     console.error('[Telemetry Worker] Failed to flush events', err);
     // Optional: could push events back into array for retry

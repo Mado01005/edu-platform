@@ -72,18 +72,29 @@ export default function InteractionTracker() {
     window.addEventListener('click', handleClick);
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Force flush on tab hide or page unload
+    // Force flush on tab hide, context switch, or page unload
     const handleVisibilityChange = () => {
       if (document.hidden && workerRef.current) {
         workerRef.current.postMessage({ type: 'FLUSH' });
       }
     };
+
+    const handleBeforeUnload = () => {
+      if (workerRef.current) {
+        workerRef.current.postMessage({ type: 'FLUSH' });
+      }
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       window.removeEventListener('click', handleClick);
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       if (workerRef.current) workerRef.current.postMessage({ type: 'FLUSH' });
     };
   }, [dispatchEvent]);

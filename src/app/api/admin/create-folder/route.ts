@@ -33,6 +33,7 @@ export async function POST(req: Request) {
         lesson_id: lessonId,
         parent_id: parentId || null,
         item_type: 'folder',
+        file_type: null, // Folders never have file types
         name: folderName,
       }).select().single();
       data = result.data;
