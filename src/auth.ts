@@ -35,7 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     SpotifyProvider({
       clientId: process.env.SPOTIFY_CLIENT_ID,
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-      authorization: "https://accounts.spotify.com/authorize?scope=user-read-email,user-read-private,user-read-playback-state,user-modify-playback-state,streaming",
+      authorization: "https://accounts.spotify.com/authorize?scope=user-read-email,user-read-private,user-read-playback-state,user-modify-playback-state,streaming,playlist-read-private,playlist-read-collaborative,user-library-read",
       allowDangerousEmailAccountLinking: true,
     }),
   ],
@@ -167,7 +167,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = (token.dbUserId as string) ?? token.sub;
-        session.user.accessToken = token.accessToken as string;
+        session.accessToken = token.spotifyAccessToken as string;
+        session.user.accessToken = token.spotifyAccessToken as string;
         session.user.spotifyAccessToken = token.spotifyAccessToken as string;
         session.user.spotifyRefreshToken = token.spotifyRefreshToken as string;
         session.user.spotifyTokenExpiresAt = token.spotifyTokenExpiresAt as number;
