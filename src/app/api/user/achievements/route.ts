@@ -13,7 +13,7 @@ export async function GET() {
     // Fetch user's achievements
     const { data: userAchievements, error } = await supabaseAdmin
       .from('user_achievements')
-      .select('achievement_id, unlocked_at')
+      .select('achievement_id, awarded_at')
       .eq('user_email', email);
 
     if (error) throw error;
@@ -24,7 +24,7 @@ export async function GET() {
     const result = ACHIEVEMENTS.map(ach => ({
       ...ach,
       isUnlocked: unlockedIds.has(ach.id),
-      unlockedAt: userAchievements?.find(a => a.achievement_id === ach.id)?.unlocked_at || null
+      unlockedAt: userAchievements?.find(a => a.achievement_id === ach.id)?.awarded_at || null
     }));
 
     return NextResponse.json(result);
