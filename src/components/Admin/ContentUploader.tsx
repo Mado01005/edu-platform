@@ -117,8 +117,12 @@ export default function ContentUploader({
   };
 
   const uploadFileWithFetch = async (file: File, signedUrl: string, contentType: string) => {
-    // ── STEP 2B: Binary Body PUT via Fetch ──
-    // Fetch is cleaner for CORS preflights than XHR.
+    // ── DIAGNOSTIC LOGGING ──
+    console.log('[R2-UPLOAD] Preparing Fetch PUT...');
+    console.log('[R2-UPLOAD] Target URL:', signedUrl);
+    console.log('[R2-UPLOAD] Headers:', { 'Content-Type': contentType || 'application/octet-stream' });
+    console.log('[R2-UPLOAD] File:', file.name, 'Size:', file.size, 'Type:', file.type);
+
     try {
       const response = await fetch(signedUrl, {
         method: 'PUT',
