@@ -6,6 +6,10 @@ import { refreshSpotifyAccessToken } from '@/lib/spotify-auth';
 
 import { ADMIN_EMAILS, isMasterAdmin } from '@/lib/constants';
 
+if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
+  console.warn('[AUTH] Warning: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET is not defined in environment variables.');
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: process.env.NODE_ENV === 'development',
   logger: {
@@ -29,13 +33,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       allowDangerousEmailAccountLinking: true,
     }),
     SpotifyProvider({
-      clientId: process.env.SPOTIFY_CLIENT_ID as string,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET as string,
-      authorization: {
-        params: {
-          scope: "user-read-email user-read-private user-read-playback-state user-modify-playback-state streaming"
-        }
-      }
+      clientId: process.env.SPOTIFY_CLIENT_ID,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+      authorization: "https://accounts.spotify.com/authorize?scope=user-read-email,user-read-private,user-read-playback-state,user-modify-playback-state,streaming",
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   // Use JWT strategy (no database needed)
