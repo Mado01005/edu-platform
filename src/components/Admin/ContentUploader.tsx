@@ -118,6 +118,7 @@ export default function ContentUploader({
 
   const uploadFileWithProgress = (file: File, signedUrl: string, contentType: string) => {
     return new Promise((resolve, reject) => {
+      // ── STEP 2B: Direct Binary PUT to R2 ──
       const xhr = new XMLHttpRequest();
       const startTime = Date.now();
       
@@ -134,16 +135,27 @@ export default function ContentUploader({
       });
 
       xhr.addEventListener('load', () => {
-        if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
-        else reject(new Error(`Upload failed with status ${xhr.status}`));
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(xhr.response);
+        } else {
+          // If R2 rejects it (e.g. 403 Invalid Signature), we need to know why
+          const errMsg = `Upload failed (${xhr.status}). ${xhr.status === 403 ? 'Verify R2 Signature/CORS.' : ''}`;
+          reject(new Error(errMsg));
+        }
       });
 
       xhr.addEventListener('error', () => {
-        reject(new Error(`Network error during R2 upload. Check CORS settings.`));
+        // This is where CORS preflight or network failures end up
+        reject(new Error('Network error or CORS block. Ensure the R2 Bucket CORS policy allows PUT from this origin.'));
       });
       
+      // Open the connection with the presigned URL
       xhr.open('PUT', signedUrl);
-      xhr.setRequestHeader('Content-Type', contentType);
+      
+      // CRITICAL: The Content-Type MUST match the one used during getPresignedUploadUrl signature creation exactly.
+      xhr.setRequestHeader('Content-Type', contentType || 'application/octet-stream');
+      
+      // Send the raw file blob
       xhr.send(file);
     });
   };
