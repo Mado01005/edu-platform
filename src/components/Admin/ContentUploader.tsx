@@ -116,48 +116,30 @@ export default function ContentUploader({
     );
   };
 
-  const uploadFileWithProgress = (file: File, signedUrl: string, contentType: string) => {
-    return new Promise((resolve, reject) => {
-      // ── STEP 2B: Direct Binary PUT to R2 ──
-      const xhr = new XMLHttpRequest();
-      const startTime = Date.now();
-      
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-          const percent = Math.round((e.loaded / e.total) * 100);
-          setProgress(percent);
-          const duration = (Date.now() - startTime) / 1000;
-          if (duration > 0) {
-            const speed = (e.loaded / 1024 / 1024 / duration).toFixed(2);
-            setUploadSpeed(`${speed} MB/s`);
-          }
-        }
+  const uploadFileWithFetch = async (file: File, signedUrl: string, contentType: string) => {
+    // ── STEP 2B: Binary Body PUT via Fetch ──
+    // Fetch is cleaner for CORS preflights than XHR.
+    try {
+      const response = await fetch(signedUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': contentType || 'application/octet-stream',
+        },
+        body: file,
       });
 
-      xhr.addEventListener('load', () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve(xhr.response);
-        } else {
-          // If R2 rejects it (e.g. 403 Invalid Signature), we need to know why
-          const errMsg = `Upload failed (${xhr.status}). ${xhr.status === 403 ? 'Verify R2 Signature/CORS.' : ''}`;
-          reject(new Error(errMsg));
-        }
-      });
-
-      xhr.addEventListener('error', () => {
-        // This is where CORS preflight or network failures end up
-        reject(new Error('Network error or CORS block. Ensure the R2 Bucket CORS policy allows PUT from this origin.'));
-      });
-      
-      // Open the connection with the presigned URL
-      xhr.open('PUT', signedUrl);
-      
-      // CRITICAL: The Content-Type MUST match the one used during getPresignedUploadUrl signature creation exactly.
-      xhr.setRequestHeader('Content-Type', contentType || 'application/octet-stream');
-      
-      // Send the raw file blob
-      xhr.send(file);
-    });
+      if (!response.ok) {
+        const status = response.status;
+        const msg = `R2 Rejection (${status}). ${status === 403 ? 'Signature mismatch or CORS block.' : ''}`;
+        throw new Error(msg);
+      }
+      return true;
+    } catch (err) {
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        throw new Error('Network Error / CORS Block. Please ensure R2 CORS allows ALL (*) for testing.');
+      }
+      throw err;
+    }
   };
 
   const processUploadOrEmbed = async (e: React.FormEvent) => {
@@ -220,7 +202,7 @@ export default function ContentUploader({
           const { signedUrl, publicUrl } = await initRes.json();
 
           // ── STEP 2: Upload directly to R2 via presigned URL ──
-          await uploadFileWithProgress(file, signedUrl, file.type);
+          await uploadFileWithFetch(file, signedUrl, file.type);
 
           // ── STEP 3: Register in Supabase ──
           const compRes = await fetch('/api/admin/upload-complete', {
