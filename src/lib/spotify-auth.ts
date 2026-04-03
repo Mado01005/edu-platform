@@ -18,9 +18,10 @@ export async function refreshSpotifyAccessToken(token: JWT): Promise<JWT> {
       body,
     });
 
-    const refreshedTokens = await response.json();
+    const refreshedTokens = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      console.error("[SPOTIFY-AUTH] Refresh failed:", response.status, refreshedTokens);
       throw refreshedTokens;
     }
 

@@ -33,9 +33,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // If authenticated and hitting root path (/), redirect to dashboard
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|content/.*).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|icon-.*\\.png|apple-.*\\.png|manifest\\.json|sw\\.js|content/.*).*)'],
 };

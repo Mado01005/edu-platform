@@ -80,7 +80,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ── Strategy 2: Stale-While-Revalidate for navigation / HTML ─────────────
+  // ── Strategy 2: Network-First for Navigation (Fixed ERR_FAILED) ─────────
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((networkRes) => {
+          if (networkRes.ok) {
+            const clone = networkRes.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+          }
+          return networkRes;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request);
+          return cached || offlineResponse();
+        })
+    );
+    return;
+  }
+
+  // ── Strategy 3: Stale-While-Revalidate for other same-origin HTML/Assets ─
   event.respondWith(
     (async () => {
       try {

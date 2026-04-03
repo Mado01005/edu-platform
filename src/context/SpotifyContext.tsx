@@ -50,7 +50,8 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   const [currentTrack, setCurrentTrack] = useState<SpotifyTrack | null>(null);
   const [isPremiumRequired, setIsPremiumRequired] = useState(false);
   const [isTokenExpired, setIsTokenExpired] = useState(false);
-  const [currentAccessToken, setCurrentAccessToken] = useState<string | undefined>(accessToken);
+  const [currentAccessToken, setCurrentAccessToken] = useState<string | undefined>(accessToken?.startsWith('ya29.') ? undefined : accessToken);
+  const [currentRefreshToken, setCurrentRefreshToken] = useState<string | undefined>(refreshToken);
   const [currentTokenExpiresAt, setCurrentTokenExpiresAt] = useState<number | undefined>(tokenExpiresAt);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
@@ -98,23 +99,24 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
           return null;
         }
 
-        const data = await response.json();
-        const newToken = data.access_token as string;
-        const newExpiresIn = (data.expires_in as number) || 3600;
-
-        // Update local state immediately so the SDK picks it up
+        const { access_token: newToken, expires_in: newExpiresIn, refresh_token: newRefreshToken } = await response.json();
+        
+        console.log('[SPOTIFY REFRESH] New token received, updating context and session...');
+        
         setCurrentAccessToken(newToken);
         setCurrentTokenExpiresAt(Date.now() + newExpiresIn * 1000);
+        if (newRefreshToken) {
+          setCurrentRefreshToken(newRefreshToken);
+        }
         setIsTokenExpired(false);
 
         console.log('[SPOTIFY] Token refreshed ✅ (expires in', newExpiresIn, 's)');
 
-        // Force NextAuth to re-sync the session on the server and client
+        // Update NextAuth session to keep it in sync with the new identity credits
         try {
-          // IMPORTANT: next-auth v5 session update requires specific flat object structure
-          // to be merged into the session.
           await updateSession({
             spotifyAccessToken: newToken,
+            spotifyRefreshToken: newRefreshToken || currentRefreshToken,
             spotifyTokenExpiresAt: Date.now() + newExpiresIn * 1000
           });
           console.log('[SPOTIFY] NextAuth session updated ✅');
@@ -135,7 +137,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
 
     refreshInFlightRef.current = doRefresh();
     return refreshInFlightRef.current;
-  }, [refreshToken, updateSession]);
+  }, [refreshToken, updateSession, currentRefreshToken]);
 
   // Authenticated Spotify Fetch Wrapper
   const spotifyFetch = useCallback(async (url: string, options: RequestInit = {}) => {
@@ -207,12 +209,14 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
     return () => clearTimeout(timerId);
   }, [currentTokenExpiresAt, refreshToken, refreshSpotifyToken]);
 
-  // Access-token ref for SDK closures that need the live, un-stale value.
-  // CRITICAL: This MUST sync with state/props to prevent WebSocket heartbeats from using old tokens.
-  const tokenRef = useRef(currentAccessToken || accessToken);
+  // Live token used by playback SDK and API wrappers
+  const liveToken = (currentAccessToken || accessToken);
+  const validatedToken = liveToken?.startsWith('ya29.') ? null : liveToken;
+  const tokenRef = useRef(validatedToken);
+
   useEffect(() => {
-    tokenRef.current = currentAccessToken || accessToken;
-  }, [currentAccessToken, accessToken]);
+    tokenRef.current = validatedToken;
+  }, [validatedToken]);
 
   useEffect(() => {
     // We only want to initialize the SDK ONCE when the script is ready, 
@@ -425,16 +429,14 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
   }, [player]);
 
   const transferPlayback = async () => {
-    const liveToken = currentAccessToken || accessToken;
+    const liveToken = tokenRef.current;
     if (!deviceId || !liveToken) return;
 
     try {
-      let tokenToUse = liveToken;
-
       const res = await fetch('https://api.spotify.com/v1/me/player', {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${tokenToUse}`,
+          'Authorization': `Bearer ${liveToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ device_ids: [deviceId], play: false }),
@@ -477,8 +479,8 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
         isActive,
         currentTrack,
         isPlaying,
-        hasToken: !!(currentAccessToken || accessToken),
-        accessToken: (currentAccessToken || accessToken) || null,
+        hasToken: !!validatedToken,
+        accessToken: validatedToken || null,
         togglePlay,
         nextTrack,
         previousTrack,

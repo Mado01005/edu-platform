@@ -10,6 +10,7 @@ node_modules
 *.JPG
 *.jpg
 *.DNG
-*.png
+# Allow essential PWA assets
+# Remove global *.png ignore to ensure icons and OG images are deployed
 *.zip
 *.tar.gz

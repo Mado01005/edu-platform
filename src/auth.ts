@@ -26,11 +26,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
     SpotifyProvider({
       clientId: process.env.SPOTIFY_CLIENT_ID as string,
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET as string,
-      authorization: "https://accounts.spotify.com/authorize?scope=streaming+user-read-email+user-read-private+user-modify-playback-state+user-read-playback-state+playlist-read-private+playlist-read-collaborative+user-library-read+user-read-recently-played&prompt=consent",
+      authorization: {
+        params: {
+          scope: "user-read-email user-read-private user-read-playback-state user-modify-playback-state streaming"
+        }
+      }
     }),
   ],
   // Use JWT strategy (no database needed)
@@ -39,28 +44,43 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
+      try {
+        // 1. Handle explicit session updates (fired from SpotifyContext)
+      if (trigger === 'update' && session) {
+        if (session.spotifyAccessToken) token.spotifyAccessToken = session.spotifyAccessToken;
+        if (session.spotifyTokenExpiresAt) token.spotifyTokenExpiresAt = session.spotifyTokenExpiresAt;
+        if (session.spotifyRefreshToken) token.spotifyRefreshToken = session.spotifyRefreshToken;
+        // Do NOT return early — we need to fall through to persist this to the DB later
+      }
+
       // Store provider-specific tokens
       if (account) {
         if (account.provider === 'spotify') {
           token.spotifyAccessToken = account.access_token;
           token.spotifyRefreshToken = account.refresh_token;
-          token.spotifyTokenExpiresAt = Date.now() + (account.expires_in as number) * 1000;
-        } else {
+          token.spotifyTokenExpiresAt = Date.now() + (Number(account.expires_in) || 3600) * 1000;
+        } else if (account.provider === 'google') {
           token.accessToken = account.access_token;
         }
       }
 
-      // 1. PERFORM SPOTIFY TOKEN REFRESH ROTATION
+      // 2. PERFORM SPOTIFY TOKEN REFRESH ROTATION
       // If we have a Spotify refresh token and it's expired (or close to it), refresh now.
-      // Also refresh if tokenExpiresAt is missing (edge case)
       if (token.spotifyRefreshToken) {
+        const isRecentlyUpdated = trigger === 'update';
         const shouldRefresh = 
+          !isRecentlyUpdated && (
           !token.spotifyTokenExpiresAt || 
-          Date.now() > (token.spotifyTokenExpiresAt as number) - 300000;
+          Date.now() > (token.spotifyTokenExpiresAt as number) - 300000
+          );
         
         if (shouldRefresh) {
-          token = await refreshSpotifyAccessToken(token);
+          try {
+            token = await refreshSpotifyAccessToken(token);
+          } catch (refreshErr) {
+            console.error('[AUTH] Proactive Spotify token refresh failed:', refreshErr);
+          }
         }
       }
 
@@ -71,14 +91,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const isMasterAdminEmail = ADMIN_EMAILS.some(e => e.toLowerCase().trim() === email.toLowerCase().trim());
           let dbRole = 'student';
           
-          if (user || !token.dbUserId) {
-            const { data, error } = await supabaseAdmin
+          const { data, error } = await supabaseAdmin
               .from('user_roles')
-              .select('id, role, is_onboarded, streak_count, last_login')
+              .select('id, role, is_onboarded, streak_count, last_login, spotify_refresh_token')
               .eq('email', email)
               .maybeSingle();
 
             if (error) throw error;
+
+            // 3. PERSISTENT IDENTITY HYDRATION:
+            // Determine if we need to load or save Spotify credentials
+            if (data?.spotify_refresh_token && !token.spotifyRefreshToken) {
+              console.log('[AUTH] Hydrating Spotify token from DB for user:', email);
+              token.spotifyRefreshToken = data.spotify_refresh_token;
+              try {
+                token = await refreshSpotifyAccessToken(token);
+              } catch (refreshErr) {
+                console.error('[AUTH] Failed to refresh hydrated token:', refreshErr);
+              }
+            }
 
             let streakCount = data?.streak_count || 1;
 
@@ -107,18 +138,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               token.isOnboarded = false;
             }
 
+            // 4. POST-IDENTITY SAVE: Now that we definitely have a dbUserId, save the Spotify token if it was just received
+            if (token.spotifyRefreshToken && token.dbUserId) {
+              console.log('[AUTH] Persisting Spotify link to DB for user ID:', token.dbUserId);
+              await supabaseAdmin
+                .from('user_roles')
+                .update({ spotify_refresh_token: token.spotifyRefreshToken })
+                .eq('id', token.dbUserId);
+            }
+
             token.isAdmin = isMasterAdminEmail || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
             token.isSuperAdmin = isMasterAdminEmail || dbRole === 'superadmin';
             token.streakCount = streakCount;
             token.isBanned = (dbRole === 'banned');
+          } catch (err) {
+            console.error('[AUTH] Supabase identity lookup FATAL failure:', err);
+            // On a fatal DB failure, we still want to return the token to allow partial app access
           }
-        } catch (err) {
-          console.warn('[AUTH] Supabase identity lookup failed (retaining cached claims):', err);
         }
-      }
-      
-      return token;
-    },
+        
+        } catch (jwtErr) {
+          console.error('[AUTH] Root JWT callback CRITICAL error:', jwtErr);
+        }
+        
+        return token;
+      },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = (token.dbUserId as string) ?? token.sub;

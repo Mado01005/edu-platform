@@ -27,9 +27,10 @@ export async function POST() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       },
       body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
       }),
@@ -37,7 +38,7 @@ export async function POST() {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('[SPOTIFY REFRESH] Token refresh failed:', response.status, errorData);
+      console.error('[SPOTIFY REFRESH] Token refresh failed from Spotify:', response.status, errorData);
       return NextResponse.json(
         { error: 'Failed to refresh token', details: errorData },
         { status: response.status }
