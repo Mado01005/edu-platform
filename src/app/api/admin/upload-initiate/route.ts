@@ -12,6 +12,11 @@ export async function POST(req: Request) {
 
     const { fileName, relativeFilePath, subjectSlug, lessonSlug, contentType, subfolder } = await req.json();
 
+    // ── DIAGNOSTICS ──
+    console.log('[R2-INIT] Bucket:', process.env.R2_BUCKET_NAME || 'eduportal-media');
+    console.log('[R2-INIT] Endpoint:', process.env.R2_ENDPOINT ? '(present)' : '(missing)');
+    console.log('[R2-INIT] Request:', { fileName, subjectSlug, lessonSlug });
+
     if (!fileName || !subjectSlug || !lessonSlug) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
