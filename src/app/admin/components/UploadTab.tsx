@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { SubjectMeta, LessonMeta } from '@/types';
+import { useAdmin } from '../context/AdminContext';
 
 interface UploadTabProps {
   selectedSubjectId: string;
@@ -10,8 +11,6 @@ interface UploadTabProps {
   setSelectedLessonId: (id: string) => void;
   localSubjects: SubjectMeta[];
   activeLessons: LessonMeta[];
-  handleCreateSubject: () => void;
-  handleCreateLesson: () => void;
   refreshPageData: () => void;
 }
 
@@ -25,12 +24,11 @@ export default function UploadTab({
   setSelectedLessonId,
   localSubjects,
   activeLessons,
-  handleCreateSubject,
-  handleCreateLesson,
   refreshPageData
 }: UploadTabProps) {
   const [subfolder, setSubfolder] = useState('');
   const [selectedFolderId, setSelectedFolderId] = useState('');
+  const { handleCreateSubject, handleCreateLesson } = useAdmin();
 
   const currentLesson = useMemo(() => 
     activeLessons.find(l => l.id === selectedLessonId),
@@ -75,7 +73,7 @@ export default function UploadTab({
                   )}
                   <div className="flex gap-2 pt-2">
                     <button type="button" onClick={handleCreateSubject} className="flex-1 text-[9px] font-black uppercase tracking-widest py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition">+ Create Folder</button>
-                    {selectedSubjectId && <button type="button" onClick={handleCreateLesson} className="flex-1 text-[9px] font-black uppercase tracking-widest py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition">+ Create Module</button>}
+                    {selectedSubjectId && <button type="button" onClick={() => handleCreateLesson(selectedSubjectId)} className="flex-1 text-[9px] font-black uppercase tracking-widest py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition">+ Create Module</button>}
                   </div>
                </div>
             </div>

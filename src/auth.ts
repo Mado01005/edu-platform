@@ -3,6 +3,8 @@ import Google from 'next-auth/providers/google';
 import SpotifyProvider from 'next-auth/providers/spotify';
 import { supabaseAdmin } from '@/lib/supabase';
 import { refreshSpotifyAccessToken } from '@/lib/spotify-auth';
+import { safeEncrypt, safeDecrypt } from '@/lib/crypto';
+import { ExtendedJWT } from '@/types/auth';
 
 import { ADMIN_EMAILS, isMasterAdmin } from '@/lib/constants';
 
@@ -45,7 +47,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, account, trigger, session }) {
+    async jwt({ token, user, account, trigger, session }: { 
+      token: ExtendedJWT; 
+      user?: any; 
+      account?: any; 
+      trigger?: 'signIn' | 'signUp' | 'update'; 
+      session?: any 
+    }) {
       try {
         // 1. Handle explicit session updates (fired from SpotifyContext)
       if (trigger === 'update' && session) {
@@ -79,6 +87,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (shouldRefresh) {
           try {
             token = await refreshSpotifyAccessToken(token);
+            if (token.error === 'SpotifyTokenRevoked') {
+              // Token is revoked, clear it from the session to stop refresh loops
+              token.spotifyAccessToken = undefined;
+              token.spotifyRefreshToken = undefined;
+              token.spotifyTokenExpiresAt = undefined;
+            }
           } catch (refreshErr) {
             console.error('[AUTH] Proactive Spotify token refresh failed:', refreshErr);
           }
@@ -104,11 +118,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             // Determine if we need to load or save Spotify credentials
             if (data?.spotify_refresh_token && !token.spotifyRefreshToken) {
               console.log('[AUTH] Hydrating Spotify token from DB for user:', email);
-              token.spotifyRefreshToken = data.spotify_refresh_token;
-              try {
-                token = await refreshSpotifyAccessToken(token);
-              } catch (refreshErr) {
-                console.error('[AUTH] Failed to refresh hydrated token:', refreshErr);
+              // Decrypt token from database (handles both encrypted and plaintext for backward compatibility)
+              const decryptedToken = await safeDecrypt(data.spotify_refresh_token);
+              if (decryptedToken) {
+                token.spotifyRefreshToken = decryptedToken;
+                try {
+                  token = await refreshSpotifyAccessToken(token);
+                  if (token.error === 'SpotifyTokenRevoked') {
+                    console.log('[AUTH] Token was revoked, clearing from DB for user:', email);
+                    await supabaseAdmin
+                      .from('user_roles')
+                      .update({ spotify_refresh_token: null })
+                      .eq('email', email);
+                    token.spotifyAccessToken = undefined;
+                    token.spotifyRefreshToken = undefined;
+                    token.spotifyTokenExpiresAt = undefined;
+                  }
+                } catch (refreshErr) {
+                  console.error('[AUTH] Failed to refresh hydrated token:', refreshErr);
+                }
+              } else {
+                console.warn('[AUTH] Failed to decrypt Spotify token from database');
               }
             }
 
@@ -142,10 +172,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             // 4. POST-IDENTITY SAVE: Now that we definitely have a dbUserId, save the Spotify token if it was just received
             if (token.spotifyRefreshToken && token.dbUserId) {
               console.log('[AUTH] Persisting Spotify link to DB for user ID:', token.dbUserId);
-              await supabaseAdmin
-                .from('user_roles')
-                .update({ spotify_refresh_token: token.spotifyRefreshToken })
-                .eq('id', token.dbUserId);
+              // Encrypt token before storing in database
+              const encryptedToken = await safeEncrypt(token.spotifyRefreshToken);
+              if (encryptedToken) {
+                await supabaseAdmin
+                  .from('user_roles')
+                  .update({ spotify_refresh_token: encryptedToken })
+                  .eq('id', token.dbUserId);
+              } else {
+                console.warn('[AUTH] Failed to encrypt Spotify token, skipping database save');
+              }
             }
 
             token.isAdmin = isMasterAdminEmail || dbRole === 'teacher' || dbRole === 'admin' || dbRole === 'superadmin';
@@ -164,7 +200,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         
         return token;
       },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: ExtendedJWT }) {
       if (token && session.user) {
         session.user.id = (token.dbUserId as string) ?? token.sub;
         session.accessToken = token.spotifyAccessToken as string;

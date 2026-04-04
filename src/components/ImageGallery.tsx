@@ -21,15 +21,29 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
   const getFullUrl = (path: string) => {
     if (!path) return '';
-    // Already a full URL (R2, Supabase, etc.) → use as-is
-    if (path.startsWith('http')) return path;
+    
+    // Handle R2 URLs by converting to local paths
+    // Example R2 URL: https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev/content/programming/Photos/PROGRAMMING%20LEC/IMG_8468.jpg
+    // Convert to: /content/programming/Photos/PROGRAMMING LEC/IMG_8468.jpg
+    if (path.startsWith('http')) {
+      // Check if it's an R2 URL
+      const r2Match = path.match(/https?:\/\/[^/]+\/(content\/.+)/);
+      if (r2Match) {
+        // Extract the path after /content/ and decode URI components
+        const extractedPath = r2Match[1];
+        const decodedPath = decodeURIComponent(extractedPath);
+        return `/${decodedPath}`;
+      }
+      // For other HTTP URLs (Supabase, etc.), use as-is
+      return path;
+    }
     
     // Relative path → construct Supabase Storage public URL
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, '') || 'https://placeholder.supabase.co';
     const bucketName = 'edu-content';
     const cleanBaseUrl = baseUrl;
     const cleanBucket = bucketName.replace(/^\/+|\/+$/g, '');
-    const cleanPath = path.replace(/^\/+/, '');
+    const cleanPath = path.replace(/^\//, '');
     
     // Check if the path already looks like an encoded path
     const isAlreadyEncoded = /%[0-9A-Fa-f]{2}/.test(cleanPath);

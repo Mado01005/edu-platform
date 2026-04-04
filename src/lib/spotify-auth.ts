@@ -1,6 +1,6 @@
-import { JWT } from "next-auth/jwt";
+import { ExtendedJWT } from '@/types/auth';
 
-export async function refreshSpotifyAccessToken(token: JWT): Promise<JWT> {
+export async function refreshSpotifyAccessToken(token: ExtendedJWT): Promise<ExtendedJWT> {
   try {
     const url = "https://accounts.spotify.com/api/token";
     const body = new URLSearchParams({
@@ -22,6 +22,13 @@ export async function refreshSpotifyAccessToken(token: JWT): Promise<JWT> {
 
     if (!response.ok) {
       console.error("[SPOTIFY-AUTH] Refresh failed:", response.status, refreshedTokens);
+      // Specific detection for revoked tokens
+      if (refreshedTokens.error === 'invalid_grant' || (refreshedTokens.error_description || '').includes('revoked')) {
+        return {
+          ...token,
+          error: "SpotifyTokenRevoked",
+        };
+      }
       throw refreshedTokens;
     }
 

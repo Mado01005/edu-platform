@@ -4,22 +4,33 @@ import { useState } from 'react';
 import { UserRole } from '@/types';
 import { ADMIN_EMAILS } from '@/lib/constants';
 import ManageUserModal from './ManageUserModal';
+import { useAdmin } from '../context/AdminContext';
 
 interface TeamTabProps {
   allRoles: UserRole[];
   activeLogins: string[];
-  updateRole: (email: string, role: string) => void;
   refreshPageData?: () => void;
 }
 
 export default function TeamTab({
   allRoles,
   activeLogins,
-  updateRole,
   refreshPageData
 }: TeamTabProps) {
   const [newTeacherEmail, setNewTeacherEmail] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserRole | null>(null);
+  
+  const { executeMutation } = useAdmin();
+
+  const updateRole = async (email: string, role: string) => {
+    await executeMutation(
+      '/api/admin/roles',
+      'POST',
+      { email, overrideRole: role },
+      refreshPageData,
+      `${email} updated to ${role}`
+    );
+  };
 
   const handleUpdate = () => {
     if (refreshPageData) {

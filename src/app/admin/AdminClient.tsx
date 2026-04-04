@@ -10,6 +10,21 @@ import { ADMIN_EMAILS } from '@/lib/constants';
 import AdminSidebar from './components/AdminSidebar';
 import UploadTab from './components/UploadTab';
 import ManageTab from './components/ManageTab';
+import { AdminErrorBoundary } from '@/components/ErrorBoundary';
+import { AdminProvider, useAdmin } from './context/AdminContext';
+
+const AdminGlobalOverlay = () => {
+  const { isPending } = useAdmin();
+  if (!isPending) return null;
+  return (
+    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-center justify-center">
+      <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl shadow-2xl flex items-center gap-3">
+        <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <span className="text-sm font-medium text-white">Processing...</span>
+      </div>
+    </div>
+  );
+};
 
 // Lazy loaded — only fetched when the admin clicks the tab
 const TabLoader = () => <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
@@ -87,150 +102,9 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
     [localSubjects, selectedSubjectId]
   );
 
-  const updateRole = async (email: string, role: string) => {
-    try {
-      const res = await fetch('/api/admin/roles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, overrideRole: role })
-      });
-      if (res.ok) {
-        alert(`${email} updated to ${role}`);
-        refreshPageData();
-      } else {
-        const errData = await res.json();
-        alert(`Error: ${errData.error || 'Failed to update'}`);
-      }
-    } catch (err: unknown) {
-      alert(`System Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
-    }
-  };
-
-  const handleCreateSubject = async () => {
-    const title = prompt('New Subject Title:');
-    if (!title) return;
-    try {
-      const res = await fetch('/api/admin/subjects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, icon: '📂' })
-      });
-      if (res.ok) refreshPageData();
-      else alert('Failed to create subject');
-    } catch(e) { alert('Network Error'); }
-  };
-
-  const handleCreateLesson = async () => {
-    const title = prompt('New Module Title:');
-    if (!title || !selectedSubjectId) return;
-    try {
-      const res = await fetch('/api/admin/lessons', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subjectId: selectedSubjectId, title })
-      });
-      if (res.ok) refreshPageData();
-      else alert('Failed to create module');
-    } catch(e) { alert('Network Error'); }
-  };
-
-  const handleDelete = async (type: 'subject' | 'lesson' | 'item', id: string, name: string) => {
-    if (!confirm(`Permanently delete ${type} "${name}"?`)) return;
-    try {
-      const res = await fetch('/api/admin/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, id })
-      });
-      if (res.ok) refreshPageData();
-      else alert('Deletion Denied');
-    } catch(e) { alert('Network Error'); }
-  };
-
-  const handleRename = async (type: 'subject' | 'lesson' | 'item', id: string, oldName: string) => {
-    const newName = prompt(`Rename "${oldName}" to:`, oldName);
-    if (!newName || newName === oldName) return;
-    try {
-      const res = await fetch('/api/admin/rename', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, id, title: newName })
-      });
-      if (res.ok) refreshPageData();
-      else alert('Rename Conflict');
-    } catch(e) { alert('Network Error'); }
-  };
-
-  const handleMove = async (type: 'lesson' | 'item', id: string, name: string) => {
-    const targetType = type === 'item' ? 'Module' : 'Subject';
-    const targetId = prompt(`Enter ID of target ${targetType} to move "${name}" to:`);
-    if (!targetId) return;
-    try {
-      const res = await fetch('/api/admin/move', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, id, targetId })
-      });
-      if (res.ok) refreshPageData();
-      else alert('Move Failed');
-    } catch(e) { alert('Network Error'); }
-  };
-
-  const handleBatchDelete = async (ids: string[]) => {
-    if (!confirm(`Delete ${ids.length} selected items?`)) return;
-    try {
-      const res = await fetch('/api/admin/batch-delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids })
-      });
-      if (res.ok) refreshPageData();
-      else alert('Batch Purge Failed');
-    } catch(e) { alert('Network Error'); }
-  };
-
-  const handleAuditR2 = async () => {
-    if (!confirm('Run a full recursive audit of the Cloudflare R2 bucket to identify orphaned files?')) return;
-    
-    try {
-      // 1. Dry Run
-      const res = await fetch('/api/admin/purge-orphans', { method: 'POST' });
-      const data = await res.json();
-      
-      if (!res.ok) {
-        return alert(`Audit Failed: ${data.error}`);
-      }
-
-      const { orphanedCount, totalR2Objects, totalDbLinks } = data;
-      
-      if (orphanedCount === 0) {
-        return alert(`✅ Clean! Checked ${totalR2Objects} bucket items against ${totalDbLinks} database links. No orphaned files detected.`);
-      }
-
-      // 2. Execute Purge Prompt
-      const wantPurge = confirm(`⚠️ Found ${orphanedCount} orphaned files occupying bucket space.\n\nTotal R2 Objects: ${totalR2Objects}\nRegistered DB Links: ${totalDbLinks}\n\nExecute permanent deletion? This cannot be undone.`);
-      
-      if (!wantPurge) return;
-
-      const purgeRes = await fetch('/api/admin/purge-orphans', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ purge: true })
-      });
-      
-      const purgeData = await purgeRes.json();
-      
-      if (purgeRes.ok) {
-        alert(`🗑️ Purged ${purgeData.purged} stray files successfully.`);
-      } else {
-        alert(`Error during purge: ${purgeData.error}`);
-      }
-      
-    } catch(e) { alert('Network Error during R2 Audit'); }
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white">
+    <AdminProvider refreshPageData={refreshPageData}>
+      <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white">
       <div className="max-w-full mx-auto flex flex-col md:flex-row min-h-screen overflow-hidden">
         
         <AdminSidebar 
@@ -239,14 +113,16 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
           availableTabs={availableTabs} 
           currentUserRole={currentUserRole} 
           storageStats={storageStats} 
-          handleAuditR2={handleAuditR2}
         />
 
         <div className="flex-1 bg-black relative flex flex-col min-h-screen">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.05),transparent)] pointer-events-none"></div>
           
           <div className="flex-1 p-6 md:p-10 lg:p-16 relative overflow-y-auto">
+            <AdminGlobalOverlay />
             <div className="max-w-[1400px] mx-auto">
+              <AdminErrorBoundary>
+
               
               {activeTab === 'upload' && (
                 <UploadTab 
@@ -256,8 +132,6 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                   setSelectedLessonId={setSelectedLessonId}
                   localSubjects={localSubjects}
                   activeLessons={activeLessons}
-                  handleCreateSubject={handleCreateSubject}
-                  handleCreateLesson={handleCreateLesson}
                   refreshPageData={refreshPageData}
                 />
               )}
@@ -265,10 +139,6 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
               {activeTab === 'manage' && (
                 <ManageTab 
                   localSubjects={localSubjects}
-                  handleDelete={handleDelete}
-                  handleRename={handleRename}
-                  handleMove={handleMove}
-                  handleBatchDelete={handleBatchDelete}
                 />
               )}
 
@@ -286,14 +156,15 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                 <TeamTab 
                   allRoles={allRoles}
                   activeLogins={activeLogins}
-                  updateRole={updateRole}
                   refreshPageData={refreshPageData}
                 />
               )}
+              </AdminErrorBoundary>
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </AdminProvider>
   );
 }

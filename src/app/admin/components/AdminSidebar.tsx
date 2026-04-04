@@ -2,13 +2,14 @@
 
 import { StorageStats } from '@/types';
 
+import { useAdmin } from '../context/AdminContext';
+
 interface AdminSidebarProps {
   activeTab: string;
   setActiveTab: (tab: any) => void;
   availableTabs: Array<{ id: string; icon: string; label: string }>;
   currentUserRole: string;
   storageStats: StorageStats | null;
-  handleAuditR2: () => void;
 }
 
 export default function AdminSidebar({ 
@@ -16,9 +17,51 @@ export default function AdminSidebar({
   setActiveTab, 
   availableTabs, 
   currentUserRole, 
-  storageStats,
-  handleAuditR2
+  storageStats
 }: AdminSidebarProps) {
+  const { setIsPending, executeMutation } = useAdmin();
+
+  const handleAuditR2 = async () => {
+    if (!confirm('Run a full recursive audit of the Cloudflare R2 bucket to identify orphaned files?')) return;
+    
+    try {
+      setIsPending(true);
+      // 1. Dry Run
+      const res = await fetch('/api/admin/purge-orphans', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      
+      if (!res.ok) {
+        return alert(`Audit Failed: ${data.error || 'Network Error'}`);
+      }
+
+      const { orphanedCount, totalR2Objects, totalDbLinks } = data;
+      
+      if (orphanedCount === 0) {
+        return alert(`✅ Clean! Checked ${totalR2Objects} bucket items against ${totalDbLinks} database links. No orphaned files detected.`);
+      }
+
+      // 2. Execute Purge Prompt
+      const wantPurge = confirm(`⚠️ Found ${orphanedCount} orphaned files occupying bucket space.\n\nTotal R2 Objects: ${totalR2Objects}\nRegistered DB Links: ${totalDbLinks}\n\nExecute permanent deletion? This cannot be undone.`);
+      
+      if (!wantPurge) return;
+
+      const purgeData = await executeMutation<{ purged: number }>(
+        '/api/admin/purge-orphans',
+        'POST',
+        { purge: true }
+      );
+      
+      if (purgeData) {
+        alert(`🗑️ Purged ${purgeData.purged} stray files successfully.`);
+      }
+      
+    } catch(e) { 
+      alert('Network Error during R2 Audit'); 
+    } finally {
+      setIsPending(false);
+    }
+  };
+
   return (
     <div className="w-full md:w-[320px] bg-[#0A0A0F] border-r border-white/5 flex flex-col pt-8 p-6 space-y-8 h-screen sticky top-0 md:overflow-y-auto">
       <div className="flex items-center gap-4 px-2 mb-4">

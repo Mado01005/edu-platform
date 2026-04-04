@@ -2,21 +2,41 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { deleteR2Object } from '@/lib/r2';
+import { validateDeleteInput, extractR2Key } from '@/lib/validation';
+import { ApiErrors, createSuccessResponse } from '@/lib/errors';
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
     if (!session || !session.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return ApiErrors.UNAUTHORIZED();
     }
 
     const { lessonSlug, subjectSlug } = await req.json();
 
-    if (!lessonSlug || !subjectSlug) {
-      return NextResponse.json({ error: 'Missing slugs' }, { status: 400 });
+    // Validate input
+    const validation = validateDeleteInput({ lessonSlug, subjectSlug });
+    if (!validation.isValid) {
+      return ApiErrors.INVALID_INPUT(validation.errors);
     }
 
-    // 1. Fetch exact R2 object keys attached to this lesson before database cascade drops them.
+    if (!lessonSlug || !subjectSlug) {
+      return ApiErrors.MISSING_PARAMETER('lessonSlug or subjectSlug');
+    }
+
+    // 1. Delete the lesson record first (database cascade should handle content_items internally)
+    const { error: dbError } = await supabaseAdmin
+      .from('lessons')
+      .delete()
+      .eq('slug', lessonSlug)
+      .eq('subject_id', (await supabaseAdmin.from('subjects').select('id').eq('slug', subjectSlug).single()).data?.id);
+
+    if (dbError) {
+      console.error('Database lesson deletion error:', dbError);
+      return ApiErrors.DATABASE_ERROR(dbError.message);
+    }
+
+    // 2. Only after successful DB deletion, fetch and delete exact R2 object keys attached to this lesson
     // This entirely solves R2 drift: if slugs are renamed, folder deletion fails, leaving massive orphaned storage.
     const { data: lessonData } = await supabaseAdmin
       .from('lessons')
@@ -32,49 +52,32 @@ export async function POST(req: Request) {
         .eq('lesson_id', lessonData.id);
 
       if (contentItems && contentItems.length > 0) {
-        const publicBase = process.env.R2_PUBLIC_URL || '';
         for (const item of contentItems) {
-          if (publicBase && item.url?.startsWith(publicBase)) {
-            let key = item.url.replace(publicBase, '');
-            if (key.startsWith('/')) key = key.substring(1);
-            key = decodeURIComponent(key);
-
+          const r2Key = extractR2Key(item.url || '');
+          if (r2Key) {
             try {
-              await deleteR2Object(key);
-              console.log(`Deleted exact R2 object (Lesson Tier): ${key}`);
+              await deleteR2Object(r2Key);
+              console.log(`Deleted exact R2 object (Lesson Tier): ${r2Key}`);
             } catch (err) {
-              console.warn(`[Delete Lesson] Orphan capture failed for R2 key: ${key}`);
+              console.warn(`[Delete Lesson] R2 cleanup failed for key: ${r2Key}`);
             }
           }
         }
       }
     }
 
-    // 2. Delete the lesson record (database cascade should handle content_items internally)
-    const { error: dbError } = await supabaseAdmin
-      .from('lessons')
-      .delete()
-      .eq('slug', lessonSlug)
-      .eq('subject_id', (await supabaseAdmin.from('subjects').select('id').eq('slug', subjectSlug).single()).data?.id);
-
-    if (dbError) {
-      console.error('Database lesson deletion error:', dbError);
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
-
     // 3. Log activity
-    Promise.resolve(supabaseAdmin.from('activity_logs').insert({
+    await supabaseAdmin.from('activity_logs').insert({
       user_email: session.user?.email || 'admin',
       user_name: session.user?.name || 'Admin',
       action: 'LESSON_DELETED',
       details: { lessonSlug, subjectSlug },
-    })).catch(() => {});
+    });
 
-    return NextResponse.json({ success: true });
+    return createSuccessResponse({ success: true });
 
   } catch (error: unknown) {
     console.error('Delete lesson error:', error);
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return ApiErrors.INTERNAL_ERROR();
   }
 }

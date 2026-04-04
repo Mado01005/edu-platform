@@ -2,24 +2,18 @@
 
 import { useState } from 'react';
 import { SubjectMeta, LessonMeta, ContentNode } from '@/types';
+import { useAdmin } from '../context/AdminContext';
 
 interface ManageTabProps {
   localSubjects: SubjectMeta[];
-  handleDelete: (type: 'subject' | 'lesson' | 'item', id: string, name: string) => void;
-  handleRename: (type: 'subject' | 'lesson' | 'item', id: string, oldName: string) => void;
-  handleMove: (type: 'lesson' | 'item', id: string, name: string) => void;
-  handleBatchDelete: (ids: string[]) => void;
 }
 
 export default function ManageTab({
-  localSubjects,
-  handleDelete,
-  handleRename,
-  handleMove,
-  handleBatchDelete
+  localSubjects
 }: ManageTabProps) {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [expandedLessons, setExpandedLessons] = useState<Set<string>>(new Set());
+  const { handleDelete, handleRename, handleMove, handleBatchDelete } = useAdmin();
 
   const toggleSelectItem = (id: string) => {
     const next = new Set(selectedItems);

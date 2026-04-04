@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { lessonId, name, url, itemType, fileType } = await req.json();
+    const { lessonId, name, url, itemType, fileType, parentId } = await req.json();
 
     if (!lessonId || !name || !url) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
@@ -17,6 +17,7 @@ export async function POST(req: Request) {
 
     const { data, error } = await supabaseAdmin.from('content_items').insert({
       lesson_id: lessonId,
+      parent_id: parentId || null,
       name,
       url,
       item_type: itemType || 'embed',

@@ -240,8 +240,9 @@ export default function ContentUploader({
           body: JSON.stringify({
             subjectId: selectedSubjectId,
             lessonId: selectedLessonId,
+            parentId: currentPathId || null,
             url: vimeoUrl,
-            title: vimeoTitle
+            name: vimeoTitle
           })
         });
         if (!res.ok) throw new Error('Link embedding failed');

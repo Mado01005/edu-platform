@@ -1,0 +1,5 @@
+# EduPortal Global Agent Directives
+
+## Code Review Protocol
+Whenever you are asked to review frontend code (.tsx, .ts, .js), or before you finalize a major refactoring of a frontend component, you MUST read the exact checklist and formatting rules located at: `.agent-skills/frontend-code-review.md`. 
+Do not output a code review without strictly adhering to "Template A" or "Template B" defined in that document.
