@@ -31,6 +31,7 @@ const TabLoader = () => <div className="flex items-center justify-center py-20">
 const TelemetryTab = dynamic(() => import('./components/TelemetryTab'), { loading: TabLoader, ssr: false });
 const AnnouncementTab = dynamic(() => import('./components/AnnouncementTab'), { loading: TabLoader, ssr: false });
 const TeamTab = dynamic(() => import('./components/TeamTab'), { loading: TabLoader, ssr: false });
+const FocusAnalyticsTab = dynamic(() => import('./components/FocusAnalyticsTab'), { loading: TabLoader, ssr: false });
 
 interface AdminClientProps {
   subjects: Subject[];
@@ -40,7 +41,7 @@ interface AdminClientProps {
   initialSessions: unknown[];
 }
 
-type TabId = 'upload' | 'manage' | 'Announcement' | 'team' | 'telemetry';
+type TabId = 'upload' | 'manage' | 'Announcement' | 'team' | 'telemetry' | 'focus';
 
 export default function AdminClient({ subjects, initialRoles, userEmail, initialLogs, initialSessions }: AdminClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>('upload');
@@ -66,7 +67,8 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
         { id: 'manage', icon: '📂', label: 'MANAGE' },
         { id: 'Announcement', icon: '📢', label: 'Announcement' },
         { id: 'team', icon: '👥', label: 'TEAM' },
-        { id: 'telemetry', icon: '🌐', label: 'TELEMETRY' }
+        { id: 'telemetry', icon: '🌐', label: 'TELEMETRY' },
+        { id: 'focus', icon: '🎧', label: 'PULSE' }
       );
     }
     return tabs;
@@ -159,6 +161,8 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
                   refreshPageData={refreshPageData}
                 />
               )}
+
+              {activeTab === 'focus' && <FocusAnalyticsTab />}
               </AdminErrorBoundary>
             </div>
           </div>

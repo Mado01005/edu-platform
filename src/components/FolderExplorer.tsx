@@ -458,6 +458,53 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     </motion.div>
                   );
                 }
+                const lowerName = node.name.toLowerCase();
+                if (node.url && (lowerName.endsWith('.stl') || lowerName.endsWith('.bin') || lowerName.endsWith('.step') || lowerName.endsWith('.zip'))) {
+                  return (
+                    <motion.div variants={itemVariants} key={`vault-${uniqueKey}`} className="flex flex-col bg-white/5 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl p-6 md:p-8 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
+                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 blur-[40px] pointer-events-none rounded-full"></div>
+                      
+                      <div className="flex items-center justify-between mb-8 relative z-10">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            📦
+                          </div>
+                          <div>
+                            <span className="text-xs font-black text-indigo-400 tracking-[0.2em] uppercase block mb-1">Project Vault / Blueprint</span>
+                            <span className="text-lg font-bold text-white tracking-wide">{node.name}</span>
+                          </div>
+                        </div>
+                        {isAdmin && (
+                          <button 
+                            onClick={() => handleDeleteItem(node.id!, node.url)}
+                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-black/50 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all shadow-lg"
+                            disabled={isDeleting === node.id}
+                          >
+                            {isDeleting === node.id ? '...' : '🗑️'}
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 bg-black/60 p-8 flex flex-col items-center justify-center text-center">
+                        <div className="text-6xl mb-6 opacity-80">🏗️</div>
+                        <h4 className="text-xl font-bold text-white mb-2">Heavy Asset Nexus</h4>
+                        <p className="text-sm text-gray-400 max-w-md mb-8">This file is classified as a heavy project blueprint. Direct previews are disabled to preserve browser memory.</p>
+                        
+                        <a 
+                          href={node.url} 
+                          download 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] transition-all cursor-pointer"
+                        >
+                          Download Asset
+                        </a>
+                      </div>
+                    </motion.div>
+                  );
+                }
+
                 return null;
               })}
             </div>

@@ -16,7 +16,6 @@ interface ContentUploaderProps {
   variant?: 'full' | 'compact';
 }
 
-// Formats that browsers CANNOT render. These must be converted before upload.
 const UNSUPPORTED_IMAGE_EXTENSIONS = ['.heic', '.heif', '.dng'];
 
 function isUnsupportedImage(fileName: string): boolean {
@@ -37,9 +36,11 @@ export default function ContentUploader({
   variant = 'full'
 }: ContentUploaderProps) {
   const [files, setFiles] = useState<File[]>([]);
-  const [inputType, setInputType] = useState<'file' | 'link'>('file');
+  const [inputType, setInputType] = useState<'file' | 'link' | 'snippet'>('file');
   const [vimeoUrl, setVimeoUrl] = useState('');
   const [vimeoTitle, setVimeoTitle] = useState('');
+  const [snippetContent, setSnippetContent] = useState('');
+  const [snippetLanguage, setSnippetLanguage] = useState('javascript');
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadSpeed, setUploadSpeed] = useState('0 MB/s');
@@ -56,13 +57,7 @@ export default function ContentUploader({
     return 'unknown';
   };
 
-  /**
-   * BULLETPROOF CLIENT-SIDE CONVERSION
-   * Converts ALL non-web-safe image formats to .webp BEFORE any network call.
-   * - .heic / .heif → converted via heic2any
-   * - .dng → converted via heic2any (it handles some RAW) with canvas fallback
-   * If conversion fails entirely, the file is REJECTED — it never reaches R2.
-   */
+  
   const convertToWebSafe = async (file: File): Promise<File> => {
     const lower = file.name.toLowerCase();
 
@@ -109,7 +104,6 @@ export default function ContentUploader({
       console.warn(`Canvas fallback failed for ${file.name}:`, canvasErr);
     }
 
-    // BOTH conversion paths failed → REJECT the file
     throw new Error(
       `Cannot convert ${file.name} to a web-safe format. ` +
       `Please convert it to .jpg or .png manually before uploading.`
@@ -117,33 +111,50 @@ export default function ContentUploader({
   };
 
   const uploadFileWithFetch = async (file: File, signedUrl: string, contentType: string) => {
-    // ── DIAGNOSTIC LOGGING ──
-    console.log('[R2-UPLOAD] Preparing Fetch PUT...');
+    console.log('[R2-UPLOAD] Preparing XHR PUT...');
     console.log('[R2-UPLOAD] Target URL:', signedUrl);
     console.log('[R2-UPLOAD] Headers:', { 'Content-Type': contentType || 'application/octet-stream' });
     console.log('[R2-UPLOAD] File:', file.name, 'Size:', file.size, 'Type:', file.type);
 
-    try {
-      const response = await fetch(signedUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': contentType || 'application/octet-stream',
-        },
-        body: file,
-      });
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const startTime = Date.now();
+      let lastLoaded = 0;
+      let lastTime = startTime;
 
-      if (!response.ok) {
-        const status = response.status;
-        const msg = `R2 Rejection (${status}). ${status === 403 ? 'Signature mismatch or CORS block.' : ''}`;
-        throw new Error(msg);
-      }
-      return true;
-    } catch (err) {
-      if (err instanceof TypeError && err.message.includes('fetch')) {
-        throw new Error('Network Error / CORS Block. Please ensure R2 CORS allows ALL (*) for testing.');
-      }
-      throw err;
-    }
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          setProgress(percentComplete);
+          
+          const now = Date.now();
+          const timeElapsed = (now - lastTime) / 1000; // seconds
+          // Update speed every ~0.5s to prevent UI thrashing
+          if (timeElapsed > 0.5) {
+             const bytesPerSec = (event.loaded - lastLoaded) / timeElapsed;
+             setUploadSpeed((bytesPerSec / (1024 * 1024)).toFixed(2) + ' MB/s');
+             lastLoaded = event.loaded;
+             lastTime = now;
+          }
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(true);
+        } else {
+          reject(new Error(`R2 Rejection (${xhr.status}). ${xhr.status === 403 ? 'Signature mismatch or CORS block.' : ''}`));
+        }
+      };
+
+      xhr.onerror = () => {
+        reject(new Error('Network Error / CORS Block. Ensure R2 CORS rules allow PUT requests from this origin.'));
+      };
+
+      xhr.open('PUT', signedUrl, true);
+      xhr.setRequestHeader('Content-Type', contentType || 'application/octet-stream');
+      xhr.send(file);
+    });
   };
 
   const processUploadOrEmbed = async (e: React.FormEvent) => {
@@ -188,7 +199,6 @@ export default function ContentUploader({
           const sSlug = subjectSlug || localSubjects.find(s => s.id === selectedSubjectId)?.slug || 'unknown';
           const lSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
           
-          // ── STEP 1: Initiate presigned upload (always standard path now) ──
           const initRes = await fetch('/api/admin/upload-initiate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -205,10 +215,8 @@ export default function ContentUploader({
           if (!initRes.ok) throw new Error(`Initiate failed for ${relativeFilePath}`);
           const { signedUrl, publicUrl } = await initRes.json();
 
-          // ── STEP 2: Upload directly to R2 via presigned URL ──
           await uploadFileWithFetch(file, signedUrl, file.type);
 
-          // ── STEP 3: Register in Supabase ──
           const compRes = await fetch('/api/admin/upload-complete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -249,6 +257,21 @@ export default function ContentUploader({
         setStatusMessage('Success: Link embedded!');
         setVimeoUrl('');
         setVimeoTitle('');
+        onComplete();
+      } else if (inputType === 'snippet') {
+        if (!snippetContent.trim()) throw new Error('Snippet content required');
+        const res = await fetch('/api/forge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lesson_id: selectedLessonId,
+            language_type: snippetLanguage,
+            raw_content: snippetContent
+          })
+        });
+        if (!res.ok) throw new Error('Snippet broadcast failed');
+        setStatusMessage('Success: Snippet broadcasted to The Forge!');
+        setSnippetContent('');
         onComplete();
       }
     } catch (err: unknown) {
@@ -326,7 +349,8 @@ export default function ContentUploader({
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">03 Link Protocol</label>
             <div className="flex p-1.5 bg-black/40 rounded-2xl border border-white/5">
               <button type="button" onClick={() => setInputType('file')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'file' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Direct Upload</button>
-              <button type="button" onClick={() => setInputType('link')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'link' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Embed Service</button>
+              <button type="button" onClick={() => setInputType('link')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'link' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Embed</button>
+              <button type="button" onClick={() => setInputType('snippet')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'snippet' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Forge Snippet</button>
             </div>
          </div>
        </div>
@@ -348,10 +372,23 @@ export default function ContentUploader({
            </div>
            {files.length > 0 && <p className="text-center text-[10px] font-black text-indigo-400 uppercase">{files.length} Assets Selected</p>}
          </div>
-       ) : (
+       ) : inputType === 'link' ? (
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
            <input type="text" placeholder="Title" value={vimeoTitle} onChange={e => setVimeoTitle(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
            <input type="text" placeholder="URL" value={vimeoUrl} onChange={e => setVimeoUrl(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+         </div>
+       ) : (
+         <div className="space-y-4">
+           <select value={snippetLanguage} onChange={e => setSnippetLanguage(e.target.value)} className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
+             <option value="javascript">JavaScript</option>
+             <option value="typescript">TypeScript</option>
+             <option value="python">Python</option>
+             <option value="cpp">C++</option>
+             <option value="latex">LaTeX / Math</option>
+             <option value="json">JSON</option>
+             <option value="plaintext">Plain Text</option>
+           </select>
+           <textarea placeholder="Paste your raw snippet or math formula here..." value={snippetContent} onChange={e => setSnippetContent(e.target.value)} className="w-full h-40 bg-black border border-white/10 rounded-2xl p-6 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none font-mono" />
          </div>
        )}
 

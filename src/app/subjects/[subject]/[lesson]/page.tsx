@@ -10,6 +10,9 @@ import CompleteButton from '@/components/CompleteButton';
 import BookmarkButton from '@/components/BookmarkButton';
 import ShareButton from '@/components/ShareButton';
 import SnippetTool from '@/components/UI/SnippetTool';
+import FocusTimer from '@/components/FocusTimer';
+import ForgeSnippets from '@/components/ForgeSnippets';
+import TopologyViewer from '@/components/TopologyViewer';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -51,7 +54,6 @@ export default async function LessonPage({ params }: Props) {
   // @ts-ignore
   if (session.user?.isBanned) redirect('/banned');
 
-  // Run all data fetches in parallel instead of sequential waterfall
   const [subject, lesson, { data: logs }] = await Promise.all([
     getSubject(subjectSlug),
     getLesson(subjectSlug, lessonSlug),
@@ -102,6 +104,12 @@ export default async function LessonPage({ params }: Props) {
 
         {/* Content sections */}
         <div className="space-y-6">
+          <div className="absolute top-0 right-10 w-32 h-32 bg-indigo-500/10 blur-[50px] pointer-events-none rounded-full"></div>
+          
+          <div className="mb-8">
+            <TopologyViewer />
+          </div>
+
           {lesson.content && lesson.content.length > 0 ? (
              <FolderExplorer 
                content={lesson.content} 
@@ -136,8 +144,12 @@ export default async function LessonPage({ params }: Props) {
             BACK TO {subject.title.toUpperCase()} MAP
           </Link>
         </div>
+
+        {/* Forge Realtime Snippets */}
+        <ForgeSnippets lessonId={lesson.id} />
       </main>
       </div>
+      <FocusTimer lessonId={lesson.id} />
     </div>
   );
 }
