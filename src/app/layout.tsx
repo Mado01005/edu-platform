@@ -7,6 +7,7 @@ import { PWAInstallPrompt, KeyboardShortcuts, StudyTimer, MobileNav, MusicPlayer
 import Providers from '@/components/Providers';
 import './globals.css';
 import PrefetchEngine from '@/components/PrefetchEngine';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { auth } from '@/auth';
 
@@ -90,6 +91,8 @@ export default async function RootLayout({
           <MusicPlayer />
         </SpotifyProvider>
         </Providers>
+
+        <SpeedInsights />
 
         {/* Tawk.to Live Chat Script */}
         <Script id="tawk-to" strategy="lazyOnload">
