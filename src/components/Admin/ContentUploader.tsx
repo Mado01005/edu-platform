@@ -17,6 +17,10 @@ interface FileUploadState {
   error?: string;
   publicUrl?: string;
   abortController?: AbortController;
+  subjectId?: string;
+  lessonId?: string;
+  subjectSlug?: string;
+  lessonSlug?: string;
 }
 
 interface ContentUploaderProps {
@@ -432,8 +436,8 @@ export default function ContentUploader({
   }, [convertToWebSafe, uploadFileToR2, uploadMultipartFile, currentPath]);
 
   const runConcurrentUploads = useCallback(async (fileStates: FileUploadState[]) => {
-    const sSlug = subjectSlug || localSubjects.find(s => s.id === selectedSubjectId)?.slug || 'unknown';
-    const lSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
+    const fallbackSSlug = subjectSlug || localSubjects.find(s => s.id === selectedSubjectId)?.slug || 'unknown';
+    const fallbackLSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
 
     // Process in concurrent batches
     for (let i = 0; i < fileStates.length; i += MAX_CONCURRENT_UPLOADS) {
@@ -442,7 +446,7 @@ export default function ContentUploader({
 
       const batch = fileStates.slice(i, i + MAX_CONCURRENT_UPLOADS);
       const results = await Promise.allSettled(
-        batch.map(fs => processSingleFile(fs, sSlug, lSlug))
+        batch.map(fs => processSingleFile(fs, fs.subjectSlug || fallbackSSlug, fs.lessonSlug || fallbackLSlug))
       );
 
       // Update queue with results
@@ -501,8 +505,15 @@ export default function ContentUploader({
 
   const processUploadOrEmbed = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedLessonId) {
-      setStatusMessage('Error: Select a module before initiating transmission.');
+
+    // P3.0 Folder Mirror Check
+    const isFolderMirror = inputType === 'file' && files.some(f => {
+      const rp = (f as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
+      return rp.split('/').length >= 3;
+    });
+
+    if (!selectedLessonId && !isFolderMirror && inputType !== 'snippet') {
+      setStatusMessage('Error: Select a module before initiating transmission (or upload a structured folder).');
       return;
     }
 
@@ -523,18 +534,70 @@ export default function ContentUploader({
           return;
         }
 
+        // Pre-Flight Hierarchy Synchronization
+        const hierarchyItems = new Map<string, { subjectName: string, lessonName: string }>();
+        files.forEach(file => {
+          const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
+          const segments = relativePath.split('/');
+          if (segments.length >= 3) {
+            // Folder structure: Subject / Lesson / File.ext (or subfolders)
+            const subjectName = segments[0];
+            const lessonName = segments[1];
+            hierarchyItems.set(`${subjectName}|${lessonName}`, { subjectName, lessonName });
+          }
+        });
+
+        const hierarchyMappings: Record<string, { subjectId: string, lessonId: string }> = {};
+        if (hierarchyItems.size > 0) {
+          setStatusMessage('Synchronizing folder hierarchy...');
+          const syncRes = await fetch('/api/admin/sync-hierarchy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Array.from(hierarchyItems.values())),
+            signal: batchAbortRef.current?.signal
+          });
+          if (!syncRes.ok) throw new Error('Hierarchy synchronization failed');
+          const syncData = await syncRes.json();
+          Object.assign(hierarchyMappings, syncData.mappings || {});
+        }
+
         // Build upload queue with per-file state
         const queue: FileUploadState[] = files.map(file => {
           const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
           const segments = relativePath.split('/');
-          const relativeFilePath = segments.length > 1 ? segments.slice(1).join('/') : file.name;
+          
+          let fileSubjectId = undefined;
+          let fileLessonId = undefined;
+          let fileSubjectSlug = undefined;
+          let fileLessonSlug = undefined;
+          let fileRelativeFilePath = file.name;
+
+          if (segments.length >= 3) {
+            const subjectName = segments[0];
+            const lessonName = segments[1];
+            const mapping = hierarchyMappings[`${subjectName}|${lessonName}`];
+            if (mapping) {
+              fileSubjectId = mapping.subjectId;
+              fileLessonId = mapping.lessonId;
+              fileSubjectSlug = subjectName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+              fileLessonSlug = lessonName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            }
+            fileRelativeFilePath = segments.slice(2).join('/');
+          } else {
+             fileRelativeFilePath = segments.length > 1 ? segments.slice(1).join('/') : file.name;
+          }
+
           return {
             id: `upload_${crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)}`,
             file,
-            relativeFilePath,
+            relativeFilePath: fileRelativeFilePath,
             status: 'pending' as UploadStatus,
             progress: 0,
-            retries: 0
+            retries: 0,
+            subjectId: fileSubjectId,
+            lessonId: fileLessonId,
+            subjectSlug: fileSubjectSlug,
+            lessonSlug: fileLessonSlug
           };
         });
 
@@ -556,8 +619,8 @@ export default function ContentUploader({
         } else if (successful.length > 0) {
           // Collect batch data
           const batchItems = successful.map(f => ({
-            subjectId: selectedSubjectId,
-            lessonId: selectedLessonId,
+            subjectId: f.subjectId || selectedSubjectId,
+            lessonId: f.lessonId || selectedLessonId,
             parentId: currentPathId || null,
             fileName: f.relativeFilePath,
             fileType: getFileType(f.file.type, f.relativeFilePath),
