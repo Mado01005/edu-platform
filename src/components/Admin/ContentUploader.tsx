@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { SubjectMeta, LessonMeta } from '@/types';
 
 // ── Types ──
@@ -98,6 +99,7 @@ export default function ContentUploader({
   const [statusMessage, setStatusMessage] = useState('');
   const [uploadQueue, setUploadQueue] = useState<FileUploadState[]>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const router = useRouter();
   const [isDragOver, setIsDragOver] = useState(false);
 
   // Abort controller for the entire batch
@@ -742,9 +744,14 @@ export default function ContentUploader({
           }
         } else if (!batchAbortRef.current?.signal.aborted) {
           setStatusMessage(`Success: ${successful.length} assets verified!`);
+          
+          // Force a server-side data refresh to sync the UI with Supabase
+          router.refresh();
+
           // Only clear files and signal completion on full logical success
-          setFiles([]);
-          onComplete();
+          setUploadQueue([]); // Reset the telemetry queue UI
+          setFiles([]);      // Reset the dropzone
+          onComplete();      // Signal parent to re-fetch if necessary
         }
       } else if (inputType === 'link' && vimeoUrl) {
         if (!vimeoTitle) throw new Error('Title required for link');
@@ -764,6 +771,7 @@ export default function ContentUploader({
         setStatusMessage('Success: Link embedded!');
         setVimeoUrl('');
         setVimeoTitle('');
+        router.refresh();
         onComplete();
       } else if (inputType === 'snippet') {
         if (!snippetContent.trim()) throw new Error('Snippet content required');
@@ -780,6 +788,7 @@ export default function ContentUploader({
         if (!res.ok) throw new Error('Snippet broadcast failed');
         setStatusMessage('Success: Snippet broadcasted to The Forge!');
         setSnippetContent('');
+        router.refresh();
         onComplete();
       }
     } catch (err: unknown) {
