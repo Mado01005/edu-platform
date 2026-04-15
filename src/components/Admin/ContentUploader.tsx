@@ -97,6 +97,7 @@ export default function ContentUploader({
   const [uploading, setUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [uploadQueue, setUploadQueue] = useState<FileUploadState[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [isDragOver, setIsDragOver] = useState(false);
 
   // Abort controller for the entire batch
@@ -259,8 +260,12 @@ export default function ContentUploader({
           xhrAbortersRef.current.set(`${fileId}_part_${partIndex + 1}`, abortFn);
 
           xhr.upload.onprogress = (event) => {
-            const overallPct = ((start + event.loaded) / file.size) * 100;
-            setUploadQueue(prev => prev.map(f => f.id === fileId ? { ...f, progress: Math.max(f.progress, overallPct) } : f));
+            const pct = ((start + event.loaded) / file.size) * 100;
+            const MathRoundPct = Math.round(pct);
+            setUploadProgress(prev => {
+              if (prev[fileId] === MathRoundPct) return prev;
+              return { ...prev, [fileId]: Math.max(prev[fileId] || 0, MathRoundPct) };
+            });
           };
 
           xhr.onload = () => {
@@ -399,8 +404,11 @@ export default function ContentUploader({
           setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
 
           await uploadFileToR2(file, signedUrl, file.type, fileState.id, (pct) => {
-            fileState.progress = pct;
-            setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, progress: pct } : f));
+            const MathRoundPct = Math.round(pct);
+            setUploadProgress(prev => {
+              if (prev[fileState.id] === MathRoundPct) return prev;
+              return { ...prev, [fileState.id]: MathRoundPct };
+            });
           });
         }
 
@@ -947,47 +955,69 @@ export default function ContentUploader({
           </div>
 
           <div className="max-h-64 overflow-y-auto space-y-2 bg-black/30 rounded-2xl p-4 border border-white/5">
-            {uploadQueue.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-center gap-3 px-3 py-2 rounded-xl border transition-all ${item.status === 'success'
-                  ? 'bg-green-500/5 border-green-500/20'
-                  : item.status === 'failed'
-                    ? 'bg-red-500/5 border-red-500/20'
-                    : item.status === 'uploading' || item.status === 'completing'
-                      ? 'bg-indigo-500/5 border-indigo-500/20'
-                      : 'bg-white/5 border-white/5'
-                  }`}
-              >
-                <span className={`text-sm w-5 text-center flex-shrink-0`}>
-                  {getStatusIcon(item.status, item.retries)}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-bold truncate ${getStatusColor(item.status)}`}>
-                    {item.relativeFilePath}
-                  </p>
-                  {item.error && (
-                    <p className="text-[9px] text-red-400/80 truncate">{item.error}</p>
-                  )}
-                </div>
-                {item.status === 'uploading' && (
-                  <div className="w-20 flex-shrink-0">
-                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-indigo-500 transition-all duration-300"
-                        style={{ width: `${item.progress}%` }}
-                      />
+            {uploadQueue.map((item) => {
+              const currentProgress = uploadProgress[item.id] || 0;
+              let badgeText = 'Pending';
+              if (item.status === 'success') badgeText = 'Complete';
+              else if (item.status === 'failed') badgeText = 'Failed';
+              else if (item.status === 'uploading') badgeText = `Uploading... ${currentProgress}%`;
+              else if (item.status === 'converting') badgeText = 'Converting Format...';
+              else if (item.status === 'initiating') badgeText = 'Initiating...';
+              else if (item.status === 'completing') badgeText = 'Finalizing...';
+              else if (item.retries > 0) badgeText = `Retrying (${item.retries}/${MAX_RETRIES})...`;
+
+              return (
+                <div
+                  key={item.id}
+                  className={`flex flex-col gap-2 px-4 py-3 rounded-xl border transition-all ${item.status === 'success'
+                    ? 'bg-green-500/5 border-green-500/20'
+                    : item.status === 'failed'
+                      ? 'bg-red-500/5 border-red-500/20'
+                      : item.status === 'uploading' || item.status === 'completing'
+                        ? 'bg-indigo-500/5 border-indigo-500/20'
+                        : 'bg-white/5 border-white/5'
+                    }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`text-sm w-6 text-center flex-shrink-0`}>
+                      {getStatusIcon(item.status, item.retries)}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className={`text-[11px] font-bold truncate ${getStatusColor(item.status)}`}>
+                          {item.relativeFilePath}
+                        </p>
+                        <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          item.status === 'success' ? 'bg-green-500/20 text-green-400' :
+                          item.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                          item.status === 'uploading' ? 'bg-cyan-500/20 text-cyan-400' :
+                          'bg-white/10 text-gray-400'
+                        }`}>
+                          {badgeText}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                )}
-                {item.status === 'success' && (
-                  <span className="text-[9px] font-black text-green-400 uppercase">Done</span>
-                )}
-                {item.retries > 0 && item.status !== 'success' && (
-                  <span className="text-[9px] font-bold text-yellow-400">×{item.retries}</span>
-                )}
-              </div>
-            ))}
+                  
+                  {item.error && (
+                    <div className="mt-1 pl-9">
+                      <p className="text-[10px] text-red-400/90 font-medium break-words">Error: {item.error}</p>
+                    </div>
+                  )}
+
+                  {item.status === 'uploading' && (
+                    <div className="mt-1 pl-9">
+                      <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-cyan-500 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(6,182,212,0.6)]"
+                          style={{ width: `${currentProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* Aggregate progress bar */}
