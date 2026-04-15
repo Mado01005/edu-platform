@@ -8,6 +8,7 @@ import VideoPlayer from '@/components/VideoPlayer';
 import PDFViewer from '@/components/PDFViewer';
 import ImageGallery from '@/components/ImageGallery';
 import VimeoPlayer from '@/components/VimeoPlayer';
+import PPTXViewer from '@/components/Media/PPTXViewer';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import AdminActionBar from '@/components/Admin/AdminActionBar';
@@ -387,11 +388,9 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                   );
                 }
                 if (node.fileType === 'powerpoint' && node.url) {
-                  const encodedUrl = encodeURIComponent(node.url);
                   return (
-                    <motion.div variants={itemVariants} key={`ppt-${uniqueKey}`} className="min-h-[500px] h-[60vh] md:min-h-[700px] flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
-                      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                      <div className="flex items-center justify-between mb-4 ml-1">
+                    <motion.div variants={itemVariants} key={`ppt-${uniqueKey}`} className="flex flex-col gap-4 relative group">
+                      <div className="flex items-center justify-between ml-1">
                         <div className="flex items-center gap-3">
                           <span className="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-sm shadow-inner">📊</span>
                           <span className="text-sm font-bold text-orange-400 tracking-wide uppercase">{node.name}</span>
@@ -406,13 +405,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                           </button>
                         )}
                       </div>
-                      <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
-                        <iframe
-                          src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
-                          className="w-full h-full bg-white"
-                          title={node.name}
-                        />
-                      </div>
+                      <PPTXViewer fileUrl={node.url} title={node.name} />
                     </motion.div>
                   );
                 }
