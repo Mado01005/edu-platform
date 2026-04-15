@@ -75,6 +75,13 @@ function getFileType(mime: string, fileName?: string): string {
   return 'unknown';
 }
 
+function sanitizePath(path: string): string {
+  return path
+    .replace(/[^a-zA-Z0-9.\s/_\-]/g, '_') // replace unsafe chars with _ but keep /
+    .replace(/\/+/g, '/')                 // collapse slashes
+    .trim();
+}
+
 // ── Component ──
 
 export default function ContentUploader({
@@ -458,9 +465,10 @@ export default function ContentUploader({
     return fileState;
   }, [convertToWebSafe, uploadFileToR2, uploadMultipartFile, currentPath]);
 
-  const runConcurrentUploads = useCallback(async (fileStates: FileUploadState[]) => {
+  const runConcurrentUploads = useCallback(async (fileStates: FileUploadState[]): Promise<FileUploadState[]> => {
     const fallbackSSlug = subjectSlug || localSubjects.find(s => s.id === selectedSubjectId)?.slug || 'unknown';
     const fallbackLSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
+    const allResults: FileUploadState[] = [];
 
     // Process in concurrent batches
     for (let i = 0; i < fileStates.length; i += MAX_CONCURRENT_UPLOADS) {
@@ -472,7 +480,13 @@ export default function ContentUploader({
         batch.map(fs => processSingleFile(fs, fs.subjectSlug || fallbackSSlug, fs.lessonSlug || fallbackLSlug))
       );
 
-      // Update queue with results
+      // Update local accumulator and state
+      results.forEach((result, idx) => {
+        const fileState = result.status === 'fulfilled' ? result.value : { ...batch[idx], status: 'failed' as UploadStatus, error: 'Asynchronous escape' };
+        allResults.push(fileState);
+      });
+
+      // Update queue state for UI feedback (batched)
       setUploadQueue(prev => {
         const updated = [...prev];
         results.forEach((result, idx) => {
@@ -483,6 +497,8 @@ export default function ContentUploader({
         return updated;
       });
     }
+
+    return allResults;
   }, [processSingleFile, subjectSlug, localSubjects, selectedSubjectId, selectedLessonId, lessonSlug, activeLessons]);
 
   const handleCancelBatch = useCallback(() => {
@@ -700,7 +716,7 @@ export default function ContentUploader({
           return {
             id: `upload_${crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)}`,
             file,
-            relativeFilePath: fileRelativeFilePath,
+            relativeFilePath: sanitizePath(fileRelativeFilePath),
             status: 'pending' as UploadStatus,
             progress: 0,
             retries: 0,
@@ -714,13 +730,11 @@ export default function ContentUploader({
         setUploadQueue(queue);
 
         // Run concurrent uploads (R2 uploads only)
-        await runConcurrentUploads(queue);
+        // Task 2: Direct Result Accumulation (Bypassing State Latency)
+        const finalQueue = await runConcurrentUploads(queue);
 
         // ── P3.2: Batch complete ──
-        let finalQueue: FileUploadState[] = [];
-        setUploadQueue(prev => { finalQueue = prev; return prev; });
-
-        const successful = finalQueue.filter(f => f.status === 'completing' && f.publicUrl);
+        const successful = finalQueue.filter(f => (f.status === 'completing' || f.status === 'success') && f.publicUrl);
         const failed = finalQueue.filter(f => f.status === 'failed');
 
         if (batchAbortRef.current?.signal.aborted) {
