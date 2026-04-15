@@ -2,12 +2,12 @@
 
 import { useState, useCallback } from 'react';
 
-interface PPTXViewerProps {
+interface DocumentViewerProps {
   fileUrl: string;
   title: string;
 }
 
-export default function PPTXViewer({ fileUrl, title }: PPTXViewerProps) {
+export default function DocumentViewer({ fileUrl, title }: DocumentViewerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -23,7 +23,7 @@ export default function PPTXViewer({ fileUrl, title }: PPTXViewerProps) {
   }, []);
 
   return (
-    <div className="relative w-full min-h-[70vh] bg-slate-900/80 backdrop-blur-md border border-slate-700/50 rounded-xl overflow-hidden">
+    <div className="relative w-full min-h-[70vh] bg-slate-900/80 backdrop-blur-md border border-slate-700/50 rounded-xl overflow-hidden shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] group">
       {/* Loading spinner overlay */}
       {loading && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-slate-900/90">
@@ -32,7 +32,7 @@ export default function PPTXViewer({ fileUrl, title }: PPTXViewerProps) {
             <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-orange-500 animate-spin" />
           </div>
           <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">
-            Loading Presentation
+            Loading Document
           </p>
         </div>
       )}
@@ -41,7 +41,7 @@ export default function PPTXViewer({ fileUrl, title }: PPTXViewerProps) {
       {error && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-slate-900/90">
           <span className="text-4xl">⚠️</span>
-          <p className="text-sm font-bold text-slate-400">Unable to load presentation</p>
+          <p className="text-sm font-bold text-slate-400">Unable to load document</p>
           <a
             href={fileUrl}
             target="_blank"
@@ -56,7 +56,7 @@ export default function PPTXViewer({ fileUrl, title }: PPTXViewerProps) {
       {/* Office Web Viewer iframe */}
       <iframe
         src={embedUrl}
-        className="w-full h-full min-h-[70vh] bg-white"
+        className="w-full h-full min-h-[70vh] bg-white rounded-xl"
         title={title}
         onLoad={handleLoad}
         onError={handleError}
