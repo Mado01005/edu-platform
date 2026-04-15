@@ -720,19 +720,34 @@ export default function ContentUploader({
         if (batchAbortRef.current?.signal.aborted) {
           setStatusMessage('Upload batch cancelled.');
         } else if (successful.length > 0) {
-          // Task 3: Hardened ID Mapping & Logging
-          const batchItems = successful.map(f => ({
-            lessonId: f.lessonId || selectedLessonId,
-            parentId: currentPathId || null,
-            fileName: f.relativeFilePath,
-            fileType: getFileType(f.file.type, f.file.name),
-            publicUrl: f.publicUrl!,
-            itemType: f.file.name.toLowerCase().endsWith('.vimeo') ? 'vimeo' : 'file',
-            vimeoId: '',
-            idempotencyKey: generateIdempotencyKey(f.file, f.relativeFilePath)
-          }));
+          // Task 1: Hardened ID Mapping & Fallbacks
+          const batchItems = successful.map(f => {
+            const finalLessonId = f.lessonId || selectedLessonId;
+            return {
+              lessonId: finalLessonId,
+              parentId: currentPathId || null,
+              fileName: f.relativeFilePath,
+              fileType: getFileType(f.file.type, f.file.name),
+              publicUrl: f.publicUrl!,
+              itemType: f.file.name.toLowerCase().endsWith('.vimeo') ? 'vimeo' : 'file',
+              vimeoId: '',
+              idempotencyKey: generateIdempotencyKey(f.file, f.relativeFilePath)
+            };
+          }).filter(item => {
+            if (!item.lessonId) {
+              console.warn("Skipping item due to missing Lesson ID:", item.fileName);
+              return false;
+            }
+            return true;
+          });
 
-          console.log("Mapped Batch Payload (Diagnostics):", batchItems);
+          console.log("FINAL BATCH PAYLOAD:", batchItems);
+
+          if (batchItems.length === 0) {
+            setStatusMessage('Error: No valid lesson target found for these assets.');
+            setUploading(false);
+            return;
+          }
 
           // Await batch complete
           setStatusMessage('Synchronizing with database...');

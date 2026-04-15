@@ -95,15 +95,22 @@ export async function POST(req: Request) {
     // Filter items that actually need inserting
     const itemsToInsert = validationResults
       .filter(r => r.status === 'created')
-      .map(r => ({
-        lesson_id: r.item.lessonId,
-        parent_id: r.item.parentId || null,
-        item_type: r.item.itemType,
-        file_type: r.item.fileType,
-        name: r.item.fileName,
-        url: r.item.publicUrl,
-        vimeo_id: r.item.vimeoId || null,
-      }));
+      .map(r => {
+        if (!r.item.lessonId) {
+          console.error('[API BATCH ERROR] Missing lessonId for item:', r.item.fileName);
+          return null;
+        }
+        return {
+          lesson_id: r.item.lessonId,
+          parent_id: r.item.parentId || null,
+          item_type: r.item.itemType,
+          file_type: r.item.fileType,
+          name: r.item.fileName,
+          url: r.item.publicUrl,
+          vimeo_id: r.item.vimeoId || null,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
     if (itemsToInsert.length > 0) {
       // P3.5: Single Multi-Row Transaction
