@@ -615,11 +615,22 @@ export default function ContentUploader({
 
         // Pre-Flight Hierarchy Synchronization
         const hierarchyItems = new Map<string, { subjectName: string, lessonName: string }>();
+        const contextSubjectId = selectedSubjectId;
+        const contextSubjectName = contextSubjectId 
+          ? localSubjects.find(s => s.id === contextSubjectId)?.title || 'Current Subject'
+          : '';
+
         files.forEach(file => {
           const relativePath = (file as any).fullPath || (file as any).webkitRelativePath || '';
           const segments = relativePath.split('/');
-          if (segments.length >= 3) {
-            // Folder structure: Subject / Lesson / File.ext (or subfolders)
+          
+          if (contextSubjectId && segments.length >= 2) {
+            // Context-Aware: First folder is the Lesson name
+            const subjectName = contextSubjectName;
+            const lessonName = segments[0];
+            hierarchyItems.set(`${subjectName}|${lessonName}`, { subjectName, lessonName });
+          } else if (!contextSubjectId && segments.length >= 3) {
+            // Generic: Subject / Lesson / File
             const subjectName = segments[0];
             const lessonName = segments[1];
             hierarchyItems.set(`${subjectName}|${lessonName}`, { subjectName, lessonName });
@@ -632,7 +643,10 @@ export default function ContentUploader({
           const syncRes = await fetch('/api/admin/sync-hierarchy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(Array.from(hierarchyItems.values())),
+            body: JSON.stringify({
+              items: Array.from(hierarchyItems.values()),
+              currentSubjectId: contextSubjectId || undefined
+            }),
             signal: batchAbortRef.current?.signal
           });
           if (!syncRes.ok) throw new Error('Hierarchy synchronization failed');
@@ -645,13 +659,24 @@ export default function ContentUploader({
           const relativePath = (file as any).fullPath || (file as any).webkitRelativePath || '';
           const segments = relativePath.split('/');
           
-          let fileSubjectId = undefined;
-          let fileLessonId = undefined;
+          let fileSubjectId = selectedSubjectId || undefined;
+          let fileLessonId = selectedLessonId || undefined;
           let fileSubjectSlug = undefined;
           let fileLessonSlug = undefined;
           let fileRelativeFilePath = file.name;
 
-          if (segments.length >= 3) {
+          if (contextSubjectId && segments.length >= 2) {
+             const subjectName = contextSubjectName;
+             const lessonName = segments[0];
+             const mapping = hierarchyMappings[`${subjectName}|${lessonName}`];
+             if (mapping) {
+               fileSubjectId = mapping.subjectId;
+               fileLessonId = mapping.lessonId;
+               fileSubjectSlug = subjectName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+               fileLessonSlug = lessonName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+             }
+             fileRelativeFilePath = segments.slice(1).join('/');
+          } else if (!contextSubjectId && segments.length >= 3) {
             const subjectName = segments[0];
             const lessonName = segments[1];
             const mapping = hierarchyMappings[`${subjectName}|${lessonName}`];
@@ -685,8 +710,7 @@ export default function ContentUploader({
         // Run concurrent uploads (R2 uploads only)
         await runConcurrentUploads(queue);
 
-        // ── P3.2: Batch complete — send all successful uploads in one DB transaction ──
-        // Read the current queue state synchronously to collect results
+        // ── P3.2: Batch complete ──
         let finalQueue: FileUploadState[] = [];
         setUploadQueue(prev => { finalQueue = prev; return prev; });
 
@@ -696,20 +720,21 @@ export default function ContentUploader({
         if (batchAbortRef.current?.signal.aborted) {
           setStatusMessage('Upload batch cancelled.');
         } else if (successful.length > 0) {
-          // Collect batch data
+          // Task 3: Hardened ID Mapping & Logging
           const batchItems = successful.map(f => ({
-            subjectId: f.subjectId || selectedSubjectId,
             lessonId: f.lessonId || selectedLessonId,
             parentId: currentPathId || null,
             fileName: f.relativeFilePath,
-            fileType: getFileType(f.file.type, f.relativeFilePath),
+            fileType: getFileType(f.file.type, f.file.name),
             publicUrl: f.publicUrl!,
             itemType: f.file.name.toLowerCase().endsWith('.vimeo') ? 'vimeo' : 'file',
             vimeoId: '',
             idempotencyKey: generateIdempotencyKey(f.file, f.relativeFilePath)
           }));
 
-          // Await batch complete so DB records exist BEFORE UI refresh
+          console.log("Mapped Batch Payload (Diagnostics):", batchItems);
+
+          // Await batch complete
           setStatusMessage('Synchronizing with database...');
           try {
             const batchRes = await fetch('/api/admin/upload-complete-batch', {

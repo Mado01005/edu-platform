@@ -7,6 +7,12 @@ interface SyncRequestItem {
   lessonName: string;
 }
 
+interface SyncRequestBody {
+  items: SyncRequestItem[];
+  currentSubjectId?: string;
+  currentLessonId?: string;
+}
+
 export async function POST(req: Request) {
   try {
     const session = await auth();
@@ -14,7 +20,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const items: SyncRequestItem[] = await req.json();
+    const body: SyncRequestBody = await req.json();
+    const { items, currentSubjectId } = body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'No items provided' }, { status: 400 });
@@ -29,39 +36,45 @@ export async function POST(req: Request) {
       const subjectSlug = pair.subjectName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
       const lessonSlug = pair.lessonName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 
-      // Upsert Subject
-      let { data: subject, error: subjectError } = await supabaseAdmin
-        .from('subjects')
-        .select('id')
-        .eq('slug', subjectSlug)
-        .maybeSingle();
+      let subjectId = currentSubjectId;
 
-      if (!subject) {
-        const { data: newSubject, error: newSubjectError } = await supabaseAdmin
+      // Only perform subject upsert if no currentSubjectId is provided
+      if (!subjectId) {
+        let { data: subject, error: subjectError } = await supabaseAdmin
           .from('subjects')
-          .insert({
-            title: pair.subjectName,
-            slug: subjectSlug,
-            icon: '📂',
-            color: 'from-slate-500 to-slate-700'
-          })
           .select('id')
-          .single();
+          .eq('slug', subjectSlug)
+          .maybeSingle();
 
-        if (newSubjectError) {
-          console.error('Failed to create subject:', newSubjectError);
-          continue;
+        if (!subject) {
+          const { data: newSubject, error: newSubjectError } = await supabaseAdmin
+            .from('subjects')
+            .insert({
+              title: pair.subjectName,
+              slug: subjectSlug,
+              icon: '📂',
+              color: 'from-slate-500 to-slate-700'
+            })
+            .select('id')
+            .single();
+
+          if (newSubjectError) {
+            console.error('Failed to create subject:', newSubjectError);
+            continue;
+          }
+          subjectId = newSubject.id;
+        } else {
+          subjectId = subject.id;
         }
-        subject = newSubject;
       }
 
-      if (!subject) continue;
+      if (!subjectId) continue;
 
-      // Upsert Lesson
+      // Upsert Lesson under the determined subjectId
       let { data: lesson, error: lessonError } = await supabaseAdmin
         .from('lessons')
         .select('id')
-        .eq('subject_id', subject.id)
+        .eq('subject_id', subjectId)
         .eq('slug', lessonSlug)
         .maybeSingle();
 
@@ -71,7 +84,7 @@ export async function POST(req: Request) {
           .insert({
             title: pair.lessonName,
             slug: lessonSlug,
-            subject_id: subject.id
+            subject_id: subjectId
           })
           .select('id')
           .single();
@@ -86,7 +99,7 @@ export async function POST(req: Request) {
       if (!lesson) continue;
 
       resultIds[`${pair.subjectName}|${pair.lessonName}`] = {
-        subjectId: subject.id,
+        subjectId: subjectId,
         lessonId: lesson.id
       };
     }
@@ -98,3 +111,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: error.message || 'Internal error' }, { status: 500 });
   }
 }
+
