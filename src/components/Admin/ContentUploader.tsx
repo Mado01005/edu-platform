@@ -224,9 +224,11 @@ export default function ContentUploader({
     if (!initRes.ok) throw new Error(`Multipart init failed (${initRes.status})`);
     const { uploadId, key, partUrls, publicUrl } = await initRes.json();
 
-    // Step 2: Upload each part concurrently (up to 3 at a time)
-    const parts: { ETag: string; PartNumber: number }[] = [];
-    for (let i = 0; i < totalParts; i++) {
+    // Step 2: Upload parts with sliding window concurrency (3 at a time)
+    const parts: { ETag: string; PartNumber: number }[] = new Array(totalParts);
+    const PART_CONCURRENCY = 3;
+
+    for (let i = 0; i < totalParts; i += PART_CONCURRENCY) {
       if (batchAbortRef.current?.signal.aborted) {
         await fetch('/api/admin/upload-multipart', {
           method: 'POST',
@@ -236,50 +238,59 @@ export default function ContentUploader({
         throw new DOMException('Aborted', 'AbortError');
       }
 
-      const start = i * MULTIPART_PART_SIZE;
-      const end = Math.min(start + MULTIPART_PART_SIZE, file.size);
-      const chunk = file.slice(start, end);
+      const windowEnd = Math.min(i + PART_CONCURRENCY, totalParts);
+      const partPromises = [];
 
-      // Upload up to 3 parts at a time
-      const partUrl = partUrls[i]?.url;
-      if (!partUrl) throw new Error(`No presigned URL for part ${i + 1}`);
+      for (let j = i; j < windowEnd; j++) {
+        const partIndex = j;
+        const start = partIndex * MULTIPART_PART_SIZE;
+        const end = Math.min(start + MULTIPART_PART_SIZE, file.size);
+        const chunk = file.slice(start, end);
+        const partUrl = partUrls[partIndex]?.url;
+        if (!partUrl) throw new Error(`No presigned URL for part ${partIndex + 1}`);
 
-      const etag = await new Promise<string>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        const abortFn = () => xhr.abort();
-        xhrAbortersRef.current.set(`${fileId}_part_${i + 1}`, abortFn);
+        const partPromise = new Promise<{ ETag: string; PartNumber: number }>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          const abortFn = () => xhr.abort();
+          xhrAbortersRef.current.set(`${fileId}_part_${partIndex + 1}`, abortFn);
 
-        xhr.upload.onprogress = (event) => {
-          const overallPct = ((start + event.loaded) / file.size) * 100;
-          setUploadQueue(prev => prev.map(f => f.id === fileId ? { ...f, progress: overallPct } : f));
-        };
+          xhr.upload.onprogress = (event) => {
+            const overallPct = ((start + event.loaded) / file.size) * 100;
+            setUploadQueue(prev => prev.map(f => f.id === fileId ? { ...f, progress: Math.max(f.progress, overallPct) } : f));
+          };
 
-        xhr.onload = () => {
-          xhrAbortersRef.current.delete(`${fileId}_part_${i + 1}`);
-          if (xhr.status >= 200 && xhr.status < 300) {
-            const etagHeader = xhr.getResponseHeader('ETag') || `""`;
-            resolve(etagHeader.replace(/"/g, ''));
-          } else {
-            reject(new Error(`Part ${i + 1} failed (${xhr.status})`));
-          }
-        };
+          xhr.onload = () => {
+            xhrAbortersRef.current.delete(`${fileId}_part_${partIndex + 1}`);
+            if (xhr.status >= 200 && xhr.status < 300) {
+              const etagHeader = xhr.getResponseHeader('ETag') || `""`;
+              resolve({ ETag: etagHeader.replace(/"/g, ''), PartNumber: partIndex + 1 });
+            } else {
+              reject(new Error(`Part ${partIndex + 1} failed (${xhr.status})`));
+            }
+          };
 
-        xhr.onerror = () => {
-          xhrAbortersRef.current.delete(`${fileId}_part_${i + 1}`);
-          reject(new Error(`Part ${i + 1} network error`));
-        };
+          xhr.onerror = () => {
+            xhrAbortersRef.current.delete(`${fileId}_part_${partIndex + 1}`);
+            reject(new Error(`Part ${partIndex + 1} network error`));
+          };
 
-        xhr.onabort = () => {
-          xhrAbortersRef.current.delete(`${fileId}_part_${i + 1}`);
-          reject(new DOMException('Aborted', 'AbortError'));
-        };
+          xhr.onabort = () => {
+            xhrAbortersRef.current.delete(`${fileId}_part_${partIndex + 1}`);
+            reject(new DOMException('Aborted', 'AbortError'));
+          };
 
-        xhr.open('PUT', partUrl, true);
-        xhr.setRequestHeader('Content-Type', contentType);
-        xhr.send(chunk);
-      });
+          xhr.open('PUT', partUrl, true);
+          xhr.setRequestHeader('Content-Type', contentType);
+          xhr.send(chunk);
+        });
 
-      parts.push({ ETag: etag, PartNumber: i + 1 });
+        partPromises.push(partPromise);
+      }
+
+      const windowResults = await Promise.all(partPromises);
+      for (const result of windowResults) {
+        parts[result.PartNumber - 1] = result;
+      }
     }
 
     // Step 3: Complete multipart
@@ -533,57 +544,56 @@ export default function ContentUploader({
         await runConcurrentUploads(queue);
 
         // ── P3.2: Batch complete — send all successful uploads in one DB transaction ──
-        setUploadQueue(prev => {
-          const successful = prev.filter(f => f.status === 'completing' && f.publicUrl);
-          const failed = prev.filter(f => f.status === 'failed');
+        // Read the current queue state synchronously to collect results
+        let finalQueue: FileUploadState[] = [];
+        setUploadQueue(prev => { finalQueue = prev; return prev; });
 
-          if (batchAbortRef.current?.signal.aborted) {
-            setStatusMessage('Upload batch cancelled.');
-          } else if (successful.length > 0) {
-            // Collect batch data
-            const batchItems = successful.map(f => ({
-              subjectId: selectedSubjectId,
-              lessonId: selectedLessonId,
-              parentId: currentPathId || null,
-              fileName: f.relativeFilePath,
-              fileType: getFileType(f.file.type, f.relativeFilePath),
-              publicUrl: f.publicUrl!,
-              itemType: f.file.name.toLowerCase().endsWith('.vimeo') ? 'vimeo' : 'file',
-              vimeoId: '',
-              idempotencyKey: generateIdempotencyKey(f.file, f.relativeFilePath)
-            }));
+        const successful = finalQueue.filter(f => f.status === 'completing' && f.publicUrl);
+        const failed = finalQueue.filter(f => f.status === 'failed');
 
-            // Fire batch complete
-            fetch('/api/admin/upload-complete-batch', {
+        if (batchAbortRef.current?.signal.aborted) {
+          setStatusMessage('Upload batch cancelled.');
+        } else if (successful.length > 0) {
+          // Collect batch data
+          const batchItems = successful.map(f => ({
+            subjectId: selectedSubjectId,
+            lessonId: selectedLessonId,
+            parentId: currentPathId || null,
+            fileName: f.relativeFilePath,
+            fileType: getFileType(f.file.type, f.relativeFilePath),
+            publicUrl: f.publicUrl!,
+            itemType: f.file.name.toLowerCase().endsWith('.vimeo') ? 'vimeo' : 'file',
+            vimeoId: '',
+            idempotencyKey: generateIdempotencyKey(f.file, f.relativeFilePath)
+          }));
+
+          // Await batch complete so DB records exist BEFORE UI refresh
+          try {
+            await fetch('/api/admin/upload-complete-batch', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ items: batchItems })
-            }).then(res => res.json()).then(() => {
-              // Mark all as success
-              setUploadQueue(q => q.map(f =>
-                f.status === 'completing' && f.publicUrl ? { ...f, status: 'success' as UploadStatus } : f
-              ));
-            }).catch(() => {
-              // Fallback: mark as success anyway (R2 already has the files)
-              setUploadQueue(q => q.map(f =>
-                f.status === 'completing' && f.publicUrl ? { ...f, status: 'success' as UploadStatus } : f
-              ));
             });
+          } catch {
+            // R2 already has the files — DB insert failed but data is not lost
           }
 
-          if (failed.length > 0) {
-            const failedNames = failed.map(f => f.relativeFilePath).join(', ');
-            if (batchAbortRef.current?.signal.aborted) {
-              setStatusMessage(`Cancelled. ${successful.length} uploaded, ${failed.length} failed: ${failedNames}`);
-            } else {
-              setStatusMessage(`Partial: ${successful.length}/${prev.length} uploaded. Failed: ${failedNames}`);
-            }
-          } else if (!batchAbortRef.current?.signal.aborted) {
-            setStatusMessage(`Success: ${successful.length} assets verified!`);
-          }
+          // Mark all as success
+          setUploadQueue(q => q.map(f =>
+            f.status === 'completing' && f.publicUrl ? { ...f, status: 'success' as UploadStatus } : f
+          ));
+        }
 
-          return prev;
-        });
+        if (failed.length > 0) {
+          const failedNames = failed.map(f => f.relativeFilePath).join(', ');
+          if (batchAbortRef.current?.signal.aborted) {
+            setStatusMessage(`Cancelled. ${successful.length} uploaded, ${failed.length} failed: ${failedNames}`);
+          } else {
+            setStatusMessage(`Partial: ${successful.length}/${finalQueue.length} uploaded. Failed: ${failedNames}`);
+          }
+        } else if (!batchAbortRef.current?.signal.aborted) {
+          setStatusMessage(`Success: ${successful.length} assets verified!`);
+        }
 
         setFiles([]);
         onComplete();
@@ -667,13 +677,23 @@ export default function ContentUploader({
   // ── Compact variant ──
   if (variant === 'compact') {
     return (
-      <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-3xl">
+      <div
+        className={`flex items-center gap-4 bg-white/5 border p-4 rounded-3xl transition-all duration-300 ${
+          isDragOver ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/10'
+        }`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <input
           id="compact-file-input"
           type="file"
           multiple
           className="hidden"
-          onChange={(e) => setFiles(Array.from(e.target.files || []))}
+          onChange={(e) => {
+            const selected = Array.from(e.target.files || []);
+            if (selected.length > 0) setFiles(prev => [...prev, ...selected]);
+          }}
           disabled={uploading}
         />
         <button
@@ -682,16 +702,24 @@ export default function ContentUploader({
           className="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase px-6 py-3 rounded-xl transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-indigo-500/20"
           disabled={uploading}
         >
-          {uploading ? '...' : '↑ Upload Assets'}
+          {uploading ? '...' : isDragOver ? '📥 Drop Here' : '↑ Upload Assets'}
         </button>
 
         {files.length > 0 && !uploading && (
-          <button
-            onClick={(e) => processUploadOrEmbed(e)}
-            className="bg-white text-black text-[10px] font-black uppercase px-6 py-3 rounded-xl hover:bg-gray-200 transition-all shrink-0"
-          >
-            Start ({files.length})
-          </button>
+          <>
+            <button
+              onClick={(e) => processUploadOrEmbed(e)}
+              className="bg-white text-black text-[10px] font-black uppercase px-6 py-3 rounded-xl hover:bg-gray-200 transition-all shrink-0"
+            >
+              Start ({files.length})
+            </button>
+            <button
+              onClick={() => setFiles([])}
+              className="text-[9px] font-bold text-gray-500 hover:text-white transition-colors shrink-0"
+            >
+              Clear
+            </button>
+          </>
         )}
 
         {uploading && inFlightCount > 0 && (
@@ -718,8 +746,8 @@ export default function ContentUploader({
           </button>
         )}
 
-        {!uploading && files.length === 0 && (
-          <p className="text-[10px] font-medium text-gray-500 italic">Select one or more files to transmit to {currentPath || 'root'}</p>
+        {!uploading && files.length === 0 && !statusMessage && (
+          <p className="text-[10px] font-medium text-gray-500 italic">Drop files here or click to upload to {currentPath || 'root'}</p>
         )}
 
         {statusMessage && !uploading && files.length === 0 && (
@@ -913,6 +941,16 @@ export default function ContentUploader({
                 />
               </div>
             </div>
+          )}
+
+          {/* Clear queue button after completion */}
+          {!uploading && uploadQueue.length > 0 && (
+            <button
+              onClick={() => setUploadQueue([])}
+              className="w-full text-[9px] font-bold text-gray-500 hover:text-white py-2 transition-colors uppercase tracking-widest"
+            >
+              Dismiss Queue
+            </button>
           )}
         </div>
       )}

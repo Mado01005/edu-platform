@@ -158,6 +158,26 @@ export async function deleteR2Folder(prefix: string) {
   }
 }
 
+/**
+ * Batch delete specific R2 keys (up to 1000 per request).
+ * Used by cascade deletion when we have explicit URLs from the database.
+ */
+export async function batchDeleteR2Objects(keys: string[]): Promise<void> {
+  if (keys.length === 0) return;
+
+  for (let i = 0; i < keys.length; i += 1000) {
+    const batch = keys.slice(i, i + 1000);
+    const command = new DeleteObjectsCommand({
+      Bucket: R2_BUCKET,
+      Delete: {
+        Objects: batch.map(key => ({ Key: key })),
+        Quiet: true
+      }
+    });
+    await r2Client.send(command);
+  }
+}
+
 // ── P3.1: Multipart Upload Helpers ──
 
 /**

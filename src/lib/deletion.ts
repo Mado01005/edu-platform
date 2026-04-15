@@ -4,7 +4,7 @@
 
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { deleteR2Object } from '@/lib/r2';
+import { deleteR2Object, batchDeleteR2Objects } from '@/lib/r2';
 import { validateDeleteInput, extractR2Key, isValidUUID, isValidSlug } from '@/lib/validation';
 import { ApiErrors, createSuccessResponse, handleDatabaseError } from '@/lib/errors';
 
@@ -115,14 +115,15 @@ async function handleR2Cleanup(type: 'subject' | 'lesson' | 'item', id: string, 
     if (lessonIds.length > 0) {
       const { data: items } = await supabaseAdmin.from('content_items').select('url').in('lesson_id', lessonIds);
       if (items && items.length > 0) {
-        for (const item of items) {
-          const r2Key = extractR2Key(item.url || '');
-          if (r2Key) {
-            try {
-              await deleteR2Object(r2Key);
-            } catch (r2Err) {
-              console.warn(`[Cascade Delete] R2 cleanup failed for key "${r2Key}":`, r2Err);
-            }
+        const r2Keys = items
+          .map(item => extractR2Key(item.url || ''))
+          .filter((key): key is string => !!key);
+
+        if (r2Keys.length > 0) {
+          try {
+            await batchDeleteR2Objects(r2Keys);
+          } catch (r2Err) {
+            console.warn(`[Cascade Delete] Batch R2 cleanup failed for ${r2Keys.length} keys:`, r2Err);
           }
         }
       }
