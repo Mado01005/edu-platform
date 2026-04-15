@@ -65,6 +65,13 @@ const MusicPlayerContent = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [socialActivities, setSocialActivities] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [localVolume, setLocalVolume] = useState(volume);
+  const isDraggingRef = useRef(false);
+
+  // Sync context volume → local when NOT dragging (e.g. external SDK state change)
+  useEffect(() => {
+    if (!isDraggingRef.current) setLocalVolume(volume);
+  }, [volume]);
 
   // Hide on public pages
   if (pathname === '/login' || pathname === '/') return null;
@@ -156,15 +163,24 @@ const MusicPlayerContent = () => {
   };
 
   const lastVolumeRef = useRef(volume);
+
+  // Commit local volume to SDK — called on pointer release
+  const commitVolume = useCallback((v: number) => {
+    isDraggingRef.current = false;
+    setSpotifyVolume(v);
+  }, [setSpotifyVolume]);
+
   const toggleMute = async () => {
     if (!hasToken || isPremiumRequired) return;
     try {
       if (isMuted) {
         const restoreVolume = lastVolumeRef.current || 0.5;
+        setLocalVolume(restoreVolume);
         await setSpotifyVolume(restoreVolume);
         setIsMuted(false);
       } else {
-        lastVolumeRef.current = volume;
+        lastVolumeRef.current = localVolume;
+        setLocalVolume(0);
         await setSpotifyVolume(0);
         setIsMuted(true);
       }
@@ -284,16 +300,42 @@ const MusicPlayerContent = () => {
                       </button>
                     </div>
 
-                    {/* Volume Slider Mock with Mute */}
-                    <div className="flex items-center gap-4 bg-white/5 p-4 rounded-3xl">
-                      <button onClick={toggleMute} className="text-white/50 hover:text-white">
-                        {isMuted ? (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 5L6 9H2V15H6L11 19V5Z" /><path d="M23 9L17 15" /><path d="M17 9L23 15" /></svg>
-                        ) : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 5L6 9H2V15H6L11 19V5Z" /><path d="M15.54 8.46A5 5 0 0 1 15.54 15.54" /><path d="M19.07 4.93A10 10 0 0 1 19.07 19.07" /></svg>}
+                    {/* Volume Control Slider — Midnight Glass */}
+                    <div className="flex items-center gap-3 bg-white/[0.03] backdrop-blur-md p-4 rounded-2xl border border-white/[0.06] group/volume hover:bg-white/[0.05] transition-colors duration-300">
+                      <button onClick={toggleMute} className="text-white/40 hover:text-cyan-400 transition-colors duration-200 flex-shrink-0" title={isMuted ? 'Unmute' : 'Mute'}>
+                        {isMuted || localVolume === 0 ? (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5L6 9H2V15H6L11 19V5Z" /><path d="M23 9L17 15" /><path d="M17 9L23 15" /></svg>
+                        ) : localVolume < 0.4 ? (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5L6 9H2V15H6L11 19V5Z" /><path d="M15.54 8.46A5 5 0 0 1 15.54 15.54" /></svg>
+                        ) : (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5L6 9H2V15H6L11 19V5Z" /><path d="M15.54 8.46A5 5 0 0 1 15.54 15.54" /><path d="M19.07 4.93A10 10 0 0 1 19.07 19.07" /></svg>
+                        )}
                       </button>
-                      <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full bg-white rounded-full transition-all duration-300" style={{ width: `${isMuted ? 0 : volume * 100}%` }} />
+                      <div className="flex-1 relative flex items-center h-5">
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={isMuted ? 0 : Math.round(localVolume * 100)}
+                          onChange={(e) => {
+                            const raw = parseInt(e.target.value, 10);
+                            const normalized = raw / 100;
+                            isDraggingRef.current = true;
+                            setLocalVolume(normalized);
+                            if (isMuted && raw > 0) setIsMuted(false);
+                          }}
+                          onMouseUp={() => commitVolume(localVolume)}
+                          onTouchEnd={() => commitVolume(localVolume)}
+                          className="midnight-volume-slider"
+                          style={{
+                            background: `linear-gradient(to right, rgba(6,182,212,0.9) 0%, rgba(6,182,212,0.5) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) 100%)`
+                          }}
+                        />
                       </div>
+                      <span className="text-[10px] font-black text-white/25 tabular-nums w-7 text-right select-none font-mono">
+                        {isMuted ? '0' : Math.round(localVolume * 100)}
+                      </span>
                     </div>
                   </div>
                 </div>

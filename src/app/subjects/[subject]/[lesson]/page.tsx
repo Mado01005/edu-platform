@@ -10,7 +10,6 @@ import CompleteButton from '@/components/CompleteButton';
 import BookmarkButton from '@/components/BookmarkButton';
 import ShareButton from '@/components/ShareButton';
 import SnippetTool from '@/components/UI/SnippetTool';
-import FocusTimer from '@/components/FocusTimer';
 import ForgeSnippets from '@/components/ForgeSnippets';
 import TopologyViewer from '@/components/TopologyViewer';
 import type { Metadata } from 'next';
@@ -149,7 +148,6 @@ export default async function LessonPage({ params }: Props) {
         <ForgeSnippets lessonId={lesson.id} />
       </main>
       </div>
-      <FocusTimer lessonId={lesson.id} />
     </div>
   );
 }

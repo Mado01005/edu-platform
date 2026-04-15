@@ -135,33 +135,40 @@ export default function FocusAnalyticsTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {data.frictionList.map((item, idx) => {
-                const total = item.completed + item.interrupted;
-                const failRate = total > 0 ? (item.interrupted / total) * 100 : 0;
-                
-                return (
-                  <tr key={item.lesson_id} className="hover:bg-white/5 transition-colors">
-                    <td className="p-6 flex items-center gap-2">
-                      <span className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${idx < 3 ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-gray-400'}`}>
-                        {idx + 1}
-                      </span>
-                    </td>
-                    <td className="p-6 font-bold text-white max-w-xs truncate" title={item.title}>
-                      {item.title}
-                    </td>
-                    <td className="p-6 font-black text-red-400 tabular-nums bg-red-950/20">{item.interrupted}</td>
-                    <td className="p-6 font-bold text-emerald-400 tabular-nums">{item.completed}</td>
-                    <td className="p-6">
-                      <div className="flex items-center gap-3">
-                        <span className="font-bold text-white tabular-nums w-12">{failRate.toFixed(0)}%</span>
-                        <div className="flex-1 h-2 bg-black rounded-full overflow-hidden border border-white/5">
-                          <div className="h-full bg-red-500" style={{ width: `${failRate}%` }} />
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+              {(() => {
+                try {
+                  return data.frictionList.map((item, idx) => {
+                    const total = item.completed + item.interrupted;
+                    const failRate = total > 0 ? (item.interrupted / total) * 100 : 0;
+                    
+                    return (
+                      <tr key={item.lesson_id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-6 flex items-center gap-2">
+                          <span className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${idx < 3 ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-gray-400'}`}>
+                            {idx + 1}
+                          </span>
+                        </td>
+                        <td className="p-6 font-bold text-white max-w-xs truncate" title={item.title}>
+                          {item.title}
+                        </td>
+                        <td className="p-6 font-black text-red-400 tabular-nums bg-red-950/20">{item.interrupted}</td>
+                        <td className="p-6 font-bold text-emerald-400 tabular-nums">{item.completed}</td>
+                        <td className="p-6">
+                          <div className="flex items-center gap-3">
+                            <span className="font-bold text-white tabular-nums w-12">{failRate.toFixed(0)}%</span>
+                            <div className="flex-1 h-2 bg-black rounded-full overflow-hidden border border-white/5">
+                              <div className="h-full bg-red-500" style={{ width: `${failRate}%` }} />
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  });
+                } catch (e) {
+                  console.error('Failed to render friction list:', e);
+                  return null;
+                }
+              })()}
               {data.frictionList.length === 0 && (
                 <tr>
                   <td colSpan={5} className="p-10 text-center text-gray-500 italic font-medium">No friction data recorded yet.</td>
@@ -195,25 +202,32 @@ export default function FocusAnalyticsTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-red-500/10">
-              {velocityData && velocityData.map((item, idx) => (
-                <tr key={`${item.user_id}_${item.lesson_id}`} className="hover:bg-red-500/5 transition-colors">
-                  <td className="p-6 font-bold text-white max-w-xs truncate">{item.email}</td>
-                  <td className="p-6 font-bold text-gray-300 max-w-[200px] truncate" title={item.lesson_name}>{item.lesson_name}</td>
-                  <td className="p-6">
-                    <span className="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-xs font-black tabular-nums">
-                      {item.velocity_score}x
-                    </span>
-                  </td>
-                  <td className="p-6 font-black text-red-400 tabular-nums">{item.interrupt_rate}%</td>
-                  <td className="p-6">
-                    <div className="flex items-center gap-2 text-xs font-bold tabular-nums">
-                      <span className="text-white">{item.duration}m</span>
-                      <span className="text-gray-600">/</span>
-                      <span className="text-indigo-400">{item.global_average}m</span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {(() => {
+                try {
+                  return velocityData && velocityData.map((item, idx) => (
+                    <tr key={`${item.user_id}_${item.lesson_id}`} className="hover:bg-red-500/5 transition-colors">
+                      <td className="p-6 font-bold text-white max-w-xs truncate">{item.email}</td>
+                      <td className="p-6 font-bold text-gray-300 max-w-[200px] truncate" title={item.lesson_name}>{item.lesson_name}</td>
+                      <td className="p-6">
+                        <span className="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-xs font-black tabular-nums">
+                          {item.velocity_score}x
+                        </span>
+                      </td>
+                      <td className="p-6 font-black text-red-400 tabular-nums">{item.interrupt_rate}%</td>
+                      <td className="p-6">
+                        <div className="flex items-center gap-2 text-xs font-bold tabular-nums">
+                          <span className="text-white">{item.duration}m</span>
+                          <span className="text-gray-600">/</span>
+                          <span className="text-indigo-400">{item.global_average}m</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ));
+                } catch (e) {
+                  console.error('Failed to render velocity data:', e);
+                  return null;
+                }
+              })()}
               {(!velocityData || velocityData.length === 0) && !velocityLoading && (
                 <tr>
                   <td colSpan={5} className="p-10 text-center text-emerald-500 italic font-medium">No students currently meet early warning criteria. Excellence prevails.</td>

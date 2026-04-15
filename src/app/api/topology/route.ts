@@ -9,15 +9,20 @@ export async function GET() {
     const { data: subjects, error: subjErr } = await supabaseAdmin.from('subjects').select('*');
     const { data: content, error: contErr } = await supabaseAdmin.from('content_items').select('*');
     
-    // Admins need focus data for heatmap
+    // DEPRECATED: Focus session heatmap data (Binary Beats removed).
+    // Wrapped in try/catch to prevent crash if focus_sessions table is dropped.
     let frictionData: Record<string, { completed: number; interrupted: number }> = {};
     if (session?.user?.isAdmin) {
-       const { data: sessions } = await supabaseAdmin.from('focus_sessions').select('lesson_id, status');
-       sessions?.forEach(s => {
-         if (!frictionData[s.lesson_id]) frictionData[s.lesson_id] = { completed: 0, interrupted: 0 };
-         if (s.status === 'completed') frictionData[s.lesson_id].completed++;
-         else frictionData[s.lesson_id].interrupted++;
-       });
+      try {
+        const { data: sessions } = await supabaseAdmin.from('focus_sessions').select('lesson_id, status');
+        sessions?.forEach(s => {
+          if (!frictionData[s.lesson_id]) frictionData[s.lesson_id] = { completed: 0, interrupted: 0 };
+          if (s.status === 'completed') frictionData[s.lesson_id].completed++;
+          else frictionData[s.lesson_id].interrupted++;
+        });
+      } catch (e) {
+        console.warn('[TOPOLOGY] focus_sessions query failed (deprecated), using empty friction data');
+      }
     }
 
     if (subjErr || contErr) throw new Error('Failed to fetch topology data');
