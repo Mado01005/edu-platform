@@ -194,7 +194,12 @@ export default function ContentUploader({
 
       xhr.open('PUT', signedUrl, true);
       xhr.setRequestHeader('Content-Type', contentType || 'application/octet-stream');
-      xhr.send(file);
+      console.log(`Step 3: Presigned URL received. Initiating XHR for ${file.name}...`);
+      try {
+        xhr.send(file);
+      } catch (err) {
+        reject(new Error(`xhr.send failed: ${err instanceof Error ? err.message : String(err)}`));
+      }
     });
   }, []);
 
@@ -210,6 +215,7 @@ export default function ContentUploader({
     const contentType = file.type || 'application/octet-stream';
 
     // Step 1: Init multipart
+    console.log(`Step 2: Requesting presigned URL... (Multipart initialization)`);
     const initRes = await fetch('/api/admin/upload-multipart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -380,6 +386,7 @@ export default function ContentUploader({
           publicUrl = result.publicUrl;
         } else {
           // Standard single upload
+          console.log(`Step 2: Requesting presigned URL...`);
           const initRes = await fetch('/api/admin/upload-initiate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -513,6 +520,7 @@ export default function ContentUploader({
 
   const processUploadOrEmbed = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(`Step 1: Button clicked. File count: ${files.length}`);
 
     // P3.0 Folder Mirror Check
     const isFolderMirror = inputType === 'file' && files.some(f => {
@@ -521,6 +529,7 @@ export default function ContentUploader({
     });
 
     if (!selectedLessonId && !isFolderMirror && inputType !== 'snippet') {
+      console.error('Guard Check Failed: selectedLessonId is missing and not Folder Mirror.');
       setStatusMessage('Error: Select a module before initiating transmission (or upload a structured folder).');
       return;
     }
@@ -1054,7 +1063,10 @@ export default function ContentUploader({
 
       <button
         onClick={(e) => processUploadOrEmbed(e)}
-        disabled={!selectedLessonId || uploading}
+        disabled={
+          uploading || 
+          (!selectedLessonId && inputType !== 'snippet' && !(inputType === 'file' && files.some((f: any) => (f.webkitRelativePath || '').split('/').length >= 3)))
+        }
         className="w-full bg-white text-black font-black py-6 rounded-[2rem] hover:bg-gray-200 uppercase tracking-widest text-[10px] shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {uploading ? `Transmitting... (${inFlightCount} active)` : 'Execute Transaction'}
