@@ -505,52 +505,63 @@ export default function ContentUploader({
     e.stopPropagation();
     setIsDragOver(false);
 
-    if (e.dataTransfer.items) {
-      const getFilesFromEntry = (entry: any, path = ''): Promise<File[]> => {
-        return new Promise((resolve) => {
-          if (entry.isFile) {
-            entry.file((file: File) => {
-              Object.defineProperty(file, 'fullPath', { value: path + file.name });
-              resolve([file]);
-            });
-          } else if (entry.isDirectory) {
-            const dirReader = entry.createReader();
-            const entries: any[] = [];
-            const readEntries = () => {
-              dirReader.readEntries(async (results: any[]) => {
-                if (!results.length) {
-                  const promises = entries.map(e => getFilesFromEntry(e, path + entry.name + '/'));
-                  const fileArrays = await Promise.all(promises);
-                  resolve(fileArrays.flat());
-                } else {
-                  entries.push(...results);
-                  readEntries();
-                }
-              });
-            };
-            readEntries();
-          } else {
-            resolve([]);
-          }
-        });
-      };
+    const items = e.dataTransfer.items;
+    if (!items) return;
 
-      const promises = Array.from(e.dataTransfer.items).map(item => {
-        const entry = item.webkitGetAsEntry();
-        if (entry) return getFilesFromEntry(entry);
-        return Promise.resolve(item.getAsFile() ? [item.getAsFile() as File] : []);
-      });
-      const fileArrays = await Promise.all(promises);
-      const droppedFiles = fileArrays.flat().filter(Boolean) as File[];
+    const getFilesFromEntry = async (entry: any, path = ''): Promise<File[]> => {
+      if (entry.isFile) {
+        return new Promise((resolve) => {
+          entry.file((file: File) => {
+            // Preservation: Manually attach fullPath for hierarchy mapping
+            Object.defineProperty(file, 'fullPath', {
+              value: path + file.name,
+              writable: false,
+              configurable: true
+            });
+            resolve([file]);
+          });
+        });
+      } else if (entry.isDirectory) {
+        const dirReader = entry.createReader();
+        const allEntries: any[] = [];
+        
+        // Helper to read all entries (handles browser pagination/limits)
+        const readAllEntries = async (): Promise<any[]> => {
+          const entries = await new Promise<any[]>((resolve) => {
+            dirReader.readEntries((results: any[]) => resolve(results));
+          });
+          if (entries.length > 0) {
+            allEntries.push(...entries);
+            return readAllEntries();
+          }
+          return allEntries;
+        };
+
+        const entries = await readAllEntries();
+        const filePromises = entries.map(ent => getFilesFromEntry(ent, path + entry.name + '/'));
+        const fileResults = await Promise.all(filePromises);
+        return fileResults.flat();
+      }
+      return [];
+    };
+
+    try {
+      const entryPromises = Array.from(items)
+        .map(item => item.webkitGetAsEntry())
+        .filter(entry => entry !== null)
+        .map(entry => getFilesFromEntry(entry));
+
+      const results = await Promise.all(entryPromises);
+      const extractedFiles = results.flat();
       
-      if (droppedFiles.length > 0) {
-        setFiles(prev => [...prev, ...droppedFiles]);
+      console.log(`Async parsing complete. Files found: ${extractedFiles.length}`);
+
+      if (extractedFiles.length > 0) {
+        setFiles(prev => [...prev, ...extractedFiles]);
       }
-    } else {
-      const droppedFiles = Array.from(e.dataTransfer.files);
-      if (droppedFiles.length > 0) {
-        setFiles(prev => [...prev, ...droppedFiles]);
-      }
+    } catch (err) {
+      console.error("Directory reading failed:", err);
+      setStatusMessage("Error parsing dropped folders. Please try again.");
     }
   }, []);
 
