@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         const safeLessonSlug = lessonSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
         const timestamp = Date.now();
         const nestedPath = (relativeFilePath || fileName || 'unnamed_file')
-          .replace(/[^a-zA-Z0-9.\s/_\-]/g, '')
+          .replace(/[^a-zA-Z0-9.\s/_\-]/g, '_') // replace unsafe chars with _ but keep /
           .replace(/\/+/g, '/')
           .trim();
 

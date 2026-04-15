@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     // Sanitize the relative path but preserve slashes for nesting
     // e.g., "Physics 1/Lab 2/image.png"
     const nestedPath = (relativeFilePath || fileName || 'unnamed_file')
-      .replace(/[^a-zA-Z0-9.\s/_\-]/g, '') // remove unsafe chars but keep /
+      .replace(/[^a-zA-Z0-9.\s/_\-]/g, '_') // replace unsafe chars with _ but keep /
       .replace(/\/+/g, '/')                 // collapse slashes
       .trim();
 

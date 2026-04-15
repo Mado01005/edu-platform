@@ -180,8 +180,12 @@ export default function ContentUploader({
 
       xhr.onload = () => {
         xhrAbortersRef.current.delete(fileId);
-        if (xhr.status >= 200 && xhr.status < 300) resolve();
-        else reject(new Error(`R2 Rejection (${xhr.status})${xhr.status === 403 ? ' — Signature mismatch or CORS block.' : ''}`));
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log(`[XHR SUCCESS] ${file.name} uploaded successfully.`);
+          resolve();
+        } else {
+          reject(new Error(`R2 Rejection (${xhr.status})${xhr.status === 403 ? ' — Signature mismatch or CORS block.' : ''}`));
+        }
       };
 
       xhr.onerror = () => {
@@ -196,10 +200,11 @@ export default function ContentUploader({
 
       xhr.open('PUT', signedUrl, true);
       xhr.setRequestHeader('Content-Type', contentType || 'application/octet-stream');
-      console.log(`Step 3: Presigned URL received. Initiating XHR for ${file.name}...`);
+      
       try {
         xhr.send(file);
       } catch (err) {
+        xhrAbortersRef.current.delete(fileId);
         reject(new Error(`xhr.send failed: ${err instanceof Error ? err.message : String(err)}`));
       }
     });
@@ -264,8 +269,9 @@ export default function ContentUploader({
 
         const partPromise = new Promise<{ ETag: string; PartNumber: number }>((resolve, reject) => {
           const xhr = new XMLHttpRequest();
+          const partId = `${fileId}_part_${partIndex + 1}`;
           const abortFn = () => xhr.abort();
-          xhrAbortersRef.current.set(`${fileId}_part_${partIndex + 1}`, abortFn);
+          xhrAbortersRef.current.set(partId, abortFn);
 
           xhr.upload.onprogress = (event) => {
             const pct = ((start + event.loaded) / file.size) * 100;
@@ -277,7 +283,7 @@ export default function ContentUploader({
           };
 
           xhr.onload = () => {
-            xhrAbortersRef.current.delete(`${fileId}_part_${partIndex + 1}`);
+            xhrAbortersRef.current.delete(partId);
             if (xhr.status >= 200 && xhr.status < 300) {
               const etagHeader = xhr.getResponseHeader('ETag') || `""`;
               resolve({ ETag: etagHeader.replace(/"/g, ''), PartNumber: partIndex + 1 });
@@ -287,12 +293,12 @@ export default function ContentUploader({
           };
 
           xhr.onerror = () => {
-            xhrAbortersRef.current.delete(`${fileId}_part_${partIndex + 1}`);
+            xhrAbortersRef.current.delete(partId);
             reject(new Error(`Part ${partIndex + 1} network error`));
           };
 
           xhr.onabort = () => {
-            xhrAbortersRef.current.delete(`${fileId}_part_${partIndex + 1}`);
+            xhrAbortersRef.current.delete(partId);
             reject(new DOMException('Aborted', 'AbortError'));
           };
 
