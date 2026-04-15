@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const R2_ACCOUNT_ENDPOINT = process.env.R2_ENDPOINT || '';
@@ -67,6 +67,23 @@ export function getPublicUrl(key: string) {
 }
 
 /**
+ * P1.3: Verify that a file actually exists in R2 before creating a DB record.
+ * Returns the ContentLength if the object exists, null otherwise.
+ */
+export async function verifyR2ObjectExists(key: string): Promise<number | null> {
+  try {
+    const command = new HeadObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+    });
+    const response = await r2Client.send(command);
+    return response.ContentLength ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * List all objects currently in the R2 Bucket.
  * Handles pagination automatically.
  */
@@ -82,7 +99,7 @@ export async function listAllR2Objects(): Promise<string[]> {
     });
 
     const response = await r2Client.send(command);
-    
+
     if (response.Contents) {
       response.Contents.forEach((item) => {
         if (item.Key) keys.push(item.Key);
@@ -98,13 +115,11 @@ export async function listAllR2Objects(): Promise<string[]> {
 
 /**
  * Recursively delete a "folder" from R2 by listing and deleting all keys with the same prefix.
+ * P3.3: Uses batch DeleteObjectsCommand (up to 1000 keys per request).
  */
 export async function deleteR2Folder(prefix: string) {
   if (!prefix) return;
-  
-  // S3 prefix matching is exact. Ensure trailing slash if intended.
-  // But here we'll just use the provided prefix (e.g. "Biology/Cell-Structure")
-  
+
   let isTruncated = true;
   let continuationToken: string | undefined = undefined;
 
@@ -116,16 +131,24 @@ export async function deleteR2Folder(prefix: string) {
     });
 
     const response = await r2Client.send(listCommand);
-    
+
     if (response.Contents && response.Contents.length > 0) {
       const deleteKeys = response.Contents
         .map(item => item.Key)
         .filter((key): key is string => !!key);
 
       if (deleteKeys.length > 0) {
-        // Simple delete for each (batching is better but this is safer for R2 limits)
-        for (const key of deleteKeys) {
-          await deleteR2Object(key);
+        // ── P3.3: Batch delete up to 1000 keys per request ──
+        for (let i = 0; i < deleteKeys.length; i += 1000) {
+          const batch = deleteKeys.slice(i, i + 1000);
+          const deleteCommand = new DeleteObjectsCommand({
+            Bucket: R2_BUCKET,
+            Delete: {
+              Objects: batch.map(key => ({ Key: key })),
+              Quiet: true
+            }
+          });
+          await r2Client.send(deleteCommand);
         }
       }
     }
@@ -133,4 +156,62 @@ export async function deleteR2Folder(prefix: string) {
     isTruncated = response.IsTruncated ?? false;
     continuationToken = response.NextContinuationToken;
   }
+}
+
+// ── P3.1: Multipart Upload Helpers ──
+
+/**
+ * Initialize a multipart upload and return the UploadId.
+ */
+export async function initiateMultipartUpload(key: string, contentType: string): Promise<string> {
+  const command = new CreateMultipartUploadCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+    ContentType: contentType,
+  });
+  const response = await r2Client.send(command);
+  if (!response.UploadId) throw new Error('Failed to initiate multipart upload');
+  return response.UploadId;
+}
+
+/**
+ * Generate a presigned URL for a single multipart upload part.
+ */
+export async function getPresignedMultipartPartUrl(key: string, uploadId: string, partNumber: number, contentType: string): Promise<string> {
+  const command = new UploadPartCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+    UploadId: uploadId,
+    PartNumber: partNumber,
+  });
+  const signedUrl = await getSignedUrl(r2Client, command, { expiresIn: 3600 });
+  return signedUrl;
+}
+
+/**
+ * Complete a multipart upload with the provided part ETags.
+ */
+export async function completeMultipartUpload(key: string, uploadId: string, parts: { ETag: string; PartNumber: number }[]): Promise<string> {
+  const command = new CompleteMultipartUploadCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+    UploadId: uploadId,
+    MultipartUpload: {
+      Parts: parts.map(p => ({ ETag: p.ETag, PartNumber: p.PartNumber })),
+    },
+  });
+  const response = await r2Client.send(command);
+  return getPublicUrl(key);
+}
+
+/**
+ * Abort an in-progress multipart upload.
+ */
+export async function abortMultipartUpload(key: string, uploadId: string): Promise<void> {
+  const command = new AbortMultipartUploadCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+    UploadId: uploadId,
+  });
+  await r2Client.send(command);
 }

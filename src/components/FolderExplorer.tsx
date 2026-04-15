@@ -10,7 +10,6 @@ import ImageGallery from '@/components/ImageGallery';
 import VimeoPlayer from '@/components/VimeoPlayer';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import ContentUploader from '@/components/Admin/ContentUploader';
 import AdminActionBar from '@/components/Admin/AdminActionBar';
 
 interface FolderExplorerProps {
@@ -55,8 +54,8 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
   }
 
   const handleFolderClick = (folder: ContentNode) => {
-    const newPath = currentPath.length > 0 
-      ? `${pathQuery}/${folder.name}` 
+    const newPath = currentPath.length > 0
+      ? `${pathQuery}/${folder.name}`
       : folder.name;
     const url = new URL(window.location.href);
     url.searchParams.set('path', newPath);
@@ -96,12 +95,12 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
   const handleMoveItem = async (itemId: string) => {
     const targetName = prompt('Enter the name of the folder to move this to (e.g. "Drafts"). Leave empty to move to root.');
     if (targetName === null) return;
-    
+
     // Find the target folder ID in the current nodes or peer nodes
     // Simplified for now: just prompt for a folder ID or name
     // A better UI would be a dropdown of folders in the lesson.
     // We'll search for the folder by name in the WHOLE lesson content.
-    
+
     let targetId: string | null = null;
     if (targetName.trim()) {
       const findFolder = (nodes: ContentNode[]): string | null => {
@@ -133,7 +132,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
 
   // Always show folders if they exist - regardless of lesson name or any other condition
   const folders = currentNodes.filter(n => n.type === 'folder');
-  
+
   // Detect images more robustly - also check by file extension if fileType is missing
   const images = currentNodes
     .filter(c => {
@@ -143,21 +142,21 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
       if (c.fileType === 'image') return true;
       // Fallback: check by file extension
       const name = c.name.toLowerCase();
-      return name.endsWith('.jpg') || name.endsWith('.jpeg') || 
-             name.endsWith('.png') || name.endsWith('.gif') ||
-             name.endsWith('.webp') || name.endsWith('.svg');
+      return name.endsWith('.jpg') || name.endsWith('.jpeg') ||
+        name.endsWith('.png') || name.endsWith('.gif') ||
+        name.endsWith('.webp') || name.endsWith('.svg');
     })
     .map(c => c.url!) as string[];
-    
+
   const otherFiles = currentNodes.filter(c => {
     if (c.type === 'folder') return false;
     if (c.type === 'file') {
       // Exclude files we already identified as images
       if (c.fileType === 'image') return false;
       const name = c.name.toLowerCase();
-      const isImage = name.endsWith('.jpg') || name.endsWith('.jpeg') || 
-                      name.endsWith('.png') || name.endsWith('.gif') ||
-                      name.endsWith('.webp') || name.endsWith('.svg');
+      const isImage = name.endsWith('.jpg') || name.endsWith('.jpeg') ||
+        name.endsWith('.png') || name.endsWith('.gif') ||
+        name.endsWith('.webp') || name.endsWith('.svg');
       return !isImage;
     }
     return true; // vimeo or other types
@@ -174,9 +173,9 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15, scale: 0.98 },
-    show: { 
-      opacity: 1, 
-      y: 0, 
+    show: {
+      opacity: 1,
+      y: 0,
       scale: 1,
       transition: { type: 'spring', bounce: 0.4, duration: 0.6 }
     },
@@ -200,12 +199,12 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
         <svg className="w-4 h-4 flex-shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
-        
+
         {currentPath.length === 0 ? (
           <span className="text-white font-bold">{lesson.title}</span>
         ) : (
-          <button 
-            onClick={() => handleCrumbClick(-1)} 
+          <button
+            onClick={() => handleCrumbClick(-1)}
             className="hover:text-indigo-400 transition-colors hover:underline underline-offset-4"
           >
             {lesson.title}
@@ -222,8 +221,8 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
               {isLast ? (
                 <span className="text-white font-bold">{folder.name}</span>
               ) : (
-                <button 
-                  onClick={() => handleCrumbClick(idx)} 
+                <button
+                  onClick={() => handleCrumbClick(idx)}
                   className="hover:text-indigo-400 transition-colors hover:underline underline-offset-4"
                 >
                   {folder.name}
@@ -236,7 +235,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
 
       {/* Admin Action Bar */}
       {isAdmin && (
-        <AdminActionBar 
+        <AdminActionBar
           subject={subject}
           lesson={lesson}
           currentPath={pathQuery}
@@ -275,7 +274,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     </div>
                     {isAdmin && (
                       <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteItem(folder.id!);
@@ -285,7 +284,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                         >
                           {isDeleting === folder.id ? '...' : '🗑️'}
                         </button>
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleMoveItem(folder.id!);
@@ -307,11 +306,11 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
       {/* Files Display */}
       <AnimatePresence mode="wait">
         <motion.div
-           key={pathQuery + 'files'}
-           variants={containerVariants}
-           initial="hidden"
-           animate="show"
-           exit="exit"
+          key={pathQuery + 'files'}
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          exit="exit"
         >
           {images.length > 0 && (
             <motion.div variants={itemVariants} className="mb-10">
@@ -322,7 +321,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
           {otherFiles.length > 0 && (
             <div className="space-y-8">
               {otherFiles.length > 0 && folders.length > 0 && (
-                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Files</h3>
+                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Files</h3>
               )}
               {otherFiles.map((node, idx) => {
                 const uniqueKey = node.name || `file-${idx}`;
@@ -331,7 +330,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     <motion.div variants={itemVariants} key={`vimeo-${uniqueKey}`} className="group relative">
                       <VimeoPlayer vimeoId={node.vimeoId} title={node.name} />
                       {isAdmin && (
-                        <button 
+                        <button
                           onClick={() => handleDeleteItem(node.id!)}
                           className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 backdrop-blur-md rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all"
                           disabled={isDeleting === node.id}
@@ -351,13 +350,13 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                         </div>
                         {isAdmin && (
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                            <button 
+                            <button
                               onClick={() => handleMoveItem(node.id!)}
                               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-indigo-500/20 text-indigo-400 border border-white/10 transition-all shadow-lg"
                             >
                               📦
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleDeleteItem(node.id!, node.url)}
                               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/20 text-red-400 border border-white/10 transition-all shadow-lg"
                               disabled={isDeleting === node.id}
@@ -375,7 +374,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                   return (
                     <motion.div variants={itemVariants} key={`pdf-${uniqueKey}`} className="group relative">
                       {isAdmin && (
-                        <button 
+                        <button
                           onClick={() => handleDeleteItem(node.id!, node.url)}
                           className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 backdrop-blur-md rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all"
                           disabled={isDeleting === node.id}
@@ -398,7 +397,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                           <span className="text-sm font-bold text-orange-400 tracking-wide uppercase">{node.name}</span>
                         </div>
                         {isAdmin && (
-                          <button 
+                          <button
                             onClick={() => handleDeleteItem(node.id!, node.url)}
                             className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/20 text-red-400 border border-white/10 transition-all shadow-lg"
                             disabled={isDeleting === node.id}
@@ -408,7 +407,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                         )}
                       </div>
                       <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
-                        <iframe 
+                        <iframe
                           src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
                           className="w-full h-full bg-white"
                           title={node.name}
@@ -429,7 +428,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                         </div>
                         <div className="flex items-center gap-2">
                           {isAdmin && (
-                            <button 
+                            <button
                               onClick={() => handleDeleteItem(node.id!, node.url)}
                               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/20 text-red-400 border border-white/10 transition-all shadow-lg"
                               disabled={isDeleting === node.id}
@@ -437,10 +436,10 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                               {isDeleting === node.id ? '...' : '🗑️'}
                             </button>
                           )}
-                          <a 
-                            href={node.url} 
-                            download 
-                            target="_blank" 
+                          <a
+                            href={node.url}
+                            download
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition-all"
                           >
@@ -449,7 +448,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                         </div>
                       </div>
                       <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-inner bg-black/50">
-                        <iframe 
+                        <iframe
                           src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
                           className="w-full h-full bg-white"
                           title={node.name}
@@ -464,7 +463,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     <motion.div variants={itemVariants} key={`vault-${uniqueKey}`} className="flex flex-col bg-white/5 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl p-6 md:p-8 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
                       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
                       <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 blur-[40px] pointer-events-none rounded-full"></div>
-                      
+
                       <div className="flex items-center justify-between mb-8 relative z-10">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
@@ -476,7 +475,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                           </div>
                         </div>
                         {isAdmin && (
-                          <button 
+                          <button
                             onClick={() => handleDeleteItem(node.id!, node.url)}
                             className="w-10 h-10 rounded-xl flex items-center justify-center bg-black/50 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all shadow-lg"
                             disabled={isDeleting === node.id}
@@ -485,16 +484,16 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                           </button>
                         )}
                       </div>
-                      
+
                       <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 bg-black/60 p-8 flex flex-col items-center justify-center text-center">
                         <div className="text-6xl mb-6 opacity-80">🏗️</div>
                         <h4 className="text-xl font-bold text-white mb-2">Heavy Asset Nexus</h4>
                         <p className="text-sm text-gray-400 max-w-md mb-8">This file is classified as a heavy project blueprint. Direct previews are disabled to preserve browser memory.</p>
-                        
-                        <a 
-                          href={node.url} 
-                          download 
-                          target="_blank" 
+
+                        <a
+                          href={node.url}
+                          download
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] transition-all cursor-pointer"
                         >
@@ -514,7 +513,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
 
       {currentNodes.length === 0 && (
         <AnimatePresence>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-20 text-gray-500 border border-dashed border-white/10 rounded-3xl"

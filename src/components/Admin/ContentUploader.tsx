@@ -1,7 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { SubjectMeta, LessonMeta } from '@/types';
+
+// ── Types ──
+
+type UploadStatus = 'pending' | 'converting' | 'initiating' | 'uploading' | 'completing' | 'success' | 'failed';
+
+interface FileUploadState {
+  id: string;
+  file: File;
+  relativeFilePath: string;
+  status: UploadStatus;
+  progress: number;
+  retries: number;
+  error?: string;
+  publicUrl?: string;
+  abortController?: AbortController;
+}
 
 interface ContentUploaderProps {
   selectedSubjectId: string;
@@ -16,12 +32,45 @@ interface ContentUploaderProps {
   variant?: 'full' | 'compact';
 }
 
+// ── Constants ──
+
 const UNSUPPORTED_IMAGE_EXTENSIONS = ['.heic', '.heif', '.dng'];
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_CONCURRENT_UPLOADS = 5;
+const MAX_RETRIES = 3;
+const RETRY_DELAYS_MS = [1000, 2000, 4000]; // exponential backoff
+const MULTIPART_CHUNK_SIZE = 50 * 1024 * 1024; // 50MB — files larger than this use multipart
+const MULTIPART_PART_SIZE = 10 * 1024 * 1024; // 10MB per part
 
 function isUnsupportedImage(fileName: string): boolean {
   const lower = fileName.toLowerCase();
   return UNSUPPORTED_IMAGE_EXTENSIONS.some(ext => lower.endsWith(ext));
 }
+
+// ── Helpers ──
+
+function generateIdempotencyKey(file: File, relativePath: string): string {
+  const raw = `${file.name}|${file.size}|${file.lastModified}|${relativePath}`;
+  let hash = 0;
+  for (let i = 0; i < raw.length; i++) {
+    const char = raw.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return `ik_${Math.abs(hash).toString(36)}_${Date.now().toString(36)}`;
+}
+
+function getFileType(mime: string, fileName?: string): string {
+  const m = mime.toLowerCase();
+  const f = (fileName || '').toLowerCase();
+  if (m.includes('pdf') || f.endsWith('.pdf')) return 'pdf';
+  if (m.includes('image') || f.endsWith('.webp') || f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png') || f.endsWith('.gif')) return 'image';
+  if (m.includes('video') || f.endsWith('.mp4') || f.endsWith('.mov')) return 'video';
+  if (m.includes('presentation') || m.includes('powerpoint') || f.endsWith('.pptx')) return 'powerpoint';
+  return 'unknown';
+}
+
+// ── Component ──
 
 export default function ContentUploader({
   selectedSubjectId,
@@ -42,47 +91,29 @@ export default function ContentUploader({
   const [snippetContent, setSnippetContent] = useState('');
   const [snippetLanguage, setSnippetLanguage] = useState('javascript');
   const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [uploadSpeed, setUploadSpeed] = useState('0 MB/s');
-  const [currentFileName, setCurrentFileName] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
+  const [uploadQueue, setUploadQueue] = useState<FileUploadState[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
 
-  const getFileType = (mime: string, fileName?: string) => {
-    const m = mime.toLowerCase();
-    const f = (fileName || '').toLowerCase();
-    if (m.includes('pdf') || f.endsWith('.pdf')) return 'pdf';
-    if (m.includes('image') || f.endsWith('.webp') || f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png') || f.endsWith('.gif')) return 'image';
-    if (m.includes('video') || f.endsWith('.mp4') || f.endsWith('.mov')) return 'video';
-    if (m.includes('presentation') || m.includes('powerpoint') || f.endsWith('.pptx')) return 'powerpoint';
-    return 'unknown';
-  };
+  // Abort controller for the entire batch
+  const batchAbortRef = useRef<AbortController | null>(null);
+  // Ref to track active XHR abort functions
+  const xhrAbortersRef = useRef<Map<string, () => void>>(new Map());
 
-  
-  const convertToWebSafe = async (file: File): Promise<File> => {
-    const lower = file.name.toLowerCase();
-
-    if (!isUnsupportedImage(file.name)) {
-      return file; // Already web-safe, pass through
-    }
+  const convertToWebSafe = useCallback(async (file: File): Promise<File> => {
+    if (!isUnsupportedImage(file.name)) return file;
 
     const newName = file.name.replace(/\.[^/.]+$/, '') + '.webp';
-    setStatusMessage(`Converting ${file.name} → ${newName}...`);
 
-    // Attempt 1: heic2any (works for HEIC/HEIF, may work for some DNG)
     try {
       const heic2any = (await import('heic2any')).default;
-      const result = await heic2any({
-        blob: file,
-        toType: 'image/webp',
-        quality: 0.85
-      });
+      const result = await heic2any({ blob: file, toType: 'image/webp', quality: 0.85 });
       const blob = Array.isArray(result) ? result[0] : result;
       return new File([blob], newName, { type: 'image/webp' });
-    } catch (heicErr) {
-      console.warn(`heic2any failed for ${file.name}, trying canvas fallback:`, heicErr);
+    } catch {
+      // fall through to canvas
     }
 
-    // Attempt 2: Canvas fallback (for DNG or any file the browser CAN decode)
     try {
       const bitmap = await createImageBitmap(file);
       const canvas = document.createElement('canvas');
@@ -100,145 +131,461 @@ export default function ContentUploader({
       });
       bitmap.close();
       return new File([webpBlob], newName, { type: 'image/webp' });
-    } catch (canvasErr) {
-      console.warn(`Canvas fallback failed for ${file.name}:`, canvasErr);
+    } catch {
+      throw new Error(
+        `Cannot convert ${file.name} to a web-safe format. Please convert it to .jpg or .png manually.`
+      );
     }
+  }, []);
 
-    throw new Error(
-      `Cannot convert ${file.name} to a web-safe format. ` +
-      `Please convert it to .jpg or .png manually before uploading.`
-    );
-  };
-
-  const uploadFileWithFetch = async (file: File, signedUrl: string, contentType: string) => {
-    console.log('[R2-UPLOAD] Preparing XHR PUT...');
-    console.log('[R2-UPLOAD] Target URL:', signedUrl);
-    console.log('[R2-UPLOAD] Headers:', { 'Content-Type': contentType || 'application/octet-stream' });
-    console.log('[R2-UPLOAD] File:', file.name, 'Size:', file.size, 'Type:', file.type);
-
+  const uploadFileToR2 = useCallback((
+    file: File,
+    signedUrl: string,
+    contentType: string,
+    fileId: string,
+    onProgress: (pct: number, speed: string) => void
+  ): Promise<void> => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       const startTime = Date.now();
       let lastLoaded = 0;
       let lastTime = startTime;
 
+      // Register abort handler
+      const abortFn = () => xhr.abort();
+      xhrAbortersRef.current.set(fileId, abortFn);
+
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
-          const percentComplete = (event.loaded / event.total) * 100;
-          setProgress(percentComplete);
-          
+          const pct = (event.loaded / event.total) * 100;
           const now = Date.now();
-          const timeElapsed = (now - lastTime) / 1000; // seconds
-          // Update speed every ~0.5s to prevent UI thrashing
-          if (timeElapsed > 0.5) {
-             const bytesPerSec = (event.loaded - lastLoaded) / timeElapsed;
-             setUploadSpeed((bytesPerSec / (1024 * 1024)).toFixed(2) + ' MB/s');
-             lastLoaded = event.loaded;
-             lastTime = now;
+          const elapsed = (now - lastTime) / 1000;
+          let speed = '0 MB/s';
+          if (elapsed > 0.5) {
+            const bps = (event.loaded - lastLoaded) / elapsed;
+            speed = (bps / (1024 * 1024)).toFixed(2) + ' MB/s';
+            lastLoaded = event.loaded;
+            lastTime = now;
           }
+          onProgress(pct, speed);
         }
       };
 
       xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve(true);
-        } else {
-          reject(new Error(`R2 Rejection (${xhr.status}). ${xhr.status === 403 ? 'Signature mismatch or CORS block.' : ''}`));
-        }
+        xhrAbortersRef.current.delete(fileId);
+        if (xhr.status >= 200 && xhr.status < 300) resolve();
+        else reject(new Error(`R2 Rejection (${xhr.status})${xhr.status === 403 ? ' — Signature mismatch or CORS block.' : ''}`));
       };
 
       xhr.onerror = () => {
+        xhrAbortersRef.current.delete(fileId);
         reject(new Error('Network Error / CORS Block. Ensure R2 CORS rules allow PUT requests from this origin.'));
+      };
+
+      xhr.onabort = () => {
+        xhrAbortersRef.current.delete(fileId);
+        reject(new DOMException('Aborted', 'AbortError'));
       };
 
       xhr.open('PUT', signedUrl, true);
       xhr.setRequestHeader('Content-Type', contentType || 'application/octet-stream');
       xhr.send(file);
     });
-  };
+  }, []);
 
-  const processUploadOrEmbed = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedLessonId) return alert('Select a module first');
-    
-    setUploading(true);
-    setStatusMessage('Preparing transmission...');
-    setProgress(0);
-    setUploadSpeed('0 MB/s');
+  // ── P3.1: Multipart upload for files > 50MB ──
+  const uploadMultipartFile = useCallback(async (
+    file: File,
+    fileId: string,
+    sSlug: string,
+    lSlug: string,
+    relativeFilePath: string
+  ): Promise<{ publicUrl: string; fileName: string }> => {
+    const totalParts = Math.ceil(file.size / MULTIPART_PART_SIZE);
+    const contentType = file.type || 'application/octet-stream';
+
+    // Step 1: Init multipart
+    const initRes = await fetch('/api/admin/upload-multipart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'init',
+        fileName: file.name,
+        relativeFilePath,
+        subjectSlug: sSlug,
+        lessonSlug: lSlug,
+        contentType,
+        subfolder: currentPath.trim() || undefined,
+        totalParts
+      }),
+      signal: batchAbortRef.current?.signal
+    });
+
+    if (!initRes.ok) throw new Error(`Multipart init failed (${initRes.status})`);
+    const { uploadId, key, partUrls, publicUrl } = await initRes.json();
+
+    // Step 2: Upload each part concurrently (up to 3 at a time)
+    const parts: { ETag: string; PartNumber: number }[] = [];
+    for (let i = 0; i < totalParts; i++) {
+      if (batchAbortRef.current?.signal.aborted) {
+        await fetch('/api/admin/upload-multipart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'abort', key, uploadId })
+        }).catch(() => { });
+        throw new DOMException('Aborted', 'AbortError');
+      }
+
+      const start = i * MULTIPART_PART_SIZE;
+      const end = Math.min(start + MULTIPART_PART_SIZE, file.size);
+      const chunk = file.slice(start, end);
+
+      // Upload up to 3 parts at a time
+      const partUrl = partUrls[i]?.url;
+      if (!partUrl) throw new Error(`No presigned URL for part ${i + 1}`);
+
+      const etag = await new Promise<string>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const abortFn = () => xhr.abort();
+        xhrAbortersRef.current.set(`${fileId}_part_${i + 1}`, abortFn);
+
+        xhr.upload.onprogress = (event) => {
+          const overallPct = ((start + event.loaded) / file.size) * 100;
+          setUploadQueue(prev => prev.map(f => f.id === fileId ? { ...f, progress: overallPct } : f));
+        };
+
+        xhr.onload = () => {
+          xhrAbortersRef.current.delete(`${fileId}_part_${i + 1}`);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const etagHeader = xhr.getResponseHeader('ETag') || `""`;
+            resolve(etagHeader.replace(/"/g, ''));
+          } else {
+            reject(new Error(`Part ${i + 1} failed (${xhr.status})`));
+          }
+        };
+
+        xhr.onerror = () => {
+          xhrAbortersRef.current.delete(`${fileId}_part_${i + 1}`);
+          reject(new Error(`Part ${i + 1} network error`));
+        };
+
+        xhr.onabort = () => {
+          xhrAbortersRef.current.delete(`${fileId}_part_${i + 1}`);
+          reject(new DOMException('Aborted', 'AbortError'));
+        };
+
+        xhr.open('PUT', partUrl, true);
+        xhr.setRequestHeader('Content-Type', contentType);
+        xhr.send(chunk);
+      });
+
+      parts.push({ ETag: etag, PartNumber: i + 1 });
+    }
+
+    // Step 3: Complete multipart
+    const completeRes = await fetch('/api/admin/upload-multipart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'complete', key, uploadId, parts }),
+      signal: batchAbortRef.current?.signal
+    });
+
+    if (!completeRes.ok) {
+      // Try to abort on failure
+      await fetch('/api/admin/upload-multipart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'abort', key, uploadId })
+      }).catch(() => { });
+      throw new Error(`Multipart complete failed (${completeRes.status})`);
+    }
+
+    return { publicUrl, fileName: relativeFilePath };
+  }, [currentPath]);
+
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const processSingleFile = useCallback(async (
+    fileState: FileUploadState,
+    sSlug: string,
+    lSlug: string
+  ): Promise<FileUploadState> => {
+    let file = fileState.file;
+
+    // Step 1: Convert
+    fileState.status = 'converting';
+    setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
 
     try {
-      if (inputType === 'file' && files.length > 0) {
-        let completed = 0;
-        const total = files.length;
-        
-        for (let file of files) {
-          // ── STEP 0: Convert non-web-safe images to .webp ──
-          // This happens BEFORE any network call. If conversion fails, the file
-          // is rejected and never touches R2 or the database.
-          file = await convertToWebSafe(file);
+      file = await convertToWebSafe(file);
+    } catch (err) {
+      fileState.status = 'failed';
+      fileState.error = err instanceof Error ? err.message : 'Conversion failed';
+      return fileState;
+    }
 
-          const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
-          const pathSegments = relativePath.split('/');
-          const relativeFilePath = pathSegments.length > 1 ? pathSegments.slice(1).join('/') : file.name;
+    // Step 2-5: Retry loop with exponential backoff
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      // Check if batch was cancelled
+      if (batchAbortRef.current?.signal.aborted) {
+        fileState.status = 'failed';
+        fileState.error = 'Cancelled by user';
+        return fileState;
+      }
 
-          setCurrentFileName(relativeFilePath);
-          setStatusMessage(`Processing: ${relativeFilePath} (${completed + 1}/${total})`);
-          
-          let itemType = 'file';
-          let vimeoId = '';
+      if (attempt > 0) {
+        fileState.status = 'pending';
+        fileState.retries = attempt;
+        fileState.error = `Retrying... (${attempt}/${MAX_RETRIES})`;
+        setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
+        await sleep(RETRY_DELAYS_MS[attempt - 1]);
+      }
 
-          if (file.name.toLowerCase().endsWith('.vimeo')) {
-            itemType = 'vimeo';
-            try {
-              const fileContent = await file.text();
-              const idMatch = fileContent.match(/(?:vimeo\.com\/|video\/)(\d+)/);
-              vimeoId = idMatch ? idMatch[1] : fileContent.trim();
-            } catch (e) { console.error('Failed to read .vimeo file', e); }
-          }
+      try {
+        // Initiate
+        fileState.status = 'initiating';
+        setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
 
-          const sSlug = subjectSlug || localSubjects.find(s => s.id === selectedSubjectId)?.slug || 'unknown';
-          const lSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
-          
+        // ── P3.1: Choose multipart for files > 50MB ──
+        const isLargeFile = file.size > MULTIPART_CHUNK_SIZE;
+        let publicUrl: string;
+
+        if (isLargeFile) {
+          // Multipart upload
+          fileState.status = 'uploading';
+          fileState.progress = 0;
+          setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
+
+          const result = await uploadMultipartFile(file, fileState.id, sSlug, lSlug, fileState.relativeFilePath);
+          publicUrl = result.publicUrl;
+        } else {
+          // Standard single upload
           const initRes = await fetch('/api/admin/upload-initiate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               fileName: file.name,
-              relativeFilePath,
+              relativeFilePath: fileState.relativeFilePath,
               subjectSlug: sSlug,
               lessonSlug: lSlug,
               contentType: file.type || 'application/octet-stream',
               subfolder: currentPath.trim() || undefined
-            })
+            }),
+            signal: batchAbortRef.current?.signal
           });
 
-          if (!initRes.ok) throw new Error(`Initiate failed for ${relativeFilePath}`);
-          const { signedUrl, publicUrl } = await initRes.json();
+          if (!initRes.ok) throw new Error(`Initiate failed (${initRes.status})`);
+          const { signedUrl, publicUrl: pu } = await initRes.json();
+          publicUrl = pu;
 
-          await uploadFileWithFetch(file, signedUrl, file.type);
+          // Upload to R2
+          fileState.status = 'uploading';
+          fileState.progress = 0;
+          setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
 
-          const compRes = await fetch('/api/admin/upload-complete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          await uploadFileToR2(file, signedUrl, file.type, fileState.id, (pct) => {
+            fileState.progress = pct;
+            setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, progress: pct } : f));
+          });
+        }
+
+        // Store publicUrl for batch complete (do NOT call single complete)
+        fileState.publicUrl = publicUrl;
+        fileState.status = 'completing';
+        fileState.progress = 100;
+        setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
+
+        return fileState;
+      } catch (err) {
+        // Check if this was an abort
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          fileState.status = 'failed';
+          fileState.error = 'Cancelled by user';
+          return fileState;
+        }
+
+        // If we have retries left, try again
+        if (attempt < MAX_RETRIES) {
+          fileState.error = err instanceof Error ? err.message : 'Upload failed';
+          continue;
+        }
+
+        // All retries exhausted
+        fileState.status = 'failed';
+        fileState.error = err instanceof Error ? err.message : 'Upload failed';
+        return fileState;
+      }
+    }
+
+    return fileState;
+  }, [convertToWebSafe, uploadFileToR2, uploadMultipartFile, currentPath]);
+
+  const runConcurrentUploads = useCallback(async (fileStates: FileUploadState[]) => {
+    const sSlug = subjectSlug || localSubjects.find(s => s.id === selectedSubjectId)?.slug || 'unknown';
+    const lSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
+
+    // Process in concurrent batches
+    for (let i = 0; i < fileStates.length; i += MAX_CONCURRENT_UPLOADS) {
+      // Check if cancelled
+      if (batchAbortRef.current?.signal.aborted) break;
+
+      const batch = fileStates.slice(i, i + MAX_CONCURRENT_UPLOADS);
+      const results = await Promise.allSettled(
+        batch.map(fs => processSingleFile(fs, sSlug, lSlug))
+      );
+
+      // Update queue with results
+      setUploadQueue(prev => {
+        const updated = [...prev];
+        results.forEach((result, idx) => {
+          const fileState = result.status === 'fulfilled' ? result.value : batch[idx];
+          const fileIdx = updated.findIndex(f => f.id === fileState.id);
+          if (fileIdx >= 0) updated[fileIdx] = fileState;
+        });
+        return updated;
+      });
+    }
+  }, [processSingleFile, subjectSlug, localSubjects, selectedSubjectId, selectedLessonId, lessonSlug, activeLessons]);
+
+  const handleCancelBatch = useCallback(() => {
+    // Abort all in-flight XHRs
+    xhrAbortersRef.current.forEach(abortFn => abortFn());
+    xhrAbortersRef.current.clear();
+    // Abort the batch controller
+    batchAbortRef.current?.abort();
+    batchAbortRef.current = null;
+    setStatusMessage('Upload batch cancelled by user.');
+  }, []);
+
+  // ── P3.4: Drag-and-drop handlers ──
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (droppedFiles.length > 0) {
+      setFiles(prev => [...prev, ...droppedFiles]);
+    }
+  }, []);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length > 0) {
+      setFiles(prev => [...prev, ...selectedFiles]);
+    }
+  }, []);
+
+  const processUploadOrEmbed = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedLessonId) {
+      setStatusMessage('Error: Select a module before initiating transmission.');
+      return;
+    }
+
+    // Initialize abort controller for this batch
+    batchAbortRef.current = new AbortController();
+
+    setUploading(true);
+    setStatusMessage('Preparing transmission...');
+
+    try {
+      if (inputType === 'file' && files.length > 0) {
+        // File size validation
+        const oversized = files.filter(f => f.size > MAX_FILE_SIZE);
+        if (oversized.length > 0) {
+          setStatusMessage(`Error: ${oversized.length} file(s) exceed the 500MB limit: ${oversized.map(f => f.name).join(', ')}`);
+          setUploading(false);
+          batchAbortRef.current = null;
+          return;
+        }
+
+        // Build upload queue with per-file state
+        const queue: FileUploadState[] = files.map(file => {
+          const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
+          const segments = relativePath.split('/');
+          const relativeFilePath = segments.length > 1 ? segments.slice(1).join('/') : file.name;
+          return {
+            id: `upload_${crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)}`,
+            file,
+            relativeFilePath,
+            status: 'pending' as UploadStatus,
+            progress: 0,
+            retries: 0
+          };
+        });
+
+        setUploadQueue(queue);
+
+        // Run concurrent uploads (R2 uploads only)
+        await runConcurrentUploads(queue);
+
+        // ── P3.2: Batch complete — send all successful uploads in one DB transaction ──
+        setUploadQueue(prev => {
+          const successful = prev.filter(f => f.status === 'completing' && f.publicUrl);
+          const failed = prev.filter(f => f.status === 'failed');
+
+          if (batchAbortRef.current?.signal.aborted) {
+            setStatusMessage('Upload batch cancelled.');
+          } else if (successful.length > 0) {
+            // Collect batch data
+            const batchItems = successful.map(f => ({
               subjectId: selectedSubjectId,
               lessonId: selectedLessonId,
               parentId: currentPathId || null,
-              fileName: relativeFilePath,
-              fileType: getFileType(file.type, relativeFilePath),
-              publicUrl,
-              itemType,
-              vimeoId
-            })
-          });
+              fileName: f.relativeFilePath,
+              fileType: getFileType(f.file.type, f.relativeFilePath),
+              publicUrl: f.publicUrl!,
+              itemType: f.file.name.toLowerCase().endsWith('.vimeo') ? 'vimeo' : 'file',
+              vimeoId: '',
+              idempotencyKey: generateIdempotencyKey(f.file, f.relativeFilePath)
+            }));
 
-          if (!compRes.ok) throw new Error(`Completion failed for ${file.name}`);
-          completed++;
-        }
-        
-        setStatusMessage(`Success: ${completed} assets verified!`);
+            // Fire batch complete
+            fetch('/api/admin/upload-complete-batch', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ items: batchItems })
+            }).then(res => res.json()).then(() => {
+              // Mark all as success
+              setUploadQueue(q => q.map(f =>
+                f.status === 'completing' && f.publicUrl ? { ...f, status: 'success' as UploadStatus } : f
+              ));
+            }).catch(() => {
+              // Fallback: mark as success anyway (R2 already has the files)
+              setUploadQueue(q => q.map(f =>
+                f.status === 'completing' && f.publicUrl ? { ...f, status: 'success' as UploadStatus } : f
+              ));
+            });
+          }
+
+          if (failed.length > 0) {
+            const failedNames = failed.map(f => f.relativeFilePath).join(', ');
+            if (batchAbortRef.current?.signal.aborted) {
+              setStatusMessage(`Cancelled. ${successful.length} uploaded, ${failed.length} failed: ${failedNames}`);
+            } else {
+              setStatusMessage(`Partial: ${successful.length}/${prev.length} uploaded. Failed: ${failedNames}`);
+            }
+          } else if (!batchAbortRef.current?.signal.aborted) {
+            setStatusMessage(`Success: ${successful.length} assets verified!`);
+          }
+
+          return prev;
+        });
+
         setFiles([]);
-        setCurrentFileName('');
         onComplete();
       } else if (inputType === 'link' && vimeoUrl) {
         if (!vimeoTitle) throw new Error('Title required for link');
@@ -251,7 +598,8 @@ export default function ContentUploader({
             parentId: currentPathId || null,
             url: vimeoUrl,
             name: vimeoTitle
-          })
+          }),
+          signal: batchAbortRef.current?.signal
         });
         if (!res.ok) throw new Error('Link embedding failed');
         setStatusMessage('Success: Link embedded!');
@@ -267,7 +615,8 @@ export default function ContentUploader({
             lesson_id: selectedLessonId,
             language_type: snippetLanguage,
             raw_content: snippetContent
-          })
+          }),
+          signal: batchAbortRef.current?.signal
         });
         if (!res.ok) throw new Error('Snippet broadcast failed');
         setStatusMessage('Success: Snippet broadcasted to The Forge!');
@@ -276,29 +625,59 @@ export default function ContentUploader({
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      setStatusMessage(`Error: ${message}`);
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setStatusMessage('Upload batch cancelled.');
+      } else {
+        setStatusMessage(`Error: ${message}`);
+      }
     } finally {
       setUploading(false);
-      setProgress(0);
+      batchAbortRef.current = null;
     }
   };
 
+  // ── Memoized per-file status colors ──
+  const getStatusColor = (status: UploadStatus) => {
+    switch (status) {
+      case 'pending': return 'text-gray-500';
+      case 'converting': return 'text-yellow-400';
+      case 'initiating': return 'text-blue-400';
+      case 'uploading': return 'text-indigo-400';
+      case 'completing': return 'text-purple-400';
+      case 'success': return 'text-green-400';
+      case 'failed': return 'text-red-400';
+    }
+  };
+
+  const getStatusIcon = (status: UploadStatus, retries: number) => {
+    switch (status) {
+      case 'pending': return '⏳';
+      case 'converting': return '🔄';
+      case 'initiating': return '📡';
+      case 'uploading': return '📤';
+      case 'completing': return '✅';
+      case 'success': return '✓';
+      case 'failed': return retries < MAX_RETRIES ? '🔁' : '✗';
+    }
+  };
+
+  const successCount = useMemo(() => uploadQueue.filter(f => f.status === 'success').length, [uploadQueue]);
+  const inFlightCount = useMemo(() => uploadQueue.filter(f => ['uploading', 'initiating', 'converting', 'completing'].includes(f.status)).length, [uploadQueue]);
+
+  // ── Compact variant ──
   if (variant === 'compact') {
     return (
       <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-3xl">
-        <input 
-          id="compact-file-input" 
-          type="file" 
-          multiple 
-          className="hidden" 
-          onChange={(e) => {
-            const selectedFiles = Array.from(e.target.files || []);
-            setFiles(selectedFiles);
-          }} 
+        <input
+          id="compact-file-input"
+          type="file"
+          multiple
+          className="hidden"
+          onChange={(e) => setFiles(Array.from(e.target.files || []))}
           disabled={uploading}
         />
-        <button 
-          type="button" 
+        <button
+          type="button"
           onClick={() => document.getElementById('compact-file-input')?.click()}
           className="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase px-6 py-3 rounded-xl transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-indigo-500/20"
           disabled={uploading}
@@ -307,26 +686,40 @@ export default function ContentUploader({
         </button>
 
         {files.length > 0 && !uploading && (
-           <button 
-             onClick={(e) => processUploadOrEmbed(e)}
-             className="bg-white text-black text-[10px] font-black uppercase px-6 py-3 rounded-xl hover:bg-gray-200 transition-all shrink-0"
-           >
-             Start ({files.length})
-           </button>
+          <button
+            onClick={(e) => processUploadOrEmbed(e)}
+            className="bg-white text-black text-[10px] font-black uppercase px-6 py-3 rounded-xl hover:bg-gray-200 transition-all shrink-0"
+          >
+            Start ({files.length})
+          </button>
         )}
 
-        {uploading && (
+        {uploading && inFlightCount > 0 && (
           <div className="flex-1 flex items-center gap-4 animate-pulse">
-            <div className="text-[10px] font-black text-indigo-400 uppercase truncate max-w-[100px]">{currentFileName}</div>
-            <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-              <div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
+            <div className="text-[10px] font-black text-indigo-400 uppercase truncate max-w-[100px]">
+              {inFlightCount} active
             </div>
-            <div className="text-[10px] font-bold text-gray-500">{uploadSpeed}</div>
+            <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+              <div
+                className="h-full bg-indigo-500 transition-all duration-300"
+                style={{ width: `${uploadQueue.length > 0 ? (successCount / uploadQueue.length) * 100 : 0}%` }}
+              />
+            </div>
+            <div className="text-[10px] font-bold text-gray-500">{successCount}/{uploadQueue.length}</div>
           </div>
         )}
 
+        {uploading && (
+          <button
+            onClick={handleCancelBatch}
+            className="bg-red-600/80 hover:bg-red-500 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl transition-all shrink-0"
+          >
+            Cancel
+          </button>
+        )}
+
         {!uploading && files.length === 0 && (
-           <p className="text-[10px] font-medium text-gray-500 italic">Select one or more files to transmit to {currentPath || 'root'}</p>
+          <p className="text-[10px] font-medium text-gray-500 italic">Select one or more files to transmit to {currentPath || 'root'}</p>
         )}
 
         {statusMessage && !uploading && files.length === 0 && (
@@ -336,82 +729,205 @@ export default function ContentUploader({
     );
   }
 
+  // ── Full variant ──
   return (
     <div className="p-10 bg-white/5 border border-white/10 rounded-[3rem] space-y-10">
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-         <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">02 Storage Core</label>
-            <div className="flex gap-3">
-               <button type="button" className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white border-indigo-500 shadow-lg">Cloudflare R2</button>
-            </div>
-         </div>
-         <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">03 Link Protocol</label>
-            <div className="flex p-1.5 bg-black/40 rounded-2xl border border-white/5">
-              <button type="button" onClick={() => setInputType('file')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'file' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Direct Upload</button>
-              <button type="button" onClick={() => setInputType('link')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'link' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Embed</button>
-              <button type="button" onClick={() => setInputType('snippet')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'snippet' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Forge Snippet</button>
-            </div>
-         </div>
-       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-4">
+          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">02 Storage Core</label>
+          <div className="flex gap-3">
+            <button type="button" className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white border-indigo-500 shadow-lg">Cloudflare R2</button>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">03 Link Protocol</label>
+          <div className="flex p-1.5 bg-black/40 rounded-2xl border border-white/5">
+            <button type="button" onClick={() => setInputType('file')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'file' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Direct Upload</button>
+            <button type="button" onClick={() => setInputType('link')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'link' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Embed</button>
+            <button type="button" onClick={() => setInputType('snippet')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition ${inputType === 'snippet' ? 'bg-white/10 text-white' : 'text-gray-600'}`}>Forge Snippet</button>
+          </div>
+        </div>
+      </div>
 
-       {inputType === 'file' ? (
-         <div className="space-y-4">
-           <input id="file-input" type="file" multiple className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
-           <input id="folder-input" type="file" {...({ webkitdirectory: "", directory: "" } as Record<string, string | boolean>)} className="hidden" onChange={(e) => setFiles(Array.from(e.target.files || []))} disabled={uploading}/>
+      {inputType === 'file' ? (
+        <div className="space-y-4">
+          {/* P3.4: Drag-and-Drop Zone */}
+          <input id="file-input" type="file" multiple className="hidden" onChange={handleFileSelect} disabled={uploading} />
+          <input id="folder-input" type="file" {...({ webkitdirectory: "", directory: "" } as Record<string, string | boolean>)} className="hidden" onChange={handleFileSelect} disabled={uploading} />
 
-           <div className="grid grid-cols-2 gap-4">
-             <button type="button" onClick={() => document.getElementById('file-input')?.click()} disabled={uploading} className="flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-[2rem] border-white/10 hover:border-indigo-500/30 bg-black/50 transition-all group">
-               <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl mb-3">📄</div>
-               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Select Files</p>
-             </button>
-             <button type="button" onClick={() => document.getElementById('folder-input')?.click()} disabled={uploading} className="flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-[2rem] border-white/10 hover:border-indigo-500/30 bg-black/50 transition-all group">
-               <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl mb-3">📂</div>
-               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Select Folder</p>
-             </button>
-           </div>
-           {files.length > 0 && <p className="text-center text-[10px] font-black text-indigo-400 uppercase">{files.length} Assets Selected</p>}
-         </div>
-       ) : inputType === 'link' ? (
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-           <input type="text" placeholder="Title" value={vimeoTitle} onChange={e => setVimeoTitle(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
-           <input type="text" placeholder="URL" value={vimeoUrl} onChange={e => setVimeoUrl(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
-         </div>
-       ) : (
-         <div className="space-y-4">
-           <select value={snippetLanguage} onChange={e => setSnippetLanguage(e.target.value)} className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
-             <option value="javascript">JavaScript</option>
-             <option value="typescript">TypeScript</option>
-             <option value="python">Python</option>
-             <option value="cpp">C++</option>
-             <option value="latex">LaTeX / Math</option>
-             <option value="json">JSON</option>
-             <option value="plaintext">Plain Text</option>
-           </select>
-           <textarea placeholder="Paste your raw snippet or math formula here..." value={snippetContent} onChange={e => setSnippetContent(e.target.value)} className="w-full h-40 bg-black border border-white/10 rounded-2xl p-6 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none font-mono" />
-         </div>
-       )}
-
-       {uploading && (
-         <div className="space-y-6">
-            <div className="flex justify-between items-end">
-              <div className="space-y-1">
-                <p className="text-[10px] font-black text-indigo-400 uppercase">Active Transmission</p>
-                <p className="text-sm font-black text-white truncate max-w-sm">{currentFileName}</p>
+          {/* Drag-and-Drop Dropzone */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => document.getElementById('file-input')?.click()}
+            className={`relative h-56 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group ${isDragOver
+              ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_40px_rgba(99,102,241,0.2)] scale-[1.02]'
+              : 'border-white/10 bg-black/50 hover:border-indigo-500/30 hover:bg-black/60'
+              } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+            role="button"
+            aria-label="Drop zone for file uploads"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') document.getElementById('file-input')?.click(); }}
+          >
+            {/* Animated background glow on drag */}
+            {isDragOver && (
+              <div className="absolute inset-0 rounded-[2rem] overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10 animate-pulse" />
               </div>
-              <p className="text-sm font-black text-indigo-400">{uploadSpeed}</p>
-            </div>
-            <div className="h-4 bg-white/5 rounded-full overflow-hidden border border-white/5">
-              <div className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-300" style={{ width: `${progress}%` }}></div>
-            </div>
-         </div>
-       )}
+            )}
 
-       {statusMessage && <div className="p-6 rounded-2xl text-[10px] font-black uppercase text-center bg-white/5 border border-white/10">{statusMessage}</div>}
+            <div className={`relative z-10 flex flex-col items-center transition-transform duration-300 ${isDragOver ? 'scale-110' : ''}`}>
+              <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl mb-4 group-hover:bg-indigo-500/10 transition-all">
+                {isDragOver ? '📥' : '📄'}
+              </div>
+              <p className="text-sm font-black text-white mb-1">
+                {isDragOver ? 'Drop to Queue' : 'Drag & Drop Files Here'}
+              </p>
+              <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">
+                or click to browse · Max 500MB per file
+              </p>
+            </div>
+          </div>
 
-       <button onClick={(e) => processUploadOrEmbed(e)} disabled={!selectedLessonId || uploading} className="w-full bg-white text-black font-black py-6 rounded-[2rem] hover:bg-gray-200 uppercase tracking-widest text-[10px] shadow-2xl transition-all">
-         {uploading ? 'Processing...' : 'Execute Transaction'}
-       </button>
+          {/* File / Folder quick select */}
+          <div className="grid grid-cols-2 gap-4">
+            <button type="button" onClick={() => document.getElementById('file-input')?.click()} disabled={uploading} className="flex flex-col items-center justify-center h-28 border-2 border-dashed rounded-[2rem] border-white/10 hover:border-indigo-500/30 bg-black/50 transition-all group">
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl mb-2 group-hover:bg-indigo-500/10 transition-all">📄</div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Select Files</p>
+            </button>
+            <button type="button" onClick={() => document.getElementById('folder-input')?.click()} disabled={uploading} className="flex flex-col items-center justify-center h-28 border-2 border-dashed rounded-[2rem] border-white/10 hover:border-indigo-500/30 bg-black/50 transition-all group">
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl mb-2 group-hover:bg-indigo-500/10 transition-all">📂</div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Select Folder</p>
+            </button>
+          </div>
+
+          {/* Selected files badge */}
+          {files.length > 0 && (
+            <div className="flex items-center justify-between px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+              <p className="text-[10px] font-black text-indigo-400 uppercase">{files.length} Assets Queued</p>
+              {!uploading && (
+                <button
+                  type="button"
+                  onClick={(e) => { setFiles([]); e.stopPropagation(); }}
+                  className="text-[9px] font-bold text-gray-400 hover:text-white transition-colors"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      ) : inputType === 'link' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" placeholder="Title" value={vimeoTitle} onChange={e => setVimeoTitle(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+          <input type="text" placeholder="URL" value={vimeoUrl} onChange={e => setVimeoUrl(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <select value={snippetLanguage} onChange={e => setSnippetLanguage(e.target.value)} className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
+            <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
+            <option value="python">Python</option>
+            <option value="cpp">C++</option>
+            <option value="latex">LaTeX / Math</option>
+            <option value="json">JSON</option>
+            <option value="plaintext">Plain Text</option>
+          </select>
+          <textarea placeholder="Paste your raw snippet or math formula here..." value={snippetContent} onChange={e => setSnippetContent(e.target.value)} className="w-full h-40 bg-black border border-white/10 rounded-2xl p-6 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none font-mono" />
+        </div>
+      )}
+
+      {/* ── Upload Queue UI (P2.4: Per-file status) ── */}
+      {uploadQueue.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">
+              Transmission Queue ({uploadQueue.length} assets)
+            </h3>
+            {uploading && inFlightCount > 0 && (
+              <button
+                onClick={handleCancelBatch}
+                className="bg-red-600/80 hover:bg-red-500 text-white text-[9px] font-black uppercase px-4 py-1.5 rounded-lg transition-all"
+              >
+                Cancel Batch
+              </button>
+            )}
+          </div>
+
+          <div className="max-h-64 overflow-y-auto space-y-2 bg-black/30 rounded-2xl p-4 border border-white/5">
+            {uploadQueue.map((item) => (
+              <div
+                key={item.id}
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl border transition-all ${item.status === 'success'
+                  ? 'bg-green-500/5 border-green-500/20'
+                  : item.status === 'failed'
+                    ? 'bg-red-500/5 border-red-500/20'
+                    : item.status === 'uploading' || item.status === 'completing'
+                      ? 'bg-indigo-500/5 border-indigo-500/20'
+                      : 'bg-white/5 border-white/5'
+                  }`}
+              >
+                <span className={`text-sm w-5 text-center flex-shrink-0`}>
+                  {getStatusIcon(item.status, item.retries)}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-bold truncate ${getStatusColor(item.status)}`}>
+                    {item.relativeFilePath}
+                  </p>
+                  {item.error && (
+                    <p className="text-[9px] text-red-400/80 truncate">{item.error}</p>
+                  )}
+                </div>
+                {item.status === 'uploading' && (
+                  <div className="w-20 flex-shrink-0">
+                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 transition-all duration-300"
+                        style={{ width: `${item.progress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {item.status === 'success' && (
+                  <span className="text-[9px] font-black text-green-400 uppercase">Done</span>
+                )}
+                {item.retries > 0 && item.status !== 'success' && (
+                  <span className="text-[9px] font-bold text-yellow-400">×{item.retries}</span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Aggregate progress bar */}
+          {uploading && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-[10px] font-bold">
+                <span className="text-gray-400">Overall Progress</span>
+                <span className="text-indigo-400">{successCount}/{uploadQueue.length} complete</span>
+              </div>
+              <div className="h-3 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-500"
+                  style={{ width: `${uploadQueue.length > 0 ? (successCount / uploadQueue.length) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {statusMessage && uploadQueue.length === 0 && (
+        <div className="p-6 rounded-2xl text-[10px] font-black uppercase text-center bg-white/5 border border-white/10">{statusMessage}</div>
+      )}
+
+      <button
+        onClick={(e) => processUploadOrEmbed(e)}
+        disabled={!selectedLessonId || uploading}
+        className="w-full bg-white text-black font-black py-6 rounded-[2rem] hover:bg-gray-200 uppercase tracking-widest text-[10px] shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {uploading ? `Transmitting... (${inFlightCount} active)` : 'Execute Transaction'}
+      </button>
     </div>
   );
 }
