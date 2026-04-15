@@ -95,8 +95,12 @@ export async function POST(req: Request) {
         .single();
 
       if (error) {
-        console.error('Batch insert error for item:', item.fileName, error);
-        return NextResponse.json({ error: `Failed to insert ${item.fileName}: ${error.message}` }, { status: 500 });
+        console.error('[SUPABASE BATCH ERROR] Failed to insert item:', item.fileName, error);
+        return NextResponse.json({ 
+          error: `Database synchronization failed for "${item.fileName}"`, 
+          details: error.message,
+          code: error.code
+        }, { status: 500 });
       }
 
       results.push({ status: 'created', item, data });

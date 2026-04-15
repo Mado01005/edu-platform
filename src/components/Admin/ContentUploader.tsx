@@ -708,14 +708,23 @@ export default function ContentUploader({
           }));
 
           // Await batch complete so DB records exist BEFORE UI refresh
+          setStatusMessage('Synchronizing with database...');
           try {
-            await fetch('/api/admin/upload-complete-batch', {
+            const batchRes = await fetch('/api/admin/upload-complete-batch', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ items: batchItems })
             });
-          } catch {
-            // R2 already has the files — DB insert failed but data is not lost
+            
+            if (!batchRes.ok) {
+              const errorData = await batchRes.json();
+              throw new Error(errorData.error || 'Database synchronization failed');
+            }
+          } catch (err: any) {
+            console.error('Batch Sync Error:', err);
+            setStatusMessage(`Sync Error: ${err.message}. R2 assets are safe, but database entry failed.`);
+            setUploading(false);
+            return; // Halt logic to allow user to see error or retry
           }
 
           // Mark all as success
@@ -733,10 +742,10 @@ export default function ContentUploader({
           }
         } else if (!batchAbortRef.current?.signal.aborted) {
           setStatusMessage(`Success: ${successful.length} assets verified!`);
+          // Only clear files and signal completion on full logical success
+          setFiles([]);
+          onComplete();
         }
-
-        setFiles([]);
-        onComplete();
       } else if (inputType === 'link' && vimeoUrl) {
         if (!vimeoTitle) throw new Error('Title required for link');
         const res = await fetch('/api/admin/embed', {
