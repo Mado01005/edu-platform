@@ -500,14 +500,57 @@ export default function ContentUploader({
     setIsDragOver(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
 
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    if (droppedFiles.length > 0) {
-      setFiles(prev => [...prev, ...droppedFiles]);
+    if (e.dataTransfer.items) {
+      const getFilesFromEntry = (entry: any, path = ''): Promise<File[]> => {
+        return new Promise((resolve) => {
+          if (entry.isFile) {
+            entry.file((file: File) => {
+              Object.defineProperty(file, 'fullPath', { value: path + file.name });
+              resolve([file]);
+            });
+          } else if (entry.isDirectory) {
+            const dirReader = entry.createReader();
+            const entries: any[] = [];
+            const readEntries = () => {
+              dirReader.readEntries(async (results: any[]) => {
+                if (!results.length) {
+                  const promises = entries.map(e => getFilesFromEntry(e, path + entry.name + '/'));
+                  const fileArrays = await Promise.all(promises);
+                  resolve(fileArrays.flat());
+                } else {
+                  entries.push(...results);
+                  readEntries();
+                }
+              });
+            };
+            readEntries();
+          } else {
+            resolve([]);
+          }
+        });
+      };
+
+      const promises = Array.from(e.dataTransfer.items).map(item => {
+        const entry = item.webkitGetAsEntry();
+        if (entry) return getFilesFromEntry(entry);
+        return Promise.resolve(item.getAsFile() ? [item.getAsFile() as File] : []);
+      });
+      const fileArrays = await Promise.all(promises);
+      const droppedFiles = fileArrays.flat().filter(Boolean) as File[];
+      
+      if (droppedFiles.length > 0) {
+        setFiles(prev => [...prev, ...droppedFiles]);
+      }
+    } else {
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      if (droppedFiles.length > 0) {
+        setFiles(prev => [...prev, ...droppedFiles]);
+      }
     }
   }, []);
 
@@ -524,13 +567,19 @@ export default function ContentUploader({
 
     // P3.0 Folder Mirror Check
     const isFolderMirror = inputType === 'file' && files.some(f => {
-      const rp = (f as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
+      const rp = (f as any).fullPath || (f as any).webkitRelativePath || '';
       return rp.split('/').length >= 3;
     });
 
     if (!selectedLessonId && !isFolderMirror && inputType !== 'snippet') {
       console.error('Guard Check Failed: selectedLessonId is missing and not Folder Mirror.');
       setStatusMessage('Error: Select a module before initiating transmission (or upload a structured folder).');
+      return;
+    }
+
+    // Task 3: Guard against raw unparsed folders
+    if (files.length === 1 && files[0].size === 0 && !files[0].type) {
+      setStatusMessage('Error: Folders must be parsed correctly. Please try again or use the Upload Folder button.');
       return;
     }
 
@@ -554,7 +603,7 @@ export default function ContentUploader({
         // Pre-Flight Hierarchy Synchronization
         const hierarchyItems = new Map<string, { subjectName: string, lessonName: string }>();
         files.forEach(file => {
-          const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
+          const relativePath = (file as any).fullPath || (file as any).webkitRelativePath || '';
           const segments = relativePath.split('/');
           if (segments.length >= 3) {
             // Folder structure: Subject / Lesson / File.ext (or subfolders)
@@ -580,7 +629,7 @@ export default function ContentUploader({
 
         // Build upload queue with per-file state
         const queue: FileUploadState[] = files.map(file => {
-          const relativePath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath || '';
+          const relativePath = (file as any).fullPath || (file as any).webkitRelativePath || '';
           const segments = relativePath.split('/');
           
           let fileSubjectId = undefined;
@@ -1065,7 +1114,7 @@ export default function ContentUploader({
         onClick={(e) => processUploadOrEmbed(e)}
         disabled={
           uploading || 
-          (!selectedLessonId && inputType !== 'snippet' && !(inputType === 'file' && files.some((f: any) => (f.webkitRelativePath || '').split('/').length >= 3)))
+          (!selectedLessonId && inputType !== 'snippet' && !(inputType === 'file' && files.some((f: any) => (f.fullPath || f.webkitRelativePath || '').split('/').length >= 3)))
         }
         className="w-full bg-white text-black font-black py-6 rounded-[2rem] hover:bg-gray-200 uppercase tracking-widest text-[10px] shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
