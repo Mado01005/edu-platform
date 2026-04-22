@@ -131,6 +131,7 @@ export default async function SubjectPage({ params }: Props) {
                 hasVideo={lesson.hasVideo}
                 hasPdf={lesson.hasPdf}
                 hasDocx={lesson.hasDocx}
+                hasPptx={lesson.hasPptx}
                 imageCount={lesson.imageCount}
                 index={i}
                 color={subject.color}

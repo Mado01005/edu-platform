@@ -271,7 +271,28 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-white truncate text-base group-hover:text-indigo-300 transition-colors">{folder.name}</h4>
-                      <p className="text-xs text-gray-500 mt-1">{folder.children?.length || 0} items</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs text-gray-500 whitespace-nowrap">{folder.children?.length || 0} items</p>
+                        <div className="flex items-center gap-1 overflow-hidden">
+                          {(() => {
+                            const summary = new Set<string>();
+                            const check = (nodes: ContentNode[]) => {
+                              nodes.forEach(n => {
+                                if (n.type === 'vimeo' || n.fileType === 'video') summary.add('🎬');
+                                if (n.fileType === 'pdf') summary.add('📄');
+                                if (n.name.toLowerCase().match(/\.(ppt|pptx)$/)) summary.add('📊');
+                                if (n.name.toLowerCase().match(/\.(doc|docx)$/)) summary.add('📝');
+                                if (n.fileType === 'image') summary.add('🖼️');
+                                if (n.children) check(n.children);
+                              });
+                            };
+                            if (folder.children) check(folder.children);
+                            return Array.from(summary).slice(0, 4).map((emoji, i) => (
+                              <span key={i} className="text-[10px] opacity-60 group-hover:opacity-100 transition-opacity">{emoji}</span>
+                            ));
+                          })()}
+                        </div>
+                      </div>
                     </div>
                     {isAdmin && (
                       <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
@@ -326,21 +347,27 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
               )}
               {otherFiles.map((node, idx) => {
                 const uniqueKey = node.name || `file-${idx}`;
-                if (node.type === 'vimeo' && node.vimeoId) {
-                  return (
-                    <motion.div variants={itemVariants} key={`vimeo-${uniqueKey}`} className="group relative">
-                      <VimeoPlayer vimeoId={node.vimeoId} title={node.name} />
-                      {isAdmin && (
-                        <button
-                          onClick={() => handleDeleteItem(node.id!)}
-                          className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 backdrop-blur-md rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all"
-                          disabled={isDeleting === node.id}
-                        >
-                          {isDeleting === node.id ? '...' : '🗑️'}
-                        </button>
-                      )}
-                    </motion.div>
-                  );
+                if (node.type === 'vimeo') {
+                  // Primary: use stored vimeoId. Fallback: extract from URL (backward compat)
+                  const resolvedVimeoId = node.vimeoId
+                    || node.url?.match(/(?:vimeo\.com\/(?:video\/)?|^)(\d+)/)?.[1]
+                    || null;
+                  if (resolvedVimeoId) {
+                    return (
+                      <motion.div variants={itemVariants} key={`vimeo-${uniqueKey}`} className="group relative">
+                        <VimeoPlayer vimeoId={resolvedVimeoId} title={node.name} />
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleDeleteItem(node.id!)}
+                            className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 backdrop-blur-md rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 border border-white/10 transition-all"
+                            disabled={isDeleting === node.id}
+                          >
+                            {isDeleting === node.id ? '...' : '🗑️'}
+                          </button>
+                        )}
+                      </motion.div>
+                    );
+                  }
                 }
                 if (node.fileType === 'video' && node.url) {
                   return (
@@ -387,13 +414,20 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     </motion.div>
                   );
                 }
-                if ((node.fileType === 'powerpoint' || node.name.toLowerCase().endsWith('.pptx') || node.name.toLowerCase().endsWith('.ppt') || node.name.toLowerCase().endsWith('.doc') || node.name.toLowerCase().endsWith('.docx')) && node.url) {
+
+                const extension = node.name.split('.').pop()?.toLowerCase();
+                const isOfficeDoc = extension ? ['ppt', 'pptx', 'doc', 'docx'].includes(extension) : false;
+
+                if (isOfficeDoc && node.url) {
+                  const isPPT = extension?.includes('ppt');
                   return (
                     <motion.div variants={itemVariants} key={`docview-${uniqueKey}`} className="flex flex-col gap-4 relative group">
                       <div className="flex items-center justify-between ml-1">
                         <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-sm shadow-inner">📝</span>
-                          <span className="text-sm font-bold text-blue-400 tracking-wide uppercase">{node.name}</span>
+                          <span className={`w-8 h-8 rounded-lg ${isPPT ? 'bg-orange-500/20 border-orange-500/30' : 'bg-blue-500/20 border-blue-500/30'} border flex items-center justify-center text-sm shadow-inner`}>
+                            {isPPT ? '📊' : '📝'}
+                          </span>
+                          <span className={`text-sm font-bold ${isPPT ? 'text-orange-400' : 'text-blue-400'} tracking-wide uppercase truncate max-w-[200px] md:max-w-md`}>{node.name}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           {isAdmin && (

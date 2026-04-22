@@ -11,6 +11,7 @@ export interface ContentNode {
   id?: string;
   type: ItemType;
   fileType?: FileType;
+  contentType?: string | null;
   name: string;
   url?: string;
   vimeoId?: string;
@@ -41,6 +42,7 @@ export interface ContentItem {
   parent_id: string | null;
   item_type: ItemType;
   file_type: FileType | null;
+  content_type: string | null;
   name: string;
   url: string | null;
   vimeo_id: string | null;
@@ -73,6 +75,7 @@ export interface LessonMeta extends Omit<Lesson, 'subject_id'> {
   hasVideo: boolean;
   hasPdf: boolean;
   hasDocx: boolean;
+  hasPptx: boolean;
   imageCount: number;
 }
 

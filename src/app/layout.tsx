@@ -9,6 +9,8 @@ import './globals.css';
 import PrefetchEngine from '@/components/PrefetchEngine';
 
 import { auth } from '@/auth';
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import FloatingTutor from '@/components/Chat/FloatingTutor';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
@@ -74,7 +76,7 @@ export default async function RootLayout({
   const spotifyTokenExpiresAt = session?.user?.spotifyTokenExpiresAt;
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
         <InteractionTracker />
         <SessionTracker />
@@ -90,6 +92,9 @@ export default async function RootLayout({
           <MusicPlayer />
         </SpotifyProvider>
         </Providers>
+
+        <FloatingTutor />
+        <SpeedInsights />
 
         {/* Tawk.to Live Chat Script */}
         <Script id="tawk-to" strategy="lazyOnload">

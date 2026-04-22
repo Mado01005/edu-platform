@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SubjectMeta, LessonMeta } from '@/types';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // ── Types ──
 
@@ -71,14 +72,27 @@ function getFileType(mime: string, fileName?: string): string {
   if (m.includes('pdf') || f.endsWith('.pdf')) return 'pdf';
   if (m.includes('image') || f.endsWith('.webp') || f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png') || f.endsWith('.gif')) return 'image';
   if (m.includes('video') || f.endsWith('.mp4') || f.endsWith('.mov')) return 'video';
-  if (m.includes('presentation') || m.includes('powerpoint') || f.endsWith('.pptx')) return 'powerpoint';
+  if (m.includes('presentationml') || m.includes('powerpoint') || f.endsWith('.pptx') || f.endsWith('.ppt')) return 'powerpoint';
+  if (m.includes('wordprocessingml') || m.includes('msword') || f.endsWith('.docx') || f.endsWith('.doc')) return 'powerpoint'; // Unified office doc type for now or add 'document'
   return 'unknown';
 }
 
 function sanitizePath(path: string): string {
+  // Normalize extension to lowercase for engine compatibility (e.g. PPTX -> pptx)
+  const parts = path.split('.');
+  if (parts.length > 1) {
+    const ext = parts.pop()?.toLowerCase();
+    const base = parts.join('.');
+    const sanitizedBase = base
+      .replace(/[^a-zA-Z0-9./_\-]/g, '_') // replace unsafe chars AND SPACES with _ but keep /
+      .replace(/\/+/g, '/')                 // collapse slashes
+      .trim();
+    return `${sanitizedBase}.${ext}`;
+  }
+
   return path
-    .replace(/[^a-zA-Z0-9.\s/_\-]/g, '_') // replace unsafe chars with _ but keep /
-    .replace(/\/+/g, '/')                 // collapse slashes
+    .replace(/[^a-zA-Z0-9./_\-]/g, '_')
+    .replace(/\/+/g, '/')
     .trim();
 }
 
@@ -98,6 +112,26 @@ export default function ContentUploader({
 }: ContentUploaderProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [inputType, setInputType] = useState<'file' | 'link' | 'snippet'>('file');
+  
+  const [isMegaAdmin, setIsMegaAdmin] = useState(false);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const supabase = createClientComponentClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email === 'abdallahsaad2150@gmail.com') {
+        setIsMegaAdmin(true);
+      }
+      setIsSessionLoading(false);
+    };
+    checkSession();
+  }, []);
+
+  // Dynamic limits
+  const currentMaxFileSize = isMegaAdmin ? 5 * 1024 * 1024 * 1024 : MAX_FILE_SIZE; // 5GB for Mega, 500MB normal
+  const currentMaxConcurrent = isMegaAdmin ? 50 : MAX_CONCURRENT_UPLOADS;
+
   const [vimeoUrl, setVimeoUrl] = useState('');
   const [vimeoTitle, setVimeoTitle] = useState('');
   const [snippetContent, setSnippetContent] = useState('');
@@ -113,6 +147,32 @@ export default function ContentUploader({
   const batchAbortRef = useRef<AbortController | null>(null);
   // Ref to track active XHR abort functions
   const xhrAbortersRef = useRef<Map<string, () => void>>(new Map());
+
+  // P4.0: Warn user before closing tab during active uploads (orphan mitigation)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (uploading) {
+        e.preventDefault();
+        // Chrome requires returnValue to be set
+        e.returnValue = 'Upload in progress. Closing now will leave orphaned files in storage.';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [uploading]);
+
+  useEffect(() => {
+    return () => {
+      // Abort all active XHR requests on unmount
+      xhrAbortersRef.current.forEach(abort => abort());
+      xhrAbortersRef.current.clear();
+      // Abort the batch
+      if (batchAbortRef.current) {
+        batchAbortRef.current.abort();
+      }
+    };
+  }, []);
 
   const convertToWebSafe = useCallback(async (file: File): Promise<File> => {
     if (!isUnsupportedImage(file.name)) return file;
@@ -365,9 +425,9 @@ export default function ContentUploader({
       return fileState;
     }
 
-    // Step 2-5: Retry loop with exponential backoff
+    
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      // Check if batch was cancelled
+     
       if (batchAbortRef.current?.signal.aborted) {
         fileState.status = 'failed';
         fileState.error = 'Cancelled by user';
@@ -383,16 +443,16 @@ export default function ContentUploader({
       }
 
       try {
-        // Initiate
+       
         fileState.status = 'initiating';
         setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
 
-        // ── P3.1: Choose multipart for files > 50MB ──
+        
         const isLargeFile = file.size > MULTIPART_CHUNK_SIZE;
         let publicUrl: string;
 
         if (isLargeFile) {
-          // Multipart upload
+         
           fileState.status = 'uploading';
           fileState.progress = 0;
           setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
@@ -400,7 +460,7 @@ export default function ContentUploader({
           const result = await uploadMultipartFile(file, fileState.id, sSlug, lSlug, fileState.relativeFilePath);
           publicUrl = result.publicUrl;
         } else {
-          // Standard single upload
+          
           console.log(`Step 2: Requesting presigned URL...`);
           const initRes = await fetch('/api/admin/upload-initiate', {
             method: 'POST',
@@ -420,7 +480,7 @@ export default function ContentUploader({
           const { signedUrl, publicUrl: pu } = await initRes.json();
           publicUrl = pu;
 
-          // Upload to R2
+          
           fileState.status = 'uploading';
           fileState.progress = 0;
           setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
@@ -434,7 +494,7 @@ export default function ContentUploader({
           });
         }
 
-        // Store publicUrl for batch complete (do NOT call single complete)
+        
         fileState.publicUrl = publicUrl;
         fileState.status = 'completing';
         fileState.progress = 100;
@@ -442,20 +502,20 @@ export default function ContentUploader({
 
         return fileState;
       } catch (err) {
-        // Check if this was an abort
+       
         if (err instanceof DOMException && err.name === 'AbortError') {
           fileState.status = 'failed';
           fileState.error = 'Cancelled by user';
           return fileState;
         }
 
-        // If we have retries left, try again
+        
         if (attempt < MAX_RETRIES) {
           fileState.error = err instanceof Error ? err.message : 'Upload failed';
           continue;
         }
 
-        // All retries exhausted
+       
         fileState.status = 'failed';
         fileState.error = err instanceof Error ? err.message : 'Upload failed';
         return fileState;
@@ -470,23 +530,24 @@ export default function ContentUploader({
     const fallbackLSlug = lessonSlug || activeLessons.find(l => l.id === selectedLessonId)?.slug || 'unknown';
     const allResults: FileUploadState[] = [];
 
-    // Process in concurrent batches
-    for (let i = 0; i < fileStates.length; i += MAX_CONCURRENT_UPLOADS) {
-      // Check if cancelled
+    const concurrencyLimit = isMegaAdmin ? 50 : MAX_CONCURRENT_UPLOADS;
+
+    for (let i = 0; i < fileStates.length; i += concurrencyLimit) {
+      
       if (batchAbortRef.current?.signal.aborted) break;
 
-      const batch = fileStates.slice(i, i + MAX_CONCURRENT_UPLOADS);
+      const batch = fileStates.slice(i, i + concurrencyLimit);
       const results = await Promise.allSettled(
         batch.map(fs => processSingleFile(fs, fs.subjectSlug || fallbackSSlug, fs.lessonSlug || fallbackLSlug))
       );
 
-      // Update local accumulator and state
+      
       results.forEach((result, idx) => {
         const fileState = result.status === 'fulfilled' ? result.value : { ...batch[idx], status: 'failed' as UploadStatus, error: 'Asynchronous escape' };
         allResults.push(fileState);
       });
 
-      // Update queue state for UI feedback (batched)
+      
       setUploadQueue(prev => {
         const updated = [...prev];
         results.forEach((result, idx) => {
@@ -626,10 +687,10 @@ export default function ContentUploader({
 
     try {
       if (inputType === 'file' && files.length > 0) {
-        // File size validation
-        const oversized = files.filter(f => f.size > MAX_FILE_SIZE);
+        // File size validation (skipped for Mega Upload optionally, or uses dynamic limit)
+        const oversized = files.filter(f => f.size > currentMaxFileSize);
         if (oversized.length > 0) {
-          setStatusMessage(`Error: ${oversized.length} file(s) exceed the 500MB limit: ${oversized.map(f => f.name).join(', ')}`);
+          setStatusMessage(`Error: ${oversized.length} file(s) exceed the ${isMegaAdmin ? '5GB' : '500MB'} limit: ${oversized.map(f => f.name).join(', ')}`);
           setUploading(false);
           batchAbortRef.current = null;
           return;
@@ -748,6 +809,7 @@ export default function ContentUploader({
               parentId: currentPathId || null,
               fileName: f.relativeFilePath,
               fileType: getFileType(f.file.type, f.file.name),
+              contentType: f.file.type || 'application/octet-stream',
               publicUrl: f.publicUrl!,
               itemType: f.file.name.toLowerCase().endsWith('.vimeo') ? 'vimeo' : 'file',
               vimeoId: '',
@@ -814,21 +876,32 @@ export default function ContentUploader({
           onComplete();      // Signal parent to re-fetch if necessary
         }
       } else if (inputType === 'link' && vimeoUrl) {
-        if (!vimeoTitle) throw new Error('Title required for link');
+        if (!vimeoTitle.trim()) throw new Error('Title required for Vimeo link');
+        
+        // Client-side pre-validation: check it looks like a Vimeo URL or numeric ID
+        const vimeoPattern = /(?:vimeo\.com\/(?:video\/)?|^\d+$)/;
+        if (!vimeoPattern.test(vimeoUrl.trim())) {
+          throw new Error('Invalid Vimeo URL. Use format: vimeo.com/123456 or a raw video ID');
+        }
+
         const res = await fetch('/api/admin/embed', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            subjectId: selectedSubjectId,
             lessonId: selectedLessonId,
             parentId: currentPathId || null,
-            url: vimeoUrl,
-            name: vimeoTitle
+            url: vimeoUrl.trim(),
+            name: vimeoTitle.trim()
           }),
           signal: batchAbortRef.current?.signal
         });
-        if (!res.ok) throw new Error('Link embedding failed');
-        setStatusMessage('Success: Link embedded!');
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(errData.error || `Embed failed with status ${res.status}`);
+        }
+
+        setStatusMessage('✅ Vimeo video embedded successfully!');
         setVimeoUrl('');
         setVimeoTitle('');
         router.refresh();
@@ -1030,6 +1103,12 @@ export default function ContentUploader({
               <p className="text-sm font-black text-white mb-1">
                 {isDragOver ? 'Drop to Queue' : 'Drag & Drop Files Here'}
               </p>
+              <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-gray-400 uppercase">Input Node</span>
+              {isMegaAdmin && !isSessionLoading && (
+                <span className="px-2 py-0.5 rounded-lg text-[9px] font-black tracking-widest uppercase bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]">MEGA UPLOAD ACTIVE</span>
+              )}
+            </div>
               <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">
                 or click to browse · Max 500MB per file
               </p>
@@ -1065,9 +1144,40 @@ export default function ContentUploader({
           )}
         </div>
       ) : inputType === 'link' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" placeholder="Title" value={vimeoTitle} onChange={e => setVimeoTitle(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
-          <input type="text" placeholder="URL" value={vimeoUrl} onChange={e => setVimeoUrl(e.target.value)} className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Video Title (e.g. Lecture 3 — Thermodynamics)"
+              value={vimeoTitle}
+              onChange={e => setVimeoTitle(e.target.value)}
+              className="bg-black border border-white/10 rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-gray-600"
+            />
+            <input
+              type="text"
+              placeholder="https://vimeo.com/123456789"
+              value={vimeoUrl}
+              onChange={e => setVimeoUrl(e.target.value)}
+              className={`bg-black border rounded-2xl px-6 py-5 text-sm text-white outline-none focus:ring-2 transition-all placeholder:text-gray-600 ${
+                vimeoUrl && !/(?:vimeo\.com\/(?:video\/)?|^\d+$)/.test(vimeoUrl.trim())
+                  ? 'border-red-500/50 focus:ring-red-500'
+                  : 'border-white/10 focus:ring-indigo-500'
+              }`}
+            />
+          </div>
+          <div className="flex items-center gap-3 px-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-indigo-500/50"></span>
+              <p className="text-[10px] text-gray-500 font-mono tracking-wide">
+                Accepted: vimeo.com/ID · player.vimeo.com/video/ID · raw numeric ID
+              </p>
+            </div>
+            {vimeoUrl && /(?:vimeo\.com\/(?:video\/)?(\d+)|^(\d+)$)/.test(vimeoUrl.trim()) && (
+              <span className="text-[10px] font-bold text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-lg">
+                ✓ ID: {vimeoUrl.trim().match(/(\d+)/)?.[1]}
+              </span>
+            )}
+          </div>
         </div>
       ) : (
         <div className="space-y-4">

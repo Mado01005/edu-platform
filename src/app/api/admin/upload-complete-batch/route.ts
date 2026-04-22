@@ -6,6 +6,10 @@ import { verifyR2ObjectExists } from '@/lib/r2';
 // P3.2: Increased timeout for large batches
 export const maxDuration = 60;
 
+// P4.0: Chunk size for parallel operations to avoid connection pool exhaustion
+const VALIDATION_CHUNK_SIZE = 25;
+const INSERT_CHUNK_SIZE = 25;
+
 interface BatchCompleteItem {
   subjectId: string;
   lessonId: string;
@@ -14,6 +18,7 @@ interface BatchCompleteItem {
   fileType: string;
   publicUrl: string;
   itemType: string;
+  contentType: string;
   vimeoId: string;
   idempotencyKey: string;
 }
@@ -23,6 +28,24 @@ interface ValidationResult {
   item: BatchCompleteItem;
   data?: any;
   error?: string;
+}
+
+/**
+ * P4.0: Process an array in chunked parallel batches to prevent
+ * Supabase connection pool exhaustion (PgBouncer default: 15 connections).
+ */
+async function chunkedParallel<T, R>(
+  items: T[],
+  chunkSize: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = [];
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    const chunkResults = await Promise.all(chunk.map(fn));
+    results.push(...chunkResults);
+  }
+  return results;
 }
 
 export async function POST(req: Request) {
@@ -38,6 +61,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No items provided' }, { status: 400 });
     }
 
+    console.log(`[BATCH] Received ${items.length} items for processing`);
+    const batchStart = Date.now();
+
     // Deduplicate items by idempotencyKey within this batch
     const seenKeys = new Set<string>();
     const uniqueItems: BatchCompleteItem[] = [];
@@ -52,8 +78,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // P3.4: Concurrent Validation (R2 + Idempotency)
-    const validationPromises = uniqueItems.map(async (item): Promise<ValidationResult> => {
+    // P4.0: Chunked validation — process 50 items at a time to avoid
+    // saturating Supabase connection pool and R2 socket limits
+    const validateItem = async (item: BatchCompleteItem): Promise<ValidationResult> => {
       try {
         // 1. R2 Verification
         if (item.itemType === 'file' && item.publicUrl) {
@@ -79,15 +106,16 @@ export async function POST(req: Request) {
           return { status: 'idempotent', item, data: existing };
         }
 
-        // If it passed both, it's ready to be created
         return { status: 'created', item };
       } catch (err: any) {
         console.error(`Validation error for ${item.fileName}:`, err);
         return { status: 'error', item, error: err.message };
       }
-    });
+    };
 
-    const validationResults = await Promise.all(validationPromises);
+    const validationStart = Date.now();
+    const validationResults = await chunkedParallel(uniqueItems, VALIDATION_CHUNK_SIZE, validateItem);
+    console.log(`[BATCH] Validation completed in ${Date.now() - validationStart}ms (${uniqueItems.length} items, chunks of ${VALIDATION_CHUNK_SIZE})`);
     
     // Collect all results including duplicates
     const allResults = [...duplicates, ...validationResults];
@@ -105,6 +133,7 @@ export async function POST(req: Request) {
           parent_id: r.item.parentId || null,
           item_type: r.item.itemType,
           file_type: r.item.fileType,
+          content_type: r.item.contentType || null,
           name: r.item.fileName,
           url: r.item.publicUrl,
           vimeo_id: r.item.vimeoId || null,
@@ -112,29 +141,39 @@ export async function POST(req: Request) {
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
+    // P4.0: Chunked insert — insert 50 rows at a time to prevent
+    // PostgREST payload bloat and connection hold-time issues
     if (itemsToInsert.length > 0) {
-      // P3.5: Single Multi-Row Transaction
-      const { data: insertedData, error: insertError } = await supabaseAdmin
-        .from('content_items')
-        .insert(itemsToInsert)
-        .select();
+      const insertStart = Date.now();
+      const insertErrors: string[] = [];
 
-      if (insertError) {
-        console.error('[SUPABASE BATCH ERROR] Multi-row insert failed:', insertError);
-        return NextResponse.json({ 
-          error: 'Database synchronization failed for the entire batch',
-          details: insertError.message,
-          code: insertError.code
-        }, { status: 500 });
+      for (let i = 0; i < itemsToInsert.length; i += INSERT_CHUNK_SIZE) {
+        const chunk = itemsToInsert.slice(i, i + INSERT_CHUNK_SIZE);
+        const { error: insertError } = await supabaseAdmin
+          .from('content_items')
+          .insert(chunk)
+          .select();
+
+        if (insertError) {
+          console.error(`[SUPABASE BATCH ERROR] Insert chunk ${i}-${i + chunk.length} failed:`, insertError);
+          insertErrors.push(`Chunk ${i}-${i + chunk.length}: ${insertError.message}`);
+        }
       }
 
-      // Map inserted data back to results (optional but good for telemetry)
-      // Since they are inserted in order, we could map them, but for this app 
-      // simple success Boolean is usually enough for the UI.
+      console.log(`[BATCH] Insert completed in ${Date.now() - insertStart}ms (${itemsToInsert.length} rows, chunks of ${INSERT_CHUNK_SIZE})`);
+
+      if (insertErrors.length > 0 && insertErrors.length === Math.ceil(itemsToInsert.length / INSERT_CHUNK_SIZE)) {
+        // All chunks failed — total failure
+        return NextResponse.json({ 
+          error: 'Database synchronization failed for the entire batch',
+          details: insertErrors.join('; '),
+        }, { status: 500 });
+      }
     }
 
-    // Fire-and-forget activity log
     const createdCount = itemsToInsert.length;
+    console.log(`[BATCH] Total processing time: ${Date.now() - batchStart}ms — created: ${createdCount}, skipped: ${validationResults.filter(r => r.status !== 'created').length}`);
+
     if (createdCount > 0) {
       Promise.resolve(supabaseAdmin.from('activity_logs').insert({
         user_email: session.user?.email || 'admin',
@@ -145,6 +184,7 @@ export async function POST(req: Request) {
           totalCreated: createdCount,
           skippedMissingR2: validationResults.filter(r => r.status === 'missing_r2').length,
           skippedIdempotent: validationResults.filter(r => r.status === 'idempotent').length,
+          processingTimeMs: Date.now() - batchStart,
         },
       })).catch(() => { });
     }
@@ -165,4 +205,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

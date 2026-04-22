@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
+// P4.0: Chunk size for parallel hierarchy upserts
+const HIERARCHY_CHUNK_SIZE = 10;
+
 interface SyncRequestItem {
   subjectName: string;
   lessonName: string;
@@ -30,9 +33,14 @@ export async function POST(req: Request) {
     // Deduplicate pairs
     const uniquePairs = items.filter((v, i, a) => a.findIndex(t => (t.subjectName === v.subjectName && t.lessonName === v.lessonName)) === i);
 
+    console.log(`[SYNC] Processing ${uniquePairs.length} unique subject/lesson pairs`);
+    const syncStart = Date.now();
+
     const resultIds: Record<string, { subjectId: string; lessonId: string }> = {};
 
-    for (const pair of uniquePairs) {
+    // P4.0: Process pairs in parallel chunks instead of sequentially
+    // to reduce latency from O(N*RTT) to O(N/chunk * RTT)
+    const processPair = async (pair: SyncRequestItem): Promise<void> => {
       const subjectSlug = pair.subjectName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
       const lessonSlug = pair.lessonName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 
@@ -60,7 +68,7 @@ export async function POST(req: Request) {
 
           if (newSubjectError) {
             console.error('Failed to create subject:', newSubjectError);
-            continue;
+            return;
           }
           subjectId = newSubject.id;
         } else {
@@ -68,7 +76,7 @@ export async function POST(req: Request) {
         }
       }
 
-      if (!subjectId) continue;
+      if (!subjectId) return;
 
       // Upsert Lesson under the determined subjectId
       let { data: lesson, error: lessonError } = await supabaseAdmin
@@ -91,18 +99,26 @@ export async function POST(req: Request) {
 
         if (newLessonError) {
           console.error('Failed to create lesson:', newLessonError);
-          continue;
+          return;
         }
         lesson = newLesson;
       }
 
-      if (!lesson) continue;
+      if (!lesson) return;
 
       resultIds[`${pair.subjectName}|${pair.lessonName}`] = {
         subjectId: subjectId,
         lessonId: lesson.id
       };
+    };
+
+    // Process in chunks to avoid connection pool exhaustion
+    for (let i = 0; i < uniquePairs.length; i += HIERARCHY_CHUNK_SIZE) {
+      const chunk = uniquePairs.slice(i, i + HIERARCHY_CHUNK_SIZE);
+      await Promise.allSettled(chunk.map(processPair));
     }
+
+    console.log(`[SYNC] Completed in ${Date.now() - syncStart}ms — ${Object.keys(resultIds).length}/${uniquePairs.length} pairs resolved`);
 
     return NextResponse.json({ success: true, mappings: resultIds });
 
@@ -111,4 +127,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: error.message || 'Internal error' }, { status: 500 });
   }
 }
-

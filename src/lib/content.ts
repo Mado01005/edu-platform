@@ -26,6 +26,7 @@ function buildContentTree(flatItems: ContentItem[], parentId: string | null = nu
         id: child.id,
         type: child.item_type as ItemType,
         fileType: (child.file_type as FileType) || undefined,
+        contentType: child.content_type || undefined,
         name: child.name,
         url: child.url || undefined,
         vimeoId: child.vimeo_id || undefined,
@@ -39,6 +40,17 @@ function hasFilesOfType(nodes: ContentNode[], fileTypeLabel: 'video' | 'pdf' | '
   for (const node of nodes) {
     if (node.type === fileTypeLabel || (node.type === 'file' && node.fileType === fileTypeLabel)) return true;
     if (node.type === 'folder' && node.children && hasFilesOfType(node.children, fileTypeLabel)) return true;
+  }
+  return false;
+}
+
+function hasFilesByExtension(nodes: ContentNode[], extensions: string[]): boolean {
+  for (const node of nodes) {
+    if (node.type === 'file' && node.url) {
+      const ext = node.name.split('.').pop()?.toLowerCase();
+      if (ext && extensions.includes(ext)) return true;
+    }
+    if (node.type === 'folder' && node.children && hasFilesByExtension(node.children, extensions)) return true;
   }
   return false;
 }
@@ -60,7 +72,7 @@ export async function getAllSubjects(): Promise<SubjectMeta[]> {
       lessons (
         id, slug, title,
         content_items (
-          id, parent_id, item_type, file_type, name, url, vimeo_id
+          id, parent_id, item_type, file_type, content_type, name, url, vimeo_id
         )
       )
     `)
@@ -82,7 +94,8 @@ export async function getAllSubjects(): Promise<SubjectMeta[]> {
         content: contentTree,
         hasVideo: hasFilesOfType(contentTree, 'video') || hasFilesOfType(contentTree, 'vimeo'),
         hasPdf: hasFilesOfType(contentTree, 'pdf'),
-        hasDocx: contentTree.some(node => node.url && (node.name.toLowerCase().endsWith('.doc') || node.name.toLowerCase().endsWith('.docx'))),
+        hasDocx: hasFilesByExtension(contentTree, ['doc', 'docx']),
+        hasPptx: hasFilesByExtension(contentTree, ['ppt', 'pptx']),
         imageCount: countImages(contentTree),
       };
     });
@@ -109,7 +122,7 @@ export async function getSubject(slug: string): Promise<SubjectMeta | null> {
       lessons (
         id, slug, title,
         content_items (
-          id, parent_id, item_type, file_type, name, url, vimeo_id
+          id, parent_id, item_type, file_type, content_type, name, url, vimeo_id
         )
       )
     `)
@@ -128,7 +141,8 @@ export async function getSubject(slug: string): Promise<SubjectMeta | null> {
       content: contentTree,
       hasVideo: hasFilesOfType(contentTree, 'video') || hasFilesOfType(contentTree, 'vimeo'),
       hasPdf: hasFilesOfType(contentTree, 'pdf'),
-      hasDocx: contentTree.some(node => node.url && (node.name.toLowerCase().endsWith('.doc') || node.name.toLowerCase().endsWith('.docx'))),
+      hasDocx: hasFilesByExtension(contentTree, ['doc', 'docx']),
+      hasPptx: hasFilesByExtension(contentTree, ['ppt', 'pptx']),
       imageCount: countImages(contentTree),
     };
   });

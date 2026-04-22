@@ -18,22 +18,20 @@ export const r2Client = new S3Client({
 
 /**
  * Generate a presigned PUT URL so the browser can upload directly to R2.
- * The URL expires in 1 hour.
+ * The URL expires in 1 hour by default.
  */
-export async function getPresignedUploadUrl(key: string, contentType: string) {
+export async function getPresignedUploadUrl(key: string, contentType: string, expiresIn: number = 3600) {
   const command = new PutObjectCommand({
     Bucket: R2_BUCKET,
     Key: key,
     ContentType: contentType,
   });
 
-  const signedUrl = await getSignedUrl(r2Client, command, { expiresIn: 3600 });
+  const signedUrl = await getSignedUrl(r2Client, command, { expiresIn });
   return signedUrl;
 }
 
-/**
- * Upload a raw buffer directly from the server.
- */
+
 export async function putR2Object(key: string, body: Buffer | Uint8Array, contentType: string) {
   const command = new PutObjectCommand({
     Bucket: R2_BUCKET,
@@ -138,7 +136,7 @@ export async function deleteR2Folder(prefix: string) {
         .filter((key): key is string => !!key);
 
       if (deleteKeys.length > 0) {
-        // ── P3.3: Batch delete up to 1000 keys per request ──
+
         for (let i = 0; i < deleteKeys.length; i += 1000) {
           const batch = deleteKeys.slice(i, i + 1000);
           const deleteCommand = new DeleteObjectsCommand({
@@ -158,10 +156,7 @@ export async function deleteR2Folder(prefix: string) {
   }
 }
 
-/**
- * Batch delete specific R2 keys (up to 1000 per request).
- * Used by cascade deletion when we have explicit URLs from the database.
- */
+
 export async function batchDeleteR2Objects(keys: string[]): Promise<void> {
   if (keys.length === 0) return;
 
@@ -178,11 +173,9 @@ export async function batchDeleteR2Objects(keys: string[]): Promise<void> {
   }
 }
 
-// ── P3.1: Multipart Upload Helpers ──
 
-/**
- * Initialize a multipart upload and return the UploadId.
- */
+
+ 
 export async function initiateMultipartUpload(key: string, contentType: string): Promise<string> {
   const command = new CreateMultipartUploadCommand({
     Bucket: R2_BUCKET,
@@ -197,14 +190,14 @@ export async function initiateMultipartUpload(key: string, contentType: string):
 /**
  * Generate a presigned URL for a single multipart upload part.
  */
-export async function getPresignedMultipartPartUrl(key: string, uploadId: string, partNumber: number, contentType: string): Promise<string> {
+export async function getPresignedMultipartPartUrl(key: string, uploadId: string, partNumber: number, contentType: string, expiresIn: number = 3600): Promise<string> {
   const command = new UploadPartCommand({
     Bucket: R2_BUCKET,
     Key: key,
     UploadId: uploadId,
     PartNumber: partNumber,
   });
-  const signedUrl = await getSignedUrl(r2Client, command, { expiresIn: 3600 });
+  const signedUrl = await getSignedUrl(r2Client, command, { expiresIn });
   return signedUrl;
 }
 
@@ -224,9 +217,7 @@ export async function completeMultipartUpload(key: string, uploadId: string, par
   return getPublicUrl(key);
 }
 
-/**
- * Abort an in-progress multipart upload.
- */
+
 export async function abortMultipartUpload(key: string, uploadId: string): Promise<void> {
   const command = new AbortMultipartUploadCommand({
     Bucket: R2_BUCKET,

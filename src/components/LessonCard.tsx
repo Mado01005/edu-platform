@@ -16,6 +16,7 @@ interface LessonCardProps {
   color: string;
   isNew?: boolean;
   hasDocx: boolean;
+  hasPptx: boolean;
 }
 
 export default function LessonCard({
@@ -29,6 +30,7 @@ export default function LessonCard({
   color,
   isNew,
   hasDocx,
+  hasPptx,
 }: LessonCardProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -139,6 +141,14 @@ export default function LessonCard({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414-5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 DOCX
+              </span>
+            )}
+            {hasPptx && (
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-xs font-bold text-orange-400 tracking-wide uppercase shadow-[0_0_10px_rgba(249,115,22,0.1)]">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                </svg>
+                PPTX
               </span>
             )}
             {imageCount > 0 && (

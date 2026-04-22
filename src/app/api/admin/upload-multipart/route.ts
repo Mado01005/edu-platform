@@ -37,10 +37,17 @@ export async function POST(req: Request) {
         const safeSubjectSlug = subjectSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
         const safeLessonSlug = lessonSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
         const timestamp = Date.now();
-        const nestedPath = (relativeFilePath || fileName || 'unnamed_file')
+        let nestedPath = (relativeFilePath || fileName || 'unnamed_file')
           .replace(/[^a-zA-Z0-9.\s/_\-]/g, '_') // replace unsafe chars with _ but keep /
           .replace(/\/+/g, '/')
           .trim();
+
+        // Normalizing Extension to Lowercase (e.g., FILE.PPTX -> FILE.pptx)
+        const pathParts = nestedPath.split('.');
+        if (pathParts.length > 1) {
+          const ext = pathParts.pop()?.toLowerCase();
+          nestedPath = `${pathParts.join('.')}.${ext}`;
+        }
 
         const segments = nestedPath.split('/');
         segments[segments.length - 1] = `${timestamp}_${segments[segments.length - 1]}`;
