@@ -1,5 +1,5 @@
-const CACHE_NAME = 'eduportal-pwa-v6';
-const STATIC_ASSETS_CACHE = 'eduportal-static-v6';
+const CACHE_NAME = 'wayground-pwa-v7';
+const STATIC_ASSETS_CACHE = 'wayground-static-v7';
 
 const PRECACHE_ASSETS = [
   '/',

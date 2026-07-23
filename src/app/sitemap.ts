@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getAllSubjects } from '@/lib/content';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://eduportal.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.edu-platform.me';
 
   // Static routes
   const routes: MetadataRoute.Sitemap = [

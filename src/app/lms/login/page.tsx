@@ -66,7 +66,7 @@ export default function LmsLoginPage() {
           <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-violet-500 text-black">
             <GraduationCap className="size-7" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-black tracking-tight">Learning workspace</h1>
+          <h1 className="text-2xl font-black tracking-tight">Way Ground LMS</h1>
           <p className="mt-2 text-sm leading-6 text-zinc-400">
             Sign in with the account assigned by your school.
           </p>

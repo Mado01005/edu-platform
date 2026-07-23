@@ -92,7 +92,7 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
             </div>
             
             <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 tracking-tight mb-3">
-              Welcome to EduPortal, {userName.split(' ')[0]}!
+              Welcome to Way Ground, {userName.split(' ')[0]}!
             </h2>
             <p className="text-gray-400 text-lg font-medium">Your account <strong className="text-blue-300">{userEmail}</strong> has been successfully registered.</p>
           </div>

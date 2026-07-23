@@ -98,7 +98,7 @@ export default async function CatalogPage({
                 />
                 <div className="flex min-w-0 flex-1 flex-col p-5">
                   <p className="text-xs font-bold text-violet-300">
-                    {course.teacher.name ?? 'EduPortal teacher'}
+                    {course.teacher.name ?? 'Way Ground teacher'}
                   </p>
                   <h2 className="mt-2 break-words text-xl font-black">{course.title}</h2>
                   <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-400">

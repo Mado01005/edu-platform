@@ -31,6 +31,13 @@ function redirectWithSessionCookies(
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // The LMS catalog is the canonical product entry point. Keep the legacy
+  // NextAuth login available for existing users without routing new visitors
+  // through the retired portal landing flow.
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/catalog', request.url));
+  }
+
   // Allow public/static paths, PWA assets
   if (
     PUBLIC_PATHS.some((path) => matchesRoute(pathname, path)) ||
@@ -98,11 +105,6 @@ export async function proxy(request: NextRequest) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('from', pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  // If authenticated and hitting root path (/), redirect to dashboard
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();

@@ -9,7 +9,7 @@ export function LmsHeader() {
           <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-violet-400 text-black">
             <GraduationCap className="size-5" />
           </span>
-          <span className="hidden truncate sm:block">EduPortal LMS</span>
+          <span className="hidden truncate sm:block">Way Ground LMS</span>
         </Link>
         <nav className="ml-auto flex min-w-0 items-center gap-1">
           <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-zinc-300 hover:bg-white/5" href="/dashboard">

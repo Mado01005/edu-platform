@@ -15,10 +15,10 @@ import FloatingTutor from '@/components/Chat/FloatingTutor';
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
-  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://eduportal.app');
+  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.edu-platform.me');
 
 export const metadata: Metadata = {
-  title: 'EduPortal — Your Learning Hub',
+  title: 'Way Ground LMS — Learn, Build, Progress',
   description: 'A modern education platform for students. Access courses in Dynamics, Physics, Chemistry, Communication Skills, Academic Writing, Calculus, and Programming.',
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
@@ -32,16 +32,16 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'EduPortal — Your Learning Hub',
+    title: 'Way Ground LMS — Learn, Build, Progress',
     description: 'A modern education platform for students.',
     url: SITE_URL,
-    siteName: 'EduPortal',
+    siteName: 'Way Ground LMS',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'EduPortal Learning Hub',
+        alt: 'Way Ground LMS Learning Hub',
       },
     ],
     locale: 'en_US',
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EduPortal — Your Learning Hub',
+    title: 'Way Ground LMS — Learn, Build, Progress',
     description: 'A modern education platform for students.',
     images: ['/og-image.png'],
   },
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'EduPortal',
+    title: 'Way Ground LMS',
   },
 };
 

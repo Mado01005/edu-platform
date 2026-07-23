@@ -238,7 +238,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
       }
 
       const newPlayer = new (window.Spotify.Player as any)({
-        name: 'EduPortal High-Fidelity Player',
+        name: 'Way Ground High-Fidelity Player',
         getOAuthToken: async (cb: (token: string) => void) => {
           try {
             // ALWAYS use the live ref value to ensure the session never restarts

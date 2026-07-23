@@ -22,8 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!subject) return { title: 'Subject Not Found' };
   
   return {
-    title: `${subject.title} - EduPortal`,
-    description: `Explore the ${subject.title} curriculum on EduPortal featuring ${subject.lessons.length} active modules.`,
+    title: `${subject.title} - Way Ground LMS`,
+    description: `Explore the ${subject.title} curriculum on Way Ground LMS featuring ${subject.lessons.length} active modules.`,
     openGraph: {
       title: `${subject.title} Curriculum`,
       description: `Access specialized content for ${subject.title}.`,

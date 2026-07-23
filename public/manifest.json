@@ -1,6 +1,6 @@
 {
-  "name": "EduPortal",
-  "short_name": "EduPortal",
+  "name": "Way Ground LMS",
+  "short_name": "Way Ground",
   "description": "Your Universal Premium Learning Hub.",
   "start_url": "/",
   "display": "standalone",

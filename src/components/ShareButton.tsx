@@ -11,8 +11,8 @@ export default function ShareButton({ title }: ShareButtonProps) {
 
   const handleShare = async () => {
     const shareData = {
-      title: `${title} - EduPortal`,
-      text: `Check out this lesson on EduPortal: ${title}`,
+      title: `${title} - Way Ground LMS`,
+      text: `Check out this lesson on Way Ground LMS: ${title}`,
       url: window.location.href,
     };
 

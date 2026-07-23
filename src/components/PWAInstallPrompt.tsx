@@ -97,7 +97,7 @@ export default function PWAInstallPrompt() {
             </svg>
           </div>
           <div>
-            <h4 className="text-white font-bold text-sm tracking-tight">Install EduPortal App</h4>
+            <h4 className="text-white font-bold text-sm tracking-tight">Install Way Ground LMS</h4>
             <p className="text-xs text-gray-400 leading-tight mt-0.5">Get lightning-fast offline loading and full-screen lectures.</p>
           </div>
         </div>
