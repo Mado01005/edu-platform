@@ -1,19 +1,55 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const R2_ACCOUNT_ENDPOINT = process.env.R2_ENDPOINT || '';
-const R2_ACCESS_KEY = process.env.R2_ACCESS_KEY_ID || '';
-const R2_SECRET_KEY = process.env.R2_SECRET_ACCESS_KEY || '';
-const R2_BUCKET = process.env.R2_BUCKET_NAME || 'eduportal-media';
+const R2_BUCKET =
+  process.env.R2_BUCKET_NAME ?? process.env.R2_BUCKET ?? 'eduportal-media';
 
-export const r2Client = new S3Client({
-  region: 'auto',
-  endpoint: R2_ACCOUNT_ENDPOINT,
-  credentials: {
-    accessKeyId: R2_ACCESS_KEY,
-    secretAccessKey: R2_SECRET_KEY,
+let cachedR2Client: S3Client | null = null;
+
+function getR2Endpoint() {
+  if (process.env.R2_ENDPOINT) {
+    return process.env.R2_ENDPOINT;
+  }
+
+  if (process.env.R2_ACCOUNT_ID) {
+    return `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+  }
+
+  throw new Error('R2_ENDPOINT or R2_ACCOUNT_ID is required.');
+}
+
+export function getR2Client() {
+  if (cachedR2Client) {
+    return cachedR2Client;
+  }
+
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+
+  if (!accessKeyId || !secretAccessKey) {
+    throw new Error('Cloudflare R2 credentials are missing.');
+  }
+
+  cachedR2Client = new S3Client({
+    region: 'auto',
+    endpoint: getR2Endpoint(),
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+    forcePathStyle: true,
+  });
+
+  return cachedR2Client;
+}
+
+// Backward-compatible lazy client for existing upload and migration routes.
+export const r2Client = new Proxy({} as S3Client, {
+  get(_target, property) {
+    const client = getR2Client();
+    const value = Reflect.get(client, property, client);
+    return typeof value === 'function' ? value.bind(client) : value;
   },
-  forcePathStyle: true,
 });
 
 /**
@@ -59,7 +95,17 @@ export async function deleteR2Object(key: string) {
  * Uses the R2.dev subdomain or a custom domain.
  */
 export function getPublicUrl(key: string) {
-  const publicBase = process.env.R2_PUBLIC_URL?.replace(/\/+$/, '') || '';
+  const publicBase = (
+    process.env.R2_PUBLIC_URL ??
+    process.env.NEXT_PUBLIC_R2_PUBLIC_URL ??
+    process.env.NEXT_PUBLIC_R2_PUBLIC_DOMAIN ??
+    ''
+  ).replace(/\/+$/, '');
+
+  if (!publicBase) {
+    throw new Error('R2_PUBLIC_URL is required to publish uploaded files.');
+  }
+
   const cleanKey = key.replace(/^\/+/, '');
   return `${publicBase}/${cleanKey}`;
 }
@@ -213,7 +259,7 @@ export async function completeMultipartUpload(key: string, uploadId: string, par
       Parts: parts.map(p => ({ ETag: p.ETag, PartNumber: p.PartNumber })),
     },
   });
-  const response = await r2Client.send(command);
+  await r2Client.send(command);
   return getPublicUrl(key);
 }
 

@@ -1,0 +1,151 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum ContentType {
+  VIMEO
+  YOUTUBE
+  R2_VIDEO
+  PDF
+  TEXT
+}
+
+model User {
+  id           String           @id @default(cuid())
+  supabaseId   String           @unique @map("supabase_id")
+  email        String           @unique
+  name         String?
+  role         Role             @default(STUDENT)
+  courses      Course[]
+  enrollments  Enrollment[]
+  progress     LessonProgress[]
+  zoomSessions ZoomSession[]
+  discussions  Discussion[]
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  @@map("lms_users")
+}
+
+model Course {
+  id           String        @id @default(cuid())
+  title        String
+  description  String?       @db.Text
+  imageUrl     String?       @map("image_url")
+  isPublished  Boolean       @default(false) @map("is_published")
+  teacherId    String        @map("teacher_id")
+  teacher      User          @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  modules      Module[]
+  enrollments  Enrollment[]
+  zoomSessions ZoomSession[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([teacherId])
+  @@map("lms_courses")
+}
+
+model Module {
+  id        String   @id @default(cuid())
+  title     String
+  position  Int
+  courseId  String   @map("course_id")
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([courseId, position])
+  @@map("lms_modules")
+}
+
+model Lesson {
+  id          String           @id @default(cuid())
+  title       String
+  position    Int
+  contentType ContentType      @default(VIMEO) @map("content_type")
+  videoUrl    String?          @map("video_url")
+  pdfUrl      String?          @map("pdf_url")
+  textContent String?          @map("text_content") @db.Text
+  isFree      Boolean          @default(false) @map("is_free")
+  moduleId    String           @map("module_id")
+  module      Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress    LessonProgress[]
+  discussions Discussion[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@index([moduleId, position])
+  @@map("lms_lessons")
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  studentId String   @map("student_id")
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId  String   @map("course_id")
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([studentId, courseId])
+  @@index([courseId])
+  @@map("lms_enrollments")
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  studentId   String   @map("student_id")
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lessonId    String   @map("lesson_id")
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  isCompleted Boolean  @default(false) @map("is_completed")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([studentId, lessonId])
+  @@index([lessonId])
+  @@map("lms_lesson_progress")
+}
+
+model ZoomSession {
+  id         String   @id @default(cuid())
+  title      String
+  meetingUrl String   @map("meeting_url")
+  startTime  DateTime @map("start_time")
+  duration   Int
+  courseId   String   @map("course_id")
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacherId  String   @map("teacher_id")
+  teacher    User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([courseId, startTime])
+  @@index([teacherId])
+  @@map("lms_zoom_sessions")
+}
+
+model Discussion {
+  id        String       @id @default(cuid())
+  message   String       @db.Text
+  userId    String       @map("user_id")
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  String       @map("lesson_id")
+  lesson    Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  parentId  String?      @map("parent_id")
+  parent    Discussion?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Discussion[] @relation("Replies")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@index([lessonId, createdAt])
+  @@index([parentId])
+  @@map("lms_discussions")
+}

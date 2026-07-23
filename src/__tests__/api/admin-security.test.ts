@@ -60,6 +60,7 @@ jest.mock('@/lib/validation', () => ({
   extractR2Key: jest.fn().mockReturnValue(null),
   isValidUUID: jest.fn().mockReturnValue(true),
   isValidSlug: jest.fn().mockReturnValue(true),
+  isValidDeletionType: jest.fn().mockReturnValue(true),
 }));
 
 jest.mock('@/lib/errors', () => ({

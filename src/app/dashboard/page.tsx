@@ -14,12 +14,20 @@ import BookmarkedLessons from '@/components/BookmarkedLessons';
 import WhatsNewBanner from '@/components/WhatsNewBanner';
 import BadgeGallery from '@/components/UI/BadgeGallery';
 import { checkAndUnlockAchievements } from '@/lib/achievements';
+import { getLmsUser } from '@/lib/lms/auth';
+import { StudentLmsDashboard } from '@/components/lms/StudentLmsDashboard';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   const session = await auth();
-  if (!session) redirect('/login');
+  if (!session) {
+    const lmsUser = await getLmsUser();
+    if (lmsUser) {
+      return <StudentLmsDashboard user={lmsUser} />;
+    }
+    redirect('/login');
+  }
   // @ts-ignore
   if (session.user?.isBanned) redirect('/banned');
 
@@ -41,7 +49,7 @@ export default async function DashboardPage() {
       .eq('user_email', (session.user.email || '').toLowerCase())
       .eq('action', 'Viewed Promotion Modal')
       .limit(1);
-    
+
     if (!promoLog || promoLog.length === 0) {
       showPromotionModal = true;
     }
@@ -64,53 +72,26 @@ export default async function DashboardPage() {
       showStudentWelcomeModal = true;
     }
 
-    // 2. Daily Streak Sync Validation
+    // 2. Daily Streak Hydration
+    // We fetch the current source-of-truth streak from the database.
+    // The actual "Day Change" increment logic is now handled by the <DailyStreak /> component
+    // on the client side via the /api/user/sync-streak route to ensure local timezone accuracy.
     currentStreak = userData.streak_count || 1;
-    const lastLogin = userData.last_login ? new Date(userData.last_login) : null;
     const now = new Date();
-    // Use UTC for consistent global day boundaries
-    const todayMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).getTime();
-    
-    let shouldUpdateDB = false;
 
-    if (lastLogin) {
-      const lastLoginMidnight = new Date(Date.UTC(lastLogin.getUTCFullYear(), lastLogin.getUTCMonth(), lastLogin.getUTCDate())).getTime();
-      const diffInDays = Math.round((todayMidnight - lastLoginMidnight) / (1000 * 60 * 60 * 24));
-
-      if (diffInDays === 1) {
-        currentStreak += 1;
-        shouldUpdateDB = true;
-      } else if (diffInDays > 1) {
-        currentStreak = 1;
-        shouldUpdateDB = true;
-      }
-    } else {
-      // First time tracking login
-      shouldUpdateDB = true;
-    }
-
-    if (shouldUpdateDB) {
-      await supabaseAdmin.from('user_roles').update({ 
-        last_login: now.toISOString(), 
-        streak_count: currentStreak 
-      }).eq('email', email);
-    }
-
-    // 3. Achievement Synchronization Pulse
-    // We calculate a lightweight version of the user stats for the criteria check
+    // Perform achievement sync based on the current known state
     const { data: activityLogs } = await supabaseAdmin
       .from('activity_logs')
       .select('action')
       .eq('user_email', email);
-    
+
     const completedCount = activityLogs?.filter(l => l.action === 'Completed Lesson').length || 0;
-    
-    // Perform the unlock check
+
     await checkAndUnlockAchievements(email, {
       streakCount: currentStreak,
       completedCount,
       lastLoginAt: now.toISOString(),
-      totalMinutes: 0 // Placeholder for now - can be expanded with duration tracking
+      totalMinutes: 0
     });
   }
 
@@ -124,7 +105,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(0,0,0,0))] relative overflow-hidden">
       <DashboardLogger />
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
-      
+
       <div className="relative z-10">
       <Navbar
         userName={session.user?.name ?? undefined}
@@ -134,7 +115,7 @@ export default async function DashboardPage() {
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        
+
         {/* Global Announcement Banner */}
         {globalMsg?.message && (
           <div className="mb-8 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-start gap-4 shadow-lg shadow-indigo-500/5 fade-in">

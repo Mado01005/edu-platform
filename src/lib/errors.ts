@@ -31,7 +31,7 @@ export function createErrorResponse(
 /**
  * Standard success response format
  */
-export function createSuccessResponse<T = any>(
+export function createSuccessResponse<T = unknown>(
   data: T,
   status: number = 200
 ): NextResponse<{ success: true; data: T }> {

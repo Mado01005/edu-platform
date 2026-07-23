@@ -8,6 +8,8 @@ import { deleteR2Object, batchDeleteR2Objects } from '@/lib/r2';
 import { validateDeleteInput, extractR2Key, isValidUUID, isValidSlug } from '@/lib/validation';
 import { ApiErrors, createSuccessResponse, handleDatabaseError } from '@/lib/errors';
 
+import { ExtendedSession } from '@/types/auth';
+
 /**
  * Deletion options configuration
  */
@@ -19,7 +21,7 @@ export interface DeletionOptions {
   /** Optional file URL for R2 cleanup */
   fileUrl?: string;
   /** User session for authorization */
-  session?: any;
+  session?: ExtendedSession;
 }
 
 /**
@@ -57,14 +59,16 @@ export async function handleDeletion(options: DeletionOptions): Promise<Response
         return ApiErrors.INVALID_INPUT(['Invalid deletion type']);
     }
 
-    // 4. Delete from database first (atomic operation)
+    // B7: Handle R2 cleanup BEFORE database deletion
+    // R2 cleanup queries child records that get cascade-deleted from the DB.
+    // If we delete DB first, the child queries return empty and R2 files are orphaned.
+    await handleR2Cleanup(type, id, fileUrl);
+
+    // Now delete from database (cascades to child records)
     const { error: dbError } = await supabaseAdmin.from(table).delete().eq('id', id);
     if (dbError) {
       return handleDatabaseError(dbError);
     }
-
-    // 5. Handle R2 cleanup based on deletion type
-    await handleR2Cleanup(type, id, fileUrl);
 
     // 6. Log activity
     await supabaseAdmin.from('activity_logs').insert({

@@ -18,8 +18,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    // ── Mega Upload Check ──
-    const isMegaUpload = session.user.email === 'abdallahsaad2150@gmail.com';
+    // ── Mega Upload Check ── P8: Use role-based check instead of hardcoded email
+    const isMegaUpload = !!session.user.isSuperAdmin;
     const expiresIn = isMegaUpload ? 21600 : 3600; // 6 hours vs 1 hour
 
     const resolvedContentType = contentType || 'application/octet-stream';

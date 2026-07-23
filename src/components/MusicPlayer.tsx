@@ -74,7 +74,7 @@ const MusicPlayerContent = () => {
   }, [volume]);
 
   // Hide on public pages
-  if (pathname === '/login' || pathname === '/') return null;
+  if (pathname === '/login' || pathname === '/lms/login' || pathname === '/') return null;
 
   // Fetch Social Activities
   useEffect(() => {

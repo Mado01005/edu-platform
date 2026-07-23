@@ -14,7 +14,7 @@ import FloatingTutor from '@/components/Chat/FloatingTutor';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
   || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://eduportal.app');
 
 export const metadata: Metadata = {
@@ -78,27 +78,27 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
-        <InteractionTracker />
-        <SessionTracker />
-        <PWAInstallPrompt />
-        <KeyboardShortcuts />
-        <PrefetchEngine />
-        <StudyTimer />
-        <MobileNav />
-        
         <Providers>
-        <SpotifyProvider accessToken={spotifyToken} refreshToken={spotifyRefreshToken} tokenExpiresAt={spotifyTokenExpiresAt}>
-          {children}
-          <MusicPlayer />
-        </SpotifyProvider>
+          <InteractionTracker />
+          <SessionTracker />
+          <PWAInstallPrompt />
+          <KeyboardShortcuts />
+          <PrefetchEngine />
+          <StudyTimer />
+          <MobileNav />
+
+          <SpotifyProvider accessToken={spotifyToken} refreshToken={spotifyRefreshToken} tokenExpiresAt={spotifyTokenExpiresAt}>
+            {children}
+            <MusicPlayer />
+          </SpotifyProvider>
         </Providers>
 
         <FloatingTutor />
         <SpeedInsights />
 
         {/* Tawk.to Live Chat Script */}
-        <Script id="tawk-to" strategy="lazyOnload">
-          {`
+        <Script id="tawk-to" strategy="afterInteractive" dangerouslySetInnerHTML={{
+          __html: `
             var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
             (function(){
             var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
@@ -108,8 +108,8 @@ export default async function RootLayout({
             s1.setAttribute('crossorigin','*');
             s0.parentNode.insertBefore(s1,s0);
             })();
-          `}
-        </Script>
+          `
+        }} />
 
         {/* PWA Service Worker Registration */}
         <Script id="register-pwa-sw" strategy="afterInteractive">

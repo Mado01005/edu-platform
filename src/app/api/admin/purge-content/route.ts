@@ -15,6 +15,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Must provide lessonId or subjectId to purge' }, { status: 400 });
     }
 
+    if (lessonId && subjectId) {
+      return NextResponse.json({ error: 'Cannot provide both lessonId and subjectId' }, { status: 400 });
+    }
+
+    // Import UUID validation
+    const { isValidUUID } = await import('@/lib/validation');
+    if (lessonId && !isValidUUID(lessonId)) {
+      return NextResponse.json({ error: 'Invalid lesson ID format' }, { status: 400 });
+    }
+    if (subjectId && !isValidUUID(subjectId)) {
+      return NextResponse.json({ error: 'Invalid subject ID format' }, { status: 400 });
+    }
+
     let query = supabaseAdmin.from('content_items').delete();
 
     if (lessonId) {
@@ -57,12 +70,16 @@ export async function POST(req: Request) {
       }
 
       // Log the purge action
-      Promise.resolve(supabaseAdmin.from('activity_logs').insert({
-        user_email: session.user?.email || 'admin',
-        user_name: session.user?.name || 'Admin',
-        action: 'CONTENT_PURGED',
-        details: { subjectId, itemType, purgedCount: data?.length || 0 },
-      })).catch(() => {});
+      try {
+        await supabaseAdmin.from('activity_logs').insert({
+          user_email: session.user?.email || 'admin',
+          user_name: session.user?.name || 'Admin',
+          action: 'CONTENT_PURGED',
+          details: { subjectId, itemType, purgedCount: data?.length || 0 },
+        });
+      } catch (logErr) {
+        console.error('Failed to log purge action:', logErr);
+      }
 
       return NextResponse.json({
         purged: data?.length || 0,
@@ -80,12 +97,16 @@ export async function POST(req: Request) {
     }
 
     // Log the purge action
-    Promise.resolve(supabaseAdmin.from('activity_logs').insert({
-      user_email: session.user?.email || 'admin',
-      user_name: session.user?.name || 'Admin',
-      action: 'CONTENT_PURGED',
-      details: { lessonId, itemType, purgedCount: data?.length || 0 },
-    })).catch(() => {});
+    try {
+      await supabaseAdmin.from('activity_logs').insert({
+        user_email: session.user?.email || 'admin',
+        user_name: session.user?.name || 'Admin',
+        action: 'CONTENT_PURGED',
+        details: { lessonId, itemType, purgedCount: data?.length || 0 },
+      });
+    } catch (logErr) {
+      console.error('Failed to log purge action:', logErr);
+    }
 
     return NextResponse.json({
       purged: data?.length || 0,

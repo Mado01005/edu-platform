@@ -63,7 +63,7 @@ export default async function SubjectPage({ params }: Props) {
       <Navbar
         userName={session.user?.name ?? undefined}
         userImage={session.user?.image ?? undefined}
-        isAdmin={(session.user as any)?.isAdmin}
+        isAdmin={!!(session.user as { isAdmin?: boolean })?.isAdmin}
       />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -94,7 +94,7 @@ export default async function SubjectPage({ params }: Props) {
         </div>
 
         {/* Admin Action Bar — positioned right after subject header */}
-        {((session.user as any)?.isAdmin || (session.user as any)?.isSuperAdmin) && (
+        {((session.user as { isAdmin?: boolean })?.isAdmin || (session.user as { isSuperAdmin?: boolean })?.isSuperAdmin) && (
           <AdminActionBar 
             subject={{
               id: subject.id,

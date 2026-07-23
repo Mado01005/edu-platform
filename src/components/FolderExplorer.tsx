@@ -29,7 +29,7 @@ interface FolderExplorerProps {
 
 export default function FolderExplorer({ content, subject, lesson }: FolderExplorerProps) {
   const { data: session } = useSession();
-  const isAdmin = (session?.user as any)?.isAdmin;
+  const isAdmin = !!(session?.user as { isAdmin?: boolean })?.isAdmin;
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -49,6 +49,9 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
         currentPath.push(found);
         currentNodes = found.children || [];
       } else {
+        // B3: Invalid path segment — reset to root instead of showing partial
+        currentPath.length = 0;
+        currentNodes = content;
         break;
       }
     }

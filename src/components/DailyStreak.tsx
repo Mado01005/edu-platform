@@ -1,38 +1,52 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface DailyStreakProps {
   userEmail: string;
+  /** Server-side streak count from Supabase, used as the source of truth on initial render */
+  initialStreak?: number;
 }
 
-export default function DailyStreak({ userEmail }: DailyStreakProps) {
-  const [streak, setStreak] = useState(0);
-  const [todayLogged, setTodayLogged] = useState(false);
+export default function DailyStreak({ userEmail, initialStreak = 0 }: DailyStreakProps) {
+  const [streak, setStreak] = useState(initialStreak);
+  const hasFired = useRef(false);
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const streakData = JSON.parse(localStorage.getItem('edu_streak') || '{"count":0,"lastDate":""}');
-    
-    if (streakData.lastDate === today) {
-      // Already logged today
-      setStreak(streakData.count);
-      setTodayLogged(true);
-    } else {
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      if (streakData.lastDate === yesterday) {
-        // Consecutive day — increment streak
-        const newCount = streakData.count + 1;
-        setStreak(newCount);
-        localStorage.setItem('edu_streak', JSON.stringify({ count: newCount, lastDate: today }));
-      } else {
-        // Streak broken — reset to 1
-        setStreak(1);
-        localStorage.setItem('edu_streak', JSON.stringify({ count: 1, lastDate: today }));
+    // Prevent React Strict Mode double-fire in development
+    if (hasFired.current) return;
+    hasFired.current = true;
+
+    async function syncStreak() {
+      // Use local date string (user's browser timezone) to avoid UTC midnight drift
+      const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local tz
+
+      try {
+        const response = await fetch('/api/user/sync-streak', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ localDate: today })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setStreak(data.streak);
+          // Sync localStorage for fast hydration on next visit
+          localStorage.setItem('edu_streak', JSON.stringify({ count: data.streak, lastDate: today }));
+        } else {
+          // Fallback to localStorage if API fails
+          const streakData = JSON.parse(localStorage.getItem('edu_streak') || '{"count":0,"lastDate":""}');
+          if (streakData.lastDate === today) {
+            setStreak(Math.max(streakData.count, initialStreak));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to sync streak:', err);
       }
-      setTodayLogged(true);
     }
-  }, []);
+
+    syncStreak();
+  }, [initialStreak]);
 
   if (streak === 0) return null;
 

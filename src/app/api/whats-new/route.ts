@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    // Get content added in the last 24 hours
+
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
     const { data, error } = await supabaseAdmin
@@ -26,7 +26,6 @@ export async function GET() {
       created_at: log.created_at,
     }));
 
-    // Also return lesson IDs that have new content (for "NEW" badges)
     const newLessonIds = [...new Set(items.map(i => i.lessonId).filter(Boolean))];
 
     return NextResponse.json({ items, newLessonIds }, {

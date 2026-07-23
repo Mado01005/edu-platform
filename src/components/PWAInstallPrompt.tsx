@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function PWAInstallPrompt() {
+  const pathname = usePathname();
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -42,7 +44,12 @@ export default function PWAInstallPrompt() {
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
 
-  if (isStandalone || dismissed || !showPrompt) return null;
+  if (
+    pathname === '/lms/login' ||
+    isStandalone ||
+    dismissed ||
+    !showPrompt
+  ) return null;
 
   const handleDismiss = () => {
     setDismissed(true);
@@ -66,7 +73,7 @@ export default function PWAInstallPrompt() {
   return (
     <div className="fixed bottom-0 inset-x-0 z-[100] sm:hidden pb-safe">
       <div className="bg-[#1A1A1E]/95 backdrop-blur-xl border-t border-indigo-500/30 p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] transform translate-y-0 transition-transform flex flex-col gap-3">
-        <button onClick={handleDismiss} className="absolute top-2 right-2 text-gray-400 hover:text-white p-2">
+        <button aria-label="Dismiss install prompt" onClick={handleDismiss} className="absolute top-2 right-2 text-gray-400 hover:text-white p-2">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         

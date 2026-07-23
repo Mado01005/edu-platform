@@ -23,7 +23,7 @@ export default function MobileNav({ isAdmin }: MobileNavProps) {
   ];
 
   // Don't show on login, banned, or admin pages (admin has its own nav)
-  if (pathname === '/login' || pathname === '/banned') return null;
+  if (pathname === '/login' || pathname === '/lms/login' || pathname === '/banned') return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden">

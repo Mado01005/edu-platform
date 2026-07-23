@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isValidUUID } from '@/lib/validation';
 
 export async function POST(req: Request) {
   try {
@@ -11,8 +12,24 @@ export async function POST(req: Request) {
 
     const { lessonId, subjectId, folderName, parentId } = await req.json();
 
-    if (!folderName || (!lessonId && !subjectId)) {
+    // C6: Validate folder name
+    if (!folderName || typeof folderName !== 'string' || folderName.trim().length === 0 || folderName.length > 200) {
+      return NextResponse.json({ error: 'Invalid or missing folder name (max 200 chars)' }, { status: 400 });
+    }
+
+    if (!lessonId && !subjectId) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+    }
+
+    // C6: Validate UUID formats
+    if (lessonId && !isValidUUID(lessonId)) {
+      return NextResponse.json({ error: 'Invalid lesson ID' }, { status: 400 });
+    }
+    if (subjectId && !isValidUUID(subjectId)) {
+      return NextResponse.json({ error: 'Invalid subject ID' }, { status: 400 });
+    }
+    if (parentId && !isValidUUID(parentId)) {
+      return NextResponse.json({ error: 'Invalid parent ID' }, { status: 400 });
     }
 
     let data, error;
@@ -42,26 +59,29 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Database insert error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
     }
 
-    // Optional: log activity
+    // Log activity
     const activityDetails = lessonId 
       ? { lessonId, folderName, parentId } 
       : { subjectId, lessonTitle: folderName };
 
-    Promise.resolve(supabaseAdmin.from('activity_logs').insert({
-      user_email: session.user?.email || 'admin',
-      user_name: session.user?.name || 'Admin',
-      action: lessonId ? 'FOLDER_CREATED' : 'LESSON_CREATED',
-      details: activityDetails,
-    })).catch(() => {});
+    try {
+      await supabaseAdmin.from('activity_logs').insert({
+        user_email: session.user?.email || 'admin',
+        user_name: session.user?.name || 'Admin',
+        action: lessonId ? 'FOLDER_CREATED' : 'LESSON_CREATED',
+        details: activityDetails,
+      });
+    } catch (logErr) {
+      console.error('Failed to log folder creation:', logErr);
+    }
 
     return NextResponse.json({ success: true, data });
 
   } catch (error: unknown) {
     console.error('Create folder error:', error);
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

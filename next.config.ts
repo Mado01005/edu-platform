@@ -1,5 +1,21 @@
 import type { NextConfig } from 'next';
 
+function getConfiguredR2Origin() {
+  const configuredUrl =
+    process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+
+  if (!configuredUrl) return '';
+
+  try {
+    return new URL(configuredUrl).origin;
+  } catch {
+    return '';
+  }
+}
+
+const r2PublicOrigin = getConfiguredR2Origin();
+const r2PublicSource = r2PublicOrigin ? ` ${r2PublicOrigin}` : '';
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
@@ -51,7 +67,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self' https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev https://*.r2.cloudflarestorage.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://embed.tawk.to https://*.tawk.to https://sdk.scdn.co https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tawk.to; img-src 'self' blob: data: https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://i.scdn.co https://*.scdn.co https://*.supabase.co https://*.r2.dev https://*.r2.cloudflarestorage.com https://*.tawk.to https://grainy-gradients.vercel.app https://sdk.scdn.co; font-src 'self' https://fonts.gstatic.com https://*.tawk.to; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tawk.to wss://*.tawk.to https://api.spotify.com https://*.spotify.com https://*.r2.cloudflarestorage.com; frame-src 'self' https://player.vimeo.com https://open.spotify.com https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev https://*.r2.cloudflarestorage.com https://view.officeapps.live.com https://sdk.scdn.co https://*.scdn.co; child-src 'self' https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev https://*.r2.cloudflarestorage.com;"
+            value: `default-src 'self' https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev https://*.r2.cloudflarestorage.com${r2PublicSource}; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://embed.tawk.to https://*.tawk.to https://sdk.scdn.co https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tawk.to; img-src 'self' blob: data: https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://i.scdn.co https://*.scdn.co https://*.supabase.co https://*.r2.dev https://*.r2.cloudflarestorage.com https://*.tawk.to https://grainy-gradients.vercel.app https://sdk.scdn.co${r2PublicSource}; font-src 'self' https://fonts.gstatic.com https://*.tawk.to; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tawk.to wss://*.tawk.to https://api.spotify.com https://*.spotify.com https://*.r2.cloudflarestorage.com; media-src 'self' blob: https://*.r2.dev https://*.r2.cloudflarestorage.com${r2PublicSource}; frame-src 'self' https://player.vimeo.com https://www.youtube-nocookie.com https://open.spotify.com https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev https://*.r2.cloudflarestorage.com https://view.officeapps.live.com https://sdk.scdn.co https://*.scdn.co; child-src 'self' https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev https://*.r2.cloudflarestorage.com;`
           }
         ],
       },

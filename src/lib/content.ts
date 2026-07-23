@@ -1,39 +1,48 @@
-import { supabase } from './supabase';
+import { supabaseAdmin as supabase } from './supabase';
 import { SubjectMeta, LessonMeta, ContentNode, ItemType, FileType, ContentItem } from '@/types';
 
-function buildContentTree(flatItems: ContentItem[], parentId: string | null = null): ContentNode[] {
-  const nodes: ContentNode[] = [];
-  const children = flatItems.filter(item => item.parent_id === parentId);
-
-  // Sort: folders first, then by name
-  children.sort((a, b) => {
-    if (a.item_type === 'folder' && b.item_type !== 'folder') return -1;
-    if (a.item_type !== 'folder' && b.item_type === 'folder') return 1;
-    return (a.name as string).localeCompare(b.name as string);
-  });
-
-  for (const child of children) {
-    if (child.item_type === 'folder') {
-      const folderChildren = buildContentTree(flatItems, child.id);
-      nodes.push({
-        id: child.id,
-        type: 'folder' as ItemType,
-        name: child.name,
-        children: folderChildren
-      });
-    } else {
-      nodes.push({
-        id: child.id,
-        type: child.item_type as ItemType,
-        fileType: (child.file_type as FileType) || undefined,
-        contentType: child.content_type || undefined,
-        name: child.name,
-        url: child.url || undefined,
-        vimeoId: child.vimeo_id || undefined,
-      });
-    }
+function buildContentTree(flatItems: ContentItem[], rootParentId: string | null = null): ContentNode[] {
+  // B2: Pre-index children by parent_id — O(n) total instead of O(n²)
+  const childrenByParent = new Map<string | null, ContentItem[]>();
+  for (const item of flatItems) {
+    const key = item.parent_id;
+    if (!childrenByParent.has(key)) childrenByParent.set(key, []);
+    childrenByParent.get(key)!.push(item);
   }
-  return nodes;
+
+  function buildFromMap(parentId: string | null): ContentNode[] {
+    const children = childrenByParent.get(parentId) || [];
+
+    // Sort: folders first, then by name
+    children.sort((a, b) => {
+      if (a.item_type === 'folder' && b.item_type !== 'folder') return -1;
+      if (a.item_type !== 'folder' && b.item_type === 'folder') return 1;
+      return (a.name as string).localeCompare(b.name as string);
+    });
+
+    return children.map(child => {
+      if (child.item_type === 'folder') {
+        return {
+          id: child.id,
+          type: 'folder' as ItemType,
+          name: child.name,
+          children: buildFromMap(child.id),
+        };
+      } else {
+        return {
+          id: child.id,
+          type: child.item_type as ItemType,
+          fileType: (child.file_type as FileType) || undefined,
+          contentType: child.content_type || undefined,
+          name: child.name,
+          url: child.url || undefined,
+          vimeoId: child.vimeo_id || undefined,
+        };
+      }
+    });
+  }
+
+  return buildFromMap(rootParentId);
 }
 
 function hasFilesOfType(nodes: ContentNode[], fileTypeLabel: 'video' | 'pdf' | 'vimeo'): boolean {
@@ -64,6 +73,34 @@ function countImages(nodes: ContentNode[]): number {
   return count;
 }
 
+// P2: Shared lesson mapping helper to avoid duplication
+function mapLessonsFromSubject(
+  subjectSlug: string,
+  rawLessons: Record<string, unknown>[]
+): LessonMeta[] {
+  const lessons: LessonMeta[] = rawLessons.map((lesson) => {
+    const contentTree = buildContentTree(
+      (lesson.content_items as ContentItem[]) || [],
+      null
+    );
+    return {
+      id: lesson.id as string,
+      slug: lesson.slug as string,
+      title: lesson.title as string,
+      subjectSlug,
+      content: contentTree,
+      hasVideo: hasFilesOfType(contentTree, 'video') || hasFilesOfType(contentTree, 'vimeo'),
+      hasPdf: hasFilesOfType(contentTree, 'pdf'),
+      hasDocx: hasFilesByExtension(contentTree, ['doc', 'docx']),
+      hasPptx: hasFilesByExtension(contentTree, ['ppt', 'pptx']),
+      imageCount: countImages(contentTree),
+    };
+  });
+
+  lessons.sort((a, b) => a.title.localeCompare(b.title));
+  return lessons;
+}
+
 export async function getAllSubjects(): Promise<SubjectMeta[]> {
   const { data: subjectsData, error } = await supabase
     .from('subjects')
@@ -83,35 +120,17 @@ export async function getAllSubjects(): Promise<SubjectMeta[]> {
     return [];
   }
 
-  return (subjectsData as any[]).map((subject: any) => {
-    const lessons: LessonMeta[] = ((subject.lessons as any[]) || []).map((lesson: any) => {
-      const contentTree = buildContentTree(lesson.content_items || [], null);
-      return {
-        id: lesson.id,
-        slug: lesson.slug,
-        title: lesson.title,
-        subjectSlug: subject.slug,
-        content: contentTree,
-        hasVideo: hasFilesOfType(contentTree, 'video') || hasFilesOfType(contentTree, 'vimeo'),
-        hasPdf: hasFilesOfType(contentTree, 'pdf'),
-        hasDocx: hasFilesByExtension(contentTree, ['doc', 'docx']),
-        hasPptx: hasFilesByExtension(contentTree, ['ppt', 'pptx']),
-        imageCount: countImages(contentTree),
-      };
-    });
-
-    // Sort lessons by creation or just name if created_at is not fetched, assuming DB sorts naturally or we sort by title
-    lessons.sort((a, b) => a.title.localeCompare(b.title));
-
-    return {
-      id: subject.id,
-      slug: subject.slug,
-      title: subject.title,
-      icon: subject.icon,
-      color: subject.color,
-      lessons,
-    };
-  });
+  return (subjectsData as Record<string, unknown>[]).map((subject) => ({
+    id: subject.id as string,
+    slug: subject.slug as string,
+    title: subject.title as string,
+    icon: subject.icon as string,
+    color: subject.color as string,
+    lessons: mapLessonsFromSubject(
+      subject.slug as string,
+      ((subject.lessons as Record<string, unknown>[]) || [])
+    ),
+  }));
 }
 
 export async function getSubject(slug: string): Promise<SubjectMeta | null> {
@@ -131,31 +150,16 @@ export async function getSubject(slug: string): Promise<SubjectMeta | null> {
 
   if (error || !subject) return null;
 
-  const lessons: LessonMeta[] = ((subject.lessons as unknown as any[]) || []).map((lesson: any) => {
-    const contentTree = buildContentTree(lesson.content_items || [], null);
-    return {
-      id: lesson.id,
-      slug: lesson.slug,
-      title: lesson.title,
-      subjectSlug: subject.slug,
-      content: contentTree,
-      hasVideo: hasFilesOfType(contentTree, 'video') || hasFilesOfType(contentTree, 'vimeo'),
-      hasPdf: hasFilesOfType(contentTree, 'pdf'),
-      hasDocx: hasFilesByExtension(contentTree, ['doc', 'docx']),
-      hasPptx: hasFilesByExtension(contentTree, ['ppt', 'pptx']),
-      imageCount: countImages(contentTree),
-    };
-  });
-
-  lessons.sort((a, b) => a.title.localeCompare(b.title));
-
   return {
-    id: subject.id,
-    slug: subject.slug,
-    title: subject.title,
-    icon: subject.icon,
-    color: subject.color,
-    lessons,
+    id: subject.id as string,
+    slug: subject.slug as string,
+    title: subject.title as string,
+    icon: subject.icon as string,
+    color: subject.color as string,
+    lessons: mapLessonsFromSubject(
+      subject.slug as string,
+      ((subject.lessons as unknown as Record<string, unknown>[]) || [])
+    ),
   };
 }
 

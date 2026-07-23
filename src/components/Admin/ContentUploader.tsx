@@ -40,7 +40,8 @@ interface ContentUploaderProps {
 
 // ── Constants ──
 
-const UNSUPPORTED_IMAGE_EXTENSIONS = ['.heic', '.heif', '.dng'];
+const UNSUPPORTED_IMAGE_EXTENSIONS = ['.heic', '.heif'];
+const RAW_IMAGE_EXTENSIONS = ['.dng', '.raw'];
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 const MAX_CONCURRENT_UPLOADS = 5;
 const MAX_RETRIES = 3;
@@ -51,6 +52,11 @@ const MULTIPART_PART_SIZE = 10 * 1024 * 1024; // 10MB per part
 function isUnsupportedImage(fileName: string): boolean {
   const lower = fileName.toLowerCase();
   return UNSUPPORTED_IMAGE_EXTENSIONS.some(ext => lower.endsWith(ext));
+}
+
+function isRawImage(fileName: string): boolean {
+  const lower = fileName.toLowerCase();
+  return RAW_IMAGE_EXTENSIONS.some(ext => lower.endsWith(ext));
 }
 
 // ── Helpers ──
@@ -112,7 +118,7 @@ export default function ContentUploader({
 }: ContentUploaderProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [inputType, setInputType] = useState<'file' | 'link' | 'snippet'>('file');
-  
+
   const [isMegaAdmin, setIsMegaAdmin] = useState(false);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
 
@@ -175,6 +181,8 @@ export default function ContentUploader({
   }, []);
 
   const convertToWebSafe = useCallback(async (file: File): Promise<File> => {
+    // If it's a RAW image, we handle it AFTER the R2 upload to avoid CORS issues
+    if (isRawImage(file.name)) return file;
     if (!isUnsupportedImage(file.name)) return file;
 
     const newName = file.name.replace(/\.[^/.]+$/, '') + '.webp';
@@ -267,7 +275,7 @@ export default function ContentUploader({
 
       xhr.open('PUT', signedUrl, true);
       xhr.setRequestHeader('Content-Type', contentType || 'application/octet-stream');
-      
+
       try {
         xhr.send(file);
       } catch (err) {
@@ -425,9 +433,9 @@ export default function ContentUploader({
       return fileState;
     }
 
-    
+
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-     
+
       if (batchAbortRef.current?.signal.aborted) {
         fileState.status = 'failed';
         fileState.error = 'Cancelled by user';
@@ -443,16 +451,16 @@ export default function ContentUploader({
       }
 
       try {
-       
+
         fileState.status = 'initiating';
         setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
 
-        
+
         const isLargeFile = file.size > MULTIPART_CHUNK_SIZE;
         let publicUrl: string;
 
         if (isLargeFile) {
-         
+
           fileState.status = 'uploading';
           fileState.progress = 0;
           setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
@@ -460,7 +468,7 @@ export default function ContentUploader({
           const result = await uploadMultipartFile(file, fileState.id, sSlug, lSlug, fileState.relativeFilePath);
           publicUrl = result.publicUrl;
         } else {
-          
+
           console.log(`Step 2: Requesting presigned URL...`);
           const initRes = await fetch('/api/admin/upload-initiate', {
             method: 'POST',
@@ -480,7 +488,7 @@ export default function ContentUploader({
           const { signedUrl, publicUrl: pu } = await initRes.json();
           publicUrl = pu;
 
-          
+
           fileState.status = 'uploading';
           fileState.progress = 0;
           setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
@@ -494,28 +502,70 @@ export default function ContentUploader({
           });
         }
 
-        
+
         fileState.publicUrl = publicUrl;
+
+        // --- Post-Upload Conversion for RAW Images ---
+        if (isRawImage(file.name)) {
+          fileState.status = 'converting';
+          setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
+
+          try {
+            // 1. Start Job
+            const initRes = await fetch('/api/admin/convert-raw', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: publicUrl })
+            });
+            if (!initRes.ok) throw new Error('Failed to initiate conversion job.');
+            const { jobId } = await initRes.json();
+
+            // 2. Poll Status
+            let resultUrl = null;
+            let attempts = 0;
+            while (attempts < 60) {
+              await sleep(2000);
+              const statusRes = await fetch(`/api/admin/convert-raw/status?jobId=${jobId}`);
+              const statusData = await statusRes.json();
+              if (statusData.status === 'error') throw new Error(statusData.message || 'CloudConvert job failed.');
+              if (statusData.status === 'finished') {
+                resultUrl = statusData.url;
+                break;
+              }
+              attempts++;
+            }
+            if (!resultUrl) throw new Error('Conversion timed out.');
+
+            // 3. Update file reference (the actual upload to DB happens in the next batch step)
+            fileState.publicUrl = resultUrl;
+            // Note: We keep the .dng in the filename for hierarchy but the URL now points to the WebP.
+            // Ideally we'd re-upload to our R2, but using CloudConvert's URL for the DB entry is faster for now.
+          } catch (convErr: any) {
+            console.error('RAW Conversion Failed:', convErr);
+            // We don't fail the whole upload, we just keep the DNG URL if conversion fails.
+          }
+        }
+
         fileState.status = 'completing';
         fileState.progress = 100;
         setUploadQueue(prev => prev.map(f => f.id === fileState.id ? { ...f, ...fileState } : f));
 
         return fileState;
       } catch (err) {
-       
+
         if (err instanceof DOMException && err.name === 'AbortError') {
           fileState.status = 'failed';
           fileState.error = 'Cancelled by user';
           return fileState;
         }
 
-        
+
         if (attempt < MAX_RETRIES) {
           fileState.error = err instanceof Error ? err.message : 'Upload failed';
           continue;
         }
 
-       
+
         fileState.status = 'failed';
         fileState.error = err instanceof Error ? err.message : 'Upload failed';
         return fileState;
@@ -533,7 +583,7 @@ export default function ContentUploader({
     const concurrencyLimit = isMegaAdmin ? 50 : MAX_CONCURRENT_UPLOADS;
 
     for (let i = 0; i < fileStates.length; i += concurrencyLimit) {
-      
+
       if (batchAbortRef.current?.signal.aborted) break;
 
       const batch = fileStates.slice(i, i + concurrencyLimit);
@@ -541,13 +591,13 @@ export default function ContentUploader({
         batch.map(fs => processSingleFile(fs, fs.subjectSlug || fallbackSSlug, fs.lessonSlug || fallbackLSlug))
       );
 
-      
+
       results.forEach((result, idx) => {
         const fileState = result.status === 'fulfilled' ? result.value : { ...batch[idx], status: 'failed' as UploadStatus, error: 'Asynchronous escape' };
         allResults.push(fileState);
       });
 
-      
+
       setUploadQueue(prev => {
         const updated = [...prev];
         results.forEach((result, idx) => {
@@ -609,7 +659,7 @@ export default function ContentUploader({
       } else if (entry.isDirectory) {
         const dirReader = entry.createReader();
         const allEntries: any[] = [];
-        
+
         // Helper to read all entries (handles browser pagination/limits)
         const readAllEntries = async (): Promise<any[]> => {
           const entries = await new Promise<any[]>((resolve) => {
@@ -638,7 +688,7 @@ export default function ContentUploader({
 
       const results = await Promise.all(entryPromises);
       const extractedFiles = results.flat();
-      
+
       console.log(`Async parsing complete. Files found: ${extractedFiles.length}`);
 
       if (extractedFiles.length > 0) {
@@ -699,14 +749,14 @@ export default function ContentUploader({
         // Pre-Flight Hierarchy Synchronization
         const hierarchyItems = new Map<string, { subjectName: string, lessonName: string }>();
         const contextSubjectId = selectedSubjectId;
-        const contextSubjectName = contextSubjectId 
+        const contextSubjectName = contextSubjectId
           ? localSubjects.find(s => s.id === contextSubjectId)?.title || 'Current Subject'
           : '';
 
         files.forEach(file => {
           const relativePath = (file as any).fullPath || (file as any).webkitRelativePath || '';
           const segments = relativePath.split('/');
-          
+
           if (contextSubjectId && segments.length >= 2) {
             // Context-Aware: First folder is the Lesson name
             const subjectName = contextSubjectName;
@@ -741,7 +791,7 @@ export default function ContentUploader({
         const queue: FileUploadState[] = files.map(file => {
           const relativePath = (file as any).fullPath || (file as any).webkitRelativePath || '';
           const segments = relativePath.split('/');
-          
+
           let fileSubjectId = selectedSubjectId || undefined;
           let fileLessonId = selectedLessonId || undefined;
           let fileSubjectSlug = undefined;
@@ -839,7 +889,7 @@ export default function ContentUploader({
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ items: batchItems })
             });
-            
+
             if (!batchRes.ok) {
               const errorData = await batchRes.json();
               throw new Error(errorData.error || 'Database synchronization failed');
@@ -866,7 +916,7 @@ export default function ContentUploader({
           }
         } else if (!batchAbortRef.current?.signal.aborted) {
           setStatusMessage(`Success: ${successful.length} assets verified!`);
-          
+
           // Force a server-side data refresh to sync the UI with Supabase
           router.refresh();
 
@@ -877,7 +927,7 @@ export default function ContentUploader({
         }
       } else if (inputType === 'link' && vimeoUrl) {
         if (!vimeoTitle.trim()) throw new Error('Title required for Vimeo link');
-        
+
         // Client-side pre-validation: check it looks like a Vimeo URL or numeric ID
         const vimeoPattern = /(?:vimeo\.com\/(?:video\/)?|^\d+$)/;
         if (!vimeoPattern.test(vimeoUrl.trim())) {
@@ -1255,7 +1305,7 @@ export default function ContentUploader({
                       </div>
                     </div>
                   </div>
-                  
+
                   {item.error && (
                     <div className="mt-1 pl-9">
                       <p className="text-[10px] text-red-400/90 font-medium break-words">Error: {item.error}</p>
@@ -1312,7 +1362,7 @@ export default function ContentUploader({
       <button
         onClick={(e) => processUploadOrEmbed(e)}
         disabled={
-          uploading || 
+          uploading ||
           (!selectedLessonId && inputType !== 'snippet' && !(inputType === 'file' && files.some((f: any) => (f.fullPath || f.webkitRelativePath || '').split('/').length >= 3)))
         }
         className="w-full bg-white text-black font-black py-6 rounded-[2rem] hover:bg-gray-200 uppercase tracking-widest text-[10px] shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"

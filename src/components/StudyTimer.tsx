@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function StudyTimer() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes
@@ -66,6 +68,8 @@ export default function StudyTimer() {
     setIsBreak(false);
     setTimeLeft(25 * 60);
   };
+
+  if (pathname === '/lms/login') return null;
 
   if (!isOpen) {
     return (

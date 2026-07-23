@@ -23,7 +23,7 @@ async function deriveKey(): Promise<CryptoKey> {
     ['deriveBits', 'deriveKey']
   );
   
-  const salt = encoder.encode('edu-platform-encryption-salt');
+  const salt = encoder.encode(process.env.ENCRYPTION_SALT || 'edu-platform-encryption-salt-v2');
   
   return await globalThis.crypto.subtle.deriveKey(
     {
@@ -129,7 +129,12 @@ export async function decrypt(encryptedData: string): Promise<string> {
  * Check if a string appears to be encrypted
  */
 export function isEncrypted(data: string): boolean {
-  return typeof data === 'string' && data.split(':').length === 3;
+  if (typeof data !== 'string') return false;
+  const parts = data.split(':');
+  if (parts.length !== 3) return false;
+  // Each part should be non-empty valid base64
+  const base64Regex = /^[A-Za-z0-9+/]+=*$/;
+  return parts.every(p => p.length > 0 && base64Regex.test(p));
 }
 
 /**

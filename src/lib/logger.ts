@@ -8,12 +8,12 @@ interface LogMessage {
   level: LogLevel;
   message: string;
   timestamp: string;
-  context?: Record<string, any>;
-  error?: any;
+  context?: Record<string, unknown>;
+  error?: unknown;
 }
 
 class Logger {
-  private format(level: LogLevel, message: string, context?: Record<string, any>, error?: any): LogMessage {
+  private format(level: LogLevel, message: string, context?: Record<string, unknown>, error?: unknown): LogMessage {
     return {
       level,
       message,
@@ -45,19 +45,19 @@ class Logger {
     }
   }
 
-  info(message: string, context?: Record<string, any>) {
+  info(message: string, context?: Record<string, unknown>) {
     this.print(this.format('info', message, context));
   }
 
-  warn(message: string, context?: Record<string, any>, error?: any) {
+  warn(message: string, context?: Record<string, unknown>, error?: unknown) {
     this.print(this.format('warn', message, context, error));
   }
 
-  error(message: string, context?: Record<string, any>, error?: any) {
+  error(message: string, context?: Record<string, unknown>, error?: unknown) {
     this.print(this.format('error', message, context, error));
   }
 
-  debug(message: string, context?: Record<string, any>) {
+  debug(message: string, context?: Record<string, unknown>) {
     // Only log debug in development
     if (process.env.NODE_ENV === 'development') {
       this.print(this.format('debug', message, context));

@@ -10,7 +10,7 @@ interface VimeoPlayerProps {
 
 export default function VimeoPlayer({ vimeoId, title }: VimeoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<Player | null>(null);
   const watchDataRef = useRef({ maxWatchedPercentage: 0, secondsWatched: 0 });
   const [resumeMessage, setResumeMessage] = useState('');
 
@@ -21,15 +21,22 @@ export default function VimeoPlayer({ vimeoId, title }: VimeoPlayerProps) {
   useEffect(() => {
     if (!containerRef.current || playerRef.current) return;
 
+    // B6: Guard against NaN from invalid Vimeo IDs
+    const numericId = parseInt(finalId, 10);
+    if (isNaN(numericId)) {
+      console.error(`[VimeoPlayer] Invalid Vimeo ID: "${vimeoId}"`);
+      return;
+    }
+
     const player = new Player(containerRef.current, {
-      id: parseInt(finalId),
+      id: numericId,
       autoplay: false,
       responsive: true
     });
 
     playerRef.current = player;
 
-    player.on('timeupdate', (data: any) => {
+    player.on('timeupdate', (data: { percent: number; seconds: number }) => {
       // data.percent is between 0 and 1
       const pct = Math.round(data.percent * 100);
       if (pct > watchDataRef.current.maxWatchedPercentage) {
@@ -83,6 +90,8 @@ export default function VimeoPlayer({ vimeoId, title }: VimeoPlayerProps) {
     return () => {
       sendTelemetry();
       player.destroy().catch(() => {});
+      // B5: Nullify ref so component can re-initialize after unmount (React StrictMode)
+      playerRef.current = null;
     };
   }, [finalId, title]);
 

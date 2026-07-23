@@ -6,6 +6,9 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ src, title }: VideoPlayerProps) {
+  // B4: Generate unique ID to prevent DOM collisions with multiple videos
+  const uniqueId = `video-player-${title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+
   return (
     <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
@@ -15,7 +18,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
           preload="metadata"
           className="rounded-2xl w-full"
           aria-label={`Video: ${title}`}
-          id="lesson-video-player"
+          id={uniqueId}
         >
           <source src={src} type="video/mp4" />
           <p className="text-gray-400 text-sm">

@@ -4,7 +4,7 @@ import SpotifyProvider from 'next-auth/providers/spotify';
 import { supabaseAdmin } from '@/lib/supabase';
 import { refreshSpotifyAccessToken } from '@/lib/spotify-auth';
 import { safeEncrypt, safeDecrypt } from '@/lib/crypto';
-import { ExtendedJWT } from '@/types/auth';
+import { ExtendedJWT, ExtendedSession } from '@/types/auth';
 
 import { ADMIN_EMAILS, isMasterAdmin } from '@/lib/constants';
 
@@ -52,7 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       user?: any; 
       account?: any; 
       trigger?: 'signIn' | 'signUp' | 'update'; 
-      session?: any 
+      session?: any;
     }) {
       try {
         // 1. Handle explicit session updates (fired from SpotifyContext)
@@ -200,7 +200,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         
         return token;
       },
-    async session({ session, token }: { session: any; token: ExtendedJWT }) {
+    async session({ session, token }: { session: ExtendedSession; token: ExtendedJWT }) {
       if (token && session.user) {
         session.user.id = (token.dbUserId as string) ?? token.sub;
         session.accessToken = token.spotifyAccessToken as string;

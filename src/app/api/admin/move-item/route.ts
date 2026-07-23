@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isValidUUID } from '@/lib/validation';
 
 export async function POST(req: Request) {
   try {
@@ -11,8 +12,14 @@ export async function POST(req: Request) {
 
     const { itemId, targetParentId } = await req.json();
 
-    if (!itemId) {
-      return NextResponse.json({ error: 'Missing item ID' }, { status: 400 });
+    // C4: Validate UUID format for itemId
+    if (!itemId || !isValidUUID(itemId)) {
+      return NextResponse.json({ error: 'Invalid item ID' }, { status: 400 });
+    }
+
+    // C4: Validate target parent ID if provided
+    if (targetParentId && !isValidUUID(targetParentId)) {
+      return NextResponse.json({ error: 'Invalid target parent ID' }, { status: 400 });
     }
 
     // Update the parent_id of the item
@@ -24,22 +31,25 @@ export async function POST(req: Request) {
 
     if (dbError) {
       console.error('Database move error:', dbError);
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
+      // C4: Sanitize error — don't leak raw DB message
+      return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
     }
 
-    // Log activity
-    Promise.resolve(supabaseAdmin.from('activity_logs').insert({
-      user_email: session.user?.email || 'admin',
-      user_name: session.user?.name || 'Admin',
-      action: 'ITEM_MOVED',
-      details: { itemId, targetParentId },
-    })).catch(() => {});
+    try {
+      await supabaseAdmin.from('activity_logs').insert({
+        user_email: session.user?.email || 'admin',
+        user_name: session.user?.name || 'Admin',
+        action: 'ITEM_MOVED',
+        details: { itemId, targetParentId },
+      });
+    } catch (logErr) {
+      console.error('Failed to log item move:', logErr);
+    }
 
     return NextResponse.json({ success: true });
 
   } catch (error: unknown) {
     console.error('Move item error:', error);
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

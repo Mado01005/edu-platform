@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyR2ObjectExists } from '@/lib/r2';
+import { extractR2Key } from '@/lib/validation';
 
 export async function POST(req: Request) {
   try {
@@ -35,16 +36,22 @@ export async function POST(req: Request) {
     }
 
     // ── P1.3: Verify file actually exists in R2 before creating DB record ──
-    // Extract the R2 key from the public URL. The publicUrl format is:
-    // {R2_PUBLIC_URL}/{subject}/{lesson}/[subfolder]/timestamp_filename
+    // B8: Use validated extractR2Key instead of manual URL stripping
     if (itemType === 'file' && publicUrl) {
-      const r2PublicBase = process.env.R2_PUBLIC_URL || '';
-      const r2Key = publicUrl.replace(r2PublicBase + '/', '');
+      const r2Key = extractR2Key(publicUrl);
+
+      if (!r2Key) {
+        return NextResponse.json(
+          { error: 'Invalid public URL format' },
+          { status: 400 }
+        );
+      }
+
       const contentLength = await verifyR2ObjectExists(r2Key);
 
       if (contentLength === null) {
         return NextResponse.json(
-          { error: `Upload verification failed: '${fileName}' was not found in storage. The file transfer may have failed.` },
+          { error: 'Upload verification failed: file was not found in storage. The file transfer may have failed.' },
           { status: 409 }
         );
       }
@@ -68,14 +75,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: message }, { status: 500 });
     }
 
-    // Auto-log the upload as an activity event for "What's New" notifications (non-blocking)
-    Promise.resolve(supabaseAdmin.from('activity_logs').insert({
-      user_email: session.user?.email || 'admin',
-      user_name: session.user?.name || 'Admin',
-      action: 'NEW_CONTENT_ADDED',
-      url: publicUrl,
-      details: { subjectId, lessonId, fileName, fileType, itemType },
-    })).catch(() => { });
+    // Auto-log the upload as an activity event for "What's New" notifications
+    try {
+      await supabaseAdmin.from('activity_logs').insert({
+        user_email: session.user?.email || 'admin',
+        user_name: session.user?.name || 'Admin',
+        action: 'NEW_CONTENT_ADDED',
+        url: publicUrl,
+        details: { subjectId, lessonId, fileName, fileType, itemType },
+      });
+    } catch (logError) {
+      console.error('Failed to write activity log:', logError);
+    }
 
     return NextResponse.json({ success: true, data });
 

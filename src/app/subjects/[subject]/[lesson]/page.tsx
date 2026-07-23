@@ -50,17 +50,18 @@ export default async function LessonPage({ params }: Props) {
 
   const session = await auth();
   if (!session) redirect('/login');
-  // @ts-ignore
-  if (session.user?.isBanned) redirect('/banned');
+  if ((session.user as { isBanned?: boolean })?.isBanned) redirect('/banned');
 
-  const [subject, lesson, { data: logs }] = await Promise.all([
+  // P3: Only call getSubject once — derive lesson from subject.lessons
+  const [subject, { data: logs }] = await Promise.all([
     getSubject(subjectSlug),
-    getLesson(subjectSlug, lessonSlug),
     supabaseAdmin.from('activity_logs')
       .select('details')
       .eq('action', 'Completed Lesson')
       .eq('user_email', session.user?.email || '')
   ]);
+
+  const lesson = subject?.lessons.find(l => l.slug === lessonSlug) || null;
   
   const isCompleted = logs?.some(l => l.details?.subjectSlug === subjectSlug && l.details?.lessonSlug === lessonSlug) || false;
   
