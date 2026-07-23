@@ -76,7 +76,12 @@ export default async function RootLayout({
   const spotifyTokenExpiresAt = session?.user?.spotifyTokenExpiresAt;
 
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html
+      lang="en"
+      className="dark"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
         <Providers>
           <PWAInstallPrompt />

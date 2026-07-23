@@ -26,7 +26,7 @@ export default async function LiveClassesPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-black text-white">
-      <LmsHeader />
+      <LmsHeader user={user} />
       <main className="mx-auto flex w-full max-w-4xl min-w-0 flex-col gap-6 px-4 py-10">
         <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,.18),transparent_45%)] p-6 sm:p-8">
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-300">

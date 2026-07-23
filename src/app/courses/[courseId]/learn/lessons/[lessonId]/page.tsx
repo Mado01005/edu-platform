@@ -93,7 +93,7 @@ export default async function LessonPlayerPage({
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-black text-white">
-      <LmsHeader />
+      <LmsHeader user={user} />
       <main className="mx-auto grid w-full max-w-[1500px] min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px]">
         <article className="flex min-w-0 flex-col gap-7 px-4 py-6 sm:px-8 lg:px-10">
           <div className="min-w-0">

@@ -57,6 +57,7 @@ export async function proxy(request: NextRequest) {
   const isTeacherRoute = matchesRoute(pathname, '/teacher');
   const isSupabaseOnlyRoute =
     isTeacherRoute ||
+    matchesRoute(pathname, '/lms/profile') ||
     matchesRoute(pathname, '/courses') ||
     matchesRoute(pathname, '/live-classes');
   const isDashboardRoute = matchesRoute(pathname, '/dashboard');

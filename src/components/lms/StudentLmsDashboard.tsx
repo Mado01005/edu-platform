@@ -50,7 +50,7 @@ export async function StudentLmsDashboard({ user }: { user: User }) {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-black text-white">
-      <LmsHeader />
+      <LmsHeader user={user} />
       <main className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-8 px-4 py-10">
         <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.2),transparent_50%)] p-6 sm:p-8">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">

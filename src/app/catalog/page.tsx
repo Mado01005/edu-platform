@@ -1,21 +1,83 @@
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Search, Users } from 'lucide-react';
-import { enrollCourseAction } from '@/app/lms/actions';
+import {
+  ArrowRight,
+  Award,
+  BookOpen,
+  CalendarDays,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  Video,
+  Zap,
+} from 'lucide-react';
+import { Button, buttonVariants } from '@/components/UI/button';
+import { Card } from '@/components/UI/card';
+import { Input } from '@/components/UI/input';
+import {
+  COURSE_CATEGORIES,
+  CourseCard,
+  getCourseCategories,
+  type CourseCategory,
+} from '@/components/lms/CourseCard';
 import { LmsHeader } from '@/components/lms/LmsHeader';
-import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { getLmsUser } from '@/lib/lms/auth';
 import { getPrisma } from '@/lib/prisma';
+import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
+
+function selectedCategory(value: string | undefined): CourseCategory {
+  return COURSE_CATEGORIES.includes(value as CourseCategory)
+    ? (value as CourseCategory)
+    : 'All Courses';
+}
+
+function categoryHref(category: CourseCategory, query: string) {
+  const params = new URLSearchParams();
+
+  if (query) params.set('q', query);
+  if (category !== 'All Courses') params.set('category', category);
+
+  const search = params.toString();
+  return search ? `/catalog?${search}` : '/catalog';
+}
+
+const featureMetrics = [
+  {
+    icon: Zap,
+    label: 'Students Learning',
+    value: '300+',
+    accent: 'text-amber-300',
+    glow: 'bg-amber-400/15',
+  },
+  {
+    icon: Video,
+    label: 'Live Zoom Class Hubs',
+    value: '5',
+    accent: 'text-cyan-300',
+    glow: 'bg-cyan-400/15',
+  },
+  {
+    icon: Award,
+    label: 'Verified Certificates',
+    value: 'Ready',
+    accent: 'text-violet-300',
+    glow: 'bg-violet-400/15',
+  },
+] as const;
 
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
-  const [{ q }, user] = await Promise.all([searchParams, getLmsUser()]);
+  const [{ category, q }, user] = await Promise.all([
+    searchParams,
+    getLmsUser(),
+  ]);
   const query = q?.trim().slice(0, 100) ?? '';
-  const courses = await getPrisma().course.findMany({
+  const activeCategory = selectedCategory(category);
+  const catalog = await getPrisma().course.findMany({
     where: {
       isPublished: true,
       ...(query
@@ -30,126 +92,230 @@ export default async function CatalogPage({
     include: {
       teacher: { select: { name: true } },
       modules: {
-        select: { _count: { select: { lessons: true } } },
+        orderBy: { position: 'asc' },
+        select: {
+          lessons: {
+            orderBy: { position: 'asc' },
+            select: { contentType: true },
+          },
+        },
       },
       enrollments: user
         ? { where: { studentId: user.id }, select: { id: true } }
         : false,
-      _count: { select: { enrollments: true } },
+      _count: { select: { enrollments: true, zoomSessions: true } },
     },
     orderBy: { updatedAt: 'desc' },
   });
+  const courses =
+    activeCategory === 'All Courses'
+      ? catalog
+      : catalog.filter((course) =>
+          getCourseCategories(course).includes(activeCategory),
+        );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black text-white">
-      <LmsHeader />
-      <main className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-8 px-4 py-10">
-        <section className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.22),transparent_50%)] p-6 sm:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-violet-300">
-            Learn at your pace
-          </p>
-          <h1 className="mt-3 max-w-2xl text-4xl font-black tracking-tight sm:text-6xl">
-            Courses built for real progress.
-          </h1>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-zinc-400 sm:text-base">
-            Structured lessons, downloadable resources, live classes, and one
-            clear place to track what you have completed.
-          </p>
-        </section>
+    <div className="relative min-h-screen overflow-x-hidden bg-black text-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[720px] bg-[radial-gradient(circle_at_18%_15%,rgba(124,58,237,.22),transparent_30%),radial-gradient(circle_at_82%_12%,rgba(37,99,235,.16),transparent_28%)]"
+      />
+      <LmsHeader user={user} />
 
-        <form className="flex w-full min-w-0 items-center gap-2 rounded-2xl border border-white/10 bg-zinc-950 p-2">
-          <Search className="ml-2 size-4 shrink-0 text-zinc-500" />
-          <input
-            className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm outline-none"
-            defaultValue={query}
-            name="q"
-            placeholder="Search courses"
+      <main className="relative mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-10 px-4 py-8 sm:px-6 sm:py-12 lg:gap-14 lg:py-16">
+        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/70 p-5 shadow-2xl shadow-violet-950/20 backdrop-blur-sm sm:p-8 lg:p-10">
+          <div
+            aria-hidden="true"
+            className="absolute -right-24 -top-24 size-72 rounded-full bg-violet-500/15 blur-3xl"
           />
-          <button className="shrink-0 rounded-xl bg-white px-4 py-2 text-sm font-black text-black">
-            Search
-          </button>
-        </form>
+          <div className="relative grid min-w-0 gap-10 lg:grid-cols-12 lg:items-center">
+            <div className="min-w-0 lg:col-span-7">
+              <span className="inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-violet-200">
+                <Sparkles className="size-3.5" aria-hidden="true" />
+                Built for focused learning
+              </span>
+              <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
+                Build practical skills.
+                <span className="mt-1 block bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
+                  Make real progress.
+                </span>
+              </h1>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
+                Learn through structured paths, expert-led video, downloadable
+                resources, and live classes—all inside one thoughtfully designed
+                workspace.
+              </p>
+              <div className="mt-7 flex min-w-0 flex-col gap-3 sm:flex-row">
+                <Link
+                  className={cn(
+                    buttonVariants({ size: 'lg' }),
+                    'bg-gradient-to-r from-violet-400 to-fuchsia-500 text-black shadow-xl shadow-violet-950/40 hover:from-violet-300 hover:to-fuchsia-400',
+                  )}
+                  href="#course-catalog"
+                >
+                  Browse catalog
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+                <Link
+                  className={buttonVariants({ size: 'lg', variant: 'outline' })}
+                  href="/live-classes"
+                >
+                  <CalendarDays className="size-4" aria-hidden="true" />
+                  View schedule
+                </Link>
+              </div>
+            </div>
 
-        <section className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {courses.map((course) => {
-            const lessonCount = course.modules.reduce(
-              (sum, module) => sum + module._count.lessons,
-              0,
-            );
-            const enrolled =
-              'enrollments' in course && course.enrollments.length > 0;
-            const enroll = enrollCourseAction.bind(null, course.id);
-
-            return (
-              <article
-                className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-zinc-950"
-                key={course.id}
-              >
-                <div
-                  className="aspect-[16/9] bg-cover bg-center"
-                  style={
-                    course.imageUrl
-                      ? { backgroundImage: `url(${course.imageUrl})` }
-                      : {
-                          backgroundImage:
-                            'radial-gradient(circle at 30% 20%, rgba(167,139,250,.6), transparent 35%), linear-gradient(135deg,#18181b,#09090b)',
-                        }
-                  }
-                />
-                <div className="flex min-w-0 flex-1 flex-col p-5">
-                  <p className="text-xs font-bold text-violet-300">
-                    {course.teacher.name ?? 'Way Ground teacher'}
-                  </p>
-                  <h2 className="mt-2 break-words text-xl font-black">{course.title}</h2>
-                  <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-400">
-                    {course.description ?? 'A structured course with practical lessons.'}
-                  </p>
-                  <div className="mt-4 flex items-center gap-4 text-xs text-zinc-500">
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="size-3" /> {lessonCount} lessons
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="size-3" /> {course._count.enrollments}
-                    </span>
-                  </div>
-                  <div className="mt-auto pt-5">
-                    {user?.role === 'STUDENT' ? (
-                      <form action={enroll}>
-                        <ActionSubmitButton
-                          className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black hover:bg-violet-300"
-                          pendingLabel={enrolled ? 'Opening…' : 'Enrolling…'}
+            <Card className="relative overflow-hidden border-white/10 bg-black/55 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-6 lg:col-span-5">
+              <div
+                aria-hidden="true"
+                className="absolute -right-12 -top-12 size-40 rounded-full bg-fuchsia-500/15 blur-3xl"
+              />
+              <div className="relative">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">
+                  Way Ground network
+                </p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight">
+                  Learn with momentum.
+                </h2>
+                <div className="mt-5 flex min-w-0 flex-col gap-3">
+                  {featureMetrics.map(
+                    ({ accent, glow, icon: Icon, label, value }) => (
+                      <div
+                        className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/5 bg-white/[0.035] p-3.5"
+                        key={label}
+                      >
+                        <span
+                          className={cn(
+                            'flex size-10 shrink-0 items-center justify-center rounded-xl',
+                            glow,
+                            accent,
+                          )}
                         >
-                          {enrolled ? 'Continue learning' : 'Enroll now'}
-                          <ArrowRight className="size-4" />
-                        </ActionSubmitButton>
-                      </form>
-                    ) : user ? (
-                      <Link
-                        className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-black text-white"
-                        href={user.role === 'ADMIN' || user.role === 'TEACHER' ? '/teacher/courses' : '/dashboard'}
-                      >
-                        Open your workspace <ArrowRight className="size-4" />
-                      </Link>
-                    ) : (
-                      <Link
-                        className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black"
-                        href={`/lms/login?next=${encodeURIComponent('/catalog')}`}
-                      >
-                        Sign in to enroll <ArrowRight className="size-4" />
-                      </Link>
-                    )}
-                  </div>
+                          <Icon className="size-5" aria-hidden="true" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-xl font-black text-white">
+                            {value}
+                          </span>
+                          <span className="block truncate text-xs font-medium text-zinc-500">
+                            {label}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
                 </div>
-              </article>
-            );
-          })}
+              </div>
+            </Card>
+          </div>
         </section>
 
-        {!courses.length ? (
-          <div className="rounded-3xl border border-dashed border-white/10 p-12 text-center text-zinc-500">
-            No published courses match this search.
+        <section
+          className="scroll-mt-32"
+          id="course-catalog"
+        >
+          <div className="mb-6 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0">
+              <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+                <BookOpen className="size-4" aria-hidden="true" />
+                Course catalog
+              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+                Find your next skill.
+              </h2>
+            </div>
+            <p className="text-sm font-medium text-zinc-500">
+              {courses.length} {courses.length === 1 ? 'course' : 'courses'} available
+            </p>
           </div>
-        ) : null}
+
+          <form className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.035] p-2 backdrop-blur-md sm:flex-row">
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">Search courses</span>
+              <Search
+                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+                aria-hidden="true"
+              />
+              <Input
+                className="h-12 border-transparent bg-transparent pl-11 focus:border-purple-500/50"
+                defaultValue={query}
+                name="q"
+                placeholder="Search courses, skills, or instructors"
+                type="search"
+              />
+            </label>
+            {activeCategory !== 'All Courses' ? (
+              <input name="category" type="hidden" value={activeCategory} />
+            ) : null}
+            <Button className="h-12 shrink-0 px-6" type="submit">
+              Search
+            </Button>
+          </form>
+
+          <div
+            aria-label="Course categories"
+            className="mt-4 flex min-w-0 flex-wrap gap-2"
+            role="navigation"
+          >
+            {COURSE_CATEGORIES.map((courseCategory) => {
+              const active = courseCategory === activeCategory;
+
+              return (
+                <Link
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'inline-flex min-w-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-bold transition',
+                    active
+                      ? 'border-violet-400/40 bg-violet-400 text-black shadow-lg shadow-violet-950/30'
+                      : 'border-white/10 bg-white/[0.035] text-zinc-400 hover:border-violet-400/30 hover:bg-white/[0.07] hover:text-white',
+                  )}
+                  href={categoryHref(courseCategory, query)}
+                  key={courseCategory}
+                >
+                  {courseCategory === 'All Courses' ? (
+                    <SlidersHorizontal className="size-3.5" aria-hidden="true" />
+                  ) : null}
+                  {courseCategory}
+                </Link>
+              );
+            })}
+          </div>
+
+          {courses.length ? (
+            <div className="mt-7 grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {courses.map((course) => (
+                <CourseCard
+                  course={course}
+                  enrolled={
+                    'enrollments' in course && course.enrollments.length > 0
+                  }
+                  key={course.id}
+                  user={user}
+                />
+              ))}
+            </div>
+          ) : (
+            <Card className="mt-7 items-center border-dashed bg-zinc-950/60 p-10 text-center sm:p-14">
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-white/5 text-zinc-500">
+                <Search className="size-5" aria-hidden="true" />
+              </span>
+              <h3 className="mt-4 text-lg font-black">No matching courses</h3>
+              <p className="mt-2 max-w-md text-sm leading-6 text-zinc-500">
+                Try another search phrase or choose a different category.
+              </p>
+              <Link
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'sm' }),
+                  'mt-5',
+                )}
+                href="/catalog"
+              >
+                Clear filters
+              </Link>
+            </Card>
+          )}
+        </section>
       </main>
     </div>
   );
