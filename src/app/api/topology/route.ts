@@ -5,13 +5,16 @@ import { auth } from '@/auth';
 export async function GET() {
   try {
     const session = await auth();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { data: subjects, error: subjErr } = await supabaseAdmin.from('subjects').select('*');
     const { data: content, error: contErr } = await supabaseAdmin.from('content_items').select('*');
     
     // DEPRECATED: Focus session heatmap data (Binary Beats removed).
     // Wrapped in try/catch to prevent crash if focus_sessions table is dropped.
-    let frictionData: Record<string, { completed: number; interrupted: number }> = {};
+    const frictionData: Record<string, { completed: number; interrupted: number }> = {};
     if (session?.user?.isAdmin) {
       try {
         const { data: sessions } = await supabaseAdmin.from('focus_sessions').select('lesson_id, status');

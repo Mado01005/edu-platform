@@ -46,6 +46,12 @@ jest.mock('@/lib/r2', () => ({
   getPresignedUploadUrl: jest.fn().mockResolvedValue('https://mock.r2/url'),
   getPublicUrl: jest.fn().mockReturnValue('https://mock.cdn/url'),
   deleteR2Object: jest.fn().mockResolvedValue(undefined),
+  initiateMultipartUpload: jest.fn().mockResolvedValue('upload-id'),
+  getPresignedMultipartPartUrl: jest.fn().mockResolvedValue('https://mock.r2/part'),
+  completeMultipartUpload: jest.fn().mockResolvedValue('https://mock.cdn/file'),
+  abortMultipartUpload: jest.fn().mockResolvedValue(undefined),
+  listAllR2Objects: jest.fn().mockResolvedValue([]),
+  batchDeleteR2Objects: jest.fn().mockResolvedValue(undefined),
 }));
 
 // Mock constants
@@ -98,6 +104,17 @@ import { POST as fixHierarchyPost } from '@/app/api/admin/fix-hierarchy/route';
 import { POST as deletePost } from '@/app/api/admin/delete/route';
 import { POST as deleteItemPost } from '@/app/api/admin/delete-item/route';
 import { POST as migrateR2Post } from '@/app/api/admin/migrate-to-r2/route';
+import { POST as convertRawPost } from '@/app/api/admin/convert-raw/route';
+import { GET as convertRawStatusGet } from '@/app/api/admin/convert-raw/status/route';
+import { POST as syncHierarchyPost } from '@/app/api/admin/sync-hierarchy/route';
+import { POST as uploadCompleteBatchPost } from '@/app/api/admin/upload-complete-batch/route';
+import { POST as uploadMultipartPost } from '@/app/api/admin/upload-multipart/route';
+import { GET as telemetryGet } from '@/app/api/admin/telemetry/route';
+import { POST as chatPost } from '@/app/api/chat/route';
+import { POST as syncStreakPost } from '@/app/api/user/sync-streak/route';
+import { GET as topologyGet } from '@/app/api/topology/route';
+import { GET as whatsNewGet } from '@/app/api/whats-new/route';
+import { POST as supportMessagePost } from '@/app/api/messages/route';
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -251,6 +268,38 @@ describe('🔒 Admin API Security Gate — Non-admin user blocked from all route
     const res = await migrateR2Post();
     expect(res.status).toBe(401);
   });
+
+  it('POST /api/admin/convert-raw → 401', async () => {
+    const res = await convertRawPost(makeRequest({ url: 'https://mock.cdn/raw.dng' }));
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/admin/convert-raw/status → 401', async () => {
+    const res = await convertRawStatusGet(
+      new Request('http://localhost:3000/api/admin/convert-raw/status?jobId=test'),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/admin/sync-hierarchy → 401', async () => {
+    const res = await syncHierarchyPost(makeRequest({}));
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/admin/upload-complete-batch → 401', async () => {
+    const res = await uploadCompleteBatchPost(makeRequest({ files: [] }));
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/admin/upload-multipart → 401', async () => {
+    const res = await uploadMultipartPost(makeRequest({ action: 'initiate' }));
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/admin/telemetry → 401', async () => {
+    const res = await telemetryGet();
+    expect(res.status).toBe(401);
+  });
 });
 
 describe('🔒 Unauthenticated (null session) user blocked', () => {
@@ -272,5 +321,83 @@ describe('🔒 Unauthenticated (null session) user blocked', () => {
   it('GET /api/admin/roles → 401', async () => {
     const res = await rolesGet();
     expect(res.status).toBe(401);
+  });
+
+  it('POST /api/chat → 401', async () => {
+    const res = await chatPost(
+      new Request('http://localhost:3000/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: 'Hello' }],
+        }),
+      }),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/user/sync-streak → 401', async () => {
+    const res = await syncStreakPost(
+      makeRequest({ localDate: '2026-07-23' }),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/topology → 401', async () => {
+    const res = await topologyGet();
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/whats-new → 401', async () => {
+    const res = await whatsNewGet();
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/messages → 401', async () => {
+    const res = await supportMessagePost(
+      makeRequest({ subject: 'Help', body: 'Question' }),
+    );
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('Tutor request validation', () => {
+  const originalApiKey = process.env.OPENROUTER_API_KEY;
+
+  beforeEach(() => {
+    mockAuth.mockResolvedValue({
+      user: { email: 'student@test.com', isAdmin: false },
+    });
+    process.env.OPENROUTER_API_KEY = 'test-key';
+  });
+
+  afterAll(() => {
+    if (originalApiKey === undefined) {
+      delete process.env.OPENROUTER_API_KEY;
+    } else {
+      process.env.OPENROUTER_API_KEY = originalApiKey;
+    }
+  });
+
+  it('rejects an oversized tutor request before calling the provider', async () => {
+    const res = await chatPost(
+      new Request('http://localhost:3000/api/chat', {
+        method: 'POST',
+        headers: { 'content-length': String(7 * 1024 * 1024) },
+        body: '{}',
+      }),
+    );
+    expect(res.status).toBe(413);
+  });
+
+  it('rejects invalid tutor roles and empty messages', async () => {
+    const res = await chatPost(
+      new Request('http://localhost:3000/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          messages: [{ role: 'system', content: '' }],
+        }),
+      }),
+    );
+    expect(res.status).toBe(400);
   });
 });

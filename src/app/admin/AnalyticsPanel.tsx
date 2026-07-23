@@ -1,11 +1,9 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { auth } from '@/auth';
-import { ADMIN_EMAILS } from '@/lib/constants';
 import LiveActivityFeed from '@/components/LiveActivityFeed';
 
 export default async function AnalyticsPanel() {
   const session = await auth();
-  // @ts-ignore
   if (!session?.user?.isSuperAdmin) return null;
   
   // Fetch initial logs, sessions, and the global student registry to ensure 100% visibility

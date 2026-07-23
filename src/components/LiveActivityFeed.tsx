@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '@/lib/supabase-client';
 
 interface LiveActivityFeedProps {
   initialLogs: any[];
@@ -24,81 +23,41 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
   const [showRawStream, setShowRawStream] = useState(false);
 
   useEffect(() => {
-    let logChannel: any;
-    let sessionChannel: any;
-    let reconnectTimeout: NodeJS.Timeout;
+    const controller = new AbortController();
 
-    const subscribeToChannels = () => {
-      console.log("Initializing Realtime Surveillance...");
-      
-      // Activity Logs Channel
-      logChannel = supabase
-        .channel('realtime_activity')
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'activity_logs' },
-          (payload) => {
-            console.log("New Event Captured:", payload.new.action);
-            setLogs(prev => [payload.new, ...prev].slice(0, 500));
-            setEventCount(c => c + 1);
+    const refreshTelemetry = async () => {
+      try {
+        const response = await fetch('/api/admin/telemetry', {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`Telemetry HTTP ${response.status}`);
+        const payload = (await response.json()) as {
+          logs?: typeof initialLogs;
+          sessions?: typeof initialSessions;
+        };
+        setLogs((current) => {
+          const next = payload.logs ?? [];
+          if (next[0]?.id && next[0].id !== current[0]?.id) {
+            setEventCount((count) => count + 1);
           }
-        );
-
-      // Live Sessions Channel
-      sessionChannel = supabase
-        .channel('realtime_sessions')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'live_sessions' },
-          (payload: any) => {
-            console.log("Session Update:", payload.eventType, payload.new?.user_email);
-            if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-              setSessions(prev => {
-                const filtered = prev.filter(s => s.user_email !== payload.new.user_email || s.ip_address !== payload.new.ip_address);
-                return [payload.new, ...filtered];
-              });
-            } else if (payload.eventType === 'DELETE') {
-              setSessions(prev => prev.filter(s => s.id !== payload.old.id));
-            }
-          }
-        );
-
-      // Subscribe both and handle reconnection
-      const handleStatus = (status: string) => {
-        if (status === 'SUBSCRIBED') {
-          setConnectionStatus('connected');
-          clearTimeout(reconnectTimeout);
-        }
-        if (status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          console.warn(`Realtime channel ${status}. Retrying in 5s...`);
+          return next;
+        });
+        setSessions(payload.sessions ?? []);
+        setConnectionStatus('connected');
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
           setConnectionStatus('error');
-          
-          // Exponential backoff or simple retry
-          clearTimeout(reconnectTimeout);
-          reconnectTimeout = setTimeout(() => {
-            console.log("Attempting Realtime reconnection...");
-            setConnectionStatus('connecting');
-            cleanup();
-            subscribeToChannels();
-          }, 5000);
         }
-      };
-
-      logChannel.subscribe(handleStatus);
-      sessionChannel.subscribe();
+      }
     };
 
-    const cleanup = () => {
-      if (logChannel) supabase.removeChannel(logChannel);
-      if (sessionChannel) supabase.removeChannel(sessionChannel);
-    };
+    void refreshTelemetry();
+    const poll = window.setInterval(() => void refreshTelemetry(), 5_000);
 
-    subscribeToChannels();
-
-    return () => { 
-      console.log("Deactivating Surveillance...");
-      cleanup();
-      clearTimeout(reconnectTimeout);
+    return () => {
+      controller.abort();
+      window.clearInterval(poll);
     };
   }, []);
 
@@ -679,7 +638,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
                           {shadowLogs.filter(l => l.action === 'USER_CLICK').slice(0, 10).map((l, i) => (
                             <div key={i} className="bg-black/40 border border-white/5 rounded-xl p-3 animate-in slide-in-from-right-2">
                                <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Click Trace</p>
-                               <p className="text-[11px] text-white font-bold leading-tight line-clamp-2">"{l.details?.text}"</p>
+                               <p className="text-[11px] text-white font-bold leading-tight line-clamp-2">&ldquo;{l.details?.text}&rdquo;</p>
                                <p className="text-[8px] text-gray-600 mt-2 uppercase font-black">{l.details?.tag} • {timeAgo(l.created_at)}</p>
                             </div>
                           ))}

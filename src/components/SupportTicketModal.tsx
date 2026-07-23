@@ -19,7 +19,6 @@ export default function SupportTicketModal() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          receiver_email: 'admin', // The Admin inbox inherently fetches all system messages globally
           subject, 
           body 
         })
@@ -77,7 +76,7 @@ export default function SupportTicketModal() {
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                   </div>
                   <h3 className="text-xl font-bold text-white">Dispatched!</h3>
-                  <p className="text-gray-400 text-sm">Your secure message has been routed to the instructor's private inbox. You will see their reply here upon your next login.</p>
+                  <p className="text-gray-400 text-sm">Your secure message has been routed to the instructor&apos;s private inbox.</p>
                 </div>
               ) : (
                 <>
@@ -88,6 +87,7 @@ export default function SupportTicketModal() {
                     <input 
                       type="text" 
                       required
+                      maxLength={200}
                       placeholder="e.g. Question about Physics Chapter 3"
                       value={subject}
                       onChange={e => setSubject(e.target.value)}
@@ -100,6 +100,7 @@ export default function SupportTicketModal() {
                     <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Your Message</label>
                     <textarea 
                       required
+                      maxLength={5000}
                       placeholder="Explain what you need help with..."
                       value={body}
                       onChange={e => setBody(e.target.value)}

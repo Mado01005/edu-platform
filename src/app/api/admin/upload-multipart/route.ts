@@ -7,6 +7,11 @@ import {
   abortMultipartUpload,
   getPublicUrl
 } from '@/lib/r2';
+import {
+  isSafeR2Key,
+  validateAdminUploadMetadata,
+  validateMultipartPartCount,
+} from '@/lib/admin-upload-validation';
 
 /**
  * P3.1: Multipart upload coordinator.
@@ -23,77 +28,71 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'A valid JSON body is required.' }, { status: 400 });
+    }
     const { action } = body;
 
     switch (action) {
       case 'init': {
         // Build storage path (same logic as upload-initiate)
-        const { fileName, relativeFilePath, subjectSlug, lessonSlug, contentType, subfolder, totalParts } = body;
-        if (!fileName || !subjectSlug || !lessonSlug || !totalParts) {
-          return NextResponse.json({ error: 'Missing required parameters for multipart init' }, { status: 400 });
+        let validated;
+        let totalParts: number;
+        try {
+          validated = validateAdminUploadMetadata(body, !!session.user.isSuperAdmin);
+          totalParts = validateMultipartPartCount(body.totalParts, validated.size);
+        } catch (error) {
+          return NextResponse.json(
+            { error: error instanceof Error ? error.message : 'Invalid multipart metadata.' },
+            { status: 400 },
+          );
         }
-
-        const safeSubjectSlug = subjectSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
-        const safeLessonSlug = lessonSlug.replace(/[^a-zA-Z0-9-\s]/g, '');
-        const timestamp = Date.now();
-        let nestedPath = (relativeFilePath || fileName || 'unnamed_file')
-          .replace(/[^a-zA-Z0-9.\s/_\-]/g, '_') // replace unsafe chars with _ but keep /
-          .replace(/\/+/g, '/')
-          .trim();
-
-        // Normalizing Extension to Lowercase (e.g., FILE.PPTX -> FILE.pptx)
-        const pathParts = nestedPath.split('.');
-        if (pathParts.length > 1) {
-          const ext = pathParts.pop()?.toLowerCase();
-          nestedPath = `${pathParts.join('.')}.${ext}`;
-        }
-
-        const segments = nestedPath.split('/');
-        segments[segments.length - 1] = `${timestamp}_${segments[segments.length - 1]}`;
-        const finalizedNestedPath = segments.join('/');
-
-        let subfolderSegment = '';
-        if (subfolder && typeof subfolder === 'string') {
-          subfolderSegment = subfolder
-            .trim()
-            .replace(/^\/+|\/+$/g, '')
-            .replace(/[^a-zA-Z0-9\s/\-_]/g, '')
-            .replace(/\/+/g, '/')
-            .trim();
-        }
-
-        const cleanSubject = safeSubjectSlug.replace(/^\/+|\/+$/g, '');
-        const cleanLesson = safeLessonSlug.replace(/^\/+|\/+$/g, '');
-        const cleanFinalPath = finalizedNestedPath.replace(/^\/+|\/+$/g, '');
-
-        const storagePath = subfolderSegment
-          ? `${cleanSubject}/${cleanLesson}/${subfolderSegment}/${cleanFinalPath}`
-          : `${cleanSubject}/${cleanLesson}/${cleanFinalPath}`;
-
-        const resolvedContentType = contentType || 'application/octet-stream';
 
         // Initialize multipart upload
-        const uploadId = await initiateMultipartUpload(storagePath, resolvedContentType);
+        const uploadId = await initiateMultipartUpload(
+          validated.storagePath,
+          validated.contentType,
+        );
 
         // Generate presigned URLs for all parts
         const partUrls: { partNumber: number; url: string }[] = [];
         for (let i = 1; i <= totalParts; i++) {
-          const url = await getPresignedMultipartPartUrl(storagePath, uploadId, i, resolvedContentType);
+          const url = await getPresignedMultipartPartUrl(
+            validated.storagePath,
+            uploadId,
+            i,
+            validated.contentType,
+          );
           partUrls.push({ partNumber: i, url });
         }
 
         return NextResponse.json({
           uploadId,
-          key: storagePath,
+          key: validated.storagePath,
           partUrls,
-          publicUrl: getPublicUrl(storagePath)
+          publicUrl: getPublicUrl(validated.storagePath)
         });
       }
 
       case 'complete': {
         const { key, uploadId, parts } = body;
-        if (!key || !uploadId || !parts || !Array.isArray(parts)) {
+        const validParts =
+          Array.isArray(parts) &&
+          parts.length > 0 &&
+          parts.length <= 10_000 &&
+          parts.every(
+            (part) =>
+              typeof part?.ETag === 'string' &&
+              part.ETag.length > 0 &&
+              Number.isInteger(part?.PartNumber) &&
+              part.PartNumber >= 1 &&
+              part.PartNumber <= 10_000,
+          ) &&
+          new Set(parts.map((part) => part.PartNumber)).size === parts.length;
+        if (!isSafeR2Key(key) || typeof uploadId !== 'string' || !validParts) {
           return NextResponse.json({ error: 'Missing required parameters for multipart complete' }, { status: 400 });
         }
 
@@ -103,7 +102,7 @@ export async function POST(req: Request) {
 
       case 'abort': {
         const { key, uploadId } = body;
-        if (!key || !uploadId) {
+        if (!isSafeR2Key(key) || typeof uploadId !== 'string' || !uploadId) {
           return NextResponse.json({ error: 'Missing required parameters for multipart abort' }, { status: 400 });
         }
 
@@ -113,13 +112,24 @@ export async function POST(req: Request) {
 
       case 'presign': {
         const { key, uploadId, contentType, partNumbers } = body;
-        if (!key || !uploadId || !partNumbers) {
+        const validPartNumbers =
+          Array.isArray(partNumbers) &&
+          partNumbers.length > 0 &&
+          partNumbers.length <= 1_000 &&
+          partNumbers.every(
+            (partNumber) =>
+              Number.isInteger(partNumber) && partNumber >= 1 && partNumber <= 10_000,
+          );
+        if (!isSafeR2Key(key) || typeof uploadId !== 'string' || !validPartNumbers) {
           return NextResponse.json({ error: 'Missing required parameters for multipart presign' }, { status: 400 });
         }
 
-        const resolvedContentType = contentType || 'application/octet-stream';
+        const resolvedContentType =
+          typeof contentType === 'string' && contentType.length <= 255
+            ? contentType
+            : 'application/octet-stream';
         const partUrls: { partNumber: number; url: string }[] = [];
-        for (const num of partNumbers) {
+        for (const num of partNumbers as number[]) {
           const url = await getPresignedMultipartPartUrl(key, uploadId, num, resolvedContentType);
           partUrls.push({ partNumber: num, url });
         }

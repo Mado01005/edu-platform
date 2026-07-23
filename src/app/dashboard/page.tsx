@@ -28,7 +28,6 @@ export default async function DashboardPage() {
     }
     redirect('/login');
   }
-  // @ts-ignore
   if (session.user?.isBanned) redirect('/banned');
 
   const [subjects, { data: completedLogs }, { data: globalMsg }] = await Promise.all([
@@ -41,7 +40,6 @@ export default async function DashboardPage() {
 
   // Check if they are a newly promoted instructor who hasn't acknowledged it yet
   let showPromotionModal = false;
-  // @ts-ignore
   if (session.user?.isAdmin) {
     const { data: promoLog } = await supabaseAdmin
       .from('activity_logs')
@@ -110,7 +108,6 @@ export default async function DashboardPage() {
       <Navbar
         userName={session.user?.name ?? undefined}
         userImage={session.user?.image ?? undefined}
-        // @ts-ignore
         isAdmin={session.user?.isAdmin}
       />
 
@@ -237,6 +234,7 @@ export default async function DashboardPage() {
         )}
         <PromotionModal open={showPromotionModal} userEmail={session.user?.email || ''} />
         <StudentWelcomeModal open={showStudentWelcomeModal} userEmail={session.user?.email || ''} userName={session.user?.name || 'Student'} />
+        <SupportTicketModal />
       </main>
       </div>
     </div>

@@ -12,6 +12,7 @@ import { updateLessonProgressAction } from '@/app/lms/actions';
 import { DiscussionThread } from '@/components/lms/DiscussionThread';
 import { LmsHeader } from '@/components/lms/LmsHeader';
 import { UniversalVideoPlayer } from '@/components/lms/UniversalVideoPlayer';
+import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { requireLmsPageUser } from '@/lib/lms/auth';
 import { getPrisma } from '@/lib/prisma';
 
@@ -64,7 +65,10 @@ export default async function LessonPlayerPage({
     (user.role === 'TEACHER' && user.id === course.teacherId);
   const isEnrolled = course.enrollments.length > 0;
 
-  if ((!course.isPublished || !isEnrolled) && !canTeach && !lesson.isFree) {
+  if (
+    (!course.isPublished && !canTeach) ||
+    (course.isPublished && !isEnrolled && !canTeach && !lesson.isFree)
+  ) {
     redirect('/catalog');
   }
 
@@ -80,11 +84,10 @@ export default async function LessonPlayerPage({
     orderBy: { createdAt: 'desc' },
   });
   const completed = lesson.progress[0]?.isCompleted ?? false;
-  const toggleProgress = updateLessonProgressAction.bind(
-    null,
-    lesson.id,
-    !completed,
-  );
+  const toggleProgress =
+    user.role === 'STUDENT'
+      ? updateLessonProgressAction.bind(null, lesson.id, !completed)
+      : null;
   const previous = lessons[activeIndex - 1];
   const next = lessons[activeIndex + 1];
 
@@ -133,12 +136,17 @@ export default async function LessonPlayerPage({
                 </Link>
               ) : null}
             </div>
-            <form action={toggleProgress}>
-              <button className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${completed ? 'bg-emerald-300 text-black' : 'border border-white/10'}`}>
-                <Check className="size-4" />
-                {completed ? 'Completed' : 'Mark complete'}
-              </button>
-            </form>
+            {toggleProgress ? (
+              <form action={toggleProgress}>
+                <ActionSubmitButton
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${completed ? 'bg-emerald-300 text-black' : 'border border-white/10'}`}
+                  pendingLabel="Updating…"
+                >
+                  <Check className="size-4" />
+                  {completed ? 'Completed' : 'Mark complete'}
+                </ActionSubmitButton>
+              </form>
+            ) : null}
           </div>
 
           {lesson.contentType === 'TEXT' && lesson.textContent ? (

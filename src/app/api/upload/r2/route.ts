@@ -13,6 +13,12 @@ const ALLOWED_CONTENT_TYPES = new Set([
   'video/webm',
   'video/quicktime',
 ]);
+const CONTENT_TYPE_EXTENSIONS: Record<string, readonly string[]> = {
+  'application/pdf': ['pdf'],
+  'video/mp4': ['mp4'],
+  'video/webm': ['webm'],
+  'video/quicktime': ['mov', 'qt'],
+};
 
 function sanitizeFileName(fileName: string) {
   const normalized = fileName
@@ -37,6 +43,8 @@ function readUploadInput(value: unknown) {
 
   if (
     typeof fileName !== 'string' ||
+    !fileName.trim() ||
+    fileName.length > 255 ||
     typeof contentType !== 'string' ||
     typeof size !== 'number' ||
     !Number.isFinite(size)
@@ -58,7 +66,16 @@ function readUploadInput(value: unknown) {
 export async function POST(request: Request) {
   try {
     const teacher = await requireLmsRole(['TEACHER', 'ADMIN']);
-    const input = readUploadInput(await request.json());
+    let requestBody: unknown;
+    try {
+      requestBody = JSON.parse(await request.text());
+    } catch {
+      return NextResponse.json(
+        { error: 'A valid JSON request body is required.' },
+        { status: 400 },
+      );
+    }
+    const input = readUploadInput(requestBody);
 
     if (!input) {
       return NextResponse.json(
@@ -70,6 +87,14 @@ export async function POST(request: Request) {
     if (!ALLOWED_CONTENT_TYPES.has(input.contentType)) {
       return NextResponse.json(
         { error: 'Only PDF, MP4, WebM, and QuickTime files are allowed.' },
+        { status: 415 },
+      );
+    }
+
+    const extension = input.fileName.split('.').pop()?.toLowerCase() ?? '';
+    if (!CONTENT_TYPE_EXTENSIONS[input.contentType]?.includes(extension)) {
+      return NextResponse.json(
+        { error: 'The file extension does not match its declared content type.' },
         { status: 415 },
       );
     }

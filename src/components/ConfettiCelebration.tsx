@@ -49,11 +49,16 @@ export default function ConfettiCelebration({ trigger }: { trigger: boolean }) {
 
   useEffect(() => {
     if (!trigger) return;
-    setIsActive(true);
-    setParticles(createParticles());
+    const start = window.setTimeout(() => {
+      setIsActive(true);
+      setParticles(createParticles());
+    }, 0);
 
     const timer = setTimeout(() => setIsActive(false), 4000);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(start);
+      clearTimeout(timer);
+    };
   }, [trigger, createParticles]);
 
   useEffect(() => {

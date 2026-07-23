@@ -1,15 +1,42 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 
-export default function BookmarkedLessons() {
-  const [bookmarks, setBookmarks] = useState<any[]>([]);
+type Bookmark = {
+  subjectSlug: string;
+  lessonSlug: string;
+  lessonTitle: string;
+  subjectTitle: string;
+  savedAt: number;
+};
 
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('edu_bookmarks') || '[]');
-    setBookmarks(saved.sort((a: any, b: any) => b.savedAt - a.savedAt));
-  }, []);
+const subscribe = (notify: () => void) => {
+  window.addEventListener('storage', notify);
+  window.addEventListener('edu-bookmarks-changed', notify);
+  return () => {
+    window.removeEventListener('storage', notify);
+    window.removeEventListener('edu-bookmarks-changed', notify);
+  };
+};
+const getSnapshot = () => localStorage.getItem('edu_bookmarks') ?? '[]';
+const getServerSnapshot = () => '[]';
+
+export default function BookmarkedLessons() {
+  const storedBookmarks = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
+  const bookmarks = useMemo(() => {
+    try {
+      const value: unknown = JSON.parse(storedBookmarks);
+      if (!Array.isArray(value)) return [];
+      return (value as Bookmark[]).sort((a, b) => b.savedAt - a.savedAt);
+    } catch {
+      return [];
+    }
+  }, [storedBookmarks]);
 
   if (bookmarks.length === 0) return null;
 

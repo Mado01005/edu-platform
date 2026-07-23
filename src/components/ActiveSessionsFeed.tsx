@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface Session {
   id: string;
@@ -15,59 +14,31 @@ interface Session {
 
 export default function ActiveSessionsFeed() {
   const [sessions, setSessions] = useState<Session[]>([]);
-  const supabase = createClientComponentClient();
+  const [now, setNow] = useState(0);
 
   useEffect(() => {
-    // Initial fetch of active sessions
     const fetchOnline = async () => {
-      const { data } = await supabase
-        .from('live_sessions')
-        .select('*')
-        .order('last_active_at', { ascending: false });
-      if (data) setSessions(data);
+      const response = await fetch('/api/admin/telemetry', {
+        cache: 'no-store',
+      });
+      if (!response.ok) return;
+      const payload = (await response.json()) as { sessions?: Session[] };
+      setSessions(payload.sessions ?? []);
+      setNow(Date.now());
     };
-    fetchOnline();
 
-    // Listen for Real-Time updates on the sessions table
-    const channel = supabase
-      .channel('realtime_live_sessions')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'live_sessions' },
-        (payload) => {
-          console.log('Session Update:', payload);
-          setSessions(prev => {
-            if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-               const newData = payload.new as Session;
-               if (!newData || !newData.id) return prev;
-               
-               const existingIndex = prev.findIndex(s => s.id === newData.id);
-               if (existingIndex !== -1) {
-                 const updated = [...prev];
-                 updated[existingIndex] = newData;
-                 return updated.sort((a,b) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime());
-               } else {
-                 return [newData, ...prev].sort((a,b) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime());
-               }
-            } else if (payload.eventType === 'DELETE') {
-               const oldData = payload.old as { id: string };
-               if (!oldData || !oldData.id) return prev;
-               return prev.filter(s => s.id !== oldData.id);
-            }
-            return prev;
-          });
-        }
-      )
-      .subscribe();
+    const initial = window.setTimeout(() => void fetchOnline(), 0);
+    const poll = window.setInterval(() => void fetchOnline(), 5_000);
 
     return () => {
-      supabase.removeChannel(channel);
+      window.clearTimeout(initial);
+      window.clearInterval(poll);
     };
   }, []);
 
   // Compute Anti-Piracy Alerts
   // Detect if a user has multiple active sessions from different IPs within the last 5 minutes
-  const activeSessions = sessions.filter(s => new Date(s.last_active_at).getTime() > Date.now() - 5 * 60000 && !s.is_idle);
+  const activeSessions = sessions.filter(s => new Date(s.last_active_at).getTime() > now - 5 * 60000 && !s.is_idle);
   const userIpCounts: Record<string, Set<string>> = {};
   
   activeSessions.forEach(s => {

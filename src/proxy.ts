@@ -9,7 +9,6 @@ const PUBLIC_PATHS = [
   '/auth/callback',
   '/catalog',
   '/api/auth',
-  '/api/whats-new',
   '/sitemap.xml',
   '/robots.txt',
 ];
@@ -34,7 +33,7 @@ export async function proxy(request: NextRequest) {
 
   // Allow public/static paths, PWA assets
   if (
-    PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
+    PUBLIC_PATHS.some((path) => matchesRoute(pathname, path)) ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon') ||
     pathname === '/sw.js' ||

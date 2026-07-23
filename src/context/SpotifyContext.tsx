@@ -66,7 +66,12 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
     if (tokenExpiresAt && tokenExpiresAt !== currentTokenExpiresAt) {
       setCurrentTokenExpiresAt(tokenExpiresAt);
     }
-  }, [accessToken, tokenExpiresAt]);
+  }, [
+    accessToken,
+    currentAccessToken,
+    currentTokenExpiresAt,
+    tokenExpiresAt,
+  ]);
 
   // Deduplicated refresh: prevents multiple concurrent refresh calls
   const refreshSpotifyToken = useCallback(async (): Promise<string | null> => {
@@ -400,7 +405,7 @@ export const SpotifyProvider = ({ children, accessToken, refreshToken, tokenExpi
     return () => {
       localPlayer?.disconnect();
     };
-  }, []); // Only run once on mount or script ready
+  }, [accessToken, currentTokenExpiresAt, refreshSpotifyToken]);
 
   const togglePlay = () => player?.togglePlay();
   const nextTrack = () => player?.nextTrack();

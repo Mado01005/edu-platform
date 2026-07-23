@@ -1,5 +1,56 @@
+import { auth } from '@/auth';
+
 export const maxDuration = 30;
 export const dynamic = 'force-dynamic';
+
+const MAX_CHAT_BODY_BYTES = 6 * 1024 * 1024;
+const MAX_MESSAGES = 30;
+const MAX_MESSAGE_CHARACTERS = 12_000;
+
+type ChatMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+  image?: string;
+};
+
+function readChatMessages(value: unknown): ChatMessage[] | null {
+  if (!value || typeof value !== 'object') return null;
+  const messages = Reflect.get(value, 'messages');
+
+  if (!Array.isArray(messages) || !messages.length || messages.length > MAX_MESSAGES) {
+    return null;
+  }
+
+  const parsed: ChatMessage[] = [];
+  for (const message of messages) {
+    if (!message || typeof message !== 'object') return null;
+    const role = Reflect.get(message, 'role');
+    const content = Reflect.get(message, 'content');
+    const image = Reflect.get(message, 'image');
+
+    if (
+      (role !== 'user' && role !== 'assistant') ||
+      typeof content !== 'string' ||
+      !content.trim() ||
+      content.length > MAX_MESSAGE_CHARACTERS
+    ) {
+      return null;
+    }
+
+    if (
+      image !== undefined &&
+      (typeof image !== 'string' ||
+        image.length > MAX_CHAT_BODY_BYTES ||
+        !/^data:image\/(?:jpeg|png|webp);base64,/i.test(image))
+    ) {
+      return null;
+    }
+
+    parsed.push({ role, content: content.trim(), ...(image ? { image } : {}) });
+  }
+
+  return parsed;
+}
 
 // Ordered fallback chain of verified free multimodal (Vision) models on OpenRouter.
 // We use a broader list to account for OpenRouter's frequent free-tier availability changes.
@@ -13,20 +64,36 @@ const FREE_MODELS = [
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
     if (!process.env.OPENROUTER_API_KEY) {
-      throw new Error("Missing OPENROUTER_API_KEY in environment variables.");
+      return new Response('Tutor service is not configured.', { status: 503 });
+    }
+
+    const declaredLength = Number(req.headers.get('content-length') ?? 0);
+    if (declaredLength > MAX_CHAT_BODY_BYTES) {
+      return new Response('Request is too large.', { status: 413 });
     }
 
     const bodyText = await req.text();
-    let body;
-    try {
-      body = JSON.parse(bodyText);
-    } catch (parseError) {
-      throw new Error(`Failed to parse request JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}. Body received: ${bodyText.substring(0, 100)}`);
+    if (Buffer.byteLength(bodyText, 'utf8') > MAX_CHAT_BODY_BYTES) {
+      return new Response('Request is too large.', { status: 413 });
     }
 
-    const { messages } = body;
-    if (!messages) throw new Error("No messages provided in the request body.");
+    let body: unknown;
+    try {
+      body = JSON.parse(bodyText);
+    } catch {
+      return new Response('Invalid JSON body.', { status: 400 });
+    }
+
+    const messages = readChatMessages(body);
+    if (!messages) {
+      return new Response('A valid message history is required.', { status: 400 });
+    }
 
     // Inject tutor persona into the first user message for universal model compatibility.
     const TUTOR_PROMPT = `# ROLE
@@ -50,7 +117,7 @@ You are the "EduPortal Materials Expert," a high-level academic tutor for engine
 - **CRITICAL**: Keep responses concise. If a concept is broad, ask the student if they want to dive deeper into a specific sub-topic.`;
 
     // Process messages into OpenRouter multimodal format if images are present
-    const fullMessages = messages.map((m: any, i: number) => {
+    const fullMessages = messages.map((m, i) => {
       let textContent = m.content;
 
       // Prepend instructions to the first message
@@ -109,7 +176,11 @@ You are the "EduPortal Materials Expert," a high-level academic tutor for engine
       }
 
       const errorBody = await response.text();
-      throw new Error(`OpenRouter HTTP ${response.status}: ${errorBody}`);
+      console.error(
+        `[CHAT] OpenRouter HTTP ${response.status}:`,
+        errorBody.slice(0, 500),
+      );
+      throw new Error(`OpenRouter HTTP ${response.status}`);
     }
 
     throw new Error(`All free models are temporarily rate-limited. Last: ${lastError}. Please try again in a few seconds.`);

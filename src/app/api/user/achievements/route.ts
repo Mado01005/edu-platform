@@ -6,7 +6,7 @@ import { ACHIEVEMENTS } from '@/lib/achievements';
 export async function GET() {
   try {
     const session = await auth();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const email = (session.user?.email || '').toLowerCase();
 
@@ -28,7 +28,8 @@ export async function GET() {
     }));
 
     return NextResponse.json(result);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    console.error('[achievements GET]', error);
+    return NextResponse.json({ error: 'Unable to load achievements.' }, { status: 500 });
   }
 }

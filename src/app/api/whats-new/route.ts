@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { auth } from '@/auth';
 
 export async function GET() {
   try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 

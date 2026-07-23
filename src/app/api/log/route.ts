@@ -10,14 +10,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { action, details } = await req.json();
+    const body = await req.json();
+    const action = typeof body?.action === 'string' ? body.action.trim() : '';
+    const details =
+      body?.details &&
+      typeof body.details === 'object' &&
+      !Array.isArray(body.details)
+        ? body.details
+        : {};
     const url = req.headers.get('referer') || 'Unknown';
     const userAgent = req.headers.get('user-agent') || 'Unknown';
     const city = req.headers.get('x-vercel-ip-city') || 'Unknown City';
     const country = req.headers.get('x-vercel-ip-country') || 'Unknown Country';
 
-    if (!action) {
-      return NextResponse.json({ error: 'Missing action' }, { status: 400 });
+    if (!action || action.length > 100 || JSON.stringify(details).length > 16_384) {
+      return NextResponse.json({ error: 'Invalid telemetry payload.' }, { status: 400 });
     }
 
     // Insert log securely into Supabase
@@ -37,25 +44,29 @@ export async function POST(req: Request) {
 
     if (error) {
       console.warn('Telemetry insert failed:', error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: 'Telemetry storage failed.' }, { status: 500 });
     }
 
     // WEBHOOK: If a brand new student just initialized their dashboard, autonomously alert the Master Admin!
     if (action === 'Completed Student Onboarding') {
-      // 1. Mark them as onboarded in the permanent roles table for faster re-renders/checks
-      await supabaseAdmin
+      // Atomically transition the user once so replayed telemetry cannot spam admin messages.
+      const { data: newlyOnboarded } = await supabaseAdmin
         .from('user_roles')
         .update({ is_onboarded: true })
-        .eq('email', (session.user?.email || '').toLowerCase());
+        .eq('email', session.user.email.toLowerCase())
+        .eq('is_onboarded', false)
+        .select('email')
+        .maybeSingle();
 
-      // 2. Alert the admin
-      await supabaseAdmin.from('messages').insert({
-        sender_email: 'SYSTEM_ROBOT',
-        receiver_email: ADMIN_EMAIL,
-        subject: `[System Alert] ✨ New Student Registration: ${session.user.email}`,
-        body: `Access Code Accepted.\n\nA brand new student has successfully completed the first-boot onboarding sequence and is now exploring the platform.\n\nStudent Email: ${session.user.email}\nRegistry Name: ${session.user.name || 'Unknown User'}\nTimestamp: ${new Date().toLocaleString()}\n\nYou may now grant them Instructor privledges from the Admin Dashboard if necessary.`,
-        is_read: false
-      });
+      if (newlyOnboarded) {
+        await supabaseAdmin.from('messages').insert({
+          sender_email: 'SYSTEM_ROBOT',
+          receiver_email: ADMIN_EMAIL,
+          subject: `[System Alert] New Student Registration: ${session.user.email}`,
+          body: `Access Code Accepted.\n\nA new student completed onboarding.\n\nStudent Email: ${session.user.email}\nRegistry Name: ${session.user.name || 'Unknown User'}\nTimestamp: ${new Date().toISOString()}\n\nYou may now grant them instructor privileges from the Admin Dashboard if necessary.`,
+          is_read: false
+        });
+      }
     }
 
     return NextResponse.json({ success: true });

@@ -21,8 +21,8 @@ export default function WhatsNewBanner() {
       const diff = Date.now() - parseInt(dismissedAt);
       // If dismissed less than 6 hours ago, don't show
       if (diff < 6 * 60 * 60 * 1000) {
-        setDismissed(true);
-        return;
+        const dismiss = window.setTimeout(() => setDismissed(true), 0);
+        return () => window.clearTimeout(dismiss);
       }
     }
 

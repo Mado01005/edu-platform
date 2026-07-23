@@ -27,14 +27,14 @@ export function isValidR2Url(url: string): boolean {
   try {
     const urlObj = new URL(url);
     const publicBase = process.env.R2_PUBLIC_URL || '';
-    
-    // Check if URL belongs to R2 public URL
-    if (publicBase && url.startsWith(publicBase)) {
-      return true;
-    }
-    
-    // For safety, reject URLs that don't match our R2 domain
-    return false;
+    if (!publicBase || urlObj.protocol !== 'https:') return false;
+
+    const baseUrl = new URL(publicBase);
+    const basePath = baseUrl.pathname.replace(/\/+$/, '');
+    return (
+      urlObj.origin === baseUrl.origin &&
+      (urlObj.pathname === basePath || urlObj.pathname.startsWith(`${basePath}/`))
+    );
   } catch {
     return false;
   }

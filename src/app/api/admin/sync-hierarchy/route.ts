@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
       // Only perform subject upsert if no currentSubjectId is provided
       if (!subjectId) {
-        let { data: subject, error: subjectError } = await supabaseAdmin
+        const { data: subject, error: subjectError } = await supabaseAdmin
           .from('subjects')
           .select('id')
           .eq('slug', subjectSlug)
@@ -79,12 +79,13 @@ export async function POST(req: Request) {
       if (!subjectId) return;
 
       // Upsert Lesson under the determined subjectId
-      let { data: lesson, error: lessonError } = await supabaseAdmin
+      const { data: existingLesson } = await supabaseAdmin
         .from('lessons')
         .select('id')
         .eq('subject_id', subjectId)
         .eq('slug', lessonSlug)
         .maybeSingle();
+      let lesson = existingLesson;
 
       if (!lesson) {
         const { data: newLesson, error: newLessonError } = await supabaseAdmin

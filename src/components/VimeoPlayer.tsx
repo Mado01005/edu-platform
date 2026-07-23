@@ -93,7 +93,7 @@ export default function VimeoPlayer({ vimeoId, title }: VimeoPlayerProps) {
       // B5: Nullify ref so component can re-initialize after unmount (React StrictMode)
       playerRef.current = null;
     };
-  }, [finalId, title]);
+  }, [finalId, title, vimeoId]);
 
   return (
     <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">

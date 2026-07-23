@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, BookOpen, Search, Users } from 'lucide-react';
 import { enrollCourseAction } from '@/app/lms/actions';
 import { LmsHeader } from '@/components/lms/LmsHeader';
+import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { getLmsUser } from '@/lib/lms/auth';
 import { getPrisma } from '@/lib/prisma';
 
@@ -112,13 +113,23 @@ export default async function CatalogPage({
                     </span>
                   </div>
                   <div className="mt-auto pt-5">
-                    {user ? (
+                    {user?.role === 'STUDENT' ? (
                       <form action={enroll}>
-                        <button className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black hover:bg-violet-300">
+                        <ActionSubmitButton
+                          className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black hover:bg-violet-300"
+                          pendingLabel={enrolled ? 'Opening…' : 'Enrolling…'}
+                        >
                           {enrolled ? 'Continue learning' : 'Enroll now'}
                           <ArrowRight className="size-4" />
-                        </button>
+                        </ActionSubmitButton>
                       </form>
+                    ) : user ? (
+                      <Link
+                        className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-black text-white"
+                        href={user.role === 'ADMIN' || user.role === 'TEACHER' ? '/teacher/courses' : '/dashboard'}
+                      >
+                        Open your workspace <ArrowRight className="size-4" />
+                      </Link>
                     ) : (
                       <Link
                         className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black"

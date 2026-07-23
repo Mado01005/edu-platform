@@ -13,8 +13,15 @@ export async function POST(req: Request) {
 
     const { subjectId, lessonId, parentId, fileName, fileType, contentType, publicUrl, itemType = 'file', vimeoId, idempotencyKey } = await req.json();
 
-    if (!lessonId || !fileName) {
-      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+    if (
+      typeof lessonId !== 'string' ||
+      !lessonId ||
+      typeof fileName !== 'string' ||
+      !fileName ||
+      fileName.length > 1_024 ||
+      !['file', 'vimeo', 'folder', 'link', 'snippet'].includes(itemType)
+    ) {
+      return NextResponse.json({ error: 'Invalid upload completion metadata.' }, { status: 400 });
     }
 
     // ── P2.5: Idempotency check — prevent duplicate rows from retries ──
@@ -71,8 +78,7 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Database insert error:', error);
-      const message = error instanceof Error ? error.message : 'Internal Server Error';
-      return NextResponse.json({ error: message }, { status: 500 });
+      return NextResponse.json({ error: 'Database synchronization failed.' }, { status: 500 });
     }
 
     // Auto-log the upload as an activity event for "What's New" notifications
@@ -92,7 +98,6 @@ export async function POST(req: Request) {
 
   } catch (error: unknown) {
     console.error('Upload complete error:', error);
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

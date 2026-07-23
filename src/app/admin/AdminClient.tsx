@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Subject, UserRole, ActivityLog, StorageStats, SubjectMeta, LessonMeta } from '@/types';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
@@ -52,8 +51,6 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   const [activeLogins, setActiveLogins] = useState<string[]>([]);
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
 
-  const supabase = createClientComponentClient();
-
   const currentUserRole = useMemo(() => {
     if (userEmail && ADMIN_EMAILS.some(e => userEmail.toLowerCase().trim() === e.toLowerCase().trim())) return 'superadmin';
     const found = allRoles.find(r => r.email?.toLowerCase() === userEmail?.toLowerCase());
@@ -91,12 +88,16 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   }, []);
 
   useEffect(() => {
-    refreshPageData();
-    const channel = supabase.channel('admin-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {})
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [refreshPageData, supabase]);
+    const initialRefresh = window.setTimeout(
+      () => void refreshPageData(),
+      0,
+    );
+    const poll = window.setInterval(() => void refreshPageData(), 30_000);
+    return () => {
+      window.clearTimeout(initialRefresh);
+      window.clearInterval(poll);
+    };
+  }, [refreshPageData]);
 
   const activeLessons = useMemo(() => 
     (localSubjects.find(s => s.id === selectedSubjectId)?.lessons as LessonMeta[]) || [],

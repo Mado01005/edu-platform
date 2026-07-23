@@ -1,6 +1,6 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,22 +10,33 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
-    const { data: { session } } = await supabase.auth.getSession();
+    const session = await auth();
 
-    if (!session) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!session?.user?.email) {
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { localDate } = await req.json(); // Format: YYYY-MM-DD
-    if (!localDate) {
-      return new NextResponse("Missing localDate", { status: 400 });
+    const body: unknown = await req.json();
+    const localDate =
+      body && typeof body === 'object' ? Reflect.get(body, 'localDate') : null;
+    if (typeof localDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(localDate)) {
+      return new NextResponse('Invalid localDate', { status: 400 });
     }
 
-    const email = session.user.email?.toLowerCase();
+    const localDay = new Date(`${localDate}T00:00:00.000Z`);
+    if (
+      Number.isNaN(localDay.getTime()) ||
+      Math.abs(localDay.getTime() - Date.now()) > 36 * 60 * 60 * 1000
+    ) {
+      return new NextResponse('localDate is outside the allowed range', {
+        status: 400,
+      });
+    }
+
+    const email = session.user.email.toLowerCase();
 
     // Fetch current streak data from Supabase
-    const { data: userData, error: fetchError } = await supabase
+    const { data: userData, error: fetchError } = await supabaseAdmin
       .from('user_roles')
       .select('streak_count, last_login')
       .eq('email', email)
@@ -34,7 +45,7 @@ export async function POST(req: Request) {
     if (fetchError) throw fetchError;
     if (!userData) throw new Error("User profile not found");
 
-    let currentStreak = userData.streak_count || 0;
+    const currentStreak = userData.streak_count || 0;
     const lastLoginFull = userData.last_login; // Timestamp with zone
 
     // Convert DB last_login to a YYYY-MM-DD string for comparison
@@ -80,11 +91,12 @@ export async function POST(req: Request) {
     }
 
     if (shouldUpdate) {
-      const { error: updateError } = await supabase
+      const { error: updateError } = await supabaseAdmin
         .from('user_roles')
         .update({
           streak_count: updatedStreak,
-          last_login: new Date().toISOString() // Store full timestamp
+          // Persist noon UTC so the stored date portion remains the client day.
+          last_login: `${localDate}T12:00:00.000Z`,
         })
         .eq('email', email);
 
@@ -97,8 +109,8 @@ export async function POST(req: Request) {
       updated: shouldUpdate
     });
 
-  } catch (error: any) {
-    console.error('🔥 [STREAK SYNC ERROR]:', error.message);
-    return new NextResponse(error.message, { status: 500 });
+  } catch (error: unknown) {
+    console.error('[STREAK SYNC ERROR]:', error);
+    return new NextResponse('Unable to synchronize streak.', { status: 500 });
   }
 }

@@ -47,7 +47,9 @@ export default async function SubjectPage({ params }: Props) {
   if (!subject) notFound();
 
   // Check for recently added content (last 24h) for "NEW" badges
-  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const sinceDate = new Date();
+  sinceDate.setUTCDate(sinceDate.getUTCDate() - 1);
+  const since = sinceDate.toISOString();
   const { data: newLogs } = await supabaseAdmin
     .from('activity_logs')
     .select('details')

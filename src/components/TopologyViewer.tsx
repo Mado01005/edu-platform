@@ -74,7 +74,7 @@ export default function TopologyViewer() {
         if (n.data.type !== 'lesson') return n;
 
         // Base styles for lessons
-        let updatedStyle = { ...n.style };
+        const updatedStyle = { ...n.style };
 
         if (heatMapActive && (n.data.frictionScore as number) > 0) {
            const score = n.data.frictionScore as number;

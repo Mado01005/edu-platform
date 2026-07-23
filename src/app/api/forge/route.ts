@@ -13,8 +13,16 @@ export async function POST(req: Request) {
     const userId = session.user.id;
     const { lesson_id, language_type, raw_content } = await req.json();
 
-    if (!lesson_id || !language_type || !raw_content) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (
+      typeof lesson_id !== 'string' ||
+      !/^[a-zA-Z0-9_-]{1,100}$/.test(lesson_id) ||
+      typeof language_type !== 'string' ||
+      !/^[a-zA-Z0-9_+#.-]{1,40}$/.test(language_type) ||
+      typeof raw_content !== 'string' ||
+      !raw_content.trim() ||
+      raw_content.length > 100_000
+    ) {
+      return NextResponse.json({ error: 'Invalid snippet payload.' }, { status: 400 });
     }
 
     const { data, error } = await supabaseAdmin
@@ -38,7 +46,6 @@ export async function POST(req: Request) {
 
   } catch (error: unknown) {
     console.error('[FORGE_API] Fatal Error:', error);
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

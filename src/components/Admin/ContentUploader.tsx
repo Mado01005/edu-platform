@@ -169,14 +169,14 @@ export default function ContentUploader({
   }, [uploading]);
 
   useEffect(() => {
+    const aborters = xhrAbortersRef.current;
+    const batchController = batchAbortRef.current;
     return () => {
       // Abort all active XHR requests on unmount
-      xhrAbortersRef.current.forEach(abort => abort());
-      xhrAbortersRef.current.clear();
+      aborters.forEach(abort => abort());
+      aborters.clear();
       // Abort the batch
-      if (batchAbortRef.current) {
-        batchAbortRef.current.abort();
-      }
+      batchController?.abort();
     };
   }, []);
 
@@ -309,7 +309,8 @@ export default function ContentUploader({
         lessonSlug: lSlug,
         contentType,
         subfolder: currentPath.trim() || undefined,
-        totalParts
+        totalParts,
+        size: file.size,
       }),
       signal: batchAbortRef.current?.signal
     });
@@ -479,7 +480,8 @@ export default function ContentUploader({
               subjectSlug: sSlug,
               lessonSlug: lSlug,
               contentType: file.type || 'application/octet-stream',
-              subfolder: currentPath.trim() || undefined
+              subfolder: currentPath.trim() || undefined,
+              size: file.size,
             }),
             signal: batchAbortRef.current?.signal
           });
@@ -536,10 +538,45 @@ export default function ContentUploader({
             }
             if (!resultUrl) throw new Error('Conversion timed out.');
 
-            // 3. Update file reference (the actual upload to DB happens in the next batch step)
-            fileState.publicUrl = resultUrl;
-            // Note: We keep the .dng in the filename for hierarchy but the URL now points to the WebP.
-            // Ideally we'd re-upload to our R2, but using CloudConvert's URL for the DB entry is faster for now.
+            // 3. Copy the converted file into R2. CloudConvert export URLs expire.
+            const convertedResponse = await fetch(resultUrl, {
+              signal: AbortSignal.timeout(60_000),
+            });
+            if (!convertedResponse.ok) {
+              throw new Error('Converted file download failed.');
+            }
+            const convertedBlob = await convertedResponse.blob();
+            const convertedName = file.name.replace(/\.(dng|raw)$/i, '.webp');
+            const convertedFile = new File([convertedBlob], convertedName, {
+              type: 'image/webp',
+            });
+            const convertedPath = fileState.relativeFilePath.replace(/\.(dng|raw)$/i, '.webp');
+            const convertedInit = await fetch('/api/admin/upload-initiate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                fileName: convertedName,
+                relativeFilePath: convertedPath,
+                subjectSlug: sSlug,
+                lessonSlug: lSlug,
+                contentType: 'image/webp',
+                subfolder: currentPath.trim() || undefined,
+                size: convertedFile.size,
+              }),
+              signal: batchAbortRef.current?.signal,
+            });
+            if (!convertedInit.ok) {
+              throw new Error('Converted file storage initialization failed.');
+            }
+            const convertedUpload = await convertedInit.json();
+            await uploadFileToR2(
+              convertedFile,
+              convertedUpload.signedUrl,
+              'image/webp',
+              fileState.id,
+              () => undefined,
+            );
+            fileState.publicUrl = convertedUpload.publicUrl;
           } catch (convErr: any) {
             console.error('RAW Conversion Failed:', convErr);
             // We don't fail the whole upload, we just keep the DNG URL if conversion fails.
@@ -610,7 +647,7 @@ export default function ContentUploader({
     }
 
     return allResults;
-  }, [processSingleFile, subjectSlug, localSubjects, selectedSubjectId, selectedLessonId, lessonSlug, activeLessons]);
+  }, [processSingleFile, subjectSlug, localSubjects, selectedSubjectId, selectedLessonId, lessonSlug, activeLessons, isMegaAdmin]);
 
   const handleCancelBatch = useCallback(() => {
     // Abort all in-flight XHRs

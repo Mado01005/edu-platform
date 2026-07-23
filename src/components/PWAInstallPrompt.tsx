@@ -14,23 +14,31 @@ export default function PWAInstallPrompt() {
   useEffect(() => {
     // Check if the app is already installed physically on the phone
     const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || ('standalone' in navigator && (navigator as any).standalone) || document.referrer.includes('android-app://');
-    setIsStandalone(isStandaloneMode);
+    const wasDismissed =
+      localStorage.getItem('pwa_prompt_dismissed') === 'true';
+    const initialize = window.setTimeout(() => {
+      setIsStandalone(isStandaloneMode);
+      setDismissed(wasDismissed);
+    }, 0);
 
     // If it's already an app, or user manually dismissed it, hide forever
-    if (isStandaloneMode || localStorage.getItem('pwa_prompt_dismissed') === 'true') {
-      setDismissed(true);
-      return;
+    if (isStandaloneMode || wasDismissed) {
+      return () => window.clearTimeout(initialize);
     }
 
     // Detect Apple iOS devices
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
-    setIsIOS(isIosDevice);
+    const setPlatform = window.setTimeout(() => setIsIOS(isIosDevice), 0);
 
     if (isIosDevice) {
        // iOS doesn't support automatic prompts, so we just show the HTML guide banner after 3 seconds
-       const timer = setTimeout(() => setShowPrompt(true), 3000);
-       return () => clearTimeout(timer);
+       const timer = window.setTimeout(() => setShowPrompt(true), 3000);
+       return () => {
+         window.clearTimeout(initialize);
+         window.clearTimeout(setPlatform);
+         window.clearTimeout(timer);
+       };
     }
 
     // Detect Android / Chrome 'beforeinstallprompt' event
@@ -41,7 +49,11 @@ export default function PWAInstallPrompt() {
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => {
+      window.clearTimeout(initialize);
+      window.clearTimeout(setPlatform);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
   }, []);
 
   if (
@@ -93,7 +105,7 @@ export default function PWAInstallPrompt() {
         {isIOS ? (
           <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-lg p-3 text-xs text-indigo-200 mt-2 flex items-center gap-3">
              <span className="text-lg">⬇️</span>
-             <p>To install, tap the <strong>Share</strong> button at the bottom of Safari, then scroll down and tap <strong>"Add to Home Screen" <span className="font-sans font-black">+</span> </strong>.</p>
+             <p>To install, tap the <strong>Share</strong> button at the bottom of Safari, then scroll down and tap <strong>&ldquo;Add to Home Screen&rdquo; <span className="font-sans font-black">+</span> </strong>.</p>
           </div>
         ) : (
           <button 

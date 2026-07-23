@@ -10,7 +10,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { currentPage, isIdle } = await req.json();
+    const body = await req.json();
+    const currentPage =
+      typeof body?.currentPage === 'string' &&
+      body.currentPage.length > 0 &&
+      body.currentPage.length <= 500
+        ? body.currentPage
+        : null;
+    const isIdle = body?.isIdle === true;
+    if (!currentPage) {
+      return NextResponse.json({ error: 'Invalid heartbeat payload.' }, { status: 400 });
+    }
     
     // Next.js standard way to pull IP and User-Agent from headers
     const headersList = await headers();
@@ -88,7 +98,7 @@ export async function POST(req: Request) {
     if (dbError) {
       console.error('Session DB Error:', dbError.message);
       // Fail silently for analytics rather than crashing the heartbeat for the user
-      return NextResponse.json({ success: false, error: dbError.message }, { status: 200 });
+      return NextResponse.json({ success: false }, { status: 200 });
     }
 
     return NextResponse.json({ success: true, status: isIdle ? 'Idle' : 'Active' });

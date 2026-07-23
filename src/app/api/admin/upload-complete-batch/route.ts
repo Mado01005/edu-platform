@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyR2ObjectExists } from '@/lib/r2';
+import { extractR2Key } from '@/lib/validation';
 
 // P3.2: Increased timeout for large batches
 export const maxDuration = 60;
@@ -55,10 +56,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { items }: { items: BatchCompleteItem[] } = await req.json();
+    let items: BatchCompleteItem[];
+    try {
+      const body = await req.json();
+      items = body?.items;
+    } catch {
+      return NextResponse.json({ error: 'A valid JSON body is required.' }, { status: 400 });
+    }
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0 || items.length > 1_000) {
       return NextResponse.json({ error: 'No items provided' }, { status: 400 });
+    }
+
+    const hasInvalidItem = items.some(
+      (item) =>
+        !item ||
+        typeof item.lessonId !== 'string' ||
+        !item.lessonId ||
+        typeof item.fileName !== 'string' ||
+        !item.fileName ||
+        item.fileName.length > 1_024 ||
+        typeof item.idempotencyKey !== 'string' ||
+        !item.idempotencyKey ||
+        !['file', 'vimeo', 'folder', 'link', 'snippet'].includes(item.itemType),
+    );
+    if (hasInvalidItem) {
+      return NextResponse.json({ error: 'Batch contains invalid upload metadata.' }, { status: 400 });
     }
 
     console.log(`[BATCH] Received ${items.length} items for processing`);
@@ -84,8 +107,10 @@ export async function POST(req: Request) {
       try {
         // 1. R2 Verification
         if (item.itemType === 'file' && item.publicUrl) {
-          const r2PublicBase = process.env.R2_PUBLIC_URL || '';
-          const r2Key = item.publicUrl.replace(r2PublicBase + '/', '');
+          const r2Key = extractR2Key(item.publicUrl);
+          if (!r2Key) {
+            return { status: 'error', item, error: 'Invalid public URL.' };
+          }
           const contentLength = await verifyR2ObjectExists(r2Key);
           
           if (contentLength === null) {

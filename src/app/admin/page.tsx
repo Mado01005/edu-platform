@@ -16,13 +16,16 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
+  const threeDaysAgo = new Date();
+  threeDaysAgo.setUTCDate(threeDaysAgo.getUTCDate() - 3);
+
   // Fetch all concurrent Admin Data before rendering
   const [subjects, { data: roles }, { data: allLogs }, { data: historicalLogs }, { data: liveSessions }] = await Promise.all([
     getAllSubjects(),
     supabaseAdmin.from('user_roles').select('*'),
     supabaseAdmin.from('activity_logs').select('user_email'),
     supabaseAdmin.from('activity_logs').select('*')
-      .gt('created_at', new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString())
+      .gt('created_at', threeDaysAgo.toISOString())
       .order('created_at', { ascending: false })
       .limit(2000),
     supabaseAdmin.from('live_sessions').select('*').order('last_active_at', { ascending: false }).limit(200)

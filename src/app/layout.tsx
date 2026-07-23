@@ -79,25 +79,30 @@ export default async function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
         <Providers>
-          <InteractionTracker />
-          <SessionTracker />
           <PWAInstallPrompt />
           <KeyboardShortcuts />
           <PrefetchEngine />
-          <StudyTimer />
-          <MobileNav />
+          {session ? (
+            <>
+              <InteractionTracker />
+              <SessionTracker />
+              <StudyTimer />
+              <MobileNav />
+            </>
+          ) : null}
 
           <SpotifyProvider accessToken={spotifyToken} refreshToken={spotifyRefreshToken} tokenExpiresAt={spotifyTokenExpiresAt}>
             {children}
-            <MusicPlayer />
+            {session ? <MusicPlayer /> : null}
           </SpotifyProvider>
         </Providers>
 
-        <FloatingTutor />
-        <SpeedInsights />
+        {session ? <FloatingTutor /> : null}
+        {process.env.NODE_ENV === 'production' ? <SpeedInsights /> : null}
 
         {/* Tawk.to Live Chat Script */}
-        <Script id="tawk-to" strategy="afterInteractive" dangerouslySetInnerHTML={{
+        {process.env.NODE_ENV === 'production' ? (
+          <Script id="tawk-to" strategy="afterInteractive" dangerouslySetInnerHTML={{
           __html: `
             var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
             (function(){
@@ -109,7 +114,8 @@ export default async function RootLayout({
             s0.parentNode.insertBefore(s1,s0);
             })();
           `
-        }} />
+          }} />
+        ) : null}
 
         {/* PWA Service Worker Registration */}
         <Script id="register-pwa-sw" strategy="afterInteractive">

@@ -37,6 +37,7 @@ export default function BookmarkButton({ subjectSlug, lessonSlug, lessonTitle, s
         bookmarks.filter((b: any) => !(b.subjectSlug === subjectSlug && b.lessonSlug === lessonSlug))
       ));
     }
+    window.dispatchEvent(new Event('edu-bookmarks-changed'));
   };
 
   return (

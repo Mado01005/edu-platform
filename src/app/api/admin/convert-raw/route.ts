@@ -1,15 +1,35 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { isValidR2Url } from '@/lib/validation';
+
+type CloudConvertJobResponse = {
+  data?: { id?: unknown };
+};
 
 export async function POST(req: Request) {
   try {
-    const apiKey = process.env.CLOUDCONVERT_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Missing CLOUDCONVERT_API_KEY in environment variables.' }, { status: 500 });
+    const session = await auth();
+    if (!session?.user?.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { url } = await req.json();
-    if (!url) {
-      return NextResponse.json({ error: 'Missing file URL for conversion.' }, { status: 400 });
+    const apiKey = process.env.CLOUDCONVERT_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'RAW conversion is not configured.' },
+        { status: 503 },
+      );
+    }
+
+    const body: unknown = await req.json();
+    const url =
+      body && typeof body === 'object' ? Reflect.get(body, 'url') : null;
+
+    if (typeof url !== 'string' || !isValidR2Url(url)) {
+      return NextResponse.json(
+        { error: 'A valid R2 file URL is required.' },
+        { status: 400 },
+      );
     }
 
     // Create a CloudConvert Job using the provided Public URL
@@ -23,7 +43,7 @@ export async function POST(req: Request) {
         tasks: {
           'import-raw': {
             operation: 'import/url',
-            url: url
+            url,
           },
           'convert-raw': {
             operation: 'convert',
@@ -40,17 +60,30 @@ export async function POST(req: Request) {
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return NextResponse.json({ error: `CloudConvert API Error: ${err}` }, { status: response.status });
+      const providerError = await response.text();
+      console.error('[CloudConvert] Job creation failed:', providerError);
+      return NextResponse.json(
+        { error: 'The conversion provider rejected this file.' },
+        { status: 502 },
+      );
     }
 
-    const job = await response.json();
+    const job = (await response.json()) as CloudConvertJobResponse;
+    const jobId = job.data?.id;
 
-    return NextResponse.json({
-      jobId: job.data.id
-    });
+    if (typeof jobId !== 'string' || !jobId) {
+      return NextResponse.json(
+        { error: 'The conversion provider returned an invalid job.' },
+        { status: 502 },
+      );
+    }
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ jobId });
+  } catch (error: unknown) {
+    console.error('[CloudConvert] Unable to create conversion job:', error);
+    return NextResponse.json(
+      { error: 'Unable to start RAW conversion.' },
+      { status: 500 },
+    );
   }
 }

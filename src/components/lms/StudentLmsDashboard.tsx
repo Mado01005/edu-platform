@@ -8,6 +8,7 @@ import {
   Radio,
 } from 'lucide-react';
 import { LmsHeader } from '@/components/lms/LmsHeader';
+import { LocalDateTime } from '@/components/lms/LocalDateTime';
 import { getPrisma } from '@/lib/prisma';
 
 export async function StudentLmsDashboard({ user }: { user: User }) {
@@ -141,10 +142,12 @@ export async function StudentLmsDashboard({ user }: { user: User }) {
                   <p className="mt-1 break-words font-black">{session.title}</p>
                   <p className="mt-2 flex flex-wrap gap-3 text-xs text-zinc-500">
                     <span className="flex items-center gap-1">
-                      <CalendarDays className="size-3" /> {session.startTime.toLocaleDateString()}
+                      <CalendarDays className="size-3" />{' '}
+                      <LocalDateTime date={session.startTime} dateOnly />
                     </span>
                     <span className="flex items-center gap-1">
-                      <Clock3 className="size-3" /> {session.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <Clock3 className="size-3" />{' '}
+                      <LocalDateTime date={session.startTime} timeOnly />
                     </span>
                   </p>
                 </div>

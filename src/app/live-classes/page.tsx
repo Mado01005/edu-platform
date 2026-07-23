@@ -1,5 +1,6 @@
 import { CalendarDays, Clock3, Radio, Video } from 'lucide-react';
 import { LmsHeader } from '@/components/lms/LmsHeader';
+import { LocalDateTime } from '@/components/lms/LocalDateTime';
 import { requireLmsPageUser } from '@/lib/lms/auth';
 import { getPrisma } from '@/lib/prisma';
 
@@ -54,7 +55,7 @@ export default async function LiveClassesPage() {
                 <div className="mt-2 flex flex-wrap gap-3 text-xs text-zinc-500">
                   <span className="flex items-center gap-1">
                     <CalendarDays className="size-3" />
-                    {session.startTime.toLocaleString()}
+                    <LocalDateTime date={session.startTime} />
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock3 className="size-3" />

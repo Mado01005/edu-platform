@@ -73,9 +73,6 @@ const MusicPlayerContent = () => {
     if (!isDraggingRef.current) setLocalVolume(volume);
   }, [volume]);
 
-  // Hide on public pages
-  if (pathname === '/login' || pathname === '/lms/login' || pathname === '/') return null;
-
   // Fetch Social Activities
   useEffect(() => {
     const fetchSocial = async () => {
@@ -169,6 +166,11 @@ const MusicPlayerContent = () => {
     isDraggingRef.current = false;
     setSpotifyVolume(v);
   }, [setSpotifyVolume]);
+
+  // Keep every hook above this route-specific early return.
+  if (pathname === '/login' || pathname === '/lms/login' || pathname === '/') {
+    return null;
+  }
 
   const toggleMute = async () => {
     if (!hasToken || isPremiumRequired) return;

@@ -21,6 +21,8 @@ import {
   updateLessonAction,
 } from '@/app/lms/actions';
 import { R2UploadField } from '@/components/lms/R2UploadField';
+import { LocalDateTime } from '@/components/lms/LocalDateTime';
+import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 
 type LessonData = {
   id: string;
@@ -142,10 +144,13 @@ function LessonEditor({
           <input defaultChecked={lesson.isFree} name="isFree" type="checkbox" />
           Free preview lesson
         </label>
-        <button className="flex w-full min-w-0 items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-black text-black">
+        <ActionSubmitButton
+          className="flex w-full min-w-0 items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-black text-black"
+          pendingLabel="Saving lesson…"
+        >
           <Save className="size-4" />
           Save lesson
-        </button>
+        </ActionSubmitButton>
       </form>
     </details>
   );
@@ -163,6 +168,7 @@ function ModuleCard({
   );
   const createLesson = createLessonAction.bind(null, module.id);
   const [draggedLesson, setDraggedLesson] = useState<string | null>(null);
+  const [reorderError, setReorderError] = useState('');
 
   async function dropLesson(targetId: string) {
     if (!draggedLesson || draggedLesson === targetId) return;
@@ -171,7 +177,13 @@ function ModuleCard({
     next.splice(next.indexOf(targetId), 0, draggedLesson);
     setLessonIds(next);
     setDraggedLesson(null);
-    await reorderLessonsAction(module.id, next);
+    setReorderError('');
+    try {
+      await reorderLessonsAction(module.id, next);
+    } catch {
+      setLessonIds(lessonIds);
+      setReorderError('Lesson order was not saved. Please try again.');
+    }
   }
 
   return (
@@ -208,6 +220,11 @@ function ModuleCard({
           );
         })}
       </div>
+      {reorderError ? (
+        <p aria-live="polite" className="mt-2 text-xs text-red-300">
+          {reorderError}
+        </p>
+      ) : null}
 
       <form action={createLesson} className="mt-3 grid min-w-0 grid-cols-[1fr_auto] gap-2">
         <input
@@ -227,9 +244,12 @@ function ModuleCard({
           <option value="PDF">PDF</option>
           <option value="TEXT">Text</option>
         </select>
-        <button className="col-span-2 flex w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-black hover:bg-white/5">
+        <ActionSubmitButton
+          className="col-span-2 flex w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-black hover:bg-white/5"
+          pendingLabel="Adding lesson…"
+        >
           <Plus className="size-3" /> Add lesson
-        </button>
+        </ActionSubmitButton>
       </form>
     </section>
   );
@@ -242,6 +262,7 @@ export function CourseBuilder({ course }: { course: CourseData }) {
     [course.modules],
   );
   const [draggedModule, setDraggedModule] = useState<string | null>(null);
+  const [reorderError, setReorderError] = useState('');
   const updateCourse = updateCourseAction.bind(null, course.id);
   const createModule = createModuleAction.bind(null, course.id);
   const scheduleZoom = scheduleZoomAction.bind(null, course.id);
@@ -253,7 +274,13 @@ export function CourseBuilder({ course }: { course: CourseData }) {
     next.splice(next.indexOf(targetId), 0, draggedModule);
     setModuleIds(next);
     setDraggedModule(null);
-    await reorderModulesAction(course.id, next);
+    setReorderError('');
+    try {
+      await reorderModulesAction(course.id, next);
+    } catch {
+      setModuleIds(moduleIds);
+      setReorderError('Module order was not saved. Please try again.');
+    }
   }
 
   return (
@@ -282,9 +309,12 @@ export function CourseBuilder({ course }: { course: CourseData }) {
           <input defaultChecked={course.isPublished} name="isPublished" type="checkbox" />
           Published in catalog
         </label>
-        <button className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black">
+        <ActionSubmitButton
+          className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black"
+          pendingLabel="Saving course…"
+        >
           <Save className="size-4" /> Save course
-        </button>
+        </ActionSubmitButton>
       </form>
 
       <div className="flex items-center justify-between">
@@ -314,6 +344,11 @@ export function CourseBuilder({ course }: { course: CourseData }) {
           </div>
         );
       })}
+      {reorderError ? (
+        <p aria-live="polite" className="text-xs text-red-300">
+          {reorderError}
+        </p>
+      ) : null}
 
       <form action={createModule} className="flex min-w-0 flex-col gap-2 rounded-2xl border border-dashed border-white/15 p-3">
         <input
@@ -322,9 +357,12 @@ export function CourseBuilder({ course }: { course: CourseData }) {
           placeholder="Module title"
           required
         />
-        <button className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-black hover:bg-white/5">
+        <ActionSubmitButton
+          className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-black hover:bg-white/5"
+          pendingLabel="Adding module…"
+        >
           <Plus className="size-4" /> Add module
-        </button>
+        </ActionSubmitButton>
       </form>
 
       <section className="flex min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4">
@@ -336,7 +374,7 @@ export function CourseBuilder({ course }: { course: CourseData }) {
           <div className="rounded-xl bg-black p-3 text-sm" key={session.id}>
             <p className="font-bold">{session.title}</p>
             <p className="mt-1 text-xs text-zinc-500">
-              {new Date(session.startTime).toLocaleString()} · {session.duration} min
+              <LocalDateTime date={session.startTime} /> · {session.duration} min
             </p>
           </div>
         ))}
@@ -344,12 +382,18 @@ export function CourseBuilder({ course }: { course: CourseData }) {
           <input className="w-full min-w-0 rounded-lg border border-white/10 bg-black px-3 py-2 text-sm" name="title" placeholder="Session title" required />
           <input className="w-full min-w-0 rounded-lg border border-white/10 bg-black px-3 py-2 text-sm" name="meetingUrl" placeholder="https://zoom.us/j/…" required type="url" />
           <div className="grid min-w-0 grid-cols-2 gap-2">
-            <input className="min-w-0 rounded-lg border border-white/10 bg-black px-2 py-2 text-xs" name="startTime" required type="datetime-local" />
+            <label className="min-w-0 text-[10px] font-bold uppercase tracking-wide text-zinc-500">
+              Start time (UTC)
+              <input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-black px-2 py-2 text-xs normal-case tracking-normal text-white" name="startTime" required type="datetime-local" />
+            </label>
             <input className="min-w-0 rounded-lg border border-white/10 bg-black px-2 py-2 text-xs" defaultValue="60" max="480" min="5" name="duration" required type="number" />
           </div>
-          <button className="flex w-full min-w-0 items-center justify-center gap-2 rounded-lg bg-emerald-300 px-3 py-2 text-sm font-black text-black">
+          <ActionSubmitButton
+            className="flex w-full min-w-0 items-center justify-center gap-2 rounded-lg bg-emerald-300 px-3 py-2 text-sm font-black text-black"
+            pendingLabel="Scheduling…"
+          >
             <CalendarPlus className="size-4" /> Schedule class
-          </button>
+          </ActionSubmitButton>
         </form>
       </section>
     </div>

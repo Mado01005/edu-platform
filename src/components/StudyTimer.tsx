@@ -16,7 +16,10 @@ export default function StudyTimer() {
     // Load today's session count
     const today = new Date().toISOString().split('T')[0];
     const saved = localStorage.getItem(`pomodoro_${today}`);
-    if (saved) setSessions(parseInt(saved));
+    const restore = window.setTimeout(() => {
+      if (saved) setSessions(Number.parseInt(saved, 10));
+    }, 0);
+    return () => window.clearTimeout(restore);
   }, []);
 
   useEffect(() => {
@@ -25,22 +28,22 @@ export default function StudyTimer() {
         setTimeLeft(prev => prev - 1);
       }, 1000);
     } else if (timeLeft === 0) {
-      // Timer done!
-      if (!isBreak) {
-        // Study session complete → start break
-        const today = new Date().toISOString().split('T')[0];
-        const newCount = sessions + 1;
-        setSessions(newCount);
-        localStorage.setItem(`pomodoro_${today}`, String(newCount));
-        setIsBreak(true);
-        setTimeLeft(5 * 60); // 5 min break
-        setIsRunning(true);
-      } else {
-        // Break complete → ready for next study
-        setIsBreak(false);
-        setTimeLeft(25 * 60);
-        setIsRunning(false);
-      }
+      const transition = window.setTimeout(() => {
+        if (!isBreak) {
+          const today = new Date().toISOString().split('T')[0];
+          const newCount = sessions + 1;
+          setSessions(newCount);
+          localStorage.setItem(`pomodoro_${today}`, String(newCount));
+          setIsBreak(true);
+          setTimeLeft(5 * 60);
+          setIsRunning(true);
+        } else {
+          setIsBreak(false);
+          setTimeLeft(25 * 60);
+          setIsRunning(false);
+        }
+      }, 0);
+      return () => window.clearTimeout(transition);
     }
 
     return () => {

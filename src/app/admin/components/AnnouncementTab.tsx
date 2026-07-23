@@ -1,9 +1,5 @@
 'use client';
 
-interface AnnouncementTabProps {
-  // No specific props needed for now as it handles its own local input
-}
-
 export default function AnnouncementTab() {
   const handlePostAnnouncement = async () => {
     const msgInput = document.getElementById('announcement-msg') as HTMLInputElement;

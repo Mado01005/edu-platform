@@ -1,5 +1,6 @@
 import { MessageCircle, Reply } from 'lucide-react';
 import { createDiscussionAction } from '@/app/lms/actions';
+import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 
 type Discussion = {
   id: string;
@@ -42,9 +43,12 @@ export function DiscussionThread({
           placeholder="Ask a question about this lesson…"
           required
         />
-        <button className="self-end rounded-xl bg-white px-4 py-2 text-sm font-black text-black">
+        <ActionSubmitButton
+          className="self-end rounded-xl bg-white px-4 py-2 text-sm font-black text-black"
+          pendingLabel="Posting…"
+        >
           Post question
-        </button>
+        </ActionSubmitButton>
       </form>
 
       {discussions.map((discussion) => {
@@ -91,9 +95,12 @@ export function DiscussionThread({
                   placeholder="Write a reply"
                   required
                 />
-                <button className="shrink-0 rounded-lg border border-white/10 px-3 text-xs font-black">
+                <ActionSubmitButton
+                  className="shrink-0 rounded-lg border border-white/10 px-3 text-xs font-black"
+                  pendingLabel="Sending…"
+                >
                   Send
-                </button>
+                </ActionSubmitButton>
               </form>
             </details>
           </article>

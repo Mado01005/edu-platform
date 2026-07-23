@@ -9,6 +9,7 @@ import {
   requireLmsRole,
   requireLmsUser,
 } from '@/lib/lms/auth';
+import { getVideoEmbedUrl } from '@/lib/lms/video';
 
 const CONTENT_TYPES = new Set<ContentType>([
   'VIMEO',
@@ -104,13 +105,26 @@ export async function createCourseAction(formData: FormData) {
 
 export async function updateCourseAction(courseId: string, formData: FormData) {
   await teacherCourse(courseId);
+  const isPublished = formData.get('isPublished') === 'on';
+
+  if (isPublished) {
+    const lessonCount = await getPrisma().lesson.count({
+      where: { module: { courseId } },
+    });
+    if (!lessonCount) {
+      throw new Error('Add at least one lesson before publishing this course.');
+    }
+  }
+
   await getPrisma().course.update({
     where: { id: courseId },
     data: {
       title: requiredString(formData, 'title'),
       description: optionalString(formData, 'description'),
-      imageUrl: optionalString(formData, 'imageUrl', 2_000),
-      isPublished: formData.get('isPublished') === 'on',
+      imageUrl: assertR2PublicUrl(
+        optionalString(formData, 'imageUrl', 2_000),
+      ),
+      isPublished,
     },
   });
   revalidatePath(`/teacher/courses/${courseId}/edit`);
@@ -185,6 +199,13 @@ export async function updateLessonAction(
       : type === 'R2_VIDEO'
         ? assertR2PublicUrl(optionalString(formData, 'r2VideoUrl', 2_000))
         : null;
+  if (
+    (type === 'VIMEO' || type === 'YOUTUBE') &&
+    videoUrl &&
+    !getVideoEmbedUrl(videoUrl, type)
+  ) {
+    throw new Error(`Enter a valid ${type === 'VIMEO' ? 'Vimeo' : 'YouTube'} HTTPS URL.`);
+  }
   const pdfUrl =
     type === 'PDF'
       ? assertR2PublicUrl(optionalString(formData, 'pdfUrl', 2_000))
@@ -217,6 +238,7 @@ export async function reorderModulesAction(
   const existingIds = new Set(existing.map(({ id }) => id));
 
   if (
+    new Set(orderedIds).size !== orderedIds.length ||
     orderedIds.length !== existingIds.size ||
     orderedIds.some((id) => !existingIds.has(id))
   ) {
@@ -252,6 +274,7 @@ export async function reorderLessonsAction(
   const existingIds = new Set(existing.map(({ id }) => id));
 
   if (
+    new Set(orderedIds).size !== orderedIds.length ||
     orderedIds.length !== existingIds.size ||
     orderedIds.some((id) => !existingIds.has(id))
   ) {
@@ -285,11 +308,17 @@ export async function scheduleZoomAction(
     throw new Error('Enter a valid Zoom HTTPS meeting URL.');
   }
 
-  const startTime = new Date(requiredString(formData, 'startTime', 100));
+  const startTimeValue = requiredString(formData, 'startTime', 100);
+  const startTime = new Date(
+    /(?:Z|[+-]\d{2}:\d{2})$/.test(startTimeValue)
+      ? startTimeValue
+      : `${startTimeValue}:00Z`,
+  );
   const duration = Number(requiredString(formData, 'duration', 5));
 
   if (
     Number.isNaN(startTime.getTime()) ||
+    startTime.getTime() <= Date.now() ||
     !Number.isInteger(duration) ||
     duration < 5 ||
     duration > 480
@@ -312,7 +341,7 @@ export async function scheduleZoomAction(
 }
 
 export async function enrollCourseAction(courseId: string) {
-  const student = await requireLmsUser();
+  const student = await requireLmsRole(['STUDENT']);
   const course = await getPrisma().course.findFirst({
     where: { id: courseId, isPublished: true },
     include: {
@@ -346,7 +375,7 @@ export async function updateLessonProgressAction(
   lessonId: string,
   completed: boolean,
 ) {
-  const student = await requireLmsUser();
+  const student = await requireLmsRole(['STUDENT']);
   const lesson = await getPrisma().lesson.findUnique({
     where: { id: lessonId },
     select: { module: { select: { courseId: true } } },

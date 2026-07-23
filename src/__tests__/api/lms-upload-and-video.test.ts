@@ -78,6 +78,57 @@ describe('LMS R2 presigned upload', () => {
     expect(mockGetPresignedUploadUrl).not.toHaveBeenCalled();
   });
 
+  it('rejects missing or malformed upload metadata', async () => {
+    const response = await createPresignedUpload(
+      uploadRequest({
+        fileName: 'lecture.mp4',
+        contentType: 'video/mp4',
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(mockGetPresignedUploadUrl).not.toHaveBeenCalled();
+  });
+
+  it('rejects oversized files before generating a signed URL', async () => {
+    const response = await createPresignedUpload(
+      uploadRequest({
+        fileName: 'lecture.mp4',
+        contentType: 'video/mp4',
+        size: 2 * 1024 * 1024 * 1024 + 1,
+      }),
+    );
+
+    expect(response.status).toBe(413);
+    expect(mockGetPresignedUploadUrl).not.toHaveBeenCalled();
+  });
+
+  it('rejects an extension that does not match the declared content type', async () => {
+    const response = await createPresignedUpload(
+      uploadRequest({
+        fileName: 'lecture.pdf',
+        contentType: 'video/mp4',
+        size: 1_024,
+      }),
+    );
+
+    expect(response.status).toBe(415);
+    expect(mockGetPresignedUploadUrl).not.toHaveBeenCalled();
+  });
+
+  it('returns a client error for malformed JSON', async () => {
+    const response = await createPresignedUpload(
+      new Request('http://localhost:3000/api/upload/r2', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{',
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(mockGetPresignedUploadUrl).not.toHaveBeenCalled();
+  });
+
   it('returns a short-lived, content-type-bound upload URL', async () => {
     const response = await createPresignedUpload(
       uploadRequest({

@@ -5,10 +5,11 @@ import { usePathname } from 'next/navigation';
 
 export default function SessionTracker() {
   const pathname = usePathname();
-  const lastActivityTime = useRef(Date.now());
+  const lastActivityTime = useRef(0);
   const isIdle = useRef(false);
 
   useEffect(() => {
+    lastActivityTime.current = Date.now();
     // Throttled activity tracker — fires max once per second
     let activityThrottled = false;
     const updateActivity = () => {
