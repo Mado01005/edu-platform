@@ -11,7 +11,13 @@ import { LmsHeader } from '@/components/lms/LmsHeader';
 import { LocalDateTime } from '@/components/lms/LocalDateTime';
 import { getPrisma } from '@/lib/prisma';
 
-export async function StudentLmsDashboard({ user }: { user: User }) {
+export async function StudentLmsDashboard({
+  notice,
+  user,
+}: {
+  notice?: string;
+  user: User;
+}) {
   const [enrollments, liveClasses] = await Promise.all([
     getPrisma().enrollment.findMany({
       where: { studentId: user.id },
@@ -52,6 +58,14 @@ export async function StudentLmsDashboard({ user }: { user: User }) {
     <div className="min-h-screen overflow-x-hidden bg-black text-white">
       <LmsHeader user={user} />
       <main className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-8 px-4 py-10">
+        {notice ? (
+          <div
+            className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm font-bold text-amber-100"
+            role="status"
+          >
+            {notice}
+          </div>
+        ) : null}
         <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.2),transparent_50%)] p-6 sm:p-8">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
             Student dashboard

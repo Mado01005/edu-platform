@@ -10,6 +10,7 @@ import {
   Loader2,
   LogOut,
   Settings,
+  Users,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/UI/avatar';
 import { Badge } from '@/components/UI/badge';
@@ -120,6 +121,14 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
             Settings
           </Link>
         </DropdownMenuItem>
+        {user.role === 'ADMIN' ? (
+          <DropdownMenuItem asChild>
+            <Link href="/admin/users">
+              <Users />
+              Manage users
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuSeparator />
         {error ? (
           <p className="px-2 py-1.5 text-xs leading-5 text-red-300">{error}</p>

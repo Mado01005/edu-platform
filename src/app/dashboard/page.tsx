@@ -19,12 +19,26 @@ import { StudentLmsDashboard } from '@/components/lms/StudentLmsDashboard';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string }>;
+}) {
+  const { notice } = await searchParams;
   const session = await auth();
   if (!session) {
     const lmsUser = await getLmsUser();
     if (lmsUser) {
-      return <StudentLmsDashboard user={lmsUser} />;
+      return (
+        <StudentLmsDashboard
+          notice={
+            notice === 'admin-required'
+              ? 'Administrator access is required for that page.'
+              : undefined
+          }
+          user={lmsUser}
+        />
+      );
     }
     redirect('/login');
   }

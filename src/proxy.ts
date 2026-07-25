@@ -55,8 +55,10 @@ export async function proxy(request: NextRequest) {
   // This middleware only protects page routes.
 
   const isTeacherRoute = matchesRoute(pathname, '/teacher');
+  const isLmsAdminRoute = matchesRoute(pathname, '/admin/users');
   const isSupabaseOnlyRoute =
     isTeacherRoute ||
+    isLmsAdminRoute ||
     matchesRoute(pathname, '/lms/profile') ||
     matchesRoute(pathname, '/courses') ||
     matchesRoute(pathname, '/live-classes');
@@ -78,23 +80,33 @@ export async function proxy(request: NextRequest) {
       return redirectWithSessionCookies(loginUrl, response);
     }
 
-    if (isTeacherRoute) {
-      const { data: profile, error } = await supabase!
-        .from('lms_users')
-        .select('role')
-        .eq('supabase_id', userId)
-        .maybeSingle();
+    const { data: profile, error } = await supabase!
+      .from('lms_users')
+      .select('role, status')
+      .eq('supabase_id', userId)
+      .maybeSingle();
 
-      if (
-        error ||
-        !profile ||
-        (profile.role !== 'TEACHER' && profile.role !== 'ADMIN')
-      ) {
-        return redirectWithSessionCookies(
-          new URL('/dashboard', request.url),
-          response,
-        );
-      }
+    if (error || !profile || profile.status !== 'ACTIVE') {
+      const loginUrl = new URL('/lms/login', request.url);
+      loginUrl.searchParams.set('error', 'Your account is unavailable.');
+      return redirectWithSessionCookies(loginUrl, response);
+    }
+
+    if (
+      isTeacherRoute &&
+      profile.role !== 'TEACHER' &&
+      profile.role !== 'ADMIN'
+    ) {
+      return redirectWithSessionCookies(
+        new URL('/dashboard', request.url),
+        response,
+      );
+    }
+
+    if (isLmsAdminRoute && profile.role !== 'ADMIN') {
+      const dashboardUrl = new URL('/dashboard', request.url);
+      dashboardUrl.searchParams.set('notice', 'admin-required');
+      return redirectWithSessionCookies(dashboardUrl, response);
     }
 
     return response;

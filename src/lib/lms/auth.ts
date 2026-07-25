@@ -59,14 +59,38 @@ export async function getLmsUser(): Promise<User | null> {
     return null;
   }
 
-  return getPrisma().user.upsert({
+  const user = await getPrisma().user.findUnique({
     where: { supabaseId: identity.supabaseId },
-    create: identity,
-    update: {
-      email: identity.email,
-      ...(identity.name ? { name: identity.name } : {}),
-    },
   });
+
+  if (!user || user.status !== 'ACTIVE') {
+    return null;
+  }
+
+  if (
+    user.email !== identity.email ||
+    (identity.name && user.name !== identity.name)
+  ) {
+    return getPrisma().user.update({
+      where: { id: user.id },
+      data: {
+        email: identity.email,
+        ...(identity.name ? { name: identity.name } : {}),
+      },
+    });
+  }
+
+  return user;
+}
+
+export async function requireAdminPage() {
+  const user = await requireLmsPageUser();
+
+  if (user.role !== 'ADMIN') {
+    redirect('/dashboard?notice=admin-required');
+  }
+
+  return user;
 }
 
 export async function requireLmsUser(): Promise<User> {
