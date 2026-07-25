@@ -49,8 +49,8 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.startsWith('/api/')) return;
 
   // 3. Bypass ALL third-party / cross-origin requests.
-  //    This catches Spotify SDK (sdk.scdn.co, *.spotify.com), Tawk.to,
-  //    Google Fonts loaded from JS, analytics, and any browser-extension
+  //    This catches Spotify SDK (sdk.scdn.co, *.spotify.com), Google Fonts
+  //    loaded from JS, analytics, and any browser-extension
   //    injections — none of them should be routed through our PWA cache.
   if (url.origin !== self.location.origin) return;
 

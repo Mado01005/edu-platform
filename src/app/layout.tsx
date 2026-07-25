@@ -105,23 +105,6 @@ export default async function RootLayout({
         {session ? <FloatingTutor /> : null}
         {process.env.NODE_ENV === 'production' ? <SpeedInsights /> : null}
 
-        {/* Tawk.to Live Chat Script */}
-        {process.env.NODE_ENV === 'production' ? (
-          <Script id="tawk-to" strategy="afterInteractive" dangerouslySetInnerHTML={{
-          __html: `
-            var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-            (function(){
-            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-            s1.async=true;
-            s1.src='https://embed.tawk.to/69beda18efc5d11c3692a4f8/default';
-            s1.charset='UTF-8';
-            s1.setAttribute('crossorigin','*');
-            s0.parentNode.insertBefore(s1,s0);
-            })();
-          `
-          }} />
-        ) : null}
-
         {/* PWA Service Worker Registration */}
         <Script id="register-pwa-sw" strategy="afterInteractive">
           {`

@@ -671,7 +671,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
-Content-Security-Policy: [configured for Supabase, Vimeo, Spotify, Tawk.to]
+Content-Security-Policy: [configured for Supabase, Vimeo, and Spotify]
 ```
 
 ---
