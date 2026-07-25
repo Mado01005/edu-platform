@@ -6,6 +6,7 @@ import {
   CalendarDays,
   GraduationCap,
   LayoutDashboard,
+  UserPlus,
 } from 'lucide-react';
 import { buttonVariants } from '@/components/UI/button';
 import { LmsAccountMenu } from '@/components/lms/LmsAccountMenu';
@@ -27,6 +28,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 sm:px-6">
         <div className="flex h-16 min-w-0 items-center gap-3">
           <Link
+            aria-label="Way Ground LMS catalog"
             className="group flex min-w-0 items-center gap-2.5 font-black"
             href="/catalog"
           >
@@ -63,16 +65,32 @@ export function LmsHeader({ user }: LmsHeaderProps) {
             {user ? (
               <LmsAccountMenu user={user} />
             ) : (
-              <Link
-                className={cn(
-                  buttonVariants({ size: 'sm' }),
-                  'h-10 rounded-xl bg-gradient-to-r from-violet-400 to-fuchsia-500 px-3.5 text-black shadow-lg shadow-violet-500/20 hover:from-violet-300 hover:to-fuchsia-400',
-                )}
-                href="/lms/login"
-              >
-                Sign in
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
+              <div className="flex min-w-0 items-center gap-2">
+                <Link
+                  className={cn(
+                    buttonVariants({ size: 'sm', variant: 'ghost' }),
+                    'h-10 px-2.5 sm:px-3',
+                  )}
+                  href="/lms/login"
+                >
+                  Sign in
+                  <ArrowRight
+                    className="hidden size-4 sm:block"
+                    aria-hidden="true"
+                  />
+                </Link>
+                <Link
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    'h-10 rounded-xl bg-gradient-to-r from-violet-400 to-fuchsia-500 px-3.5 text-black shadow-lg shadow-violet-500/20 hover:from-violet-300 hover:to-fuchsia-400',
+                  )}
+                  href="/lms/login?mode=signup"
+                >
+                  <UserPlus className="size-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">Create account</span>
+                  <span className="sm:hidden">Join</span>
+                </Link>
+              </div>
             )}
           </div>
         </div>

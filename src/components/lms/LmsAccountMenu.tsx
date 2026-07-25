@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
+  BookOpen,
   ChevronDown,
-  CircleUserRound,
+  LayoutDashboard,
   Loader2,
   LogOut,
   Settings,
@@ -102,9 +103,15 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/lms/profile">
-            <CircleUserRound />
-            Profile
+          <Link href="/dashboard">
+            <LayoutDashboard />
+            Dashboard
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/catalog">
+            <BookOpen />
+            Catalog
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -126,7 +133,7 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
           }}
         >
           {pending ? <Loader2 className="animate-spin" /> : <LogOut />}
-          {pending ? 'Signing out…' : 'Sign out'}
+          {pending ? 'Signing out…' : 'Sign Out'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

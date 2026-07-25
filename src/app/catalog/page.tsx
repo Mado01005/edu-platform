@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import {
   ArrowRight,
-  Award,
   BookOpen,
   CalendarDays,
+  Layers3,
   Search,
   SlidersHorizontal,
   Sparkles,
@@ -45,22 +45,22 @@ function categoryHref(category: CourseCategory, query: string) {
 const featureMetrics = [
   {
     icon: Zap,
-    label: 'Students Learning',
+    label: 'Active Students',
     value: '300+',
     accent: 'text-amber-300',
     glow: 'bg-amber-400/15',
   },
   {
     icon: Video,
-    label: 'Live Zoom Class Hubs',
-    value: '5',
+    label: 'Live Interactive Zoom Sessions',
+    value: 'Live',
     accent: 'text-cyan-300',
     glow: 'bg-cyan-400/15',
   },
   {
-    icon: Award,
-    label: 'Verified Certificates',
-    value: 'Ready',
+    icon: Layers3,
+    label: 'Structured Course Modules & Resources',
+    value: 'Guided',
     accent: 'text-violet-300',
     glow: 'bg-violet-400/15',
   },
@@ -135,9 +135,9 @@ export default async function CatalogPage({
                 Built for focused learning
               </span>
               <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
-                Build practical skills.
+                Courses built for
                 <span className="mt-1 block bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
-                  Make real progress.
+                  real progress.
                 </span>
               </h1>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">

@@ -109,7 +109,7 @@ export function CourseCard({ course, enrolled, user }: CourseCardProps) {
   );
   const categories = getCourseCategories(course);
   const enroll = enrollCourseAction.bind(null, course.id);
-  const instructorName = course.teacher.name ?? 'Way Ground instructor';
+  const instructorName = course.teacher.name ?? 'Dr. Abdallah Saad';
 
   return (
     <Card className="group overflow-hidden border-white/10 bg-zinc-950/90 py-0 transition duration-500 hover:-translate-y-1.5 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-950/40">
