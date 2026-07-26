@@ -24,44 +24,46 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-black text-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-zinc-950 text-white">
       <LmsHeader user={user} />
-      <main className="mx-auto flex w-full max-w-5xl min-w-0 flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
-        <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.24),transparent_52%)] p-5 sm:p-7">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400 text-black shadow-lg shadow-violet-500/20">
-            <Settings2 className="size-5" aria-hidden="true" />
-          </span>
-          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-violet-300">
-            Personal control center
-          </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-            Settings built around how you learn.
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
-            Manage your public profile, lesson defaults, notifications, and
-            credentials from one secure workspace.
-          </p>
-        </header>
+      <main className="min-h-[calc(100vh-4.5rem)] w-full bg-zinc-950">
+        <div className="mx-auto flex w-full max-w-4xl min-w-0 flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
+          <header className="w-full rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.24),transparent_52%)] p-5 sm:p-7">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400 text-black shadow-lg shadow-violet-500/20">
+              <Settings2 className="size-5" aria-hidden="true" />
+            </span>
+            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+              Personal control center
+            </p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+              Settings built around how you learn.
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
+              Manage your public profile, lesson defaults, notifications, and
+              credentials from one secure workspace.
+            </p>
+          </header>
 
-        <SettingsCenter
-          initialUser={{
-            avatarUrl: user.avatarUrl,
-            autoPlayNext: user.autoPlayNext,
-            bio: user.bio,
-            defaultPlaybackSpeed: user.defaultPlaybackSpeed,
-            defaultVideoQuality: user.defaultVideoQuality,
-            email: user.email,
-            headline: user.headline,
-            name: user.name,
-            notifyAnnouncements: user.notifyAnnouncements,
-            notifyDiscussions: user.notifyDiscussions,
-            notifyZoomClasses: user.notifyZoomClasses,
-            phoneNumber: user.phoneNumber,
-            phoneVerified: user.phoneVerified,
-            timezone: user.timezone,
-          }}
-          providers={providers}
-        />
+          <SettingsCenter
+            initialUser={{
+              avatarUrl: user.avatarUrl,
+              autoPlayNext: user.autoPlayNext,
+              bio: user.bio,
+              defaultPlaybackSpeed: user.defaultPlaybackSpeed,
+              defaultVideoQuality: user.defaultVideoQuality,
+              email: user.email,
+              headline: user.headline,
+              name: user.name,
+              notifyAnnouncements: user.notifyAnnouncements,
+              notifyDiscussions: user.notifyDiscussions,
+              notifyZoomClasses: user.notifyZoomClasses,
+              phoneNumber: user.phoneNumber,
+              phoneVerified: user.phoneVerified,
+              timezone: user.timezone,
+            }}
+            providers={providers}
+          />
+        </div>
       </main>
     </div>
   );

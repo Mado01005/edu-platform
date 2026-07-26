@@ -19,6 +19,7 @@ import {
   Sparkles,
   UserRound,
   UsersRound,
+  X,
 } from 'lucide-react';
 import {
   type ComponentProps,
@@ -61,6 +62,8 @@ interface AuthFieldProps
 
 const PASSWORD_MIN_LENGTH = 8;
 const RESEND_COOLDOWN_SECONDS = 60;
+const PHONE_AUTH_PENDING_MESSAGE =
+  'Phone sign-in is temporarily unavailable while SMS and WhatsApp delivery is being configured. Please use Email / Password or Google instead.';
 
 function GoogleLogo() {
   return (
@@ -134,6 +137,7 @@ export function LmsAuthExperience({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(initialError);
   const [notice, setNotice] = useState('');
+  const [phoneWarning, setPhoneWarning] = useState('');
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -149,13 +153,23 @@ export function LmsAuthExperience({
     setMode(nextMode);
     setError('');
     setNotice('');
+    setPhoneWarning('');
     setPassword('');
     setConfirmPassword('');
     setOtpCode('');
   }
 
-  function callbackUrl(next = nextPath) {
-    const callback = new URL('/auth/callback', window.location.origin);
+  function callbackUrl(next?: string) {
+    const origin =
+      typeof window !== 'undefined'
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_SITE_URL;
+    if (!origin) {
+      throw new Error('The authentication callback origin is not configured.');
+    }
+
+    const callback = new URL('/auth/callback', origin);
+    if (!next) return callback.toString();
     callback.searchParams.set('next', next);
     return callback.toString();
   }
@@ -249,22 +263,40 @@ export function LmsAuthExperience({
     }
   }
 
-  function phoneAuthError(authError: { code?: string; message: string }) {
+  function isPhoneProviderUnavailable(authError: {
+    code?: string;
+    message: string;
+  }) {
     const normalized = authError.message.toLowerCase();
-    if (
+    return (
       authError.code === 'otp_disabled' ||
       normalized.includes('unsupported phone provider') ||
-      normalized.includes('phone provider is not enabled')
-    ) {
-      return 'Phone sign-in is not enabled for this project yet. Use email or Google for now.';
+      normalized.includes('phone provider is not enabled') ||
+      normalized.includes('sms provider is not enabled') ||
+      normalized.includes('phone signups are disabled')
+    );
+  }
+
+  function showPhoneAuthError(authError: {
+    code?: string;
+    message: string;
+  }) {
+    if (isPhoneProviderUnavailable(authError)) {
+      setError('');
+      setPhoneWarning(PHONE_AUTH_PENDING_MESSAGE);
+      return;
     }
+
+    setPhoneWarning('');
+    const normalized = authError.message.toLowerCase();
     if (
       normalized.includes('signups not allowed') ||
       normalized.includes('user not found')
     ) {
-      return 'No verified account is linked to that phone number.';
+      setError('No verified account is linked to that phone number.');
+      return;
     }
-    return authError.message;
+    setError(authError.message);
   }
 
   async function requestPhoneOtp(
@@ -286,7 +318,7 @@ export function LmsAuthExperience({
       },
     });
     if (otpError) {
-      setError(phoneAuthError(otpError));
+      showPhoneAuthError(otpError);
       return false;
     }
 
@@ -301,6 +333,7 @@ export function LmsAuthExperience({
     setPending(true);
     setError('');
     setNotice('');
+    setPhoneWarning('');
 
     try {
       if (await requestPhoneOtp(phoneNumber, otpChannel)) {
@@ -335,7 +368,7 @@ export function LmsAuthExperience({
         type: 'sms',
       });
       if (verifyError) {
-        setError(phoneAuthError(verifyError));
+        showPhoneAuthError(verifyError);
         return;
       }
 
@@ -353,6 +386,7 @@ export function LmsAuthExperience({
     setPending(true);
     setError('');
     setNotice('');
+    setPhoneWarning('');
 
     try {
       if (await requestPhoneOtp(otpPhone, otpChannel)) {
@@ -372,9 +406,19 @@ export function LmsAuthExperience({
 
     try {
       const supabase = createSupabaseBrowserClient();
+      const redirectTo = callbackUrl();
+      if (process.env.NODE_ENV !== 'production') {
+        console.info('[LMS_GOOGLE_OAUTH_REDIRECT]', redirectTo);
+      }
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: callbackUrl() },
+        options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          redirectTo,
+        },
       });
 
       if (signInError) {
@@ -923,6 +967,26 @@ export function LmsAuthExperience({
                     <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
                     {notice}
                   </p>
+                ) : null}
+                {phoneWarning ? (
+                  <div
+                    className="flex min-w-0 items-start gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-3 text-sm leading-5 text-amber-100"
+                    role="status"
+                  >
+                    <Smartphone
+                      className="mt-0.5 size-4 shrink-0 text-amber-300"
+                      aria-hidden="true"
+                    />
+                    <p className="min-w-0 flex-1">{phoneWarning}</p>
+                    <button
+                      aria-label="Dismiss phone sign-in warning"
+                      className="shrink-0 rounded-md p-1 text-amber-300 transition hover:bg-amber-300/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                      onClick={() => setPhoneWarning('')}
+                      type="button"
+                    >
+                      <X className="size-4" aria-hidden="true" />
+                    </button>
+                  </div>
                 ) : null}
                 {error ? (
                   <p

@@ -14,7 +14,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { DEFAULT_PHONE_COUNTRY } from '@/lib/phone';
+import {
+  DEFAULT_PHONE_COUNTRY,
+  normalizePartialPhoneNumber,
+} from '@/lib/phone';
 import { cn } from '@/lib/utils';
 
 const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
@@ -49,17 +52,6 @@ function nationalValue(value: string, country: CountryCode) {
   const parsed = parsePhoneNumberFromString(value);
   if (parsed?.country === country) return parsed.formatNational();
   return value;
-}
-
-function normalizedPartialPhone(value: string, country: CountryCode) {
-  const trimmed = value.trim();
-  if (!trimmed) return '';
-
-  const parsed = parsePhoneNumberFromString(trimmed, country);
-  if (parsed) return parsed.number;
-
-  const digits = trimmed.replace(/\D/g, '').replace(/^0+/, '');
-  return digits ? `+${getCountryCallingCode(country)}${digits}` : '';
 }
 
 interface PhoneInputProps
@@ -117,7 +109,7 @@ export function PhoneInput({
     setCountry(nextCountry);
     setOpen(false);
     setQuery('');
-    onChange(normalizedPartialPhone(inputValue, nextCountry));
+    onChange(normalizePartialPhoneNumber(inputValue, nextCountry));
   }
 
   return (
@@ -152,7 +144,7 @@ export function PhoneInput({
               if (parsed?.country) setCountry(parsed.country);
             }
 
-            onChange(normalizedPartialPhone(nextValue, country));
+            onChange(normalizePartialPhoneNumber(nextValue, country));
           }}
           placeholder={placeholder}
           required={required}

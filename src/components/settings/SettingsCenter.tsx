@@ -28,7 +28,7 @@ export function SettingsCenter({
   providers,
 }: SettingsCenterProps) {
   return (
-    <Tabs defaultValue="profile">
+    <Tabs className="w-full" defaultValue="profile">
       <TabsList aria-label="Settings sections">
         <TabsTrigger value="profile">
           <CircleUserRound className="size-4" aria-hidden="true" />
@@ -48,16 +48,16 @@ export function SettingsCenter({
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="profile">
+      <TabsContent className="w-full" value="profile">
         <ProfileSettingsForm initialUser={initialUser} />
       </TabsContent>
-      <TabsContent value="learning">
+      <TabsContent className="w-full" value="learning">
         <LearningPreferencesForm initialUser={initialUser} />
       </TabsContent>
-      <TabsContent value="notifications">
+      <TabsContent className="w-full" value="notifications">
         <NotificationSettingsForm initialUser={initialUser} />
       </TabsContent>
-      <TabsContent value="security">
+      <TabsContent className="w-full" value="security">
         <SecuritySettingsForm
           email={initialUser.email}
           providers={providers}
