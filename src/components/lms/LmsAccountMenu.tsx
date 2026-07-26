@@ -6,13 +6,14 @@ import { useState } from 'react';
 import {
   BookOpen,
   ChevronDown,
+  HardDrive,
   LayoutDashboard,
   Loader2,
   LogOut,
   Settings,
   Users,
 } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/UI/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/UI/avatar';
 import { Badge } from '@/components/UI/badge';
 import {
   DropdownMenu,
@@ -29,6 +30,7 @@ interface LmsAccountMenuProps {
     email: string;
     name: string | null;
     role: 'STUDENT' | 'TEACHER' | 'ADMIN';
+    avatarUrl?: string | null;
   };
 }
 
@@ -79,6 +81,10 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
           type="button"
         >
           <Avatar>
+            <AvatarImage
+              alt={`${displayName} avatar`}
+              src={user.avatarUrl ?? undefined}
+            />
             <AvatarFallback>{initials(user.name, user.email)}</AvatarFallback>
           </Avatar>
           <span className="hidden min-w-0 sm:block">
@@ -116,18 +122,26 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/lms/profile#settings">
+          <Link href="/settings">
             <Settings />
             Settings
           </Link>
         </DropdownMenuItem>
         {user.role === 'ADMIN' ? (
-          <DropdownMenuItem asChild>
-            <Link href="/admin/users">
-              <Users />
-              Manage users
-            </Link>
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/users">
+                <Users />
+                Manage users
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/storage">
+                <HardDrive />
+                R2 storage
+              </Link>
+            </DropdownMenuItem>
+          </>
         ) : null}
         <DropdownMenuSeparator />
         {error ? (

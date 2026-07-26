@@ -5,9 +5,11 @@ import {
   type AdminUserRecord,
   UserManagementConsole,
 } from '@/app/admin/users/UserManagementConsole';
+import { AdminStorageWidget } from '@/components/Admin/AdminStorageWidget';
 import { listAllSupabaseAuthUsers } from '@/lib/lms/admin-users';
 import { requireAdminPage } from '@/lib/lms/auth';
 import { getPrisma } from '@/lib/prisma';
+import { getR2StorageSnapshot } from '@/lib/r2-storage';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +30,9 @@ export default async function AdminUsersPage() {
   });
 
   let authStatusAvailable = true;
+  let storageSnapshot: Awaited<
+    ReturnType<typeof getR2StorageSnapshot>
+  > | null = null;
   let authUsersById = new Map<
     string,
     Awaited<ReturnType<typeof listAllSupabaseAuthUsers>>[number]
@@ -39,6 +44,12 @@ export default async function AdminUsersPage() {
   } catch (error) {
     authStatusAvailable = false;
     console.error('[LMS_ADMIN_USER_DIRECTORY]', error);
+  }
+
+  try {
+    storageSnapshot = await getR2StorageSnapshot(0);
+  } catch (error) {
+    console.error('[LMS_ADMIN_STORAGE_WIDGET]', error);
   }
 
   const records: AdminUserRecord[] = users.map((user) => {
@@ -92,6 +103,14 @@ export default async function AdminUsersPage() {
             leaving the learning workspace.
           </p>
         </header>
+
+        {storageSnapshot ? (
+          <AdminStorageWidget
+            fileCount={storageSnapshot.fileCount}
+            quotaBytes={storageSnapshot.quotaBytes}
+            totalBytes={storageSnapshot.totalBytes}
+          />
+        ) : null}
 
         <UserManagementConsole
           authStatusAvailable={authStatusAvailable}

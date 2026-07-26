@@ -2,20 +2,28 @@
 
 import type { ContentType } from '@prisma/client';
 import { Download, Film } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getVideoEmbedUrl } from '@/lib/lms/video';
 
 type UniversalVideoPlayerProps = {
+  autoPlayNextHref?: string;
+  defaultPlaybackSpeed?: number;
+  preferredQuality?: string;
   title: string;
   type: ContentType;
   url?: string | null;
 };
 
 export function UniversalVideoPlayer({
+  autoPlayNextHref,
+  defaultPlaybackSpeed = 1,
+  preferredQuality = 'AUTO',
   title,
   type,
   url,
 }: UniversalVideoPlayerProps) {
+  const router = useRouter();
   const [mediaFailed, setMediaFailed] = useState(false);
 
   if (!url) {
@@ -67,10 +75,17 @@ export function UniversalVideoPlayer({
         className="aspect-video w-full rounded-2xl bg-black"
         controls
         controlsList="nodownload"
+        data-preferred-quality={preferredQuality}
         playsInline
         preload="metadata"
         src={safeUrl.toString()}
+        onEnded={() => {
+          if (autoPlayNextHref) router.push(autoPlayNextHref);
+        }}
         onError={() => setMediaFailed(true)}
+        onLoadedMetadata={(event) => {
+          event.currentTarget.playbackRate = defaultPlaybackSpeed;
+        }}
       >
         Your browser does not support HTML5 video.
       </video>

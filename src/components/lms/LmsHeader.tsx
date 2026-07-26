@@ -13,7 +13,7 @@ import { LmsAccountMenu } from '@/components/lms/LmsAccountMenu';
 import { cn } from '@/lib/utils';
 
 interface LmsHeaderProps {
-  user: Pick<User, 'email' | 'name' | 'role'> | null;
+  user: Pick<User, 'avatarUrl' | 'email' | 'name' | 'role'> | null;
 }
 
 const navigation = [

@@ -55,10 +55,13 @@ export async function proxy(request: NextRequest) {
   // This middleware only protects page routes.
 
   const isTeacherRoute = matchesRoute(pathname, '/teacher');
-  const isLmsAdminRoute = matchesRoute(pathname, '/admin/users');
+  const isLmsAdminRoute =
+    matchesRoute(pathname, '/admin/users') ||
+    matchesRoute(pathname, '/admin/storage');
   const isSupabaseOnlyRoute =
     isTeacherRoute ||
     isLmsAdminRoute ||
+    matchesRoute(pathname, '/settings') ||
     matchesRoute(pathname, '/lms/profile') ||
     matchesRoute(pathname, '/courses') ||
     matchesRoute(pathname, '/live-classes');

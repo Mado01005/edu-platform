@@ -1,5 +1,13 @@
-import { Bell, CircleUserRound, Clock3, Mail, ShieldCheck } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/UI/avatar';
+import Link from 'next/link';
+import {
+  Bell,
+  CircleUserRound,
+  Clock3,
+  Mail,
+  Settings2,
+  ShieldCheck,
+} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/UI/avatar';
 import { Badge } from '@/components/UI/badge';
 import {
   Card,
@@ -33,6 +41,10 @@ export default async function LmsProfilePage() {
         <Card className="overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.18),transparent_46%)] p-6 sm:p-8">
           <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
             <Avatar className="size-20 border-violet-400/20 shadow-xl shadow-violet-950/40">
+              <AvatarImage
+                alt={`${displayName} avatar`}
+                src={user.avatarUrl ?? undefined}
+              />
               <AvatarFallback className="text-xl">
                 {initials(user.name, user.email)}
               </AvatarFallback>
@@ -42,12 +54,22 @@ export default async function LmsProfilePage() {
               <h1 className="mt-3 truncate text-3xl font-black tracking-tight">
                 {displayName}
               </h1>
+              {user.headline ? (
+                <p className="mt-1 break-words text-sm font-bold text-violet-200">
+                  {user.headline}
+                </p>
+              ) : null}
               <p className="mt-1 flex min-w-0 items-center gap-2 text-sm text-zinc-400">
                 <Mail className="size-4 shrink-0" aria-hidden="true" />
                 <span className="truncate">{user.email}</span>
               </p>
             </div>
           </div>
+          {user.bio ? (
+            <p className="mt-5 max-w-2xl whitespace-pre-wrap text-sm leading-6 text-zinc-300">
+              {user.bio}
+            </p>
+          ) : null}
         </Card>
 
         <section className="scroll-mt-28" id="settings">
@@ -108,6 +130,15 @@ export default async function LmsProfilePage() {
                   Essential notices enabled
                 </span>
               </CardHeader>
+              <CardContent className="pb-5 pt-4">
+                <Link
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 text-sm font-black text-black transition hover:bg-violet-300"
+                  href="/settings"
+                >
+                  <Settings2 className="size-4" aria-hidden="true" />
+                  Open rich settings
+                </Link>
+              </CardContent>
             </Card>
           </div>
         </section>

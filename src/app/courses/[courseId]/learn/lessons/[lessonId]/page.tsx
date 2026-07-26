@@ -106,6 +106,13 @@ export default async function LessonPlayerPage({
           </div>
 
           <UniversalVideoPlayer
+            autoPlayNextHref={
+              user.autoPlayNext && next
+                ? `/courses/${courseId}/learn/lessons/${next.id}`
+                : undefined
+            }
+            defaultPlaybackSpeed={user.defaultPlaybackSpeed}
+            preferredQuality={user.defaultVideoQuality}
             title={lesson.title}
             type={lesson.contentType}
             url={
