@@ -2,6 +2,7 @@ import 'server-only';
 
 import type { Role, User } from '@prisma/client';
 import { redirect } from 'next/navigation';
+import { normalizePhoneNumber } from '@/lib/phone';
 import { getPrisma } from '@/lib/prisma';
 import { createSupabaseServerClient } from '@/lib/supabase/ssr-server';
 
@@ -33,22 +34,33 @@ export async function getVerifiedLmsIdentity() {
   const { data, error } = await supabase.auth.getClaims();
   const claims = data?.claims as Record<string, unknown> | undefined;
   const supabaseId = claims?.sub;
-  const email = claims?.email;
+  const claimEmail = claims?.email;
+  const claimPhone = claims?.phone;
+  const phoneNumber =
+    typeof claimPhone === 'string'
+      ? normalizePhoneNumber(claimPhone)
+      : null;
+  const email =
+    typeof claimEmail === 'string' && claimEmail.trim()
+      ? claimEmail.trim().toLowerCase()
+      : typeof supabaseId === 'string' && phoneNumber
+        ? `${supabaseId}@invalid.local`
+        : null;
 
   if (
     !claims ||
     error ||
     typeof supabaseId !== 'string' ||
-    typeof email !== 'string' ||
-    !email.trim()
+    !email
   ) {
     return null;
   }
 
   return {
     supabaseId,
-    email: email.trim().toLowerCase(),
+    email,
     name: readDisplayName(claims),
+    phoneNumber,
   };
 }
 
@@ -69,13 +81,17 @@ export async function getLmsUser(): Promise<User | null> {
 
   if (
     user.email !== identity.email ||
-    (identity.name && user.name !== identity.name)
+    (identity.name && user.name !== identity.name) ||
+    (identity.phoneNumber && user.phoneNumber !== identity.phoneNumber)
   ) {
     return getPrisma().user.update({
       where: { id: user.id },
       data: {
         email: identity.email,
         ...(identity.name ? { name: identity.name } : {}),
+        ...(identity.phoneNumber
+          ? { phoneNumber: identity.phoneNumber }
+          : {}),
       },
     });
   }

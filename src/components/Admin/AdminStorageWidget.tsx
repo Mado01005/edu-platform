@@ -26,7 +26,19 @@ export function AdminStorageWidget({
   quotaBytes,
   totalBytes,
 }: AdminStorageWidgetProps) {
-  const percent = Math.min((totalBytes / quotaBytes) * 100, 100);
+  const percent = (totalBytes / quotaBytes) * 100;
+  const barTone =
+    percent >= 90
+      ? 'bg-red-400'
+      : percent >= 70
+        ? 'bg-amber-300'
+        : 'bg-emerald-400';
+  const statusTone =
+    percent >= 90
+      ? 'text-red-300'
+      : percent >= 70
+        ? 'text-amber-300'
+        : 'text-emerald-300';
 
   return (
     <Link
@@ -50,11 +62,13 @@ export function AdminStorageWidget({
       <div>
         <div className="h-2 overflow-hidden rounded-full bg-white/5">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-400"
-            style={{ width: `${percent}%` }}
+            className={`h-full rounded-full ${barTone}`}
+            style={{ width: `${Math.min(percent, 100)}%` }}
           />
         </div>
-        <span className="mt-2 flex items-center gap-2 text-xs font-bold text-zinc-500">
+        <span
+          className={`mt-2 flex items-center gap-2 text-xs font-bold ${statusTone}`}
+        >
           <Files className="size-3.5" aria-hidden="true" />
           {fileCount.toLocaleString()} objects · {percent.toFixed(2)}% of{' '}
           {formatBytes(quotaBytes)}

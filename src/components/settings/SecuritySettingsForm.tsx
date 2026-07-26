@@ -23,7 +23,8 @@ interface SecuritySettingsFormProps {
 
 function providerLabel(provider: string) {
   if (provider === 'google') return 'Signed in via Google OAuth';
-  if (provider === 'email') return 'Password Authentication';
+  if (provider === 'email') return 'Email / Password';
+  if (provider === 'phone') return 'Phone OTP';
   return `${provider[0]?.toUpperCase() ?? ''}${provider.slice(1)}`;
 }
 

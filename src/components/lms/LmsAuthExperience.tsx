@@ -15,6 +15,7 @@ import {
   Mail,
   Radio,
   Send,
+  Smartphone,
   Sparkles,
   UserRound,
   UsersRound,
@@ -26,10 +27,23 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { InputOTP } from '@/components/UI/input-otp';
+import { PhoneInput } from '@/components/UI/phone-input';
+import {
+  isValidE164PhoneNumber,
+  normalizePhoneNumber,
+} from '@/lib/phone';
 import { createSupabaseBrowserClient } from '@/lib/supabase/ssr-client';
 import { cn } from '@/lib/utils';
 
-type AuthMode = 'signin' | 'signup' | 'forgot' | 'recovery';
+type AuthMode =
+  | 'signin'
+  | 'signup'
+  | 'forgot'
+  | 'recovery'
+  | 'phone'
+  | 'otp';
+type OtpChannel = 'sms' | 'whatsapp';
 
 interface LmsAuthExperienceProps {
   initialError?: string;
@@ -109,6 +123,10 @@ export function LmsAuthExperience({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otpPhone, setOtpPhone] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpChannel, setOtpChannel] = useState<OtpChannel>('sms');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState('');
@@ -133,6 +151,7 @@ export function LmsAuthExperience({
     setNotice('');
     setPassword('');
     setConfirmPassword('');
+    setOtpCode('');
   }
 
   function callbackUrl(next = nextPath) {
@@ -172,9 +191,14 @@ export function LmsAuthExperience({
     event.preventDefault();
     const cleanName = fullName.trim();
     const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = normalizePhoneNumber(phoneNumber);
 
     if (cleanName.length < 2) {
       setError('Please enter your full name.');
+      return;
+    }
+    if (!cleanPhone) {
+      setError('Enter a valid international mobile number.');
       return;
     }
     if (password.length < PASSWORD_MIN_LENGTH) {
@@ -196,7 +220,11 @@ export function LmsAuthExperience({
         email: cleanEmail,
         password,
         options: {
-          data: { full_name: cleanName },
+          data: {
+            full_name: cleanName,
+            name: cleanName,
+            phone_number: cleanPhone,
+          },
           emailRedirectTo: callbackUrl('/dashboard'),
         },
       });
@@ -216,6 +244,122 @@ export function LmsAuthExperience({
       setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch {
       setError('We could not create your account. Please try again.');
+    } finally {
+      setPending(false);
+    }
+  }
+
+  function phoneAuthError(authError: { code?: string; message: string }) {
+    const normalized = authError.message.toLowerCase();
+    if (
+      authError.code === 'otp_disabled' ||
+      normalized.includes('unsupported phone provider') ||
+      normalized.includes('phone provider is not enabled')
+    ) {
+      return 'Phone sign-in is not enabled for this project yet. Use email or Google for now.';
+    }
+    if (
+      normalized.includes('signups not allowed') ||
+      normalized.includes('user not found')
+    ) {
+      return 'No verified account is linked to that phone number.';
+    }
+    return authError.message;
+  }
+
+  async function requestPhoneOtp(
+    requestedPhone: string,
+    channel: OtpChannel,
+  ) {
+    const cleanPhone = normalizePhoneNumber(requestedPhone);
+    if (!cleanPhone || !isValidE164PhoneNumber(cleanPhone)) {
+      setError('Enter a valid international mobile number.');
+      return false;
+    }
+
+    const supabase = createSupabaseBrowserClient();
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      phone: cleanPhone,
+      options: {
+        channel,
+        shouldCreateUser: false,
+      },
+    });
+    if (otpError) {
+      setError(phoneAuthError(otpError));
+      return false;
+    }
+
+    setOtpPhone(cleanPhone);
+    setOtpCode('');
+    setCooldown(RESEND_COOLDOWN_SECONDS);
+    return true;
+  }
+
+  async function handlePhoneSignIn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setError('');
+    setNotice('');
+
+    try {
+      if (await requestPhoneOtp(phoneNumber, otpChannel)) {
+        setMode('otp');
+        setNotice(
+          `A 6-digit code was sent by ${
+            otpChannel === 'whatsapp' ? 'WhatsApp' : 'SMS'
+          }.`,
+        );
+      }
+    } catch {
+      setError('We could not send a verification code. Please try again.');
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handlePhoneOtpVerify(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!/^\d{6}$/.test(otpCode)) {
+      setError('Enter the complete 6-digit verification code.');
+      return;
+    }
+
+    setPending(true);
+    setError('');
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        phone: otpPhone,
+        token: otpCode,
+        type: 'sms',
+      });
+      if (verifyError) {
+        setError(phoneAuthError(verifyError));
+        return;
+      }
+
+      router.push(nextPath);
+      router.refresh();
+    } catch {
+      setError('We could not verify that code. Please request a new one.');
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handlePhoneResend() {
+    if (!otpPhone || cooldown > 0) return;
+    setPending(true);
+    setError('');
+    setNotice('');
+
+    try {
+      if (await requestPhoneOtp(otpPhone, otpChannel)) {
+        setNotice('A new verification code is on its way.');
+      }
+    } catch {
+      setError('We could not resend the verification code.');
     } finally {
       setPending(false);
     }
@@ -501,40 +645,60 @@ export function LmsAuthExperience({
                 <p className="mt-5 text-[10px] font-black uppercase tracking-[0.22em] text-violet-300">
                   {mode === 'signup'
                     ? 'Start learning today'
-                    : mode === 'forgot'
-                      ? 'Account recovery'
-                      : mode === 'recovery'
-                        ? 'Choose a new password'
-                        : 'Welcome back'}
+                    : mode === 'phone'
+                      ? 'Passwordless access'
+                      : mode === 'otp'
+                        ? 'Verify your mobile'
+                        : mode === 'forgot'
+                          ? 'Account recovery'
+                          : mode === 'recovery'
+                            ? 'Choose a new password'
+                            : 'Welcome back'}
                 </p>
                 <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
                   {mode === 'signup'
                     ? 'Create your account.'
-                    : mode === 'forgot'
-                      ? 'Reset your password.'
-                      : mode === 'recovery'
-                        ? 'Secure your account.'
-                        : 'Sign in to Way Ground.'}
+                    : mode === 'phone'
+                      ? 'Sign in with your phone.'
+                      : mode === 'otp'
+                        ? 'Enter your 6-digit code.'
+                        : mode === 'forgot'
+                          ? 'Reset your password.'
+                          : mode === 'recovery'
+                            ? 'Secure your account.'
+                            : 'Sign in to Way Ground.'}
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-zinc-500">
                   {mode === 'signup'
                     ? 'Build your profile and unlock your learning dashboard.'
-                    : mode === 'forgot'
-                      ? 'We will send a secure reset link to your inbox.'
-                      : mode === 'recovery'
-                        ? 'Use at least eight characters for your new password.'
-                        : 'Continue your courses, resources, and live sessions.'}
+                    : mode === 'phone'
+                      ? 'Choose SMS or WhatsApp to receive a one-time code.'
+                      : mode === 'otp'
+                        ? `We sent a secure code to ${otpPhone}.`
+                        : mode === 'forgot'
+                          ? 'We will send a secure reset link to your inbox.'
+                          : mode === 'recovery'
+                            ? 'Use at least eight characters for your new password.'
+                            : 'Continue your courses, resources, and live sessions.'}
                 </p>
               </div>
 
-              {mode === 'signin' || mode === 'signup' ? (
+              {mode === 'signin' ||
+              mode === 'signup' ||
+              mode === 'phone' ||
+              mode === 'otp' ? (
                 <div
                   aria-label="Authentication mode"
                   className="mb-6 grid min-w-0 grid-cols-2 rounded-2xl border border-white/10 bg-black/40 p-1"
                   role="tablist"
                 >
                   {(['signin', 'signup'] as const).map((tab) => {
-                    const active = mode === tab;
+                    const active =
+                      tab === 'signup'
+                        ? mode === 'signup'
+                        : mode === 'signin' ||
+                          mode === 'phone' ||
+                          mode === 'otp';
                     return (
                       <button
                         aria-selected={active}
@@ -561,11 +725,15 @@ export function LmsAuthExperience({
                 onSubmit={
                   mode === 'signup'
                     ? handleSignUp
-                    : mode === 'forgot'
-                      ? handleForgotPassword
-                      : mode === 'recovery'
-                        ? handlePasswordRecovery
-                        : handleSignIn
+                    : mode === 'phone'
+                      ? handlePhoneSignIn
+                      : mode === 'otp'
+                        ? handlePhoneOtpVerify
+                        : mode === 'forgot'
+                          ? handleForgotPassword
+                          : mode === 'recovery'
+                            ? handlePasswordRecovery
+                            : handleSignIn
                 }
               >
                 {mode === 'signup' ? (
@@ -582,7 +750,85 @@ export function LmsAuthExperience({
                   />
                 ) : null}
 
-                {mode !== 'recovery' ? (
+                {mode === 'signup' ? (
+                  <label
+                    className="flex min-w-0 flex-col gap-2 text-sm font-bold"
+                    htmlFor="signup-phone"
+                  >
+                    Mobile Number
+                    <PhoneInput
+                      id="signup-phone"
+                      onChange={setPhoneNumber}
+                      required
+                      value={phoneNumber}
+                    />
+                  </label>
+                ) : null}
+
+                {mode === 'phone' ? (
+                  <>
+                    <label
+                      className="flex min-w-0 flex-col gap-2 text-sm font-bold"
+                      htmlFor="phone-sign-in"
+                    >
+                      Mobile Number
+                      <PhoneInput
+                        id="phone-sign-in"
+                        onChange={setPhoneNumber}
+                        required
+                        value={phoneNumber}
+                      />
+                    </label>
+                    <fieldset className="min-w-0">
+                      <legend className="text-sm font-bold">
+                        Send code via
+                      </legend>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        {(['sms', 'whatsapp'] as const).map((channel) => (
+                          <label
+                            className={cn(
+                              'flex h-11 cursor-pointer items-center justify-center rounded-xl border text-sm font-black transition',
+                              otpChannel === channel
+                                ? 'border-violet-300 bg-violet-300 text-black'
+                                : 'border-white/10 bg-white/5 text-zinc-400 hover:text-white',
+                            )}
+                            key={channel}
+                          >
+                            <input
+                              checked={otpChannel === channel}
+                              className="sr-only"
+                              name="otp-channel"
+                              onChange={() => setOtpChannel(channel)}
+                              type="radio"
+                              value={channel}
+                            />
+                            {channel === 'sms' ? 'SMS' : 'WhatsApp'}
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                  </>
+                ) : null}
+
+                {mode === 'otp' ? (
+                  <div className="min-w-0">
+                    <label
+                      className="mb-2 block text-sm font-bold"
+                      id="phone-otp-label"
+                    >
+                      Verification code
+                    </label>
+                    <InputOTP
+                      disabled={pending}
+                      onChange={setOtpCode}
+                      value={otpCode}
+                    />
+                  </div>
+                ) : null}
+
+                {mode === 'signin' ||
+                mode === 'signup' ||
+                mode === 'forgot' ? (
                   <AuthField
                     autoComplete="email"
                     icon={Mail}
@@ -596,7 +842,9 @@ export function LmsAuthExperience({
                   />
                 ) : null}
 
-                {mode !== 'forgot' ? (
+                {mode === 'signin' ||
+                mode === 'signup' ||
+                mode === 'recovery' ? (
                   <AuthField
                     autoComplete={
                       mode === 'signin' ? 'current-password' : 'new-password'
@@ -695,18 +943,64 @@ export function LmsAuthExperience({
                   ) : null}
                   {mode === 'signup'
                     ? 'Create Account'
-                    : mode === 'forgot'
-                      ? 'Send Reset Link'
-                      : mode === 'recovery'
-                        ? 'Update Password'
-                        : 'Sign In'}
+                    : mode === 'phone'
+                      ? `Send ${
+                          otpChannel === 'whatsapp' ? 'WhatsApp' : 'SMS'
+                        } Code`
+                      : mode === 'otp'
+                        ? 'Verify & Sign In'
+                        : mode === 'forgot'
+                          ? 'Send Reset Link'
+                          : mode === 'recovery'
+                            ? 'Update Password'
+                            : 'Sign In'}
                   {!pending ? (
                     <ArrowRight className="size-4" aria-hidden="true" />
                   ) : null}
                 </button>
               </form>
 
-              {mode === 'signin' || mode === 'signup' ? (
+              {mode === 'signin' ? (
+                <button
+                  className="mt-3 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-violet-400/20 bg-violet-400/[0.06] px-4 text-sm font-black text-violet-200 transition hover:border-violet-400/40 hover:bg-violet-400/10"
+                  onClick={() => switchMode('phone')}
+                  type="button"
+                >
+                  <Smartphone className="size-4" aria-hidden="true" />
+                  Sign in with Phone
+                </button>
+              ) : mode === 'phone' ? (
+                <button
+                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 text-sm font-bold text-zinc-500 transition hover:text-white"
+                  onClick={() => switchMode('signin')}
+                  type="button"
+                >
+                  <ArrowLeft className="size-4" aria-hidden="true" />
+                  Back to email sign in
+                </button>
+              ) : mode === 'otp' ? (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    className="h-11 rounded-xl border border-white/10 text-xs font-black text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                    onClick={() => switchMode('phone')}
+                    type="button"
+                  >
+                    Change number
+                  </button>
+                  <button
+                    className="h-11 rounded-xl border border-white/10 text-xs font-black text-violet-200 transition hover:bg-white/5 disabled:opacity-50"
+                    disabled={pending || cooldown > 0}
+                    onClick={() => void handlePhoneResend()}
+                    type="button"
+                  >
+                    {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
+                  </button>
+                </div>
+              ) : null}
+
+              {mode === 'signin' ||
+              mode === 'signup' ||
+              mode === 'phone' ? (
                 <>
                   <div className="my-6 flex items-center gap-3 text-xs font-bold text-zinc-600">
                     <span className="h-px flex-1 bg-white/10" />
@@ -723,7 +1017,7 @@ export function LmsAuthExperience({
                     Continue with Google
                   </button>
                 </>
-              ) : (
+              ) : mode === 'forgot' || mode === 'recovery' ? (
                 <button
                   className="mt-5 flex items-center gap-2 text-sm font-bold text-zinc-500 transition hover:text-white"
                   onClick={() => switchMode('signin')}
@@ -732,7 +1026,7 @@ export function LmsAuthExperience({
                   <ArrowLeft className="size-4" aria-hidden="true" />
                   Back to sign in
                 </button>
-              )}
+              ) : null}
 
               <p className="mt-7 text-center text-xs leading-5 text-zinc-600">
                 By continuing, you agree to use this learning space responsibly

@@ -2,6 +2,10 @@ import type { SettingsNotice } from '@/components/settings/types';
 
 interface ApiErrorBody {
   error?: string;
+  user?: {
+    phoneNumber?: string | null;
+    phoneVerified?: boolean;
+  };
 }
 
 export async function saveSettingsSection(

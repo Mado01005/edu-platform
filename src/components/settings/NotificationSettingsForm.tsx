@@ -69,7 +69,7 @@ export function NotificationSettingsForm({
     {
       checked: notifyZoomClasses,
       description:
-        'Receive email notifications 1 hour before scheduled live sessions.',
+        'Email & SMS alerts 1 hour before scheduled live sessions.',
       icon: Video,
       id: 'notify-zoom',
       label: 'Zoom class reminders',
@@ -79,7 +79,7 @@ export function NotificationSettingsForm({
     {
       checked: notifyAnnouncements,
       description:
-        'Receive instant emails when instructors post course updates.',
+        'Instant updates when instructors post course updates.',
       icon: Megaphone,
       id: 'notify-announcements',
       label: 'Course announcements',

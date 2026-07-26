@@ -87,6 +87,28 @@ function categoryIcon(category: AssetCategory) {
   return MoreHorizontal;
 }
 
+function storageHealth(percent: number) {
+  if (percent >= 90) {
+    return {
+      bar: 'bg-red-400',
+      label: 'Critical — free-tier limit nearly reached',
+      text: 'text-red-300',
+    };
+  }
+  if (percent >= 70) {
+    return {
+      bar: 'bg-amber-300',
+      label: 'Warning — review large assets',
+      text: 'text-amber-300',
+    };
+  }
+  return {
+    bar: 'bg-emerald-400',
+    label: 'Healthy free-tier usage',
+    text: 'text-emerald-300',
+  };
+}
+
 export function StorageDashboard({
   initialSnapshot,
 }: StorageDashboardProps) {
@@ -153,10 +175,7 @@ export function StorageDashboard({
         } else {
           next.otherBytes = Math.max(0, current.otherBytes - size);
         }
-        next.usagePercent = Math.min(
-          (next.totalBytes / next.quotaBytes) * 100,
-          100,
-        );
+        next.usagePercent = (next.totalBytes / next.quotaBytes) * 100;
         return next;
       });
       setNotice({
@@ -181,8 +200,10 @@ export function StorageDashboard({
     {
       icon: Database,
       label: 'Bucket usage',
-      tone: 'bg-cyan-400/10 text-cyan-300',
-      value: formatBytes(snapshot.totalBytes),
+      tone: 'bg-emerald-400/10 text-emerald-300',
+      value: `${formatBytes(snapshot.totalBytes)} / ${formatBytes(
+        snapshot.quotaBytes,
+      )}`,
     },
     {
       icon: Files,
@@ -203,6 +224,7 @@ export function StorageDashboard({
       value: formatBytes(snapshot.documentBytes),
     },
   ] as const;
+  const health = storageHealth(snapshot.usagePercent);
 
   return (
     <>
@@ -242,7 +264,9 @@ export function StorageDashboard({
               {formatBytes(snapshot.quotaBytes)}
             </span>
           </span>
-          <span className="shrink-0 font-mono text-lg font-black text-cyan-300">
+          <span
+            className={`shrink-0 font-mono text-lg font-black ${health.text}`}
+          >
             {snapshot.usagePercent.toFixed(2)}%
           </span>
         </div>
@@ -250,15 +274,23 @@ export function StorageDashboard({
           aria-label={`${snapshot.usagePercent.toFixed(2)} percent of configured storage quota used`}
           aria-valuemax={100}
           aria-valuemin={0}
-          aria-valuenow={snapshot.usagePercent}
+          aria-valuenow={Math.min(snapshot.usagePercent, 100)}
           className="mt-4 h-3 overflow-hidden rounded-full bg-white/5"
           role="progressbar"
         >
           <div
-            className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400"
-            style={{ width: `${snapshot.usagePercent}%` }}
+            className={`h-full rounded-full transition-all ${health.bar}`}
+            style={{ width: `${Math.min(snapshot.usagePercent, 100)}%` }}
           />
         </div>
+        <p className={`mt-3 text-xs font-black ${health.text}`}>
+          {health.label}
+        </p>
+        <p className="mt-1 text-[11px] leading-5 text-zinc-600">
+          Compared with Cloudflare R2 Standard&apos;s 10 GB-month free-tier
+          allowance. This gauge shows current object bytes, not monthly billing
+          averages.
+        </p>
         <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
           <span className="rounded-xl bg-white/[0.03] p-3 text-zinc-400">
             Images <b className="block text-white">{formatBytes(snapshot.imageBytes)}</b>

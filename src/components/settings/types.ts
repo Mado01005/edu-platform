@@ -10,6 +10,8 @@ export interface SettingsUserData {
   notifyAnnouncements: boolean;
   notifyDiscussions: boolean;
   notifyZoomClasses: boolean;
+  phoneNumber: string | null;
+  phoneVerified: boolean;
   timezone: string;
 }
 

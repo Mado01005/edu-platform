@@ -28,29 +28,31 @@ enum ContentType {
 }
 
 model User {
-  id                       String           @id @default(cuid())
-  supabaseId               String           @unique @map("supabase_id")
-  email                    String           @unique
-  name                     String?
-  headline                 String?
-  bio                      String?          @db.Text
-  avatarUrl                String?          @map("avatar_url")
-  timezone                 String           @default("UTC")
-  defaultPlaybackSpeed     Float            @default(1.0) @map("default_playback_speed")
-  defaultVideoQuality      String           @default("AUTO") @map("default_video_quality")
-  autoPlayNext             Boolean          @default(true) @map("auto_play_next")
-  notifyZoomClasses        Boolean          @default(true) @map("notify_zoom_classes")
-  notifyAnnouncements      Boolean          @default(true) @map("notify_announcements")
-  notifyDiscussions        Boolean          @default(true) @map("notify_discussions")
-  role                     Role             @default(STUDENT)
-  status                   AccountStatus    @default(ACTIVE)
-  courses                  Course[]
-  enrollments              Enrollment[]
-  progress                 LessonProgress[]
-  zoomSessions             ZoomSession[]
-  discussions              Discussion[]
-  createdAt                DateTime         @default(now()) @map("created_at")
-  updatedAt                DateTime         @updatedAt @map("updated_at")
+  id                   String           @id @default(cuid())
+  supabaseId           String           @unique @map("supabase_id")
+  email                String           @unique
+  name                 String?
+  headline             String?
+  bio                  String?          @db.Text
+  avatarUrl            String?          @map("avatar_url")
+  timezone             String           @default("UTC")
+  phoneNumber          String?          @unique @map("phone_number")
+  phoneVerified        Boolean          @default(false) @map("phone_verified")
+  defaultPlaybackSpeed Float            @default(1.0) @map("default_playback_speed")
+  defaultVideoQuality  String           @default("AUTO") @map("default_video_quality")
+  autoPlayNext         Boolean          @default(true) @map("auto_play_next")
+  notifyZoomClasses    Boolean          @default(true) @map("notify_zoom_classes")
+  notifyAnnouncements  Boolean          @default(true) @map("notify_announcements")
+  notifyDiscussions    Boolean          @default(true) @map("notify_discussions")
+  role                 Role             @default(STUDENT)
+  status               AccountStatus    @default(ACTIVE)
+  courses              Course[]
+  enrollments          Enrollment[]
+  progress             LessonProgress[]
+  zoomSessions         ZoomSession[]
+  discussions          Discussion[]
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
 
   @@map("lms_users")
 }

@@ -70,6 +70,8 @@ export async function PATCH(request: Request) {
         notifyAnnouncements: updated.notifyAnnouncements,
         notifyDiscussions: updated.notifyDiscussions,
         notifyZoomClasses: updated.notifyZoomClasses,
+        phoneNumber: updated.phoneNumber,
+        phoneVerified: updated.phoneVerified,
         timezone: updated.timezone,
       },
     });

@@ -56,6 +56,8 @@ export default async function SettingsPage() {
             notifyAnnouncements: user.notifyAnnouncements,
             notifyDiscussions: user.notifyDiscussions,
             notifyZoomClasses: user.notifyZoomClasses,
+            phoneNumber: user.phoneNumber,
+            phoneVerified: user.phoneVerified,
             timezone: user.timezone,
           }}
           providers={providers}

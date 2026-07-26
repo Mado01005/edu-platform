@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Camera,
+  CheckCircle2,
   Loader2,
   Save,
+  ShieldAlert,
   Trash2,
   UserRound,
 } from 'lucide-react';
@@ -12,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/UI/avatar';
 import { Button } from '@/components/UI/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/UI/card';
 import { Input } from '@/components/UI/input';
+import { PhoneInput } from '@/components/UI/phone-input';
 import { Textarea } from '@/components/UI/textarea';
 import {
   errorNotice,
@@ -61,6 +64,12 @@ export function ProfileSettingsForm({
   const [bio, setBio] = useState(initialUser.bio ?? '');
   const [headline, setHeadline] = useState(initialUser.headline ?? '');
   const [name, setName] = useState(initialUser.name ?? '');
+  const [phoneNumber, setPhoneNumber] = useState(
+    initialUser.phoneNumber ?? '',
+  );
+  const [phoneVerified, setPhoneVerified] = useState(
+    initialUser.phoneVerified,
+  );
   const [timezone, setTimezone] = useState(initialUser.timezone);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -74,13 +83,18 @@ export function ProfileSettingsForm({
   }, [previewUrl]);
 
   async function persistProfile(nextAvatarUrl = avatarUrl) {
-    await saveSettingsSection('profile', {
+    const result = await saveSettingsSection('profile', {
       avatarUrl: nextAvatarUrl,
       bio,
       headline,
       name,
+      phoneNumber: phoneNumber || null,
       timezone,
     });
+    if (typeof result.user?.phoneVerified === 'boolean') {
+      setPhoneVerified(result.user.phoneVerified);
+    }
+    return result;
   }
 
   async function uploadAvatar(file: File) {
@@ -249,6 +263,39 @@ export function ProfileSettingsForm({
                 required
                 value={name}
               />
+            </label>
+
+            <label className="min-w-0 text-sm font-bold" htmlFor="profile-phone">
+              Mobile number
+              <PhoneInput
+                className="mt-2"
+                id="profile-phone"
+                onChange={(nextPhone) => {
+                  setPhoneNumber(nextPhone);
+                  setPhoneVerified(
+                    nextPhone === initialUser.phoneNumber
+                      ? initialUser.phoneVerified
+                      : false,
+                  );
+                }}
+                value={phoneNumber}
+              />
+              <span
+                className={`mt-2 flex items-center gap-1.5 text-xs font-bold ${
+                  phoneVerified ? 'text-emerald-300' : 'text-amber-300'
+                }`}
+              >
+                {phoneVerified ? (
+                  <CheckCircle2 className="size-3.5" aria-hidden="true" />
+                ) : (
+                  <ShieldAlert className="size-3.5" aria-hidden="true" />
+                )}
+                {phoneNumber
+                  ? phoneVerified
+                    ? 'Phone verified for passwordless sign-in'
+                    : 'Verification pending — use Phone OTP sign-in to verify'
+                  : 'Optional — add a number for SMS or WhatsApp access'}
+              </span>
             </label>
 
             <label className="min-w-0 text-sm font-bold">

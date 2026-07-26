@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { normalizePhoneNumber } from '@/lib/phone';
 import { getPrisma } from '@/lib/prisma';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/ssr-server';
 
 function safeNextPath(value: string | null) {
@@ -19,22 +21,66 @@ export async function GET(request: NextRequest) {
       const user = data.session?.user;
 
       if (!error && user?.email) {
+        const metadataPhone = normalizePhoneNumber(
+          typeof user.user_metadata?.phone_number === 'string'
+            ? user.user_metadata.phone_number
+            : '',
+        );
+        let synchronizedAuthUser = user;
+
+        if (metadataPhone && !normalizePhoneNumber(user.phone ?? '')) {
+          const { data: linkedPhone, error: phoneLinkError } =
+            await getSupabaseAdminClient().auth.admin.updateUserById(user.id, {
+              phone: metadataPhone,
+              phone_confirm: false,
+              user_metadata: {
+                ...user.user_metadata,
+                phone_number: metadataPhone,
+              },
+            });
+          if (!phoneLinkError && linkedPhone.user) {
+            synchronizedAuthUser = linkedPhone.user;
+          } else {
+            // Keep email confirmation healthy when Supabase Phone Auth has not
+            // been configured yet. The number remains staged in metadata and
+            // Prisma, but is not treated as a verified Auth phone.
+            console.warn(
+              '[LMS_AUTH_PHONE_LINK_DEFERRED]',
+              phoneLinkError?.code ?? 'phone-provider-unavailable',
+            );
+          }
+        }
+
         const metadataName =
-          user.user_metadata?.full_name ?? user.user_metadata?.name;
+          synchronizedAuthUser.user_metadata?.full_name ??
+          synchronizedAuthUser.user_metadata?.name;
         const hasMetadataName =
           typeof metadataName === 'string' && metadataName.trim();
         const name = hasMetadataName ? metadataName.trim() : 'New Student';
+        const phoneNumber =
+          normalizePhoneNumber(synchronizedAuthUser.phone ?? '') ??
+          metadataPhone;
+        const phoneVerified = Boolean(
+          phoneNumber &&
+            normalizePhoneNumber(synchronizedAuthUser.phone ?? '') ===
+              phoneNumber &&
+            synchronizedAuthUser.phone_confirmed_at,
+        );
 
         await getPrisma().user.upsert({
           where: { supabaseId: user.id },
           update: {
             email: user.email.toLowerCase(),
             ...(hasMetadataName ? { name } : {}),
+            phoneNumber,
+            phoneVerified,
           },
           create: {
             supabaseId: user.id,
             email: user.email.toLowerCase(),
             name,
+            phoneNumber,
+            phoneVerified,
             role: 'STUDENT',
           },
         });

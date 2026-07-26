@@ -1,7 +1,9 @@
 import 'server-only';
 
+import type { User } from '@prisma/client';
 import { deleteR2Object } from '@/lib/r2';
 import { getPrisma } from '@/lib/prisma';
+import { normalizePhoneNumber } from '@/lib/phone';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export const PLAYBACK_SPEEDS = [1, 1.25, 1.5, 2] as const;
@@ -45,6 +47,19 @@ function requiredName(value: unknown) {
     throw new SettingsError('Full name must be between 2 and 100 characters.');
   }
   return name;
+}
+
+function optionalPhone(value: unknown) {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value !== 'string') {
+    throw new SettingsError('Phone number must be text.');
+  }
+
+  const normalized = normalizePhoneNumber(value);
+  if (!normalized) {
+    throw new SettingsError('Enter a valid international phone number.');
+  }
+  return normalized;
 }
 
 function timezone(value: unknown) {
@@ -136,6 +151,7 @@ export function readProfileSettings(
       120,
     ),
     name: requiredName(Reflect.get(value, 'name')),
+    phoneNumber: optionalPhone(Reflect.get(value, 'phoneNumber')),
     timezone: timezone(Reflect.get(value, 'timezone')),
   };
 }
@@ -197,22 +213,58 @@ export async function updateProfileSettings(
     headline: string | null;
     id: string;
     name: string | null;
+    phoneNumber: string | null;
+    phoneVerified: boolean;
     supabaseId: string;
     timezone: string;
   },
   input: ReturnType<typeof readProfileSettings>,
 ) {
   const prisma = getPrisma();
-  const updated = await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      avatarUrl: input.avatarUrl,
-      bio: input.bio,
-      headline: input.headline,
-      name: input.name,
-      timezone: input.timezone,
-    },
-  });
+  if (input.phoneNumber) {
+    const existingOwner = await prisma.user.findFirst({
+      where: {
+        id: { not: user.id },
+        phoneNumber: input.phoneNumber,
+      },
+      select: { id: true },
+    });
+    if (existingOwner) {
+      throw new SettingsError(
+        'That phone number is already linked to another account.',
+        409,
+      );
+    }
+  }
+
+  const phoneChanged = input.phoneNumber !== user.phoneNumber;
+  let updated: User;
+  try {
+    updated = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        avatarUrl: input.avatarUrl,
+        bio: input.bio,
+        headline: input.headline,
+        name: input.name,
+        phoneNumber: input.phoneNumber,
+        phoneVerified: phoneChanged ? false : user.phoneVerified,
+        timezone: input.timezone,
+      },
+    });
+  } catch (error) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      Reflect.get(error, 'code') === 'P2002'
+    ) {
+      throw new SettingsError(
+        'That phone number is already linked to another account.',
+        409,
+      );
+    }
+    throw error;
+  }
 
   const supabase = getSupabaseAdminClient();
   const { data: authResult, error: authReadError } =
@@ -226,21 +278,45 @@ export async function updateProfileSettings(
         bio: user.bio,
         headline: user.headline,
         name: user.name,
+        phoneNumber: user.phoneNumber,
+        phoneVerified: user.phoneVerified,
         timezone: user.timezone,
       },
     });
     throw new SettingsError('Unable to synchronize the account profile.', 502);
   }
 
-  const { error: authUpdateError } =
+  const authPhone = normalizePhoneNumber(authResult.user.phone ?? '');
+  const authPhoneChanged = authPhone !== input.phoneNumber;
+  const userMetadata = {
+    ...authResult.user.user_metadata,
+    avatar_url: input.avatarUrl,
+    full_name: input.name,
+    name: input.name,
+    phone_number: input.phoneNumber,
+  };
+  let { error: authUpdateError } =
     await supabase.auth.admin.updateUserById(user.supabaseId, {
-      user_metadata: {
-        ...authResult.user.user_metadata,
-        avatar_url: input.avatarUrl,
-        full_name: input.name,
-        name: input.name,
-      },
+      ...(authPhoneChanged
+        ? {
+            phone: input.phoneNumber ?? '',
+            phone_confirm: false,
+          }
+        : {}),
+      user_metadata: userMetadata,
     });
+
+  // Supabase rejects assigning an Auth phone while the Phone provider is
+  // disabled. A first phone can still be staged safely in metadata and Prisma
+  // without granting phone access. Once Phone Auth is enabled, the next save
+  // links the number and OTP verification can confirm it.
+  if (authUpdateError && !authPhone && input.phoneNumber) {
+    const fallback = await supabase.auth.admin.updateUserById(
+      user.supabaseId,
+      { user_metadata: userMetadata },
+    );
+    authUpdateError = fallback.error;
+  }
 
   if (authUpdateError) {
     await prisma.user.update({
@@ -250,10 +326,17 @@ export async function updateProfileSettings(
         bio: user.bio,
         headline: user.headline,
         name: user.name,
+        phoneNumber: user.phoneNumber,
+        phoneVerified: user.phoneVerified,
         timezone: user.timezone,
       },
     });
-    throw new SettingsError('Unable to synchronize the account profile.', 502);
+    throw new SettingsError(
+      authUpdateError.message.toLowerCase().includes('phone')
+        ? 'Unable to link that phone number to this account.'
+        : 'Unable to synchronize the account profile.',
+      authUpdateError.message.toLowerCase().includes('phone') ? 409 : 502,
+    );
   }
 
   if (user.avatarUrl && user.avatarUrl !== input.avatarUrl) {

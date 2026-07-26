@@ -9,7 +9,7 @@ import { getPrisma } from '@/lib/prisma';
 import { getPublicUrl, getR2Client } from '@/lib/r2';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const DEFAULT_STORAGE_QUOTA_BYTES = 50 * 1024 * 1024 * 1024;
+export const R2_FREE_TIER_CAP_BYTES = 10_737_418_240;
 const VIDEO_EXTENSIONS = new Set(['mp4', 'mov', 'qt', 'webm', 'm4v']);
 const IMAGE_EXTENSIONS = new Set([
   'avif',
@@ -52,13 +52,6 @@ function getBucketName() {
     process.env.R2_BUCKET ??
     'eduportal-media'
   );
-}
-
-function getStorageQuotaBytes() {
-  const configured = Number(process.env.R2_STORAGE_QUOTA_BYTES);
-  return Number.isFinite(configured) && configured > 0
-    ? Math.floor(configured)
-    : DEFAULT_STORAGE_QUOTA_BYTES;
 }
 
 function extensionForKey(key: string) {
@@ -177,8 +170,8 @@ export async function getR2StorageSnapshot(
       : undefined;
   } while (continuationToken);
 
-  const quotaBytes = getStorageQuotaBytes();
-  const recentAssets = assets
+  const quotaBytes = R2_FREE_TIER_CAP_BYTES;
+  const recentAssetCandidates = assets
     .sort((left, right) => {
       const rightTime = right.lastModified
         ? new Date(right.lastModified).getTime()
@@ -189,6 +182,30 @@ export async function getR2StorageSnapshot(
       return rightTime - leftTime || left.key.localeCompare(right.key);
     })
     .slice(0, Math.max(0, Math.min(recentLimit, 100)));
+  const recentAssets: R2StorageAsset[] = [];
+
+  for (let index = 0; index < recentAssetCandidates.length; index += 10) {
+    const batch = recentAssetCandidates.slice(index, index + 10);
+    const enriched = await Promise.all(
+      batch.map(async (asset) => {
+        try {
+          const metadata = await getR2Client().send(
+            new HeadObjectCommand({
+              Bucket: getBucketName(),
+              Key: asset.key,
+            }),
+          );
+          return {
+            ...asset,
+            contentType: metadata.ContentType || asset.contentType,
+          };
+        } catch {
+          return asset;
+        }
+      }),
+    );
+    recentAssets.push(...enriched);
+  }
 
   return {
     documentBytes,
@@ -198,7 +215,7 @@ export async function getR2StorageSnapshot(
     quotaBytes,
     recentAssets,
     totalBytes,
-    usagePercent: Math.min((totalBytes / quotaBytes) * 100, 100),
+    usagePercent: (totalBytes / quotaBytes) * 100,
     videoBytes,
   };
 }
