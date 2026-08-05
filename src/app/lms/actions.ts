@@ -1,6 +1,6 @@
 'use server';
 
-import type { ContentType, Role } from '@prisma/client';
+import { Prisma, type ContentType, type Role } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getPrisma } from '@/lib/prisma';
@@ -36,6 +36,14 @@ function optionalString(formData: FormData, name: string, max = 10_000) {
   return typeof value === 'string' && value.trim()
     ? value.trim().slice(0, max)
     : null;
+}
+
+function nonNegativeMoney(formData: FormData, name: string) {
+  const value = requiredString(formData, name, 20);
+  if (!/^\d{1,9}(?:\.\d{1,2})?$/.test(value)) {
+    throw new Error(`${name} must be a non-negative amount with up to two decimals.`);
+  }
+  return new Prisma.Decimal(value);
 }
 
 function contentType(formData: FormData): ContentType {
@@ -127,6 +135,8 @@ export async function updateCourseAction(courseId: string, formData: FormData) {
         optionalString(formData, 'imageUrl', 2_000),
       ),
       isPublished,
+      priceEGP: nonNegativeMoney(formData, 'priceEGP'),
+      priceUSD: nonNegativeMoney(formData, 'priceUSD'),
     },
   });
   revalidatePath(`/teacher/courses/${courseId}/edit`);
@@ -355,6 +365,9 @@ export async function enrollCourseAction(courseId: string) {
   });
 
   if (!course) throw new Error('Course not found.');
+  if (course.priceEGP.gt(0) || course.priceUSD.gt(0)) {
+    throw new LmsAuthError('Paid courses require an approved online payment or access code.', 409);
+  }
 
   await getPrisma().enrollment.upsert({
     where: {

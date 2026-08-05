@@ -11,6 +11,8 @@ import {
   Loader2,
   Plus,
   ReceiptText,
+  Settings2,
+  Upload,
 } from 'lucide-react';
 import { Badge } from '@/components/UI/badge';
 import { Button } from '@/components/UI/button';
@@ -36,6 +38,22 @@ type LedgerRecord = {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   studentName: string;
 };
+type OnlinePaymentRecord = {
+  amount: string;
+  courseTitle: string;
+  createdAt: string;
+  currency: 'USD' | 'EGP';
+  id: string;
+  method: string;
+  studentName: string;
+};
+type PaymentChannelRecord = {
+  accountValue: string;
+  displayName: string;
+  instructions: string | null;
+  isActive: boolean;
+  method: 'INSTAPAY' | 'VODAFONE_CASH' | 'ONLINE_CARD' | 'USD_WIRE' | 'PAYPAL';
+};
 
 const fieldClass =
   'h-12 w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none transition focus:border-violet-400';
@@ -51,12 +69,16 @@ async function readResponse(response: Response) {
 export function AccountingPortal({
   courses,
   ledger,
+  onlinePayments,
   pendingSubscriptions,
+  paymentChannels,
   students,
 }: {
   courses: CourseOption[];
   ledger: LedgerRecord[];
+  onlinePayments: OnlinePaymentRecord[];
   pendingSubscriptions: PendingSubscription[];
+  paymentChannels: PaymentChannelRecord[];
   students: StudentOption[];
 }) {
   const router = useRouter();
@@ -181,6 +203,59 @@ export function AccountingPortal({
     }
   }
 
+  async function reviewOnlinePayment(id: string, decision: 'approve' | 'reject') {
+    if (isBusy) return;
+    const reason = decision === 'reject' ? window.prompt('Why is this receipt invalid?') : null;
+    if (decision === 'reject' && !reason?.trim()) return;
+    setPendingAction(`online:${id}:${decision}`);
+    setError('');
+    setNotice('');
+    try {
+      await readResponse(
+        await fetch(`/api/accounting/online-payments/${id}/${decision}`, {
+          ...(decision === 'reject'
+            ? { body: JSON.stringify({ reason }), headers: { 'Content-Type': 'application/json' } }
+            : {}),
+          method: 'POST',
+        }),
+      );
+      setNotice(decision === 'approve' ? 'Payment approved and course access activated.' : 'Receipt rejected and the family was notified.');
+      startRefresh(() => router.refresh());
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Unable to review payment.');
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
+  async function saveChannel(event: React.FormEvent<HTMLFormElement>, method: PaymentChannelRecord['method']) {
+    event.preventDefault();
+    if (isBusy) return;
+    const data = new FormData(event.currentTarget);
+    setPendingAction(`channel:${method}`);
+    setError('');
+    setNotice('');
+    try {
+      await readResponse(await fetch('/api/accounting/channels', {
+        body: JSON.stringify({
+          accountValue: data.get('accountValue'),
+          displayName: data.get('displayName'),
+          instructions: data.get('instructions'),
+          isActive: data.get('isActive') === 'on',
+          method,
+        }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      }));
+      setNotice('Online payment channel saved.');
+      startRefresh(() => router.refresh());
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Unable to save channel.');
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
       {(error || notice) && (
@@ -203,7 +278,7 @@ export function AccountingPortal({
           </span>
           <CardTitle className="mt-2 text-xl">Manual payment entry</CardTitle>
           <p className="text-sm leading-6 text-zinc-400">
-            Record USD or EGP cash, wire, and card payments with an auditable
+            Record legacy USD or EGP wire and card payments with an auditable
             receipt number.
           </p>
         </CardHeader>
@@ -271,7 +346,6 @@ export function AccountingPortal({
             <label className="text-xs font-bold text-zinc-400">
               Payment method
               <select className={`${fieldClass} mt-2`} name="paymentType" required>
-                <option value="CASH">Cash</option>
                 <option value="WIRE_TRANSFER">Wire transfer</option>
                 <option value="ONLINE_CARD">Online card</option>
               </select>
@@ -331,6 +405,44 @@ export function AccountingPortal({
               Record payment
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Online receipt approval desk</CardTitle>
+          <p className="text-sm leading-6 text-zinc-400">Private screenshot uploads remain inaccessible until an authorized reviewer opens a short-lived preview.</p>
+        </CardHeader>
+        <CardContent className="flex min-w-0 flex-col gap-3 pt-5">
+          {onlinePayments.map((payment) => (
+            <article className="rounded-2xl border border-amber-400/15 bg-amber-400/5 p-4" key={payment.id}>
+              <div className="flex min-w-0 items-start gap-3">
+                <Upload className="size-5 shrink-0 text-amber-300" />
+                <span className="min-w-0 flex-1"><span className="block truncate font-black">{payment.studentName}</span><span className="block truncate text-xs text-zinc-500">{payment.courseTitle} · {payment.method.replaceAll('_', ' ')}</span></span>
+                <span className="shrink-0 text-sm font-black">{payment.amount} {payment.currency}</span>
+              </div>
+              <div className="mt-3 grid min-w-0 grid-cols-3 gap-2">
+                <a className="flex min-w-0 items-center justify-center rounded-xl border border-white/10 px-2 py-2 text-xs font-black" href={`/api/accounting/online-payments/${payment.id}/receipt`} rel="noopener noreferrer" target="_blank">View</a>
+                <button className="rounded-xl bg-emerald-300 px-2 py-2 text-xs font-black text-black disabled:opacity-50" disabled={isBusy} onClick={() => void reviewOnlinePayment(payment.id, 'approve')} type="button">Approve</button>
+                <button className="rounded-xl border border-red-400/20 px-2 py-2 text-xs font-black text-red-300 disabled:opacity-50" disabled={isBusy} onClick={() => void reviewOnlinePayment(payment.id, 'reject')} type="button">Reject</button>
+              </div>
+            </article>
+          ))}
+          {!onlinePayments.length ? <p className="rounded-2xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500">No pending online receipts.</p> : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300"><Settings2 className="size-5" /></span><CardTitle className="mt-2 text-xl">Digital payment channels</CardTitle></CardHeader>
+        <CardContent className="flex min-w-0 flex-col gap-3 pt-5">
+          {paymentChannels.map((channel) => (
+            <form className="flex min-w-0 flex-col gap-2 rounded-2xl border border-white/10 bg-black p-3" key={channel.method} onSubmit={(event) => void saveChannel(event, channel.method)}>
+              <input className={fieldClass} defaultValue={channel.displayName} name="displayName" placeholder="Display name" required />
+              <input className={fieldClass} defaultValue={channel.accountValue} name="accountValue" placeholder="Wallet, handle, or account" required />
+              <textarea className="min-h-20 w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm" defaultValue={channel.instructions ?? ''} name="instructions" placeholder="Student instructions" />
+              <div className="flex items-center justify-between gap-2"><label className="flex items-center gap-2 text-xs font-bold"><input defaultChecked={channel.isActive} name="isActive" type="checkbox" /> Active</label><Button disabled={isBusy} size="sm" type="submit">Save {channel.method.replaceAll('_', ' ')}</Button></div>
+            </form>
+          ))}
         </CardContent>
       </Card>
 

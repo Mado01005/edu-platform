@@ -343,10 +343,10 @@ export async function savePushSubscription(
   const prisma = getPrisma();
   const endpoint = readPushEndpoint(subscription.endpoint);
   return prisma.$transaction(async (transaction) => {
-    await transaction.$queryRaw(
+    await transaction.$executeRaw(
       Prisma.sql`select pg_advisory_xact_lock(hashtextextended(${`push-user:${userId}`}, 0))`,
     );
-    await transaction.$queryRaw(
+    await transaction.$executeRaw(
       Prisma.sql`select pg_advisory_xact_lock(hashtextextended(${`push-endpoint:${endpoint}`}, 0))`,
     );
 

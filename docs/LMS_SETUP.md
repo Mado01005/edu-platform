@@ -12,13 +12,13 @@ Copy the LMS variables from `.env.example` into `.env.local` and Vercel.
 - `DIRECT_URL` must use the direct database connection on port `5432`.
 - Keep the R2 access key and secret server-only.
 - `R2_PUBLIC_URL` must be the public or custom domain used for lesson playback.
+- `DIGITAL_CODE_SECRET` must be a stable random value of at least 32 characters.
 
 ## 2. Database and roles
 
-Apply `supabase/migrations/20260723185942_lms_role_based_schema.sql` through the
-Supabase CLI or SQL migration pipeline. It creates the Prisma-compatible LMS
-tables, the Auth profile trigger, indexes, grants, and row-level security
-policies.
+Apply all versioned migrations with `npx supabase db push`. They create the
+Prisma-compatible LMS tables, Auth profile trigger, indexes, grants, invariant
+triggers, and row-level security configuration.
 
 New Supabase Auth users start as students. Promote a teacher with a trusted
 administrative SQL session:
@@ -43,22 +43,27 @@ Also add `http://localhost:3000/auth/callback` for local development.
 ## 3. Cloudflare R2
 
 Apply `cloudflare/r2-cors.json` to the R2 bucket after replacing the placeholder
-production domain. The presigned upload endpoint is:
+production domain. The presigned upload endpoints are:
 
 ```text
 POST /api/upload/r2
+POST /api/checkout/upload
 ```
 
-Only teachers and admins can request URLs. Uploads are restricted to PDF, MP4,
-WebM, and QuickTime content types, use randomized object keys, and expire after
-15 minutes. The browser must send the returned `requiredHeaders` unchanged.
+Teacher/admin content uploads are restricted to PDF and supported video types.
+Authenticated students may request private JPG, PNG, or WebP receipt uploads up
+to 8 MB. All object keys are randomized, checkout URLs expire after 10 minutes,
+and the browser must send the returned `Content-Type` header unchanged.
 
 ## 4. Main routes
 
 - `/dashboard` — Supabase users see enrolled courses, completion, and live classes.
-- `/catalog` — published course catalog and enrollment.
+- `/catalog` — published catalog, digital-code redemption, and online checkout.
 - `/courses/[courseId]/learn/lessons/[lessonId]` — video, resources, progress, and Q&A.
 - `/live-classes` — upcoming Zoom sessions.
+- `/mps` — PIN-protected parent activity, grades, subscriptions, and invoices.
+- `/admin/codes` — HMAC-backed 12-digit access-code batch generator.
+- `/accounting` — private receipt approval and payment-channel configuration.
 - `/teacher/courses` — teacher course list.
 - `/teacher/courses/[courseId]/edit` — curriculum, R2 uploads, and Zoom scheduler.
 - `/lms/login` — Supabase password or Google sign-in.

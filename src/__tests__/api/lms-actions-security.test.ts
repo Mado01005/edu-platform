@@ -2,6 +2,8 @@ const mockRequireLmsRole = jest.fn();
 const mockRequireLmsUser = jest.fn();
 const mockCourseCreate = jest.fn();
 const mockCourseFindUnique = jest.fn();
+const mockCourseFindFirst = jest.fn();
+const mockEnrollmentUpsert = jest.fn();
 const mockLessonFindUnique = jest.fn();
 const mockProgressUpsert = jest.fn();
 
@@ -23,8 +25,10 @@ jest.mock('@/lib/prisma', () => ({
   getPrisma: () => ({
     course: {
       create: mockCourseCreate,
+      findFirst: mockCourseFindFirst,
       findUnique: mockCourseFindUnique,
     },
+    enrollment: { upsert: mockEnrollmentUpsert },
     lesson: { findUnique: mockLessonFindUnique },
     lessonProgress: { upsert: mockProgressUpsert },
   }),
@@ -89,6 +93,22 @@ describe('LMS Server Action role boundaries', () => {
       status: 403,
     });
     expect(mockRequireLmsRole).toHaveBeenCalledWith(['STUDENT']);
+  });
+
+  it('does not let the free enrollment action bypass paid checkout', async () => {
+    mockRequireLmsRole.mockResolvedValue({ id: 'student-1', role: 'STUDENT' });
+    mockCourseFindFirst.mockResolvedValue({
+      id: 'course-1',
+      modules: [],
+      priceEGP: { gt: () => true },
+      priceUSD: { gt: () => false },
+    });
+
+    await expect(enrollCourseAction('course-1')).rejects.toMatchObject({
+      message: 'Paid courses require an approved online payment or access code.',
+      status: 409,
+    });
+    expect(mockEnrollmentUpsert).not.toHaveBeenCalled();
   });
 
   it('requires student role before writing progress', async () => {

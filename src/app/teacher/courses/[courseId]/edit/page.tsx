@@ -45,6 +45,8 @@ export default async function EditCoursePage({
       <CourseBuilder
         course={{
           ...course,
+          priceEGP: course.priceEGP.toFixed(2),
+          priceUSD: course.priceUSD.toFixed(2),
           zoomSessions: course.zoomSessions.map((session) => ({
             ...session,
             startTime: session.startTime.toISOString(),

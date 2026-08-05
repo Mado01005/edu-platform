@@ -10,7 +10,8 @@ import {
   Radio,
   Users,
 } from 'lucide-react';
-import { enrollCourseAction } from '@/app/lms/actions';
+import { CourseAccessActions } from '@/components/checkout/CourseAccessActions';
+import type { CheckoutChannel } from '@/components/checkout/online-checkout-modal';
 import { Avatar, AvatarFallback } from '@/components/UI/avatar';
 import { Badge } from '@/components/UI/badge';
 import { buttonVariants } from '@/components/UI/button';
@@ -22,7 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/UI/card';
-import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { cn } from '@/lib/utils';
 import { isTeachingRole } from '@/lib/lms/roles';
 
@@ -41,6 +41,8 @@ export interface CatalogCourse {
   title: string;
   description: string | null;
   imageUrl: string | null;
+  priceEGP: string;
+  priceUSD: string;
   teacher: { name: string | null };
   modules: Array<{
     lessons: Array<{ contentType: ContentType }>;
@@ -53,6 +55,7 @@ export interface CatalogCourse {
 
 interface CourseCardProps {
   course: CatalogCourse;
+  channels: CheckoutChannel[];
   enrolled: boolean;
   user: Pick<User, 'role'> | null;
 }
@@ -98,7 +101,7 @@ function contentLabel(types: Set<ContentType>) {
   return 'Guided lessons';
 }
 
-export function CourseCard({ course, enrolled, user }: CourseCardProps) {
+export function CourseCard({ channels, course, enrolled, user }: CourseCardProps) {
   const lessonTypes = new Set(
     course.modules.flatMap((module) =>
       module.lessons.map((lesson) => lesson.contentType),
@@ -109,7 +112,6 @@ export function CourseCard({ course, enrolled, user }: CourseCardProps) {
     0,
   );
   const categories = getCourseCategories(course);
-  const enroll = enrollCourseAction.bind(null, course.id);
   const instructorName = course.teacher.name ?? 'Dr. Abdallah Saad';
 
   return (
@@ -195,19 +197,20 @@ export function CourseCard({ course, enrolled, user }: CourseCardProps) {
             ? ` · ${course._count.zoomSessions} live ${course._count.zoomSessions === 1 ? 'session' : 'sessions'}`
             : ''}
         </p>
+        {Number(course.priceEGP) > 0 || Number(course.priceUSD) > 0 ? (
+          <p className="mt-3 text-sm font-black text-emerald-300">
+            {Number(course.priceEGP) > 0 ? `${course.priceEGP} EGP` : ''}
+            {Number(course.priceEGP) > 0 && Number(course.priceUSD) > 0 ? ' · ' : ''}
+            {Number(course.priceUSD) > 0 ? `${course.priceUSD} USD` : ''}
+          </p>
+        ) : (
+          <p className="mt-3 text-sm font-black text-emerald-300">Free access</p>
+        )}
       </CardContent>
 
       <CardFooter className="pt-5">
         {user?.role === 'STUDENT' ? (
-          <form action={enroll} className="w-full">
-            <ActionSubmitButton
-              className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-400 to-fuchsia-500 px-4 text-sm font-black text-black shadow-lg shadow-violet-950/30 transition hover:from-violet-300 hover:to-fuchsia-400"
-              pendingLabel={enrolled ? 'Opening…' : 'Enrolling…'}
-            >
-              {enrolled ? 'Continue course' : 'Enroll now'}
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </ActionSubmitButton>
-          </form>
+          <CourseAccessActions channels={channels} course={course} enrolled={enrolled} />
         ) : user ? (
           <Link
             className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}

@@ -1,6 +1,7 @@
 import { CalendarDays, Clock3, Radio, Video } from 'lucide-react';
 import { LmsHeader } from '@/components/lms/LmsHeader';
 import { LocalDateTime } from '@/components/lms/LocalDateTime';
+import { JoinLiveClassButton } from '@/components/lms/JoinLiveClassButton';
 import { requireLmsPageUser } from '@/lib/lms/auth';
 import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
@@ -9,9 +10,11 @@ export const dynamic = 'force-dynamic';
 
 export default async function LiveClassesPage() {
   const user = await requireLmsPageUser();
+  const attendanceCutoff = new Date();
+  attendanceCutoff.setHours(attendanceCutoff.getHours() - 9);
   const sessions = await getPrisma().zoomSession.findMany({
     where: {
-      startTime: { gte: new Date() },
+      startTime: { gte: attendanceCutoff },
       ...(isAdminRole(user.role)
         ? {}
         : user.role === 'TEACHER'
@@ -64,14 +67,11 @@ export default async function LiveClassesPage() {
                   </span>
                 </div>
               </div>
-              <a
-                className="shrink-0 rounded-xl bg-white px-4 py-3 text-center text-sm font-black text-black hover:bg-emerald-200"
-                href={session.meetingUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Join meeting
-              </a>
+              {user.role === 'STUDENT' ? (
+                <JoinLiveClassButton zoomSessionId={session.id} />
+              ) : (
+                <a className="shrink-0 rounded-xl bg-white px-4 py-3 text-center text-sm font-black text-black hover:bg-emerald-200" href={session.meetingUrl} rel="noopener noreferrer" target="_blank">Join meeting</a>
+              )}
             </article>
           ))}
         </section>

@@ -17,7 +17,7 @@ export class AccountingError extends Error {
   }
 }
 
-async function lockAccountingMutation(tx: Prisma.TransactionClient) {
+export async function lockAccountingMutation(tx: Prisma.TransactionClient) {
   // Accounting writes touch several tables whose invariant triggers lock
   // different user-role sets. Serializing these low-volume mutations avoids
   // cross-operator lock-order cycles while retaining transaction rollback.
@@ -92,10 +92,9 @@ function paymentCurrency(value: unknown): PaymentCurrency {
 function paymentMethod(value: unknown): PaymentMethod {
   if (
     value !== 'WIRE_TRANSFER' &&
-    value !== 'CASH' &&
     value !== 'ONLINE_CARD'
   ) {
-    throw new AccountingError('Choose a valid payment method.');
+    throw new AccountingError('Choose wire transfer or online card.');
   }
   return value;
 }

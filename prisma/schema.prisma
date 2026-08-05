@@ -75,45 +75,73 @@ enum SubscriptionStatus {
   EXPIRED
 }
 
+enum AttendanceType {
+  LIVE_ZOOM
+  VIDEO_LESSON
+  ONLINE_QUIZ
+}
+
+enum AccessCodeStatus {
+  ACTIVE
+  REDEEMED
+  REVOKED
+}
+
+enum OnlinePaymentMethod {
+  INSTAPAY
+  VODAFONE_CASH
+  ONLINE_CARD
+  USD_WIRE
+  PAYPAL
+}
+
 model User {
-  id                    String                 @id @default(cuid())
-  supabaseId            String                 @unique @map("supabase_id")
-  email                 String                 @unique
-  name                  String?
-  headline              String?
-  bio                   String?                @db.Text
-  avatarUrl             String?                @map("avatar_url")
-  timezone              String                 @default("UTC")
-  phoneNumber           String?                @unique @map("phone_number")
-  phoneVerified         Boolean                @default(false) @map("phone_verified")
-  defaultPlaybackSpeed  Float                  @default(1.0) @map("default_playback_speed")
-  defaultVideoQuality   String                 @default("AUTO") @map("default_video_quality")
-  autoPlayNext          Boolean                @default(true) @map("auto_play_next")
-  notifyZoomClasses     Boolean                @default(true) @map("notify_zoom_classes")
-  notifyAnnouncements   Boolean                @default(true) @map("notify_announcements")
-  notifyDiscussions     Boolean                @default(true) @map("notify_discussions")
-  role                  Role                   @default(STUDENT)
-  status                AccountStatus          @default(ACTIVE)
-  gradeLevel            GradeLevel?            @map("grade_level")
-  courses               Course[]
-  enrollments           Enrollment[]
-  progress              LessonProgress[]
-  zoomSessions          ZoomSession[]
-  discussions           Discussion[]
-  teacherSubjects       Subject[]              @relation("TeacherSubjects")
-  healthScore           StudentHealthScore?
-  notifications         SystemNotification[]
-  pushSubscriptions     WebPushSubscription[]
-  studentPayments       USDManualLedger[]      @relation("StudentPayments")
-  createdPayments       USDManualLedger[]      @relation("CreatedPayments")
-  approvedPayments      USDManualLedger[]      @relation("ApprovedPayments")
-  assignmentSubmissions AssignmentSubmission[]
-  studentSubscriptions  StudentSubscription[]  @relation("StudentSubscriptions")
-  approvedSubscriptions StudentSubscription[]  @relation("ApprovedSubscriptions")
-  parentLinks           ParentStudent[]        @relation("ParentLinks")
-  studentParentLinks    ParentStudent[]        @relation("StudentLinks")
-  createdAt             DateTime               @default(now()) @map("created_at")
-  updatedAt             DateTime               @updatedAt @map("updated_at")
+  id                     String                    @id @default(cuid())
+  supabaseId             String                    @unique @map("supabase_id")
+  email                  String                    @unique
+  name                   String?
+  headline               String?
+  bio                    String?                   @db.Text
+  avatarUrl              String?                   @map("avatar_url")
+  timezone               String                    @default("UTC")
+  phoneNumber            String?                   @unique @map("phone_number")
+  phoneVerified          Boolean                   @default(false) @map("phone_verified")
+  defaultPlaybackSpeed   Float                     @default(1.0) @map("default_playback_speed")
+  defaultVideoQuality    String                    @default("AUTO") @map("default_video_quality")
+  autoPlayNext           Boolean                   @default(true) @map("auto_play_next")
+  notifyZoomClasses      Boolean                   @default(true) @map("notify_zoom_classes")
+  notifyAnnouncements    Boolean                   @default(true) @map("notify_announcements")
+  notifyDiscussions      Boolean                   @default(true) @map("notify_discussions")
+  role                   Role                      @default(STUDENT)
+  status                 AccountStatus             @default(ACTIVE)
+  gradeLevel             GradeLevel?               @map("grade_level")
+  courses                Course[]
+  enrollments            Enrollment[]
+  progress               LessonProgress[]
+  zoomSessions           ZoomSession[]
+  discussions            Discussion[]
+  teacherSubjects        Subject[]                 @relation("TeacherSubjects")
+  healthScore            StudentHealthScore?
+  notifications          SystemNotification[]
+  pushSubscriptions      WebPushSubscription[]
+  studentPayments        USDManualLedger[]         @relation("StudentPayments")
+  createdPayments        USDManualLedger[]         @relation("CreatedPayments")
+  approvedPayments       USDManualLedger[]         @relation("ApprovedPayments")
+  assignmentSubmissions  AssignmentSubmission[]
+  studentSubscriptions   StudentSubscription[]     @relation("StudentSubscriptions")
+  approvedSubscriptions  StudentSubscription[]     @relation("ApprovedSubscriptions")
+  parentLinks            ParentStudent[]           @relation("ParentLinks")
+  studentParentLinks     ParentStudent[]           @relation("StudentLinks")
+  digitalAttendance      DigitalAttendance[]
+  createdAccessCodes     DigitalAccessCode[]       @relation("CreatedAccessCodes")
+  redeemedAccessCodes    DigitalAccessCode[]       @relation("RedeemedAccessCodes")
+  onlinePayments         OnlinePaymentSubmission[] @relation("StudentOnlinePayments")
+  reviewedOnlinePayments OnlinePaymentSubmission[] @relation("ReviewedOnlinePayments")
+  updatedPaymentChannels PaymentChannel[]          @relation("UpdatedPaymentChannels")
+  parentPortalCredential ParentPortalCredential?
+  parentPortalSessions   ParentPortalSession[]
+  createdAt              DateTime                  @default(now()) @map("created_at")
+  updatedAt              DateTime                  @updatedAt @map("updated_at")
 
   @@index([role, gradeLevel])
   @@map("lms_users")
@@ -135,22 +163,27 @@ model Subject {
 }
 
 model Course {
-  id            String                @id @default(cuid())
-  title         String
-  description   String?               @db.Text
-  imageUrl      String?               @map("image_url")
-  isPublished   Boolean               @default(false) @map("is_published")
-  teacherId     String                @map("teacher_id")
-  teacher       User                  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  subjectId     String?               @map("subject_id")
-  subject       Subject?              @relation(fields: [subjectId], references: [id], onDelete: SetNull)
-  modules       Module[]
-  enrollments   Enrollment[]
-  zoomSessions  ZoomSession[]
-  assignments   Assignment[]
-  subscriptions StudentSubscription[]
-  createdAt     DateTime              @default(now()) @map("created_at")
-  updatedAt     DateTime              @updatedAt @map("updated_at")
+  id                String                    @id @default(cuid())
+  title             String
+  description       String?                   @db.Text
+  imageUrl          String?                   @map("image_url")
+  isPublished       Boolean                   @default(false) @map("is_published")
+  teacherId         String                    @map("teacher_id")
+  teacher           User                      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subjectId         String?                   @map("subject_id")
+  subject           Subject?                  @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  modules           Module[]
+  enrollments       Enrollment[]
+  zoomSessions      ZoomSession[]
+  assignments       Assignment[]
+  subscriptions     StudentSubscription[]
+  digitalAttendance DigitalAttendance[]
+  accessCodes       DigitalAccessCode[]
+  onlinePayments    OnlinePaymentSubmission[]
+  priceEGP          Decimal                   @default(0) @map("price_egp") @db.Decimal(12, 2)
+  priceUSD          Decimal                   @default(0) @map("price_usd") @db.Decimal(12, 2)
+  createdAt         DateTime                  @default(now()) @map("created_at")
+  updatedAt         DateTime                  @updatedAt @map("updated_at")
 
   @@index([teacherId])
   @@index([subjectId])
@@ -171,19 +204,20 @@ model Module {
 }
 
 model Lesson {
-  id          String           @id @default(cuid())
-  title       String
-  position    Int
-  contentType ContentType      @default(VIMEO) @map("content_type")
-  videoUrl    String?          @map("video_url")
-  pdfUrl      String?          @map("pdf_url")
-  textContent String?          @map("text_content") @db.Text
-  isFree      Boolean          @default(false) @map("is_free")
-  moduleId    String           @map("module_id")
-  module      Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress    LessonProgress[]
-  discussions Discussion[]
-  createdAt   DateTime         @default(now()) @map("created_at")
+  id                String              @id @default(cuid())
+  title             String
+  position          Int
+  contentType       ContentType         @default(VIMEO) @map("content_type")
+  videoUrl          String?             @map("video_url")
+  pdfUrl            String?             @map("pdf_url")
+  textContent       String?             @map("text_content") @db.Text
+  isFree            Boolean             @default(false) @map("is_free")
+  moduleId          String              @map("module_id")
+  module            Module              @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress          LessonProgress[]
+  discussions       Discussion[]
+  digitalAttendance DigitalAttendance[]
+  createdAt         DateTime            @default(now()) @map("created_at")
 
   @@index([moduleId, position])
   @@map("lms_lessons")
@@ -218,16 +252,17 @@ model LessonProgress {
 }
 
 model ZoomSession {
-  id         String   @id @default(cuid())
-  title      String
-  meetingUrl String   @map("meeting_url")
-  startTime  DateTime @map("start_time")
-  duration   Int
-  courseId   String   @map("course_id")
-  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacherId  String   @map("teacher_id")
-  teacher    User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now()) @map("created_at")
+  id                String              @id @default(cuid())
+  title             String
+  meetingUrl        String              @map("meeting_url")
+  startTime         DateTime            @map("start_time")
+  duration          Int
+  courseId          String              @map("course_id")
+  course            Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacherId         String              @map("teacher_id")
+  teacher           User                @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt         DateTime            @default(now()) @map("created_at")
+  digitalAttendance DigitalAttendance[]
 
   @@index([courseId, startTime])
   @@index([teacherId])
@@ -272,6 +307,7 @@ model AssignmentSubmission {
   studentId       String     @map("student_id")
   student         User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
   scorePercentage Float?     @map("score_percentage")
+  teacherFeedback String?    @map("teacher_feedback") @db.Text
   submittedAt     DateTime   @default(now()) @map("submitted_at")
 
   @@unique([assignmentId, studentId])
@@ -395,4 +431,126 @@ model ParentStudent {
   @@unique([parentId, studentId])
   @@index([studentId])
   @@map("lms_parent_students")
+}
+
+model DigitalAttendance {
+  id            String         @id @default(cuid())
+  studentId     String         @map("student_id")
+  student       User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId      String         @map("course_id")
+  course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonId      String?        @map("lesson_id")
+  lesson        Lesson?        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  zoomSessionId String?        @map("zoom_session_id")
+  zoomSession   ZoomSession?   @relation(fields: [zoomSessionId], references: [id], onDelete: Cascade)
+  type          AttendanceType @default(VIDEO_LESSON)
+  joinedAt      DateTime       @default(now()) @map("joined_at")
+  durationMin   Int            @default(0) @map("duration_min")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  @@unique([studentId, lessonId, type])
+  @@unique([studentId, zoomSessionId, type])
+  @@index([studentId, joinedAt])
+  @@index([courseId, type, joinedAt])
+  @@map("lms_digital_attendance")
+}
+
+model DigitalAccessCode {
+  id           String           @id @default(cuid())
+  codeHash     String           @unique @map("code_hash")
+  codeLastFour String           @map("code_last_four")
+  batchId      String           @map("batch_id")
+  courseId     String?          @map("course_id")
+  course       Course?          @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  gradeLevel   GradeLevel?      @map("grade_level")
+  status       AccessCodeStatus @default(ACTIVE)
+  createdById  String           @map("created_by_id")
+  createdBy    User             @relation("CreatedAccessCodes", fields: [createdById], references: [id], onDelete: Restrict)
+  redeemedById String?          @map("redeemed_by_id")
+  redeemedBy   User?            @relation("RedeemedAccessCodes", fields: [redeemedById], references: [id], onDelete: Restrict)
+  redeemedAt   DateTime?        @map("redeemed_at")
+  expiresAt    DateTime?        @map("expires_at")
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  @@index([batchId])
+  @@index([status, createdAt])
+  @@index([courseId])
+  @@index([gradeLevel])
+  @@index([redeemedById])
+  @@map("lms_digital_access_codes")
+}
+
+model PaymentChannel {
+  id           String              @id @default(cuid())
+  method       OnlinePaymentMethod @unique
+  currency     PaymentCurrency
+  displayName  String              @map("display_name")
+  accountValue String              @map("account_value")
+  instructions String?             @db.Text
+  isActive     Boolean             @default(false) @map("is_active")
+  updatedById  String              @map("updated_by_id")
+  updatedBy    User                @relation("UpdatedPaymentChannels", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  @@index([isActive, currency])
+  @@index([updatedById])
+  @@map("lms_payment_channels")
+}
+
+model OnlinePaymentSubmission {
+  id                   String              @id @default(cuid())
+  studentId            String              @map("student_id")
+  student              User                @relation("StudentOnlinePayments", fields: [studentId], references: [id], onDelete: Restrict)
+  courseId             String              @map("course_id")
+  course               Course              @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  currency             PaymentCurrency
+  amount               Decimal             @db.Decimal(12, 2)
+  paymentMethod        OnlinePaymentMethod @map("payment_method")
+  receiptObjectKey     String              @unique @map("receipt_object_key")
+  receiptContentType   String              @map("receipt_content_type")
+  receiptSizeBytes     Int                 @map("receipt_size_bytes")
+  transactionReference String?             @map("transaction_reference")
+  invoiceNumber        String?             @unique @map("invoice_number")
+  status               PaymentStatus       @default(PENDING)
+  rejectionReason      String?             @map("rejection_reason") @db.Text
+  reviewedById         String?             @map("reviewed_by_id")
+  reviewedBy           User?               @relation("ReviewedOnlinePayments", fields: [reviewedById], references: [id], onDelete: Restrict)
+  reviewedAt           DateTime?           @map("reviewed_at")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@index([studentId, createdAt])
+  @@index([courseId])
+  @@index([reviewedById])
+  @@map("lms_online_payment_submissions")
+}
+
+model ParentPortalCredential {
+  parentId       String    @id @map("parent_id")
+  parent         User      @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  pinHash        String    @map("pin_hash")
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  lockedUntil    DateTime? @map("locked_until")
+  lastLoginAt    DateTime? @map("last_login_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@index([lockedUntil])
+  @@map("lms_parent_portal_credentials")
+}
+
+model ParentPortalSession {
+  id         String    @id @default(cuid())
+  parentId   String    @map("parent_id")
+  parent     User      @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique @map("token_hash")
+  expiresAt  DateTime  @map("expires_at")
+  lastSeenAt DateTime  @default(now()) @map("last_seen_at")
+  revokedAt  DateTime? @map("revoked_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([parentId, expiresAt])
+  @@index([expiresAt])
+  @@map("lms_parent_portal_sessions")
 }

@@ -14,6 +14,7 @@ export async function POST(request: Request) {
     }
     const student = await requireLmsRole(['STUDENT']);
     let body: {
+      durationMin?: unknown;
       lessonId?: unknown;
       watchPercentage?: unknown;
     };
@@ -30,7 +31,11 @@ export async function POST(request: Request) {
       typeof body.watchPercentage !== 'number' ||
       !Number.isFinite(body.watchPercentage) ||
       body.watchPercentage < 0 ||
-      body.watchPercentage > 100
+      body.watchPercentage > 100 ||
+      (body.durationMin !== undefined &&
+        (!Number.isInteger(body.durationMin) ||
+          Number(body.durationMin) < 0 ||
+          Number(body.durationMin) > 10_000))
     ) {
       return NextResponse.json(
         { error: 'A valid lesson and watch percentage are required.' },
@@ -49,7 +54,7 @@ export async function POST(request: Request) {
           },
         },
       },
-      select: { id: true },
+      select: { id: true, module: { select: { courseId: true } } },
     });
     if (!lesson) {
       return NextResponse.json(
@@ -76,6 +81,35 @@ export async function POST(request: Request) {
       current &&
       requestedPercentage <= current.watchPercentage
     ) {
+      if (current.watchPercentage >= 50) {
+        const durationMin = typeof body.durationMin === 'number' ? body.durationMin : 0;
+        await prisma.digitalAttendance.upsert({
+          where: {
+            studentId_lessonId_type: {
+              lessonId: lesson.id,
+              studentId: student.id,
+              type: 'VIDEO_LESSON',
+            },
+          },
+          create: {
+            courseId: lesson.module.courseId,
+            durationMin,
+            lessonId: lesson.id,
+            studentId: student.id,
+            type: 'VIDEO_LESSON',
+          },
+          update: {},
+        });
+        await prisma.digitalAttendance.updateMany({
+          where: {
+            durationMin: { lt: durationMin },
+            lessonId: lesson.id,
+            studentId: student.id,
+            type: 'VIDEO_LESSON',
+          },
+          data: { durationMin },
+        });
+      }
       return NextResponse.json({
         isCompleted: current.isCompleted,
         watchPercentage: current.watchPercentage,
@@ -111,20 +145,51 @@ export async function POST(request: Request) {
     }
     const isCompleted = current?.isCompleted === true || watchPercentage >= 95;
 
-    await prisma.lessonProgress.upsert({
-      where: {
-        studentId_lessonId: {
+    await prisma.$transaction(async (tx) => {
+      await tx.lessonProgress.upsert({
+        where: {
+          studentId_lessonId: {
+            lessonId: lesson.id,
+            studentId: student.id,
+          },
+        },
+        create: {
+          isCompleted,
           lessonId: lesson.id,
           studentId: student.id,
+          watchPercentage,
         },
-      },
-      create: {
-        isCompleted,
-        lessonId: lesson.id,
-        studentId: student.id,
-        watchPercentage,
-      },
-      update: { isCompleted, watchPercentage },
+        update: { isCompleted, watchPercentage },
+      });
+      if (watchPercentage >= 50) {
+        const durationMin = typeof body.durationMin === 'number' ? body.durationMin : 0;
+        await tx.digitalAttendance.upsert({
+          where: {
+            studentId_lessonId_type: {
+              lessonId: lesson.id,
+              studentId: student.id,
+              type: 'VIDEO_LESSON',
+            },
+          },
+          create: {
+            courseId: lesson.module.courseId,
+            durationMin,
+            lessonId: lesson.id,
+            studentId: student.id,
+            type: 'VIDEO_LESSON',
+          },
+          update: {},
+        });
+        await tx.digitalAttendance.updateMany({
+          where: {
+            durationMin: { lt: durationMin },
+            lessonId: lesson.id,
+            studentId: student.id,
+            type: 'VIDEO_LESSON',
+          },
+          data: { durationMin },
+        });
+      }
     });
     await recalculateStudentHealthScores([student.id]);
 

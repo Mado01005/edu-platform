@@ -6,6 +6,7 @@ import {
   UserManagementConsole,
 } from '@/app/admin/users/UserManagementConsole';
 import { AdminStorageWidget } from '@/components/Admin/AdminStorageWidget';
+import { ParentAccessManager } from '@/app/admin/users/ParentAccessManager';
 import { listAllSupabaseAuthUsers } from '@/lib/lms/admin-users';
 import { requireAdminPage } from '@/lib/lms/auth';
 import { getPrisma } from '@/lib/prisma';
@@ -23,10 +24,18 @@ export default async function AdminUsersPage() {
       email: true,
       id: true,
       name: true,
+      phoneNumber: true,
       role: true,
       status: true,
       supabaseId: true,
     },
+  });
+  const parentLinks = await getPrisma().parentStudent.findMany({
+    include: {
+      parent: { select: { email: true, id: true, name: true, phoneNumber: true } },
+      student: { select: { email: true, id: true, name: true } },
+    },
+    orderBy: { createdAt: 'desc' },
   });
 
   let authStatusAvailable = true;
@@ -112,6 +121,16 @@ export default async function AdminUsersPage() {
           currentAdminId={admin.id}
           currentAdminRole={admin.role}
           initialUsers={records}
+        />
+        <ParentAccessManager
+          links={parentLinks.map((link) => ({
+            parentId: link.parentId,
+            parentName: link.parent.name ?? link.parent.phoneNumber ?? link.parent.email,
+            studentId: link.studentId,
+            studentName: link.student.name ?? link.student.email,
+          }))}
+          parents={users.filter((user) => user.role === 'PARENT' && user.status === 'ACTIVE').map((user) => ({ id: user.id, label: `${user.name ?? 'Parent'} · ${user.phoneNumber ?? user.email}` }))}
+          students={users.filter((user) => user.role === 'STUDENT' && user.status === 'ACTIVE').map((user) => ({ id: user.id, label: `${user.name ?? 'Student'} · ${user.email}` }))}
         />
     </PortalShell>
   );

@@ -13,7 +13,7 @@ export default async function AccountingPage() {
     'accounting-required',
   );
   const prisma = getPrisma();
-  const [students, courses, subscriptions, ledger] = await Promise.all([
+  const [students, courses, subscriptions, ledger, onlinePayments, savedChannels] = await Promise.all([
     prisma.user.findMany({
       where: { role: 'STUDENT', status: 'ACTIVE' },
       orderBy: [{ name: 'asc' }, { email: 'asc' }],
@@ -39,6 +39,16 @@ export default async function AccountingPage() {
       orderBy: { createdAt: 'desc' },
       take: 100,
     }),
+    prisma.onlinePaymentSubmission.findMany({
+      where: { status: 'PENDING' },
+      include: {
+        course: { select: { title: true } },
+        student: { select: { email: true, name: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 200,
+    }),
+    prisma.paymentChannel.findMany({ orderBy: { method: 'asc' } }),
   ]);
 
   const pendingPayments = ledger.filter(({ status }) => status === 'PENDING');
@@ -66,7 +76,7 @@ export default async function AccountingPage() {
           {
             icon: Clock3,
             label: 'Pending',
-            value: pendingPayments.length + subscriptions.length,
+            value: pendingPayments.length + subscriptions.length + onlinePayments.length,
           },
           {
             icon: ReceiptText,
@@ -105,6 +115,31 @@ export default async function AccountingPage() {
           status: payment.status,
           studentName: payment.student.name ?? payment.student.email,
         }))}
+        onlinePayments={onlinePayments.map((payment) => ({
+          amount: payment.amount.toFixed(2),
+          courseTitle: payment.course.title,
+          createdAt: payment.createdAt.toISOString(),
+          currency: payment.currency,
+          id: payment.id,
+          method: payment.paymentMethod,
+          studentName: payment.student.name ?? payment.student.email,
+        }))}
+        paymentChannels={([
+          'INSTAPAY',
+          'VODAFONE_CASH',
+          'ONLINE_CARD',
+          'USD_WIRE',
+          'PAYPAL',
+        ] as const).map((method) => {
+          const channel = savedChannels.find((item) => item.method === method);
+          return {
+            accountValue: channel?.accountValue ?? '',
+            displayName: channel?.displayName ?? method.replaceAll('_', ' '),
+            instructions: channel?.instructions ?? null,
+            isActive: channel?.isActive ?? false,
+            method,
+          };
+        })}
         pendingSubscriptions={subscriptions.map((subscription) => ({
           courseTitle: subscription.course.title,
           id: subscription.id,

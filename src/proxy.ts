@@ -17,6 +17,7 @@ const PUBLIC_PATHS = [
   '/lms/login',
   '/auth/callback',
   '/catalog',
+  '/mps',
   '/api/auth',
   '/sitemap.xml',
   '/robots.txt',
@@ -36,6 +37,7 @@ const LMS_PAGE_RULES: readonly {
   { route: '/admin/storage', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/admin/k12', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/admin/radar', allowed: ADMIN_ROLES, notice: 'admin-required' },
+  { route: '/admin/codes', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/support', allowed: SUPPORT_ROLES, notice: 'support-required' },
   {
     route: '/accounting',
@@ -69,6 +71,7 @@ export async function proxy(request: NextRequest) {
   if (
     PUBLIC_PATHS.some((path) => matchesRoute(pathname, path)) ||
     pathname.startsWith('/_next') ||
+    pathname.startsWith('/_vercel') ||
     pathname.startsWith('/favicon') ||
     pathname === '/sw.js' ||
     pathname === '/manifest.json' ||

@@ -126,6 +126,7 @@ export function UniversalVideoPlayer({
           try {
             response = await fetch('/api/lms/progress/video', {
               body: JSON.stringify({
+                durationMin: Math.floor(watchedSeconds.current / 60),
                 lessonId,
                 watchPercentage: nextPercentage,
               }),

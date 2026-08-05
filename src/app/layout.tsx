@@ -103,7 +103,7 @@ export default async function RootLayout({
         </Providers>
 
         {session ? <FloatingTutor /> : null}
-        {process.env.NODE_ENV === 'production' ? <SpeedInsights /> : null}
+        {process.env.VERCEL === '1' ? <SpeedInsights /> : null}
 
         {/* PWA Service Worker Registration */}
         <Script id="register-pwa-sw" strategy="afterInteractive">

@@ -1,10 +1,10 @@
 const mockPushFindUnique = jest.fn();
 const mockPushCount = jest.fn();
 const mockPushUpsert = jest.fn();
-const mockQueryRaw = jest.fn();
+const mockExecuteRaw = jest.fn();
 
 const mockTransaction = {
-  $queryRaw: mockQueryRaw,
+  $executeRaw: mockExecuteRaw,
   webPushSubscription: {
     count: mockPushCount,
     findUnique: mockPushFindUnique,
@@ -46,7 +46,7 @@ describe('web push subscription ownership', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPushCount.mockResolvedValue(0);
-    mockQueryRaw.mockResolvedValue([]);
+    mockExecuteRaw.mockResolvedValue(1);
     mockPushUpsert.mockResolvedValue({ id: 'push-id' });
   });
 

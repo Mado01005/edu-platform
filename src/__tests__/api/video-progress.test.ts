@@ -2,6 +2,8 @@ const mockRequireLmsRole = jest.fn();
 const mockLessonFindFirst = jest.fn();
 const mockProgressFindUnique = jest.fn();
 const mockProgressUpsert = jest.fn();
+const mockAttendanceUpsert = jest.fn();
+const mockAttendanceUpdateMany = jest.fn();
 const mockRecalculateHealth = jest.fn();
 
 class MockLmsAuthError extends Error {
@@ -20,13 +22,31 @@ jest.mock('@/lib/lms/health', () => ({
 }));
 
 jest.mock('@/lib/prisma', () => ({
-  getPrisma: () => ({
+  getPrisma: () => {
+    type MockTransaction = {
+      digitalAttendance: {
+        updateMany: typeof mockAttendanceUpdateMany;
+        upsert: typeof mockAttendanceUpsert;
+      };
+      lessonProgress: { upsert: typeof mockProgressUpsert };
+    };
+    const transaction: MockTransaction = {
+      digitalAttendance: {
+        updateMany: mockAttendanceUpdateMany,
+        upsert: mockAttendanceUpsert,
+      },
+      lessonProgress: { upsert: mockProgressUpsert },
+    };
+    return {
+    $transaction: (operation: (value: MockTransaction) => unknown) => operation(transaction),
+    digitalAttendance: transaction.digitalAttendance,
     lesson: { findFirst: mockLessonFindFirst },
     lessonProgress: {
       findUnique: mockProgressFindUnique,
       upsert: mockProgressUpsert,
     },
-  }),
+  };
+  },
 }));
 
 import { POST as saveVideoProgress } from '@/app/api/lms/progress/video/route';
@@ -45,9 +65,14 @@ function progressRequest(watchPercentage: number) {
 describe('video progress checkpoints', () => {
   beforeEach(() => {
     mockRequireLmsRole.mockResolvedValue({ id: 'student-1', role: 'STUDENT' });
-    mockLessonFindFirst.mockResolvedValue({ id: 'lesson-1' });
+    mockLessonFindFirst.mockResolvedValue({
+      id: 'lesson-1',
+      module: { courseId: 'course-1' },
+    });
     mockProgressFindUnique.mockResolvedValue(null);
     mockProgressUpsert.mockResolvedValue({ id: 'progress-1' });
+    mockAttendanceUpsert.mockResolvedValue({ id: 'attendance-1' });
+    mockAttendanceUpdateMany.mockResolvedValue({ count: 1 });
     mockRecalculateHealth.mockResolvedValue([]);
   });
 
@@ -108,6 +133,15 @@ describe('video progress checkpoints', () => {
 
     expect(response.status).toBe(200);
     expect(body).toEqual({ isCompleted: true, watchPercentage: 95 });
+    expect(mockAttendanceUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          courseId: 'course-1',
+          lessonId: 'lesson-1',
+          type: 'VIDEO_LESSON',
+        }),
+      }),
+    );
   });
 
   it('rate-limits immediate sequential checkpoint writes', async () => {

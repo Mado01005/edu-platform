@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, DeleteObjectsCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const R2_BUCKET =
@@ -125,6 +125,31 @@ export async function verifyR2ObjectExists(key: string): Promise<number | null> 
   } catch {
     return null;
   }
+}
+
+export async function getR2ObjectMetadata(key: string) {
+  try {
+    const response = await r2Client.send(
+      new HeadObjectCommand({ Bucket: R2_BUCKET, Key: key }),
+    );
+    return {
+      contentType: response.ContentType ?? null,
+      sizeBytes: response.ContentLength ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function getPresignedDownloadUrl(
+  key: string,
+  expiresIn = 300,
+) {
+  return getSignedUrl(
+    r2Client,
+    new GetObjectCommand({ Bucket: R2_BUCKET, Key: key }),
+    { expiresIn },
+  );
 }
 
 /**

@@ -20,6 +20,7 @@ import {
   type CourseCategory,
 } from '@/components/lms/CourseCard';
 import { LmsHeader } from '@/components/lms/LmsHeader';
+import { RedeemAccessCode } from '@/components/lms/RedeemAccessCode';
 import { getLmsUser } from '@/lib/lms/auth';
 import { getPrisma } from '@/lib/prisma';
 import { cn } from '@/lib/utils';
@@ -77,7 +78,8 @@ export default async function CatalogPage({
   ]);
   const query = q?.trim().slice(0, 100) ?? '';
   const activeCategory = selectedCategory(category);
-  const catalog = await getPrisma().course.findMany({
+  const [catalog, paymentChannels] = await Promise.all([
+    getPrisma().course.findMany({
     where: {
       isPublished: true,
       ...(query
@@ -106,11 +108,30 @@ export default async function CatalogPage({
       _count: { select: { enrollments: true, zoomSessions: true } },
     },
     orderBy: { updatedAt: 'desc' },
-  });
+    }),
+    user?.role === 'STUDENT'
+      ? getPrisma().paymentChannel.findMany({
+          where: { isActive: true },
+          orderBy: { displayName: 'asc' },
+          select: {
+            accountValue: true,
+            currency: true,
+            displayName: true,
+            instructions: true,
+            method: true,
+          },
+        })
+      : Promise.resolve([]),
+  ]);
+  const serializedCatalog = catalog.map((course) => ({
+    ...course,
+    priceEGP: course.priceEGP.toFixed(2),
+    priceUSD: course.priceUSD.toFixed(2),
+  }));
   const courses =
     activeCategory === 'All Courses'
-      ? catalog
-      : catalog.filter((course) =>
+      ? serializedCatalog
+      : serializedCatalog.filter((course) =>
           getCourseCategories(course).includes(activeCategory),
         );
 
@@ -156,6 +177,7 @@ export default async function CatalogPage({
                   Browse catalog
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
+                {user?.role === 'STUDENT' ? <RedeemAccessCode /> : null}
                 <Link
                   className={buttonVariants({ size: 'lg', variant: 'outline' })}
                   href="/live-classes"
@@ -286,6 +308,7 @@ export default async function CatalogPage({
             <div className="mt-7 grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {courses.map((course) => (
                 <CourseCard
+                  channels={paymentChannels}
                   course={course}
                   enrolled={
                     'enrollments' in course && course.enrollments.length > 0

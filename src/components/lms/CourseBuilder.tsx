@@ -48,6 +48,8 @@ type CourseData = {
   description: string | null;
   imageUrl: string | null;
   isPublished: boolean;
+  priceEGP: string;
+  priceUSD: string;
   modules: ModuleData[];
   zoomSessions: {
     id: string;
@@ -305,6 +307,32 @@ export function CourseBuilder({ course }: { course: CourseData }) {
           placeholder="Course image URL"
           type="url"
         />
+        <div className="grid min-w-0 grid-cols-2 gap-2">
+          <label className="min-w-0 text-[10px] font-bold uppercase tracking-wide text-zinc-500">
+            Price EGP
+            <input
+              className="mt-1 w-full min-w-0 rounded-xl border border-white/10 bg-black px-3 py-3 text-sm normal-case tracking-normal text-white"
+              defaultValue={course.priceEGP}
+              min="0"
+              name="priceEGP"
+              required
+              step="0.01"
+              type="number"
+            />
+          </label>
+          <label className="min-w-0 text-[10px] font-bold uppercase tracking-wide text-zinc-500">
+            Price USD
+            <input
+              className="mt-1 w-full min-w-0 rounded-xl border border-white/10 bg-black px-3 py-3 text-sm normal-case tracking-normal text-white"
+              defaultValue={course.priceUSD}
+              min="0"
+              name="priceUSD"
+              required
+              step="0.01"
+              type="number"
+            />
+          </label>
+        </div>
         <label className="flex min-w-0 items-center gap-2 text-sm font-bold">
           <input defaultChecked={course.isPublished} name="isPublished" type="checkbox" />
           Published in catalog

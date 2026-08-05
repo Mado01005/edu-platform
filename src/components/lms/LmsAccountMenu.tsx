@@ -9,6 +9,7 @@ import {
   ChevronDown,
   HardDrive,
   Landmark,
+  KeyRound,
   LayoutDashboard,
   LifeBuoy,
   Loader2,
@@ -211,6 +212,12 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
                 Activity radar
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/codes">
+                <KeyRound />
+                Digital codes
+              </Link>
+            </DropdownMenuItem>
           </>
         ) : null}
         {user.role === 'SUPPORT' || isAdminRole(user.role) ? (
@@ -226,6 +233,14 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
             <Link href="/accounting">
               <Landmark />
               Accounting
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
+        {user.role === 'PARENT' ? (
+          <DropdownMenuItem asChild>
+            <Link href="/mps">
+              <Activity />
+              MPS+ parent radar
             </Link>
           </DropdownMenuItem>
         ) : null}
