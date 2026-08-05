@@ -9,6 +9,8 @@ import {
   requireLmsRole,
   requireLmsUser,
 } from '@/lib/lms/auth';
+import { TEACHING_ROLES, isAdminRole } from '@/lib/lms/roles';
+import { recalculateStudentHealthScores } from '@/lib/lms/health';
 import { getVideoEmbedUrl } from '@/lib/lms/video';
 
 const CONTENT_TYPES = new Set<ContentType>([
@@ -69,7 +71,7 @@ function assertR2PublicUrl(value: string | null) {
   return url.toString();
 }
 
-async function requireTeacher(allowed: readonly Role[] = ['TEACHER', 'ADMIN']) {
+async function requireTeacher(allowed: readonly Role[] = TEACHING_ROLES) {
   return requireLmsRole(allowed);
 }
 
@@ -82,7 +84,7 @@ async function teacherCourse(courseId: string) {
 
   if (
     !course ||
-    (teacher.role !== 'ADMIN' && course.teacherId !== teacher.id)
+    (!isAdminRole(teacher.role) && course.teacherId !== teacher.id)
   ) {
     throw new LmsAuthError('Course not found.', 404);
   }
@@ -378,10 +380,19 @@ export async function updateLessonProgressAction(
   const student = await requireLmsRole(['STUDENT']);
   const lesson = await getPrisma().lesson.findUnique({
     where: { id: lessonId },
-    select: { module: { select: { courseId: true } } },
+    select: {
+      contentType: true,
+      module: { select: { courseId: true } },
+    },
   });
 
   if (!lesson) throw new Error('Lesson not found.');
+  if (['R2_VIDEO', 'VIMEO', 'YOUTUBE'].includes(lesson.contentType)) {
+    throw new LmsAuthError(
+      'Video progress must be recorded by the video player.',
+      409,
+    );
+  }
   const enrollment = await getPrisma().enrollment.findUnique({
     where: {
       studentId_courseId: {
@@ -399,9 +410,18 @@ export async function updateLessonProgressAction(
     where: {
       studentId_lessonId: { studentId: student.id, lessonId },
     },
-    create: { studentId: student.id, lessonId, isCompleted: completed },
-    update: { isCompleted: completed },
+    create: {
+      studentId: student.id,
+      lessonId,
+      isCompleted: completed,
+      watchPercentage: completed ? 100 : 0,
+    },
+    update: {
+      isCompleted: completed,
+      ...(completed ? { watchPercentage: 100 } : {}),
+    },
   });
+  await recalculateStudentHealthScores([student.id]);
   revalidatePath(`/courses/${lesson.module.courseId}/learn/lessons/${lessonId}`);
 }
 
@@ -435,7 +455,7 @@ export async function createDiscussionAction(
     !!course &&
     (lesson.isFree ||
       course.enrollments.length > 0 ||
-      user.role === 'ADMIN' ||
+      isAdminRole(user.role) ||
       (user.role === 'TEACHER' && course.teacherId === user.id));
 
   if (!canParticipate) {

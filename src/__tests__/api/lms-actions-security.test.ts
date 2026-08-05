@@ -2,6 +2,10 @@ const mockRequireLmsRole = jest.fn();
 const mockRequireLmsUser = jest.fn();
 const mockCourseCreate = jest.fn();
 const mockCourseFindUnique = jest.fn();
+const mockLessonFindUnique = jest.fn();
+const mockProgressUpsert = jest.fn();
+
+jest.mock('server-only', () => ({}));
 
 class MockLmsAuthError extends Error {
   constructor(message: string, public readonly status = 401) {
@@ -21,6 +25,8 @@ jest.mock('@/lib/prisma', () => ({
       create: mockCourseCreate,
       findUnique: mockCourseFindUnique,
     },
+    lesson: { findUnique: mockLessonFindUnique },
+    lessonProgress: { upsert: mockProgressUpsert },
   }),
 }));
 
@@ -41,9 +47,26 @@ import {
 
 describe('LMS Server Action role boundaries', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     mockRequireLmsRole.mockRejectedValue(
       new MockLmsAuthError('Forbidden', 403),
     );
+  });
+
+  it('does not let the generic server action bypass video checkpoints', async () => {
+    mockRequireLmsRole.mockResolvedValue({ id: 'student-1', role: 'STUDENT' });
+    mockLessonFindUnique.mockResolvedValue({
+      contentType: 'YOUTUBE',
+      module: { courseId: 'course-1' },
+    });
+
+    await expect(
+      updateLessonProgressAction('video-lesson-1', true),
+    ).rejects.toMatchObject({
+      message: 'Video progress must be recorded by the video player.',
+      status: 409,
+    });
+    expect(mockProgressUpsert).not.toHaveBeenCalled();
   });
 
   it('requires teacher or admin role before creating a course', async () => {
@@ -53,7 +76,11 @@ describe('LMS Server Action role boundaries', () => {
     await expect(createCourseAction(formData)).rejects.toMatchObject({
       status: 403,
     });
-    expect(mockRequireLmsRole).toHaveBeenCalledWith(['TEACHER', 'ADMIN']);
+    expect(mockRequireLmsRole).toHaveBeenCalledWith([
+      'SUPER_ADMIN',
+      'ADMIN',
+      'TEACHER',
+    ]);
     expect(mockCourseCreate).not.toHaveBeenCalled();
   });
 
@@ -75,7 +102,11 @@ describe('LMS Server Action role boundaries', () => {
     await expect(
       scheduleZoomAction('course_1', new FormData()),
     ).rejects.toMatchObject({ status: 403 });
-    expect(mockRequireLmsRole).toHaveBeenCalledWith(['TEACHER', 'ADMIN']);
+    expect(mockRequireLmsRole).toHaveBeenCalledWith([
+      'SUPER_ADMIN',
+      'ADMIN',
+      'TEACHER',
+    ]);
     expect(mockCourseFindUnique).not.toHaveBeenCalled();
   });
 });

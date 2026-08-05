@@ -3,6 +3,7 @@ import { ArrowRight, BookPlus, Layers3 } from 'lucide-react';
 import { createCourseAction } from '@/app/lms/actions';
 import { Button } from '@/components/UI/button';
 import { requireTeacherPage } from '@/lib/lms/auth';
+import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function TeacherCoursesPage() {
   const teacher = await requireTeacherPage();
   const courses = await getPrisma().course.findMany({
-    where: teacher.role === 'ADMIN' ? {} : { teacherId: teacher.id },
+    where: isAdminRole(teacher.role) ? {} : { teacherId: teacher.id },
     include: { _count: { select: { modules: true, enrollments: true } } },
     orderBy: { updatedAt: 'desc' },
   });

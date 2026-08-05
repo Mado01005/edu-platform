@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import type { GradeLevel } from '@prisma/client';
 import { normalizePhoneNumber } from '@/lib/phone';
+import { recalculateStudentHealthScores } from '@/lib/lms/health';
 import { getPrisma } from '@/lib/prisma';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/ssr-server';
@@ -8,6 +10,12 @@ function safeNextPath(value: string | null) {
   return value?.startsWith('/') && !value.startsWith('//')
     ? value
     : '/dashboard';
+}
+
+function readGradeLevel(value: unknown): GradeLevel | null {
+  return typeof value === 'string' && /^GRADE_(?:[1-9]|1[0-2])$/.test(value)
+    ? (value as GradeLevel)
+    : null;
 }
 
 export async function GET(request: NextRequest) {
@@ -66,14 +74,18 @@ export async function GET(request: NextRequest) {
               phoneNumber &&
             synchronizedAuthUser.phone_confirmed_at,
         );
+        const gradeLevel = readGradeLevel(
+          synchronizedAuthUser.user_metadata?.grade_level,
+        );
 
-        await getPrisma().user.upsert({
+        const profile = await getPrisma().user.upsert({
           where: { supabaseId: user.id },
           update: {
             email: user.email.toLowerCase(),
             ...(hasMetadataName ? { name } : {}),
             phoneNumber,
             phoneVerified,
+            ...(gradeLevel ? { gradeLevel } : {}),
           },
           create: {
             supabaseId: user.id,
@@ -81,9 +93,11 @@ export async function GET(request: NextRequest) {
             name,
             phoneNumber,
             phoneVerified,
+            gradeLevel,
             role: 'STUDENT',
           },
         });
+        await recalculateStudentHealthScores([profile.id]);
 
         const response = NextResponse.redirect(new URL(next, request.url));
         response.headers.set(

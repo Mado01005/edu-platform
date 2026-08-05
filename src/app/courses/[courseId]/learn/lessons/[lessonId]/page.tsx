@@ -14,6 +14,7 @@ import { LmsHeader } from '@/components/lms/LmsHeader';
 import { UniversalVideoPlayer } from '@/components/lms/UniversalVideoPlayer';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { requireLmsPageUser } from '@/lib/lms/auth';
+import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -42,7 +43,7 @@ export default async function LessonPlayerPage({
             include: {
               progress: {
                 where: { studentId: user.id },
-                select: { isCompleted: true },
+                select: { isCompleted: true, watchPercentage: true },
               },
             },
           },
@@ -61,7 +62,7 @@ export default async function LessonPlayerPage({
   if (!lesson) notFound();
 
   const canTeach =
-    user.role === 'ADMIN' ||
+    isAdminRole(user.role) ||
     (user.role === 'TEACHER' && user.id === course.teacherId);
   const isEnrolled = course.enrollments.length > 0;
 
@@ -84,8 +85,11 @@ export default async function LessonPlayerPage({
     orderBy: { createdAt: 'desc' },
   });
   const completed = lesson.progress[0]?.isCompleted ?? false;
+  const isVideoLesson = ['R2_VIDEO', 'VIMEO', 'YOUTUBE'].includes(
+    lesson.contentType,
+  );
   const toggleProgress =
-    user.role === 'STUDENT'
+    user.role === 'STUDENT' && !isVideoLesson
       ? updateLessonProgressAction.bind(null, lesson.id, !completed)
       : null;
   const previous = lessons[activeIndex - 1];
@@ -112,6 +116,11 @@ export default async function LessonPlayerPage({
                 : undefined
             }
             defaultPlaybackSpeed={user.defaultPlaybackSpeed}
+            initialWatchPercentage={
+              lesson.progress[0]?.watchPercentage ?? 0
+            }
+            key={lesson.id}
+            lessonId={user.role === 'STUDENT' ? lesson.id : undefined}
             preferredQuality={user.defaultVideoQuality}
             title={lesson.title}
             type={lesson.contentType}

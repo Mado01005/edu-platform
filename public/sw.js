@@ -1,8 +1,7 @@
-const CACHE_NAME = 'wayground-pwa-v7';
-const STATIC_ASSETS_CACHE = 'wayground-static-v7';
+const CACHE_NAME = 'wayground-pwa-v9';
+const STATIC_ASSETS_CACHE = 'wayground-static-v9';
 
 const PRECACHE_ASSETS = [
-  '/',
   '/manifest.json',
 ];
 
@@ -24,6 +23,90 @@ self.addEventListener('activate', (event) => {
           .map((n) => caches.delete(n))
       )
     ).then(() => self.clients.claim())
+  );
+});
+
+// ─── Push Notifications ────────────────────────────────────────────────────────
+function safeNotificationTarget(value) {
+  try {
+    const target = new URL(
+      typeof value === 'string' && value.startsWith('/') ? value : '/dashboard',
+      self.location.origin,
+    );
+    return target.origin === self.location.origin
+      ? target.href
+      : new URL('/dashboard', self.location.origin).href;
+  } catch {
+    return new URL('/dashboard', self.location.origin).href;
+  }
+}
+
+self.addEventListener('push', (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = { message: event.data?.text() || '' };
+  }
+
+  const title =
+    typeof payload.title === 'string' && payload.title.trim()
+      ? payload.title.trim().slice(0, 120)
+      : 'Way Ground update';
+  const message =
+    typeof payload.message === 'string'
+      ? payload.message.trim().slice(0, 1000)
+      : '';
+  const tag =
+    typeof payload.tag === 'string' && /^[A-Za-z0-9_-]{1,32}$/.test(payload.tag)
+      ? payload.tag
+      : 'wayground-update';
+  const targetUrl = safeNotificationTarget(payload.url);
+
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(title, {
+        badge: '/icon-192x192.png',
+        body: message,
+        data: { url: targetUrl },
+        icon: '/icon-192x192.png',
+        renotify: true,
+        tag,
+      }),
+      self.clients
+        .matchAll({ includeUncontrolled: true, type: 'window' })
+        .then((clientList) => {
+          clientList.forEach((client) => {
+            client.postMessage({ type: 'WAYGROUND_NOTIFICATION' });
+          });
+        }),
+    ]),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = safeNotificationTarget(event.notification.data?.url);
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ includeUncontrolled: true, type: 'window' })
+      .then(async (clientList) => {
+        const matchingClient = clientList.find((client) => {
+          try {
+            return new URL(client.url).origin === self.location.origin;
+          } catch {
+            return false;
+          }
+        });
+
+        if (matchingClient) {
+          if ('navigate' in matchingClient) await matchingClient.navigate(targetUrl);
+          return matchingClient.focus();
+        }
+
+        return self.clients.openWindow(targetUrl);
+      }),
   );
 });
 
@@ -80,48 +163,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ── Strategy 2: Network-First for Navigation (Fixed ERR_FAILED) ─────────
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((networkRes) => {
-          if (networkRes.ok) {
-            const clone = networkRes.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(request, clone));
-          }
-          return networkRes;
-        })
-        .catch(async () => {
-          const cached = await caches.match(request);
-          return cached || offlineResponse();
-        })
-    );
-    return;
-  }
-
-  // ── Strategy 3: Stale-While-Revalidate for other same-origin HTML/Assets ─
-  event.respondWith(
-    (async () => {
-      try {
-        const cached = await caches.match(request);
-
-        const fetchPromise = fetch(request)
-          .then((networkRes) => {
-            if (networkRes.ok) {
-              const clone = networkRes.clone();
-              caches.open(CACHE_NAME).then((c) => c.put(request, clone));
-            }
-            return networkRes;
-          })
-          .catch(() => offlineResponse());
-
-        // Return cache immediately if available, otherwise await network
-        return cached || (await fetchPromise);
-      } catch {
-        return offlineResponse();
-      }
-    })()
-  );
+  // Never cache navigations, RSC payloads, or other application GETs. They can
+  // contain account-specific learning, support, and financial data and Cache
+  // Storage persists across logout and account changes.
+  return;
 });
 
 // ─── Global safety net: catch any unhandled promise rejections ─────────────────

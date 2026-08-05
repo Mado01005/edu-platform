@@ -127,6 +127,7 @@ export function LmsAuthExperience({
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [gradeLevel, setGradeLevel] = useState('');
   const [otpPhone, setOtpPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpChannel, setOtpChannel] = useState<OtpChannel>('sms');
@@ -215,6 +216,10 @@ export function LmsAuthExperience({
       setError('Enter a valid international mobile number.');
       return;
     }
+    if (!/^GRADE_(?:[1-9]|1[0-2])$/.test(gradeLevel)) {
+      setError('Select the student grade level.');
+      return;
+    }
     if (password.length < PASSWORD_MIN_LENGTH) {
       setError(`Password must be at least ${PASSWORD_MIN_LENGTH} characters.`);
       return;
@@ -238,6 +243,7 @@ export function LmsAuthExperience({
             full_name: cleanName,
             name: cleanName,
             phone_number: cleanPhone,
+            grade_level: gradeLevel,
           },
           emailRedirectTo: callbackUrl('/dashboard'),
         },
@@ -806,6 +812,28 @@ export function LmsAuthExperience({
                       required
                       value={phoneNumber}
                     />
+                  </label>
+                ) : null}
+
+                {mode === 'signup' ? (
+                  <label className="flex min-w-0 flex-col gap-2 text-sm font-bold">
+                    Grade Level
+                    <select
+                      className="h-12 w-full min-w-0 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none transition focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
+                      onChange={(event) => setGradeLevel(event.target.value)}
+                      required
+                      value={gradeLevel}
+                    >
+                      <option value="">Select Grade 1–12</option>
+                      {Array.from({ length: 12 }, (_, index) => (
+                        <option
+                          key={`GRADE_${index + 1}`}
+                          value={`GRADE_${index + 1}`}
+                        >
+                          Grade {index + 1}
+                        </option>
+                      ))}
+                    </select>
                   </label>
                 ) : null}
 

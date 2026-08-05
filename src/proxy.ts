@@ -1,6 +1,15 @@
 import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import type { Role } from '@prisma/client';
+import {
+  ACCOUNTING_ROLES,
+  ADMIN_ROLES,
+  SUPPORT_ROLES,
+  TEACHING_ROLES,
+  hasLmsRole,
+  isLmsRole,
+} from '@/lib/lms/roles';
 import { getSupabaseRequestContext } from '@/lib/supabase/proxy';
 
 const PUBLIC_PATHS = [
@@ -16,6 +25,24 @@ const PUBLIC_PATHS = [
 function matchesRoute(pathname: string, route: string) {
   return pathname === route || pathname.startsWith(`${route}/`);
 }
+
+const LMS_PAGE_RULES: readonly {
+  allowed: readonly Role[];
+  notice: string;
+  route: string;
+}[] = [
+  { route: '/teacher', allowed: TEACHING_ROLES, notice: 'teacher-required' },
+  { route: '/admin/users', allowed: ADMIN_ROLES, notice: 'admin-required' },
+  { route: '/admin/storage', allowed: ADMIN_ROLES, notice: 'admin-required' },
+  { route: '/admin/k12', allowed: ADMIN_ROLES, notice: 'admin-required' },
+  { route: '/admin/radar', allowed: ADMIN_ROLES, notice: 'admin-required' },
+  { route: '/support', allowed: SUPPORT_ROLES, notice: 'support-required' },
+  {
+    route: '/accounting',
+    allowed: ACCOUNTING_ROLES,
+    notice: 'accounting-required',
+  },
+];
 
 function redirectWithSessionCookies(
   destination: URL,
@@ -54,13 +81,11 @@ export async function proxy(request: NextRequest) {
   // Individual API route handlers check auth themselves.
   // This middleware only protects page routes.
 
-  const isTeacherRoute = matchesRoute(pathname, '/teacher');
-  const isLmsAdminRoute =
-    matchesRoute(pathname, '/admin/users') ||
-    matchesRoute(pathname, '/admin/storage');
+  const pageRule = LMS_PAGE_RULES.find(({ route }) =>
+    matchesRoute(pathname, route),
+  );
   const isSupabaseOnlyRoute =
-    isTeacherRoute ||
-    isLmsAdminRoute ||
+    Boolean(pageRule) ||
     matchesRoute(pathname, '/settings') ||
     matchesRoute(pathname, '/lms/profile') ||
     matchesRoute(pathname, '/courses') ||
@@ -96,19 +121,12 @@ export async function proxy(request: NextRequest) {
     }
 
     if (
-      isTeacherRoute &&
-      profile.role !== 'TEACHER' &&
-      profile.role !== 'ADMIN'
+      pageRule &&
+      (!isLmsRole(profile.role) ||
+        !hasLmsRole(profile.role, pageRule.allowed))
     ) {
-      return redirectWithSessionCookies(
-        new URL('/dashboard', request.url),
-        response,
-      );
-    }
-
-    if (isLmsAdminRoute && profile.role !== 'ADMIN') {
       const dashboardUrl = new URL('/dashboard', request.url);
-      dashboardUrl.searchParams.set('notice', 'admin-required');
+      dashboardUrl.searchParams.set('notice', pageRule.notice);
       return redirectWithSessionCookies(dashboardUrl, response);
     }
 

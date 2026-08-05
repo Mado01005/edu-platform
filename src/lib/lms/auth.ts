@@ -4,6 +4,12 @@ import type { Role, User } from '@prisma/client';
 import { redirect } from 'next/navigation';
 import { normalizePhoneNumber } from '@/lib/phone';
 import { getPrisma } from '@/lib/prisma';
+import { recordStudentActivity } from '@/lib/lms/health';
+import {
+  ADMIN_ROLES,
+  TEACHING_ROLES,
+  hasLmsRole,
+} from '@/lib/lms/roles';
 import { createSupabaseServerClient } from '@/lib/supabase/ssr-server';
 
 export class LmsAuthError extends Error {
@@ -79,12 +85,14 @@ export async function getLmsUser(): Promise<User | null> {
     return null;
   }
 
+  let activeUser = user;
+
   if (
     user.email !== identity.email ||
     (identity.name && user.name !== identity.name) ||
     (identity.phoneNumber && user.phoneNumber !== identity.phoneNumber)
   ) {
-    return getPrisma().user.update({
+    activeUser = await getPrisma().user.update({
       where: { id: user.id },
       data: {
         email: identity.email,
@@ -96,17 +104,19 @@ export async function getLmsUser(): Promise<User | null> {
     });
   }
 
-  return user;
+  if (activeUser.role === 'STUDENT') {
+    try {
+      await recordStudentActivity(activeUser.id);
+    } catch (error) {
+      console.error('[LMS_STUDENT_ACTIVITY_TOUCH]', error);
+    }
+  }
+
+  return activeUser;
 }
 
 export async function requireAdminPage() {
-  const user = await requireLmsPageUser();
-
-  if (user.role !== 'ADMIN') {
-    redirect('/dashboard?notice=admin-required');
-  }
-
-  return user;
+  return requireLmsPageRole(ADMIN_ROLES, 'admin-required');
 }
 
 export async function requireLmsUser(): Promise<User> {
@@ -141,12 +151,19 @@ export async function requireLmsPageUser() {
   return user;
 }
 
-export async function requireTeacherPage() {
+export async function requireLmsPageRole(
+  allowed: readonly Role[],
+  notice = 'role-required',
+) {
   const user = await requireLmsPageUser();
 
-  if (user.role !== 'TEACHER' && user.role !== 'ADMIN') {
-    redirect('/catalog');
+  if (!hasLmsRole(user.role, allowed)) {
+    redirect(`/dashboard?notice=${encodeURIComponent(notice)}`);
   }
 
   return user;
+}
+
+export async function requireTeacherPage() {
+  return requireLmsPageRole(TEACHING_ROLES, 'teacher-required');
 }

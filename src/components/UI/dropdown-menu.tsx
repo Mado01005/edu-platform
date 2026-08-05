@@ -31,7 +31,7 @@ function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         align="end"
         className={cn(
-          'z-50 min-w-56 origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/95 p-1.5 text-white shadow-2xl shadow-black/60 backdrop-blur-xl data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'z-50 max-h-[min(80vh,32rem)] min-w-56 origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-zinc-950/95 p-1.5 text-white shadow-2xl shadow-black/60 backdrop-blur-xl data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           className,
         )}
         data-slot="dropdown-menu-content"

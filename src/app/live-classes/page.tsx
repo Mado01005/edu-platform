@@ -2,6 +2,7 @@ import { CalendarDays, Clock3, Radio, Video } from 'lucide-react';
 import { LmsHeader } from '@/components/lms/LmsHeader';
 import { LocalDateTime } from '@/components/lms/LocalDateTime';
 import { requireLmsPageUser } from '@/lib/lms/auth';
+import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,7 @@ export default async function LiveClassesPage() {
   const sessions = await getPrisma().zoomSession.findMany({
     where: {
       startTime: { gte: new Date() },
-      ...(user.role === 'ADMIN'
+      ...(isAdminRole(user.role)
         ? {}
         : user.role === 'TEACHER'
           ? { teacherId: user.id }

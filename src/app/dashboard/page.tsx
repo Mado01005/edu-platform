@@ -19,6 +19,14 @@ import { StudentLmsDashboard } from '@/components/lms/StudentLmsDashboard';
 
 export const dynamic = 'force-dynamic';
 
+const LMS_NOTICE_MESSAGES: Record<string, string> = {
+  'accounting-required': 'Accounting access is required for that page.',
+  'admin-required': 'Administrator access is required for that page.',
+  'role-required': 'Your account does not have access to that page.',
+  'support-required': 'Support access is required for that page.',
+  'teacher-required': 'Teacher access is required for that page.',
+};
+
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -31,11 +39,7 @@ export default async function DashboardPage({
     if (lmsUser) {
       return (
         <StudentLmsDashboard
-          notice={
-            notice === 'admin-required'
-              ? 'Administrator access is required for that page.'
-              : undefined
-          }
+          notice={notice ? LMS_NOTICE_MESSAGES[notice] : undefined}
           user={lmsUser}
         />
       );

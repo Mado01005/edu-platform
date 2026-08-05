@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isSameOriginRequest } from '@/lib/http/same-origin';
 import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
+import { ADMIN_ROLES } from '@/lib/lms/roles';
 import {
   deleteR2AssetAndReferences,
   getR2StorageSnapshot,
@@ -11,7 +12,7 @@ export const runtime = 'nodejs';
 
 export async function GET() {
   try {
-    await requireLmsRole(['ADMIN']);
+    await requireLmsRole(ADMIN_ROLES);
     const snapshot = await getR2StorageSnapshot();
     return NextResponse.json(snapshot, {
       headers: { 'Cache-Control': 'private, no-store' },
@@ -41,7 +42,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    await requireLmsRole(['ADMIN']);
+    await requireLmsRole(ADMIN_ROLES);
     let body: unknown;
     try {
       body = await request.json();

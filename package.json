@@ -10,6 +10,7 @@
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
     "set-role": "tsx scripts/set-role.ts",
+    "verify:erp-db": "tsx scripts/verify-erp-database.ts",
     "lint": "eslint",
     "test": "jest --config jest.config.ts",
     "test:unit": "jest --config jest.config.ts --verbose",
@@ -47,7 +48,8 @@
     "react-syntax-highlighter": "^16.1.1",
     "server-only": "^0.0.1",
     "sharp": "^0.34.5",
-    "tailwind-merge": "3.3.1"
+    "tailwind-merge": "3.3.1",
+    "web-push": "3.6.7"
   },
   "devDependencies": {
     "@jest/globals": "^30.3.0",
@@ -62,6 +64,7 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/sharp": "^0.31.1",
     "@types/vimeo__player": "^2.18.3",
+    "@types/web-push": "3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "jest": "^30.3.0",

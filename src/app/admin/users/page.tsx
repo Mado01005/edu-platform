@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
-import { LmsHeader } from '@/components/lms/LmsHeader';
+import { PortalShell } from '@/components/erp/PortalShell';
 import {
   type AdminUserRecord,
   UserManagementConsole,
@@ -74,12 +74,7 @@ export default async function AdminUsersPage() {
   });
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-start overflow-x-hidden bg-black px-4 text-white">
-      <div className="-mx-4 w-[calc(100%+2rem)]">
-        <LmsHeader user={admin} />
-      </div>
-
-      <main className="box-border flex w-full max-w-md min-w-0 flex-col gap-4 py-8">
+    <PortalShell user={admin}>
         <Link
           className="flex w-fit items-center gap-2 text-sm font-bold text-zinc-400 transition hover:text-white"
           href="/dashboard"
@@ -115,9 +110,9 @@ export default async function AdminUsersPage() {
         <UserManagementConsole
           authStatusAvailable={authStatusAvailable}
           currentAdminId={admin.id}
+          currentAdminRole={admin.role}
           initialUsers={records}
         />
-      </main>
-    </div>
+    </PortalShell>
   );
 }

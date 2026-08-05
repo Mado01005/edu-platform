@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { getPresignedUploadUrl, getPublicUrl } from '@/lib/r2';
 import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
+import { TEACHING_ROLES, isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
@@ -65,7 +66,7 @@ function readUploadInput(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const teacher = await requireLmsRole(['TEACHER', 'ADMIN']);
+    const teacher = await requireLmsRole(TEACHING_ROLES);
     let requestBody: unknown;
     try {
       requestBody = JSON.parse(await request.text());
@@ -110,7 +111,7 @@ export async function POST(request: Request) {
       const lesson = await getPrisma().lesson.findFirst({
         where: {
           id: input.lessonId,
-          ...(teacher.role === 'ADMIN'
+          ...(isAdminRole(teacher.role)
             ? {}
             : { module: { course: { teacherId: teacher.id } } }),
         },

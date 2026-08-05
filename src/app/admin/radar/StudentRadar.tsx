@@ -1,0 +1,333 @@
+'use client';
+
+import Link from 'next/link';
+import { useState } from 'react';
+import {
+  Activity,
+  BellRing,
+  CheckCircle2,
+  Loader2,
+  Search,
+  ShieldAlert,
+} from 'lucide-react';
+import { Badge } from '@/components/UI/badge';
+import { Button, buttonVariants } from '@/components/UI/button';
+import { Input } from '@/components/UI/input';
+
+export type RadarStudent = {
+  assignmentScore: number;
+  email: string;
+  gradeLevel: string | null;
+  healthPercentage: number;
+  id: string;
+  isAtRisk: boolean;
+  lastLoginAt: string;
+  name: string | null;
+  videoCompletion: number;
+};
+
+const gradeLevels = Array.from({ length: 12 }, (_, index) =>
+  `GRADE_${index + 1}`,
+);
+function gradeLabel(value: string | null) {
+  return value ? value.replace('GRADE_', 'Grade ') : 'Unassigned';
+}
+
+type RadarFilters = {
+  grade: string;
+  query: string;
+  status: string;
+};
+
+function radarPageHref(filters: RadarFilters, page: number) {
+  const params = new URLSearchParams();
+  if (filters.query) params.set('q', filters.query);
+  if (filters.grade !== 'ALL') params.set('grade', filters.grade);
+  if (filters.status !== 'ALL') params.set('status', filters.status);
+  if (page > 1) params.set('page', String(page));
+  const query = params.toString();
+  return query ? `/admin/radar?${query}` : '/admin/radar';
+}
+
+export function StudentRadar({
+  atRiskCount,
+  filteredCount,
+  filters,
+  healthyCount,
+  page,
+  pageCount,
+  students,
+  totalStudents,
+}: {
+  atRiskCount: number;
+  filteredCount: number;
+  filters: RadarFilters;
+  healthyCount: number;
+  page: number;
+  pageCount: number;
+  students: RadarStudent[];
+  totalStudents: number;
+}) {
+  const [pendingStudentIds, setPendingStudentIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+
+  async function notifyStudent(student: RadarStudent) {
+    setPendingStudentIds((current) => new Set(current).add(student.id));
+    setError('');
+    setNotice('');
+    try {
+      const response = await fetch('/api/notifications/push', {
+        body: JSON.stringify({
+          includeParents: true,
+          message:
+            'Your engagement is below the 70% academy health threshold. Please sign in and continue your current learning plan.',
+          studentId: student.id,
+          title: 'Learning follow-up needed',
+          type: 'ANNOUNCEMENT',
+        }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      });
+      const body = (await response.json()) as {
+        error?: string;
+        push?: { delivered?: number };
+        recipients?: number;
+      };
+      if (!response.ok) {
+        throw new Error(body.error || 'Unable to send this follow-up.');
+      }
+      const recipients = body.recipients ?? 0;
+      const pushed = body.push?.delivered ?? 0;
+      setNotice(
+        `Follow-up created for ${recipients} in-app ${recipients === 1 ? 'recipient' : 'recipients'}${pushed ? `; browser push delivered to ${pushed}.` : '.'}`,
+      );
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : 'Unable to send this follow-up.',
+      );
+    } finally {
+      setPendingStudentIds((current) => {
+        const next = new Set(current);
+        next.delete(student.id);
+        return next;
+      });
+    }
+  }
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      <section className="grid min-w-0 grid-cols-3 gap-2" aria-label="Radar metrics">
+        {[
+          { icon: Activity, label: 'Active', tone: 'text-violet-300', value: totalStudents },
+          { icon: CheckCircle2, label: 'Healthy', tone: 'text-emerald-300', value: healthyCount },
+          { icon: ShieldAlert, label: 'At-Risk', tone: 'text-red-300', value: atRiskCount },
+        ].map(({ icon: Icon, label, tone, value }) => (
+          <article
+            className="min-w-0 rounded-2xl border border-white/10 bg-zinc-950 p-3 text-center"
+            key={label}
+          >
+            <Icon className={`mx-auto size-4 ${tone}`} aria-hidden="true" />
+            <p className="mt-2 text-2xl font-black">{value}</p>
+            <p className="truncate text-[9px] font-black uppercase tracking-wider text-zinc-500">
+              {label}
+            </p>
+          </article>
+        ))}
+      </section>
+
+      <form
+        action="/admin/radar"
+        className="flex min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4"
+        method="get"
+      >
+        <label className="relative min-w-0">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+            aria-hidden="true"
+          />
+          <Input
+            aria-label="Search radar students"
+            className="pl-10"
+            defaultValue={filters.query}
+            maxLength={160}
+            name="q"
+            placeholder="Search name or email"
+          />
+        </label>
+        <div className="grid min-w-0 grid-cols-2 gap-2">
+          <select
+            aria-label="Filter by grade level"
+            className="h-11 min-w-0 rounded-xl border border-white/10 bg-black px-3 text-sm font-bold outline-none focus:border-violet-400"
+            defaultValue={filters.grade}
+            name="grade"
+          >
+            <option value="ALL">All grades</option>
+            {gradeLevels.map((level) => (
+              <option key={level} value={level}>
+                {gradeLabel(level)}
+              </option>
+            ))}
+            <option value="UNASSIGNED">Unassigned</option>
+          </select>
+          <select
+            aria-label="Filter by engagement status"
+            className="h-11 min-w-0 rounded-xl border border-white/10 bg-black px-3 text-sm font-bold outline-none focus:border-violet-400"
+            defaultValue={filters.status}
+            name="status"
+          >
+            <option value="ALL">All statuses</option>
+            <option value="HEALTHY">Healthy</option>
+            <option value="AT_RISK">At-Risk</option>
+          </select>
+        </div>
+        <Button className="w-full" type="submit" variant="outline">
+          Apply radar filters
+        </Button>
+        <p className="text-center text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+          {filteredCount} matching {filteredCount === 1 ? 'student' : 'students'}
+        </p>
+      </form>
+
+      {(error || notice) && (
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm font-bold ${
+            error
+              ? 'border-red-400/20 bg-red-400/10 text-red-200'
+              : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+          }`}
+          role={error ? 'alert' : 'status'}
+        >
+          {error || notice}
+        </div>
+      )}
+
+      <section className="flex min-w-0 flex-col gap-3" aria-label="Student engagement radar">
+        {students.map((student) => (
+          <article
+            className={`min-w-0 rounded-2xl border p-4 ${
+              student.isAtRisk
+                ? 'border-red-400/20 bg-red-400/5'
+                : 'border-emerald-400/15 bg-zinc-950'
+            }`}
+            key={student.id}
+          >
+            <div className="flex min-w-0 items-start gap-3">
+              <span
+                className={`flex size-12 shrink-0 items-center justify-center rounded-2xl text-lg font-black ${
+                  student.isAtRisk
+                    ? 'bg-red-400/10 text-red-200'
+                    : 'bg-emerald-400/10 text-emerald-200'
+                }`}
+              >
+                {Math.round(student.healthPercentage)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-black">
+                  {student.name ?? 'Unnamed student'}
+                </p>
+                <p className="truncate text-xs text-zinc-500">{student.email}</p>
+                <div className="mt-2 flex min-w-0 flex-wrap gap-2">
+                  <Badge variant="secondary">{gradeLabel(student.gradeLevel)}</Badge>
+                  <Badge
+                    className={
+                      student.isAtRisk
+                        ? 'border-red-400/20 bg-red-400/10 text-red-200'
+                        : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+                    }
+                  >
+                    {student.isAtRisk ? 'At-Risk' : 'Healthy'}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid min-w-0 grid-cols-3 gap-2 text-center">
+              {[
+                ['Health', student.healthPercentage],
+                ['Video', student.videoCompletion],
+                ['Work', student.assignmentScore],
+              ].map(([label, value]) => (
+                <div className="min-w-0 rounded-xl bg-black/60 p-2" key={label}>
+                  <p className="text-sm font-black">{Math.round(Number(value))}%</p>
+                  <p className="truncate text-[9px] font-bold uppercase text-zinc-600">
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-3 text-xs text-zinc-500">
+              Last active{' '}
+              {new Intl.DateTimeFormat('en-US', {
+                dateStyle: 'medium',
+                timeZone: 'UTC',
+              }).format(new Date(student.lastLoginAt))}
+            </p>
+
+            {student.isAtRisk ? (
+              <Button
+                className="mt-3 w-full"
+                disabled={pendingStudentIds.has(student.id)}
+                onClick={() => void notifyStudent(student)}
+                size="sm"
+              >
+                {pendingStudentIds.has(student.id) ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <BellRing className="size-4" />
+                )}
+                Notify student &amp; parent
+              </Button>
+            ) : null}
+          </article>
+        ))}
+
+        {!filteredCount ? (
+          <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">
+            No students match these filters.
+          </div>
+        ) : null}
+
+        {pageCount > 1 ? (
+          <nav
+            aria-label="Radar table pages"
+            className="grid min-w-0 grid-cols-[1fr_auto_1fr] items-center gap-2"
+          >
+            {page > 1 ? (
+              <Link
+                className={buttonVariants({ size: 'sm', variant: 'outline' })}
+                href={radarPageHref(filters, page - 1)}
+              >
+                Previous
+              </Link>
+            ) : (
+              <span aria-disabled="true" className={`${buttonVariants({ size: 'sm', variant: 'outline' })} opacity-50`}>
+                Previous
+              </span>
+            )}
+            <span className="text-xs font-bold text-zinc-500">
+              {page} / {pageCount}
+            </span>
+            {page < pageCount ? (
+              <Link
+                className={buttonVariants({ size: 'sm', variant: 'outline' })}
+                href={radarPageHref(filters, page + 1)}
+              >
+                Next
+              </Link>
+            ) : (
+              <span aria-disabled="true" className={`${buttonVariants({ size: 'sm', variant: 'outline' })} opacity-50`}>
+                Next
+              </span>
+            )}
+          </nav>
+        ) : null}
+      </section>
+    </div>
+  );
+}

@@ -24,6 +24,7 @@ import {
 } from '@/components/UI/card';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { cn } from '@/lib/utils';
+import { isTeachingRole } from '@/lib/lms/roles';
 
 export const COURSE_CATEGORIES = [
   'All Courses',
@@ -211,7 +212,7 @@ export function CourseCard({ course, enrolled, user }: CourseCardProps) {
           <Link
             className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}
             href={
-              user.role === 'ADMIN' || user.role === 'TEACHER'
+              isTeachingRole(user.role)
                 ? '/teacher/courses'
                 : '/dashboard'
             }

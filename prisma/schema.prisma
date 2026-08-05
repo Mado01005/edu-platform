@@ -9,9 +9,28 @@ generator client {
 }
 
 enum Role {
-  STUDENT
-  TEACHER
+  SUPER_ADMIN
   ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+  SUPPORT
+  ACCOUNTING
+}
+
+enum GradeLevel {
+  GRADE_1
+  GRADE_2
+  GRADE_3
+  GRADE_4
+  GRADE_5
+  GRADE_6
+  GRADE_7
+  GRADE_8
+  GRADE_9
+  GRADE_10
+  GRADE_11
+  GRADE_12
 }
 
 enum AccountStatus {
@@ -27,51 +46,114 @@ enum ContentType {
   TEXT
 }
 
-model User {
-  id                   String           @id @default(cuid())
-  supabaseId           String           @unique @map("supabase_id")
-  email                String           @unique
-  name                 String?
-  headline             String?
-  bio                  String?          @db.Text
-  avatarUrl            String?          @map("avatar_url")
-  timezone             String           @default("UTC")
-  phoneNumber          String?          @unique @map("phone_number")
-  phoneVerified        Boolean          @default(false) @map("phone_verified")
-  defaultPlaybackSpeed Float            @default(1.0) @map("default_playback_speed")
-  defaultVideoQuality  String           @default("AUTO") @map("default_video_quality")
-  autoPlayNext         Boolean          @default(true) @map("auto_play_next")
-  notifyZoomClasses    Boolean          @default(true) @map("notify_zoom_classes")
-  notifyAnnouncements  Boolean          @default(true) @map("notify_announcements")
-  notifyDiscussions    Boolean          @default(true) @map("notify_discussions")
-  role                 Role             @default(STUDENT)
-  status               AccountStatus    @default(ACTIVE)
-  courses              Course[]
-  enrollments          Enrollment[]
-  progress             LessonProgress[]
-  zoomSessions         ZoomSession[]
-  discussions          Discussion[]
-  createdAt            DateTime         @default(now()) @map("created_at")
-  updatedAt            DateTime         @updatedAt @map("updated_at")
+enum AssignmentType {
+  QUIZ
+  HOMEWORK
+}
 
+enum PaymentCurrency {
+  USD
+  EGP
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentMethod {
+  WIRE_TRANSFER
+  CASH
+  ONLINE_CARD
+}
+
+enum SubscriptionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+model User {
+  id                    String                 @id @default(cuid())
+  supabaseId            String                 @unique @map("supabase_id")
+  email                 String                 @unique
+  name                  String?
+  headline              String?
+  bio                   String?                @db.Text
+  avatarUrl             String?                @map("avatar_url")
+  timezone              String                 @default("UTC")
+  phoneNumber           String?                @unique @map("phone_number")
+  phoneVerified         Boolean                @default(false) @map("phone_verified")
+  defaultPlaybackSpeed  Float                  @default(1.0) @map("default_playback_speed")
+  defaultVideoQuality   String                 @default("AUTO") @map("default_video_quality")
+  autoPlayNext          Boolean                @default(true) @map("auto_play_next")
+  notifyZoomClasses     Boolean                @default(true) @map("notify_zoom_classes")
+  notifyAnnouncements   Boolean                @default(true) @map("notify_announcements")
+  notifyDiscussions     Boolean                @default(true) @map("notify_discussions")
+  role                  Role                   @default(STUDENT)
+  status                AccountStatus          @default(ACTIVE)
+  gradeLevel            GradeLevel?            @map("grade_level")
+  courses               Course[]
+  enrollments           Enrollment[]
+  progress              LessonProgress[]
+  zoomSessions          ZoomSession[]
+  discussions           Discussion[]
+  teacherSubjects       Subject[]              @relation("TeacherSubjects")
+  healthScore           StudentHealthScore?
+  notifications         SystemNotification[]
+  pushSubscriptions     WebPushSubscription[]
+  studentPayments       USDManualLedger[]      @relation("StudentPayments")
+  createdPayments       USDManualLedger[]      @relation("CreatedPayments")
+  approvedPayments      USDManualLedger[]      @relation("ApprovedPayments")
+  assignmentSubmissions AssignmentSubmission[]
+  studentSubscriptions  StudentSubscription[]  @relation("StudentSubscriptions")
+  approvedSubscriptions StudentSubscription[]  @relation("ApprovedSubscriptions")
+  parentLinks           ParentStudent[]        @relation("ParentLinks")
+  studentParentLinks    ParentStudent[]        @relation("StudentLinks")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+
+  @@index([role, gradeLevel])
   @@map("lms_users")
 }
 
+model Subject {
+  id        String     @id @default(cuid())
+  name      String
+  grade     GradeLevel
+  teacherId String     @map("teacher_id")
+  teacher   User       @relation("TeacherSubjects", fields: [teacherId], references: [id], onDelete: Restrict)
+  courses   Course[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@unique([grade, name])
+  @@index([teacherId])
+  @@map("lms_subjects")
+}
+
 model Course {
-  id           String        @id @default(cuid())
-  title        String
-  description  String?       @db.Text
-  imageUrl     String?       @map("image_url")
-  isPublished  Boolean       @default(false) @map("is_published")
-  teacherId    String        @map("teacher_id")
-  teacher      User          @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  modules      Module[]
-  enrollments  Enrollment[]
-  zoomSessions ZoomSession[]
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  id            String                @id @default(cuid())
+  title         String
+  description   String?               @db.Text
+  imageUrl      String?               @map("image_url")
+  isPublished   Boolean               @default(false) @map("is_published")
+  teacherId     String                @map("teacher_id")
+  teacher       User                  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subjectId     String?               @map("subject_id")
+  subject       Subject?              @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  modules       Module[]
+  enrollments   Enrollment[]
+  zoomSessions  ZoomSession[]
+  assignments   Assignment[]
+  subscriptions StudentSubscription[]
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @updatedAt @map("updated_at")
 
   @@index([teacherId])
+  @@index([subjectId])
   @@map("lms_courses")
 }
 
@@ -121,13 +203,14 @@ model Enrollment {
 }
 
 model LessonProgress {
-  id          String   @id @default(cuid())
-  studentId   String   @map("student_id")
-  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  lessonId    String   @map("lesson_id")
-  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  isCompleted Boolean  @default(false) @map("is_completed")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(cuid())
+  studentId       String   @map("student_id")
+  student         User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lessonId        String   @map("lesson_id")
+  lesson          Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  isCompleted     Boolean  @default(false) @map("is_completed")
+  watchPercentage Float    @default(0.0) @map("watch_percentage")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@unique([studentId, lessonId])
   @@index([lessonId])
@@ -166,4 +249,150 @@ model Discussion {
   @@index([lessonId, createdAt])
   @@index([parentId])
   @@map("lms_discussions")
+}
+
+model Assignment {
+  id          String                 @id @default(cuid())
+  title       String
+  type        AssignmentType
+  courseId    String                 @map("course_id")
+  course      Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  dueAt       DateTime?              @map("due_at")
+  submissions AssignmentSubmission[]
+  createdAt   DateTime               @default(now()) @map("created_at")
+
+  @@index([courseId, dueAt])
+  @@map("lms_assignments")
+}
+
+model AssignmentSubmission {
+  id              String     @id @default(cuid())
+  assignmentId    String     @map("assignment_id")
+  assignment      Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId       String     @map("student_id")
+  student         User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  scorePercentage Float?     @map("score_percentage")
+  submittedAt     DateTime   @default(now()) @map("submitted_at")
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId, submittedAt])
+  @@map("lms_assignment_submissions")
+}
+
+model StudentHealthScore {
+  id               String   @id @default(cuid())
+  studentId        String   @unique @map("student_id")
+  student          User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  healthPercentage Float    @default(100.0) @map("health_percentage")
+  lastLoginAt      DateTime @default(now()) @map("last_login_at")
+  videoCompletion  Float    @default(0.0) @map("video_completion")
+  assignmentScore  Float    @default(0.0) @map("assignment_score")
+  isAtRisk         Boolean  @default(false) @map("is_at_risk")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([isAtRisk, healthPercentage])
+  @@map("lms_student_health_scores")
+}
+
+model SystemNotification {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String   @db.Text
+  type      String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, isRead, createdAt])
+  @@map("lms_system_notifications")
+}
+
+model WebPushSubscription {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique @db.Text
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("lms_web_push_subscriptions")
+}
+
+model SystemJobLease {
+  name        String   @id
+  ownerToken  String   @map("owner_token")
+  lockedUntil DateTime @map("locked_until")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([lockedUntil])
+  @@map("lms_system_job_leases")
+}
+
+model USDManualLedger {
+  id             String               @id @default(cuid())
+  studentId      String               @map("student_id")
+  student        User                 @relation("StudentPayments", fields: [studentId], references: [id], onDelete: Restrict)
+  currency       PaymentCurrency
+  amountUSD      Decimal?             @map("amount_usd") @db.Decimal(12, 2)
+  amountEGP      Decimal?             @map("amount_egp") @db.Decimal(12, 2)
+  exchangeRate   Decimal?             @map("exchange_rate") @db.Decimal(12, 4)
+  paymentType    PaymentMethod        @map("payment_type")
+  receiptNumber  String               @unique @map("receipt_number")
+  receiptUrl     String?              @map("receipt_url") @db.Text
+  notes          String?              @db.Text
+  status         PaymentStatus        @default(PENDING)
+  subscriptionId String?              @map("subscription_id")
+  subscription   StudentSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  createdById    String               @map("created_by_id")
+  createdBy      User                 @relation("CreatedPayments", fields: [createdById], references: [id], onDelete: Restrict)
+  approvedById   String?              @map("approved_by_id")
+  approvedBy     User?                @relation("ApprovedPayments", fields: [approvedById], references: [id], onDelete: Restrict)
+  approvedAt     DateTime?            @map("approved_at")
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+
+  @@index([studentId, createdAt])
+  @@index([status, createdAt])
+  @@index([subscriptionId])
+  @@index([createdById])
+  @@index([approvedById])
+  @@map("lms_usd_manual_ledger")
+}
+
+model StudentSubscription {
+  id           String             @id @default(cuid())
+  studentId    String             @map("student_id")
+  student      User               @relation("StudentSubscriptions", fields: [studentId], references: [id], onDelete: Restrict)
+  courseId     String             @map("course_id")
+  course       Course             @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  status       SubscriptionStatus @default(PENDING)
+  approvedById String?            @map("approved_by_id")
+  approvedBy   User?              @relation("ApprovedSubscriptions", fields: [approvedById], references: [id], onDelete: Restrict)
+  approvedAt   DateTime?          @map("approved_at")
+  payments     USDManualLedger[]
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  @@unique([studentId, courseId])
+  @@index([status, createdAt])
+  @@index([courseId])
+  @@index([approvedById])
+  @@map("lms_student_subscriptions")
+}
+
+model ParentStudent {
+  id        String   @id @default(cuid())
+  parentId  String   @map("parent_id")
+  parent    User     @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
+  studentId String   @map("student_id")
+  student   User     @relation("StudentLinks", fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([parentId, studentId])
+  @@index([studentId])
+  @@map("lms_parent_students")
 }

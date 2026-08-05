@@ -6,6 +6,7 @@ import {
   updateLmsUserStatus,
 } from '@/lib/lms/admin-users';
 import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
+import { ADMIN_ROLES } from '@/lib/lms/roles';
 import { isSameOriginRequest } from '@/lib/http/same-origin';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +20,7 @@ function assertSameOrigin(request: Request) {
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
-    const admin = await requireLmsRole(['ADMIN']);
+    const admin = await requireLmsRole(ADMIN_ROLES);
     const body = (await request.json()) as {
       status?: unknown;
       targetId?: unknown;
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
 
     const user = await updateLmsUserStatus({
       actorId: admin.id,
+      actorRole: admin.role,
       status: body.status,
       targetId: body.targetId,
     });

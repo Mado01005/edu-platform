@@ -4,15 +4,20 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
+  Activity,
   BookOpen,
   ChevronDown,
   HardDrive,
+  Landmark,
   LayoutDashboard,
+  LifeBuoy,
   Loader2,
   LogOut,
+  School,
   Settings,
   Users,
 } from 'lucide-react';
+import type { Role } from '@prisma/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/UI/avatar';
 import { Badge } from '@/components/UI/badge';
 import {
@@ -24,12 +29,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/UI/dropdown-menu';
 import { createSupabaseBrowserClient } from '@/lib/supabase/ssr-client';
+import { isAdminRole } from '@/lib/lms/roles';
 
 interface LmsAccountMenuProps {
   user: {
     email: string;
     name: string | null;
-    role: 'STUDENT' | 'TEACHER' | 'ADMIN';
+    role: Role;
     avatarUrl?: string | null;
   };
 }
@@ -44,6 +50,42 @@ function initials(name: string | null, email: string) {
     .join('');
 }
 
+async function revokeBrowserPushSubscription() {
+  if (!('serviceWorker' in navigator)) return true;
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) return true;
+
+    let serverRevoked = false;
+    let browserRevoked = false;
+
+    try {
+      const response = await fetch('/api/notifications/subscriptions', {
+        body: JSON.stringify({ endpoint: subscription.endpoint }),
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE',
+      });
+      serverRevoked = response.ok;
+    } catch {
+      // Browser revocation below still invalidates the endpoint. The server
+      // removes stale endpoints after the push service returns 404/410.
+    }
+
+    try {
+      browserRevoked = await subscription.unsubscribe();
+    } catch {
+      // A successful server deletion is sufficient to stop future delivery.
+    }
+
+    return serverRevoked || browserRevoked;
+  } catch {
+    return false;
+  }
+}
+
 export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -55,6 +97,14 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
     setError('');
 
     try {
+      if (!(await revokeBrowserPushSubscription())) {
+        setError(
+          'Browser notifications could not be revoked. Disable push and try signing out again.',
+        );
+        setPending(false);
+        return;
+      }
+
       const supabase = createSupabaseBrowserClient();
       const { error: signOutError } = await supabase.auth.signOut();
 
@@ -127,7 +177,15 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
             Settings
           </Link>
         </DropdownMenuItem>
-        {user.role === 'ADMIN' ? (
+        {user.role === 'TEACHER' || isAdminRole(user.role) ? (
+          <DropdownMenuItem asChild>
+            <Link href="/teacher/courses">
+              <BookOpen />
+              Teacher studio
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
+        {isAdminRole(user.role) ? (
           <>
             <DropdownMenuItem asChild>
               <Link href="/admin/users">
@@ -141,7 +199,35 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
                 R2 storage
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/k12">
+                <School />
+                K-12 manager
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/radar">
+                <Activity />
+                Activity radar
+              </Link>
+            </DropdownMenuItem>
           </>
+        ) : null}
+        {user.role === 'SUPPORT' || isAdminRole(user.role) ? (
+          <DropdownMenuItem asChild>
+            <Link href="/support">
+              <LifeBuoy />
+              Support portal
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
+        {user.role === 'ACCOUNTING' || isAdminRole(user.role) ? (
+          <DropdownMenuItem asChild>
+            <Link href="/accounting">
+              <Landmark />
+              Accounting
+            </Link>
+          </DropdownMenuItem>
         ) : null}
         <DropdownMenuSeparator />
         {error ? (

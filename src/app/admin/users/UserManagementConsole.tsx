@@ -13,7 +13,6 @@ import {
   RotateCcw,
   Search,
   ShieldCheck,
-  Trash2,
   UserRoundCog,
   Users,
   UserX,
@@ -24,15 +23,6 @@ import { Badge } from '@/components/UI/badge';
 import { Button } from '@/components/UI/button';
 import { Card, CardContent } from '@/components/UI/card';
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/UI/dialog';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -41,8 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/UI/dropdown-menu';
 import { Input } from '@/components/UI/input';
-
-const LMS_ROLES = ['STUDENT', 'TEACHER', 'ADMIN'] as const satisfies readonly Role[];
+import { LMS_ROLES } from '@/lib/lms/roles';
 
 export interface AdminUserRecord {
   authPresent: boolean;
@@ -60,6 +49,7 @@ export interface AdminUserRecord {
 interface UserManagementConsoleProps {
   authStatusAvailable: boolean;
   currentAdminId: string;
+  currentAdminRole: Role;
   initialUsers: AdminUserRecord[];
 }
 
@@ -84,12 +74,28 @@ function formatJoinedDate(value: string) {
 }
 
 function roleBadgeClass(role: Role) {
+  if (role === 'SUPER_ADMIN') {
+    return 'border-amber-400/20 bg-amber-400/10 text-amber-200';
+  }
+
   if (role === 'ADMIN') {
     return 'border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-200';
   }
 
   if (role === 'TEACHER') {
     return 'border-sky-400/20 bg-sky-400/10 text-sky-200';
+  }
+
+  if (role === 'SUPPORT') {
+    return 'border-cyan-400/20 bg-cyan-400/10 text-cyan-200';
+  }
+
+  if (role === 'ACCOUNTING') {
+    return 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200';
+  }
+
+  if (role === 'PARENT') {
+    return 'border-pink-400/20 bg-pink-400/10 text-pink-200';
   }
 
   return 'border-violet-400/20 bg-violet-400/10 text-violet-200';
@@ -140,19 +146,21 @@ async function readResponse<T>(response: Response): Promise<T> {
 export function UserManagementConsole({
   authStatusAvailable,
   currentAdminId,
+  currentAdminRole,
   initialUsers,
 }: UserManagementConsoleProps) {
   const [users, setUsers] = useState(initialUsers);
   const [query, setQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
   const [pendingAction, setPendingAction] = useState<string | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<AdminUserRecord | null>(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
   const metrics = useMemo(
     () => ({
-      admins: users.filter((user) => user.role === 'ADMIN').length,
+      admins: users.filter(
+        (user) => user.role === 'ADMIN' || user.role === 'SUPER_ADMIN',
+      ).length,
       students: users.filter((user) => user.role === 'STUDENT').length,
       teachers: users.filter((user) => user.role === 'TEACHER').length,
       total: users.length,
@@ -174,6 +182,10 @@ export function UserManagementConsole({
       return matchesRole && Boolean(matchesQuery);
     });
   }, [query, roleFilter, users]);
+  const assignableRoles =
+    currentAdminRole === 'SUPER_ADMIN'
+      ? LMS_ROLES
+      : LMS_ROLES.filter((role) => role !== 'SUPER_ADMIN');
 
   async function changeRole(user: AdminUserRecord, role: Role) {
     setPendingAction(`role:${user.id}`);
@@ -244,39 +256,6 @@ export function UserManagementConsole({
         requestError instanceof Error
           ? requestError.message
           : 'Unable to update this account.',
-      );
-    } finally {
-      setPendingAction(null);
-    }
-  }
-
-  async function deleteUser() {
-    if (!deleteTarget) {
-      return;
-    }
-
-    setPendingAction(`delete:${deleteTarget.id}`);
-    setError('');
-    setNotice('');
-
-    try {
-      const response = await fetch('/api/admin/users/delete', {
-        body: JSON.stringify({ targetId: deleteTarget.id }),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'DELETE',
-      });
-      await readResponse<{ success: true }>(response);
-
-      setUsers((current) =>
-        current.filter((user) => user.id !== deleteTarget.id),
-      );
-      setNotice(`Deleted ${deleteTarget.email} and related LMS data.`);
-      setDeleteTarget(null);
-    } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : 'Unable to delete this user.',
       );
     } finally {
       setPendingAction(null);
@@ -392,6 +371,9 @@ export function UserManagementConsole({
           const StateIcon = state.icon;
           const isSelf = user.id === currentAdminId;
           const isPending = pendingAction?.endsWith(user.id) ?? false;
+          const isProtectedSuperAdmin =
+            currentAdminRole !== 'SUPER_ADMIN' &&
+            user.role === 'SUPER_ADMIN';
 
           return (
             <Card
@@ -434,7 +416,11 @@ export function UserManagementConsole({
                     <DropdownMenuTrigger asChild>
                       <Button
                         aria-label={`Manage ${user.email}`}
-                        disabled={isPending || !authStatusAvailable}
+                        disabled={
+                          isPending ||
+                          !authStatusAvailable ||
+                          isProtectedSuperAdmin
+                        }
                         size="icon"
                         variant="ghost"
                       >
@@ -453,11 +439,11 @@ export function UserManagementConsole({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuLabel>Change role</DropdownMenuLabel>
-                      {LMS_ROLES.map((role) => (
+                      {assignableRoles.map((role) => (
                         <DropdownMenuItem
                           disabled={
                             user.role === role ||
-                            (isSelf && role !== 'ADMIN')
+                            (isSelf && role !== user.role)
                           }
                           key={role}
                           onSelect={() => void changeRole(user, role)}
@@ -486,15 +472,6 @@ export function UserManagementConsole({
                         {user.status === 'DISABLED'
                           ? 'Enable account'
                           : 'Disable account'}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-red-300 focus:bg-red-500/10 focus:text-red-200"
-                        disabled={isSelf}
-                        onSelect={() => setDeleteTarget(user)}
-                      >
-                        <Trash2 />
-                        Delete user
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -544,53 +521,6 @@ export function UserManagementConsole({
         ) : null}
       </div>
 
-      <Dialog
-        onOpenChange={(open) => {
-          if (!open && !pendingAction?.startsWith('delete:')) {
-            setDeleteTarget(null);
-          }
-        }}
-        open={Boolean(deleteTarget)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete this user?</DialogTitle>
-            <DialogDescription>
-              This permanently removes {deleteTarget?.email} from Supabase Auth
-              and deletes their LMS profile. Enrollments, progress,
-              discussions, teaching courses, modules, lessons, and live
-              sessions connected through Prisma cascades will also be removed.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-100">
-            This action cannot be undone.
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button
-                disabled={pendingAction?.startsWith('delete:')}
-                variant="outline"
-              >
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button
-              disabled={pendingAction?.startsWith('delete:')}
-              onClick={() => void deleteUser()}
-              variant="destructive"
-            >
-              {pendingAction?.startsWith('delete:') ? (
-                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              ) : (
-                <Trash2 className="size-4" aria-hidden="true" />
-              )}
-              {pendingAction?.startsWith('delete:')
-                ? 'Deleting…'
-                : 'Delete permanently'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

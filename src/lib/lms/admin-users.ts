@@ -1,15 +1,17 @@
 import 'server-only';
 
-import type { AccountStatus, Role } from '@prisma/client';
+import type { AccountStatus, Prisma, Role } from '@prisma/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { getPrisma } from '@/lib/prisma';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
-export const LMS_ROLES = ['STUDENT', 'TEACHER', 'ADMIN'] as const satisfies readonly Role[];
+export { isLmsRole } from '@/lib/lms/roles';
 export const LMS_ACCOUNT_STATUSES = [
   'ACTIVE',
   'DISABLED',
 ] as const satisfies readonly AccountStatus[];
+
+const SUPER_ADMIN_ADVISORY_LOCK = 2_026_080_501;
 
 export class AdminUserError extends Error {
   constructor(
@@ -18,10 +20,6 @@ export class AdminUserError extends Error {
   ) {
     super(message);
   }
-}
-
-export function isLmsRole(value: unknown): value is Role {
-  return typeof value === 'string' && LMS_ROLES.includes(value as Role);
 }
 
 export function isLmsAccountStatus(value: unknown): value is AccountStatus {
@@ -57,21 +55,127 @@ async function requireExactAuthUser(
   return data.user;
 }
 
-async function assertAnotherAdminWillRemain(targetRole: Role) {
-  if (targetRole !== 'ADMIN') {
+function assertActorCanManageRole(
+  actorRole: Role,
+  targetRole: Role,
+  nextRole?: Role,
+) {
+  if (
+    actorRole !== 'SUPER_ADMIN' &&
+    (targetRole === 'SUPER_ADMIN' || nextRole === 'SUPER_ADMIN')
+  ) {
+    throw new AdminUserError(
+      'Only a super administrator can manage super administrator access.',
+      403,
+    );
+  }
+}
+
+async function assertAnotherSuperAdminWillRemain(
+  targetRole: Role,
+  database: Pick<Prisma.TransactionClient, 'user'> = getPrisma(),
+) {
+  if (targetRole !== 'SUPER_ADMIN') {
     return;
   }
 
-  const adminCount = await getPrisma().user.count({
-    where: { role: 'ADMIN', status: 'ACTIVE' },
+  const superAdminCount = await database.user.count({
+    where: { role: 'SUPER_ADMIN', status: 'ACTIVE' },
   });
 
-  if (adminCount <= 1) {
+  if (superAdminCount <= 1) {
     throw new AdminUserError(
-      'The final active administrator cannot be demoted, disabled, or deleted.',
+      'The final active super administrator cannot be demoted, disabled, or deleted.',
       409,
     );
   }
+}
+
+async function assertTeacherHasNoTeachingAssignments(
+  targetId: string,
+  targetRole: Role,
+  nextRole?: Role,
+  database: Pick<Prisma.TransactionClient, 'course' | 'subject'> = getPrisma(),
+) {
+  if (
+    targetRole !== 'TEACHER' ||
+    (nextRole !== undefined && nextRole === 'TEACHER')
+  ) {
+    return;
+  }
+
+  const [assignedSubjectCount, ownedCourseCount] = await Promise.all([
+    database.subject.count({ where: { teacherId: targetId } }),
+    database.course.count({ where: { teacherId: targetId } }),
+  ]);
+
+  if (assignedSubjectCount > 0 || ownedCourseCount > 0) {
+    throw new AdminUserError(
+      'Reassign this teacher\'s K-12 subjects and courses before changing or disabling the account.',
+      409,
+    );
+  }
+}
+
+async function prepareRoleBoundRecordsForChange(
+  targetId: string,
+  targetRole: Role,
+  nextRole: Role,
+  transaction: Prisma.TransactionClient,
+) {
+  if (targetRole === nextRole) return;
+
+  if (targetRole === 'PARENT') {
+    const parentLinkCount = await transaction.parentStudent.count({
+      where: { parentId: targetId },
+    });
+    if (parentLinkCount) {
+      throw new AdminUserError(
+        'Remove this parent\'s linked students before changing the account role.',
+        409,
+      );
+    }
+  }
+
+  if (targetRole !== 'STUDENT') return;
+
+  const [
+    enrollmentCount,
+    progressCount,
+    submissionCount,
+    subscriptionCount,
+    paymentCount,
+    parentLinkCount,
+  ] = await Promise.all([
+    transaction.enrollment.count({ where: { studentId: targetId } }),
+    transaction.lessonProgress.count({ where: { studentId: targetId } }),
+    transaction.assignmentSubmission.count({ where: { studentId: targetId } }),
+    transaction.studentSubscription.count({ where: { studentId: targetId } }),
+    transaction.uSDManualLedger.count({ where: { studentId: targetId } }),
+    transaction.parentStudent.count({ where: { studentId: targetId } }),
+  ]);
+
+  if (
+    enrollmentCount ||
+    progressCount ||
+    submissionCount ||
+    subscriptionCount ||
+    paymentCount ||
+    parentLinkCount
+  ) {
+    throw new AdminUserError(
+      'Remove or resolve this student\'s enrollments, learning records, family links, and financial records before changing roles.',
+      409,
+    );
+  }
+
+}
+
+async function lockSuperAdminHierarchy(transaction: Prisma.TransactionClient) {
+  await transaction.$executeRawUnsafe(
+    'select pg_advisory_xact_lock($1)',
+    SUPER_ADMIN_ADVISORY_LOCK,
+  );
 }
 
 export async function listAllSupabaseAuthUsers() {
@@ -104,10 +208,12 @@ export async function listAllSupabaseAuthUsers() {
 
 export async function updateLmsUserRole({
   actorId,
+  actorRole,
   role,
   targetId,
 }: {
   actorId: string;
+  actorRole: Role;
   role: Role;
   targetId: string;
 }) {
@@ -116,6 +222,7 @@ export async function updateLmsUserRole({
     where: { id: targetId },
     select: {
       email: true,
+      gradeLevel: true,
       id: true,
       role: true,
       status: true,
@@ -127,49 +234,143 @@ export async function updateLmsUserRole({
     throw new AdminUserError('User not found.', 404);
   }
 
-  if (target.id === actorId && target.role !== role) {
-    throw new AdminUserError(
-      'You cannot change your own administrator role.',
-      403,
-    );
-  }
-
-  if (target.role === 'ADMIN' && role !== 'ADMIN') {
-    await assertAnotherAdminWillRemain(target.role);
-  }
-
   const authUser = await requireExactAuthUser(
     target.supabaseId,
     target.email,
   );
-  const previousRole = target.role;
+  let previousRole = target.role;
+  let previousGradeLevel = target.gradeLevel;
+  let previousHealthScore: {
+    assignmentScore: number;
+    healthPercentage: number;
+    id: string;
+    isAtRisk: boolean;
+    lastLoginAt: Date;
+    videoCompletion: number;
+  } | null = null;
 
-  const updated = await prisma.user.update({
-    where: { id: target.id },
-    data: { role },
-    select: { id: true, role: true },
+  const updated = await prisma.$transaction(async (transaction) => {
+    await lockSuperAdminHierarchy(transaction);
+    const current = await transaction.user.findUnique({
+      where: { id: target.id },
+      select: {
+        gradeLevel: true,
+        healthScore: {
+          select: {
+            assignmentScore: true,
+            healthPercentage: true,
+            id: true,
+            isAtRisk: true,
+            lastLoginAt: true,
+            videoCompletion: true,
+          },
+        },
+        id: true,
+        role: true,
+      },
+    });
+    if (!current) throw new AdminUserError('User not found.', 404);
+
+    if (current.id === actorId && current.role !== role) {
+      throw new AdminUserError(
+        'You cannot change your own administrator role.',
+        403,
+      );
+    }
+
+    assertActorCanManageRole(actorRole, current.role, role);
+    if (current.role === 'SUPER_ADMIN' && role !== 'SUPER_ADMIN') {
+      await assertAnotherSuperAdminWillRemain(current.role, transaction);
+    }
+    await assertTeacherHasNoTeachingAssignments(
+      current.id,
+      current.role,
+      role,
+      transaction,
+    );
+    await prepareRoleBoundRecordsForChange(
+      current.id,
+      current.role,
+      role,
+      transaction,
+    );
+    previousRole = current.role;
+    previousGradeLevel = current.gradeLevel;
+    previousHealthScore = current.healthScore;
+
+    if (current.role === 'STUDENT' && role !== 'STUDENT') {
+      // Health is derived, but preserve the snapshot so metadata compensation
+      // can restore the student exactly if Supabase rejects the role change.
+      await transaction.studentHealthScore.deleteMany({
+        where: { studentId: current.id },
+      });
+    }
+
+    return transaction.user.update({
+      where: { id: current.id },
+      data: {
+        role,
+        ...(role === 'STUDENT' ? {} : { gradeLevel: null }),
+      },
+      select: { id: true, role: true },
+    });
   });
 
-  const userMetadata = authUser.user_metadata ?? {};
   const appMetadata = authUser.app_metadata ?? {};
-  const metadataNeedsUpdate =
-    userMetadata.role !== role || appMetadata.role !== role;
+  const metadataNeedsUpdate = appMetadata.role !== role;
 
   if (metadataNeedsUpdate) {
     const { error } =
       await getSupabaseAdminClient().auth.admin.updateUserById(
         target.supabaseId,
         {
-          user_metadata: { ...userMetadata, role },
           app_metadata: { ...appMetadata, role },
         },
       );
 
     if (error) {
-      await prisma.user.update({
-        where: { id: target.id },
-        data: { role: previousRole },
+      const rollback = await prisma.$transaction(async (transaction) => {
+        await lockSuperAdminHierarchy(transaction);
+        const restored = await transaction.user.updateMany({
+          where: { id: target.id, role },
+          data: {
+            gradeLevel: previousGradeLevel,
+            role: previousRole,
+          },
+        });
+        if (
+          restored.count === 1 &&
+          previousRole === 'STUDENT' &&
+          previousHealthScore
+        ) {
+          await transaction.studentHealthScore.upsert({
+            where: { studentId: target.id },
+            create: {
+              assignmentScore: previousHealthScore.assignmentScore,
+              healthPercentage: previousHealthScore.healthPercentage,
+              id: previousHealthScore.id,
+              isAtRisk: previousHealthScore.isAtRisk,
+              lastLoginAt: previousHealthScore.lastLoginAt,
+              studentId: target.id,
+              videoCompletion: previousHealthScore.videoCompletion,
+            },
+            update: {
+              assignmentScore: previousHealthScore.assignmentScore,
+              healthPercentage: previousHealthScore.healthPercentage,
+              isAtRisk: previousHealthScore.isAtRisk,
+              lastLoginAt: previousHealthScore.lastLoginAt,
+              videoCompletion: previousHealthScore.videoCompletion,
+            },
+          });
+        }
+        return restored;
       });
+      if (rollback.count !== 1) {
+        throw new AdminUserError(
+          `Supabase role synchronization failed and the account changed concurrently. Manual reconciliation is required: ${error.message}`,
+          502,
+        );
+      }
       throw new AdminUserError(
         `Supabase role synchronization failed; the Prisma update was rolled back: ${error.message}`,
         502,
@@ -182,10 +383,12 @@ export async function updateLmsUserRole({
 
 export async function updateLmsUserStatus({
   actorId,
+  actorRole,
   status,
   targetId,
 }: {
   actorId: string;
+  actorRole: Role;
   status: AccountStatus;
   targetId: string;
 }) {
@@ -205,24 +408,43 @@ export async function updateLmsUserStatus({
     throw new AdminUserError('User not found.', 404);
   }
 
-  if (target.id === actorId && status !== 'ACTIVE') {
-    throw new AdminUserError('You cannot disable your own account.', 403);
-  }
-
-  if (target.role === 'ADMIN' && status !== 'ACTIVE') {
-    await assertAnotherAdminWillRemain(target.role);
-  }
-
   const authUser = await requireExactAuthUser(
     target.supabaseId,
     target.email,
   );
-  const previousStatus = target.status;
+  let previousStatus = target.status;
 
-  const updated = await prisma.user.update({
-    where: { id: target.id },
-    data: { status },
-    select: { id: true, status: true },
+  const updated = await prisma.$transaction(async (transaction) => {
+    await lockSuperAdminHierarchy(transaction);
+    const current = await transaction.user.findUnique({
+      where: { id: target.id },
+      select: { id: true, role: true, status: true },
+    });
+    if (!current) throw new AdminUserError('User not found.', 404);
+
+    if (current.id === actorId && status !== 'ACTIVE') {
+      throw new AdminUserError('You cannot disable your own account.', 403);
+    }
+
+    assertActorCanManageRole(actorRole, current.role);
+    if (current.role === 'SUPER_ADMIN' && status !== 'ACTIVE') {
+      await assertAnotherSuperAdminWillRemain(current.role, transaction);
+    }
+    if (status !== 'ACTIVE') {
+      await assertTeacherHasNoTeachingAssignments(
+        current.id,
+        current.role,
+        undefined,
+        transaction,
+      );
+    }
+    previousStatus = current.status;
+
+    return transaction.user.update({
+      where: { id: current.id },
+      data: { status },
+      select: { id: true, status: true },
+    });
   });
 
   const { error } =
@@ -238,10 +460,19 @@ export async function updateLmsUserStatus({
     );
 
   if (error) {
-    await prisma.user.update({
-      where: { id: target.id },
-      data: { status: previousStatus },
+    const rollback = await prisma.$transaction(async (transaction) => {
+      await lockSuperAdminHierarchy(transaction);
+      return transaction.user.updateMany({
+        where: { id: target.id, status },
+        data: { status: previousStatus },
+      });
     });
+    if (rollback.count !== 1) {
+      throw new AdminUserError(
+        `Supabase account-status synchronization failed and the account changed concurrently. Manual reconciliation is required: ${error.message}`,
+        502,
+      );
+    }
     throw new AdminUserError(
       `Supabase account-status synchronization failed; the Prisma update was rolled back: ${error.message}`,
       502,
@@ -249,53 +480,4 @@ export async function updateLmsUserStatus({
   }
 
   return updated;
-}
-
-export async function deleteLmsUser({
-  actorId,
-  targetId,
-}: {
-  actorId: string;
-  targetId: string;
-}) {
-  const prisma = getPrisma();
-  const target = await prisma.user.findUnique({
-    where: { id: targetId },
-    select: {
-      email: true,
-      id: true,
-      role: true,
-      supabaseId: true,
-    },
-  });
-
-  if (!target) {
-    throw new AdminUserError('User not found.', 404);
-  }
-
-  if (target.id === actorId) {
-    throw new AdminUserError('You cannot delete your own account.', 403);
-  }
-
-  await assertAnotherAdminWillRemain(target.role);
-  await requireExactAuthUser(target.supabaseId, target.email);
-
-  const { error } =
-    await getSupabaseAdminClient().auth.admin.deleteUser(target.supabaseId);
-
-  if (error) {
-    throw new AdminUserError(
-      `Supabase Auth deletion failed: ${error.message}`,
-      502,
-    );
-  }
-
-  try {
-    await prisma.user.delete({ where: { id: target.id } });
-  } catch {
-    throw new AdminUserError(
-      'The Auth identity was deleted, but cascading Prisma cleanup failed. Retry this deletion to remove the remaining profile.',
-      500,
-    );
-  }
 }

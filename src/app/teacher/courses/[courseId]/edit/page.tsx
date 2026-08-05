@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { CourseBuilder } from '@/components/lms/CourseBuilder';
 import { requireTeacherPage } from '@/lib/lms/auth';
+import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +18,7 @@ export default async function EditCoursePage({
   const course = await getPrisma().course.findFirst({
     where: {
       id: courseId,
-      ...(teacher.role === 'ADMIN' ? {} : { teacherId: teacher.id }),
+      ...(isAdminRole(teacher.role) ? {} : { teacherId: teacher.id }),
     },
     include: {
       modules: {

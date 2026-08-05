@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { buttonVariants } from '@/components/UI/button';
 import { LmsAccountMenu } from '@/components/lms/LmsAccountMenu';
+import { NotificationBell } from '@/components/navbar/notification-bell';
 import { cn } from '@/lib/utils';
 
 interface LmsHeaderProps {
@@ -25,7 +26,7 @@ const navigation = [
 export function LmsHeader({ user }: LmsHeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/75 backdrop-blur-xl">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 sm:px-6">
+      <div className="w-full min-w-0 px-4 sm:px-6">
         <div className="flex h-16 min-w-0 items-center gap-3">
           <Link
             aria-label="Way Ground LMS catalog"
@@ -63,7 +64,10 @@ export function LmsHeader({ user }: LmsHeaderProps) {
 
           <div className="ml-auto flex min-w-0 shrink-0 items-center">
             {user ? (
-              <LmsAccountMenu user={user} />
+              <div className="flex min-w-0 items-center gap-2">
+                <NotificationBell />
+                <LmsAccountMenu user={user} />
+              </div>
             ) : (
               <div className="flex min-w-0 items-center gap-2">
                 <Link
