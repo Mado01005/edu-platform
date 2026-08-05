@@ -31,6 +31,7 @@ export default async function TeacherCoursesPage() {
       <form
         action={createCourseAction}
         className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4"
+        id="new-course"
       >
         <div className="flex items-center gap-2 text-sm font-black">
           <BookPlus className="size-4 text-violet-300" />

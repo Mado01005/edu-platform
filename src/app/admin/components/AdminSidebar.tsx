@@ -4,21 +4,19 @@ import { StorageStats } from '@/types';
 
 import { useAdmin } from '../context/AdminContext';
 
-interface AdminSidebarProps {
-  activeTab: string;
-  setActiveTab: (tab: any) => void;
-  availableTabs: Array<{ id: string; icon: string; label: string }>;
-  currentUserRole: string;
+interface AdminSidebarProps<TabId extends string> {
+  activeTab: TabId;
+  setActiveTab: (tab: TabId) => void;
+  availableTabs: Array<{ id: TabId; icon: string; label: string }>;
   storageStats: StorageStats | null;
 }
 
-export default function AdminSidebar({ 
+export default function AdminSidebar<TabId extends string>({
   activeTab, 
   setActiveTab, 
   availableTabs, 
-  currentUserRole, 
   storageStats
-}: AdminSidebarProps) {
+}: AdminSidebarProps<TabId>) {
   const { setIsPending, executeMutation } = useAdmin();
 
   const handleAuditR2 = async () => {
@@ -55,7 +53,7 @@ export default function AdminSidebar({
         alert(`🗑️ Purged ${purgeData.purged} stray files successfully.`);
       }
       
-    } catch(e) { 
+    } catch {
       alert('Network Error during R2 Audit'); 
     } finally {
       setIsPending(false);
@@ -63,39 +61,39 @@ export default function AdminSidebar({
   };
 
   return (
-    <div className="w-full md:w-[320px] bg-[#0A0A0F] border-r border-white/5 flex flex-col pt-8 p-6 space-y-8 h-screen sticky top-0 md:overflow-y-auto">
-      <div className="flex items-center gap-4 px-2 mb-4">
-         <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-2xl border border-indigo-500/20">⚡</div>
+    <div className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-white/5 bg-[#0A0A0F] p-4">
+      <div className="flex min-w-0 items-center gap-3">
+         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-xl">🧭</div>
          <div>
-           <h1 className="text-lg font-black tracking-tighter uppercase">Command</h1>
-           <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.2em] opacity-80">{currentUserRole.toUpperCase()} LEVEL</p>
+           <h2 className="text-lg font-black tracking-tight">Course content tools</h2>
+           <p className="text-xs font-bold text-zinc-500">Choose the task you want to open.</p>
          </div>
       </div>
 
-      <div className="flex-1 space-y-2">
+      <div className="grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-5">
         {availableTabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border ${
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 text-center text-xs font-black transition ${
               activeTab === tab.id 
-                ? 'bg-white text-black border-white shadow-xl' 
+                ? 'border-white bg-white text-black shadow-xl'
                 : 'text-gray-500 border-transparent hover:bg-white/5 hover:text-white'
             }`}
           >
-            <span className="text-lg opacity-80">{tab.icon}</span>
-            {tab.label}
+            <span className="text-lg" aria-hidden="true">{tab.icon}</span>
+            <span className="min-w-0 leading-4">{tab.label}</span>
           </button>
         ))}
       </div>
 
       {storageStats && (
-        <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl space-y-5 shadow-inner">
-          <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-indigo-400 opacity-60">System Resources</h4>
-          <div className="space-y-4">
+        <details className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 shadow-inner">
+          <summary className="cursor-pointer text-xs font-black text-indigo-300">File storage details</summary>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
                <div className="flex justify-between items-center text-[10px]">
-                  <span className="text-gray-500 font-bold uppercase tracking-widest">R2 Sector</span>
+                  <span className="font-bold uppercase tracking-widest text-gray-500">Uploaded files</span>
                   <span className="text-white font-black">{storageStats.r2.estimatedMB}MB</span>
                </div>
                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
@@ -104,7 +102,7 @@ export default function AdminSidebar({
             </div>
             <div className="space-y-1.5">
                <div className="flex justify-between items-center text-[10px]">
-                  <span className="text-gray-500 font-bold uppercase tracking-widest">SB Core</span>
+                  <span className="font-bold uppercase tracking-widest text-gray-500">Database</span>
                   <span className="text-white font-black">{storageStats.supabase.estimatedMB}MB</span>
                </div>
                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
@@ -114,11 +112,11 @@ export default function AdminSidebar({
           </div>
           <button 
             onClick={handleAuditR2}
-            className="w-full mt-4 py-3 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 font-bold uppercase tracking-widest text-[10px] transition-colors border border-orange-500/30 flex items-center justify-center gap-2"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 py-3 text-xs font-bold text-orange-300 transition-colors hover:bg-orange-500/20"
           >
-            <span className="text-sm">🔍</span> Audit Orphaned Files
+            <span className="text-sm">🔍</span> Check for unused files
           </button>
-        </div>
+        </details>
       )}
     </div>
   );

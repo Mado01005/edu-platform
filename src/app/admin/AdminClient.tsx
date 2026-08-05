@@ -58,13 +58,13 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
   }, [allRoles, userEmail]);
 
   const availableTabs = useMemo(() => {
-    const tabs = [{ id: 'upload', icon: '⚡', label: 'UPLOAD' }] as { id: TabId, icon: string, label: string }[];
+    const tabs = [{ id: 'upload', icon: '➕', label: 'Add lessons' }] as { id: TabId, icon: string, label: string }[];
     if (currentUserRole === 'superadmin') {
       tabs.push(
-        { id: 'manage', icon: '📂', label: 'MANAGE' },
-        { id: 'Announcement', icon: '📢', label: 'Announcement' },
-        { id: 'team', icon: '👥', label: 'TEAM' },
-        { id: 'telemetry', icon: '🌐', label: 'TELEMETRY' }
+        { id: 'manage', icon: '📚', label: 'Manage lessons' },
+        { id: 'Announcement', icon: '📢', label: 'Send announcement' },
+        { id: 'team', icon: '👥', label: 'Manage team' },
+        { id: 'telemetry', icon: '📊', label: 'View activity' }
       );
     }
     return tabs;
@@ -106,69 +106,50 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
 
   return (
     <AdminProvider refreshPageData={refreshPageData}>
-      <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white">
-      <div className="max-w-full mx-auto flex flex-col md:flex-row min-h-screen overflow-hidden">
-        
+      <section className="relative flex w-full min-w-0 flex-col gap-4 rounded-3xl border border-white/10 bg-black/45 p-3 text-white selection:bg-indigo-500 selection:text-white sm:p-5">
         <AdminSidebar 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
           availableTabs={availableTabs} 
-          currentUserRole={currentUserRole} 
           storageStats={storageStats} 
         />
+        <AdminGlobalOverlay />
+        <div className="relative min-w-0 rounded-2xl bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.06),transparent)] p-1 sm:p-3">
+          <AdminErrorBoundary>
+            {activeTab === 'upload' && (
+              <UploadTab
+                selectedSubjectId={selectedSubjectId}
+                setSelectedSubjectId={setSelectedSubjectId}
+                selectedLessonId={selectedLessonId}
+                setSelectedLessonId={setSelectedLessonId}
+                localSubjects={localSubjects}
+                activeLessons={activeLessons}
+                refreshPageData={refreshPageData}
+              />
+            )}
 
-        <div className="flex-1 bg-black relative flex flex-col min-h-screen">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.05),transparent)] pointer-events-none"></div>
-          
-          <div className="flex-1 p-6 md:p-10 lg:p-16 relative overflow-y-auto">
-            <AdminGlobalOverlay />
-            <div className="max-w-[1400px] mx-auto">
-              <AdminErrorBoundary>
+            {activeTab === 'manage' && <ManageTab localSubjects={localSubjects} />}
 
-              
-              {activeTab === 'upload' && (
-                <UploadTab 
-                  selectedSubjectId={selectedSubjectId}
-                  setSelectedSubjectId={setSelectedSubjectId}
-                  selectedLessonId={selectedLessonId}
-                  setSelectedLessonId={setSelectedLessonId}
-                  localSubjects={localSubjects}
-                  activeLessons={activeLessons}
-                  refreshPageData={refreshPageData}
-                />
-              )}
+            {activeTab === 'telemetry' && (
+              <TelemetryTab
+                initialLogs={initialLogs}
+                initialSessions={initialSessions}
+                allRoles={allRoles}
+              />
+            )}
 
-              {activeTab === 'manage' && (
-                <ManageTab 
-                  localSubjects={localSubjects}
-                />
-              )}
+            {activeTab === 'Announcement' && <AnnouncementTab />}
 
-              {activeTab === 'telemetry' && (
-                <TelemetryTab 
-                  initialLogs={initialLogs}
-                  initialSessions={initialSessions}
-                  allRoles={allRoles}
-                />
-              )}
-
-              {activeTab === 'Announcement' && <AnnouncementTab />}
-
-              {activeTab === 'team' && (
-                <TeamTab 
-                  allRoles={allRoles}
-                  activeLogins={activeLogins}
-                  refreshPageData={refreshPageData}
-                />
-              )}
-
-
-              </AdminErrorBoundary>
-            </div>
-          </div>
+            {activeTab === 'team' && (
+              <TeamTab
+                allRoles={allRoles}
+                activeLogins={activeLogins}
+                refreshPageData={refreshPageData}
+              />
+            )}
+          </AdminErrorBoundary>
         </div>
-        </div>
-      </div>
+      </section>
     </AdminProvider>
   );
 }

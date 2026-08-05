@@ -5,6 +5,9 @@ import { getAllSubjects } from '@/lib/content';
 import { supabaseAdmin } from '@/lib/supabase';
 import { isMasterAdmin } from '@/lib/constants';
 import Navbar from '@/components/Navbar';
+import { AppSidebar } from '@/components/navigation/app-sidebar';
+import { MobileDock } from '@/components/navigation/mobile-dock';
+import { WorkspaceActionHub } from '@/components/navigation/workspace-action-hub';
 import AdminClient from './AdminClient';
 import AnalyticsPanel from './AnalyticsPanel';
 
@@ -15,6 +18,7 @@ export default async function AdminPage() {
   if (!session || !isAdmin) {
     redirect('/dashboard');
   }
+  const adminRole = isMasterAdmin(session.user?.email) ? 'SUPER_ADMIN' : 'ADMIN';
 
   const threeDaysAgo = new Date();
   threeDaysAgo.setUTCDate(threeDaysAgo.getUTCDate() - 3);
@@ -42,40 +46,45 @@ export default async function AdminPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.15),rgba(0,0,0,0))] relative overflow-hidden">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.15),rgba(0,0,0,0))] text-white">
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
-      
+
       <div className="relative z-10">
         <Navbar
           userName={session.user?.name ?? undefined}
           userImage={session.user?.image ?? undefined}
           isAdmin={session.user?.isAdmin}
+          roleLabel={adminRole}
         />
-        <div className="flex flex-col items-center py-10 text-center fade-in">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[11px] font-bold uppercase tracking-widest mb-5 max-w-fit shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span> Systems Online
-          </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-4 select-none">
-            Command Center
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl font-medium">
-            Control the global syllabus hierarchy, process encrypted uploads, and monitor incoming student transmissions.
-          </p>
+
+        <div className="mx-auto flex w-full max-w-7xl min-w-0 items-start gap-6 px-4 py-6 sm:px-6">
+          <AppSidebar role={adminRole} />
+          <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 md:pb-12">
+            <WorkspaceActionHub
+              mode="admin"
+              userName={session.user?.name}
+            />
+
+            <AdminClient
+              subjects={subjects}
+              initialRoles={mergedRoles}
+              userEmail={session.user?.email || ''}
+              initialLogs={historicalLogs || []}
+              initialSessions={liveSessions || []}
+            />
+
+            <section className="min-w-0 rounded-3xl border border-white/10 bg-black/40 p-4 sm:p-6">
+              <div className="mb-5">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-300">
+                  Learning overview
+                </p>
+                <h2 className="mt-2 text-2xl font-black">Course activity</h2>
+              </div>
+              <AnalyticsPanel />
+            </section>
+          </main>
         </div>
-        
-        <AdminClient 
-          subjects={subjects} 
-          initialRoles={mergedRoles} 
-          userEmail={session.user?.email || ''} 
-          initialLogs={historicalLogs || []} 
-          initialSessions={liveSessions || []}
-        />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-          <div className="mt-16 fade-in scale-in" style={{ animationDelay: '0.2s' }}>
-            <AnalyticsPanel />
-          </div>
-        </div>
+        <MobileDock role={adminRole} />
       </div>
     </div>
   );

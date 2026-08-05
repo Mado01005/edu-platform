@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, Database } from 'lucide-react';
 import { StorageDashboard } from '@/app/admin/storage/StorageDashboard';
-import { LmsHeader } from '@/components/lms/LmsHeader';
+import { PortalShell } from '@/components/erp/PortalShell';
 import { requireAdminPage } from '@/lib/lms/auth';
 import { getR2StorageSnapshot } from '@/lib/r2-storage';
 
@@ -12,12 +12,7 @@ export default async function AdminStoragePage() {
   const snapshot = await getR2StorageSnapshot(100);
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-start overflow-x-hidden bg-black px-4 text-white">
-      <div className="-mx-4 w-[calc(100%+2rem)]">
-        <LmsHeader user={admin} />
-      </div>
-
-      <main className="box-border flex w-full max-w-md min-w-0 flex-col gap-4 py-8">
+    <PortalShell user={admin}>
         <Link
           className="flex w-fit items-center gap-2 text-sm font-bold text-zinc-400 transition hover:text-white"
           href="/admin/users"
@@ -43,7 +38,6 @@ export default async function AdminStoragePage() {
         </header>
 
         <StorageDashboard initialSnapshot={snapshot} />
-      </main>
-    </div>
+    </PortalShell>
   );
 }

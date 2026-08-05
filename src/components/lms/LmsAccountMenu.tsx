@@ -128,7 +128,7 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
       <DropdownMenuTrigger asChild>
         <button
           aria-label={`Open account menu for ${displayName}`}
-          className="flex min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-1.5 pr-2 text-left transition hover:border-violet-400/30 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+          className="flex min-w-0 max-w-[11rem] items-center gap-2 whitespace-nowrap rounded-xl border border-white/10 bg-white/5 p-1.5 pr-2 text-left transition hover:border-violet-400/30 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 sm:max-w-[13rem]"
           type="button"
         >
           <Avatar>
@@ -138,11 +138,11 @@ export function LmsAccountMenu({ user }: LmsAccountMenuProps) {
             />
             <AvatarFallback>{initials(user.name, user.email)}</AvatarFallback>
           </Avatar>
-          <span className="hidden min-w-0 sm:block">
-            <span className="block max-w-28 truncate text-xs font-black text-white">
+          <span className="hidden min-w-0 flex-1 sm:block">
+            <span className="block max-w-28 truncate whitespace-nowrap text-xs font-black text-white">
               {displayName}
             </span>
-            <Badge className="mt-0.5 px-1.5 py-0 text-[8px]" variant="secondary">
+            <Badge className="mt-0.5 max-w-full truncate whitespace-nowrap px-1.5 py-0 text-[8px]" variant="secondary">
               {user.role}
             </Badge>
           </span>

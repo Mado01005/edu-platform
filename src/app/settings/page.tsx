@@ -1,5 +1,5 @@
 import { Settings2 } from 'lucide-react';
-import { LmsHeader } from '@/components/lms/LmsHeader';
+import { PortalShell } from '@/components/erp/PortalShell';
 import { SettingsCenter } from '@/components/settings/SettingsCenter';
 import { requireLmsPageUser } from '@/lib/lms/auth';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -24,10 +24,8 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-zinc-950 text-white">
-      <LmsHeader user={user} />
-      <main className="min-h-[calc(100vh-4.5rem)] w-full bg-zinc-950">
-        <div className="mx-auto flex w-full max-w-4xl min-w-0 flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
+    <PortalShell user={user}>
+      <div className="flex w-full min-w-0 flex-col gap-6">
           <header className="w-full rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.24),transparent_52%)] p-5 sm:p-7">
             <span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400 text-black shadow-lg shadow-violet-500/20">
               <Settings2 className="size-5" aria-hidden="true" />
@@ -63,8 +61,7 @@ export default async function SettingsPage() {
             }}
             providers={providers}
           />
-        </div>
-      </main>
-    </div>
+      </div>
+    </PortalShell>
   );
 }

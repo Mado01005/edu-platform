@@ -10,6 +10,7 @@ import {
   Plus,
   Radio,
   Save,
+  Settings,
 } from 'lucide-react';
 import {
   createLessonAction,
@@ -287,7 +288,18 @@ export function CourseBuilder({ course }: { course: CourseData }) {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
-      <form action={updateCourse} className="flex min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4">
+      <nav aria-label="Course builder shortcuts" className="grid min-w-0 grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-zinc-950 p-2">
+        <a className="flex min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-3 py-3 text-sm font-black text-black" href="#course-settings">
+          <Settings className="size-4 shrink-0" aria-hidden="true" />
+          <span className="truncate whitespace-nowrap">Course Settings</span>
+        </a>
+        <a className="flex min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-black text-zinc-300 hover:bg-white/5" href="#curriculum">
+          <FileText className="size-4 shrink-0" aria-hidden="true" />
+          <span className="truncate whitespace-nowrap">Lessons</span>
+        </a>
+      </nav>
+
+      <form action={updateCourse} className="flex min-w-0 scroll-mt-24 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4" id="course-settings">
         <h2 className="font-black">Course settings</h2>
         <input
           className="w-full min-w-0 rounded-xl border border-white/10 bg-black px-3 py-3 text-sm"
@@ -345,7 +357,7 @@ export function CourseBuilder({ course }: { course: CourseData }) {
         </ActionSubmitButton>
       </form>
 
-      <div className="flex items-center justify-between">
+      <div className="flex scroll-mt-24 items-center justify-between" id="curriculum">
         <div>
           <h2 className="font-black">Curriculum</h2>
           <p className="text-xs text-zinc-500">Drag modules and lessons to reorder.</p>
