@@ -23,49 +23,70 @@ import {
 import { LmsHeader } from '@/components/lms/LmsHeader';
 import { RedeemAccessCode } from '@/components/lms/RedeemAccessCode';
 import { getLmsUser } from '@/lib/lms/auth';
-import { getPrisma } from '@/lib/prisma';
+import { serializeCoursePrice } from '@/lib/lms/catalog-serialization';
+import { withPrismaRetry } from '@/lib/prisma';
 import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60;
 
 const getCachedPublishedCourses = unstable_cache(
-  async () =>
-    getPrisma().course.findMany({
-      where: { isPublished: true },
-      include: {
-        teacher: { select: { name: true } },
-        modules: {
-          orderBy: { position: 'asc' },
-          select: {
-            lessons: {
-              orderBy: { position: 'asc' },
-              select: { contentType: true },
+  async () => {
+    const courses = await withPrismaRetry((database) =>
+      database.course.findMany({
+        where: { isPublished: true },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          priceEGP: true,
+          priceUSD: true,
+          teacher: { select: { name: true } },
+          modules: {
+            orderBy: { position: 'asc' },
+            select: {
+              lessons: {
+                orderBy: { position: 'asc' },
+                select: { contentType: true },
+              },
             },
           },
+          _count: { select: { enrollments: true, zoomSessions: true } },
         },
-        _count: { select: { enrollments: true, zoomSessions: true } },
-      },
-      orderBy: { updatedAt: 'desc' },
-      take: 500,
-    }),
-  ['published-course-catalog-v1'],
+        orderBy: { updatedAt: 'desc' },
+        take: 500,
+      }),
+    );
+
+    // Cache only JSON-safe values. Prisma Decimal instances are converted to
+    // strings by Next's data cache, so serializing here keeps cache hits and
+    // misses identical at runtime.
+    return courses.map((course) => ({
+      ...course,
+      priceEGP: serializeCoursePrice(course.priceEGP),
+      priceUSD: serializeCoursePrice(course.priceUSD),
+    }));
+  },
+  ['published-course-catalog-v2'],
   { revalidate: 60, tags: ['catalog'] },
 );
 
 const getCachedPaymentChannels = unstable_cache(
   async () =>
-    getPrisma().paymentChannel.findMany({
-      where: { isActive: true },
-      orderBy: { displayName: 'asc' },
-      select: {
-        accountValue: true,
-        currency: true,
-        displayName: true,
-        instructions: true,
-        method: true,
-      },
-    }),
+    withPrismaRetry((database) =>
+      database.paymentChannel.findMany({
+        where: { isActive: true },
+        orderBy: { displayName: 'asc' },
+        select: {
+          accountValue: true,
+          currency: true,
+          displayName: true,
+          instructions: true,
+          method: true,
+        },
+      }),
+    ),
   ['active-payment-channels-v1'],
   { revalidate: 60, tags: ['catalog'] },
 );
@@ -117,11 +138,13 @@ export default async function CatalogPage({
 }) {
   const userPromise = getLmsUser();
   const enrollmentRowsPromise = userPromise.then((user) =>
-    user
-      ? getPrisma().enrollment.findMany({
-          where: { studentId: user.id },
-          select: { courseId: true },
-        })
+    user?.role === 'STUDENT'
+      ? withPrismaRetry((database) =>
+          database.enrollment.findMany({
+            where: { studentId: user.id },
+            select: { courseId: true },
+          }),
+        )
       : [],
   );
   const [
@@ -153,15 +176,10 @@ export default async function CatalogPage({
     : cachedCatalog;
   const paymentChannels =
     user?.role === 'STUDENT' ? cachedPaymentChannels : [];
-  const serializedCatalog = catalog.map((course) => ({
-    ...course,
-    priceEGP: course.priceEGP.toFixed(2),
-    priceUSD: course.priceUSD.toFixed(2),
-  }));
   const courses =
     activeCategory === 'All Courses'
-      ? serializedCatalog
-      : serializedCatalog.filter((course) =>
+      ? catalog
+      : catalog.filter((course) =>
           getCourseCategories(course).includes(activeCategory),
         );
 
