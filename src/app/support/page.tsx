@@ -167,7 +167,7 @@ export default async function SupportPortalPage({
             </div>
           ) : null}
 
-          <Card>
+          <Card className="scroll-mt-28" id="student-lookup">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Search className="size-5 text-cyan-300" aria-hidden="true" />
@@ -350,7 +350,7 @@ export default async function SupportPortalPage({
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="scroll-mt-28" id="credential-resets">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <KeyRound className="size-5 text-amber-300" aria-hidden="true" />
@@ -416,7 +416,7 @@ export default async function SupportPortalPage({
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="scroll-mt-28" id="support-tickets">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Bell className="size-5 text-fuchsia-300" aria-hidden="true" />

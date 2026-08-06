@@ -1,26 +1,35 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 import type { Role } from '@prisma/client';
 import {
   Activity,
   BookOpen,
+  CalendarPlus,
+  ChevronDown,
   ClipboardCheck,
+  CreditCard,
+  FileText,
   GraduationCap,
   HardDrive,
+  Home,
+  KeyRound,
   Landmark,
   LayoutDashboard,
-  LifeBuoy,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
   Radio,
+  ReceiptText,
   School,
+  Search,
   Settings,
+  TicketCheck,
+  TrendingUp,
   Users,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   Sheet,
   SheetClose,
@@ -31,211 +40,168 @@ import {
   SheetTrigger,
 } from '@/components/UI/sheet';
 import {
-  ACCOUNTING_ROLES,
-  ADMIN_ROLES,
-  SUPPORT_ROLES,
-  TEACHING_ROLES,
-  WORKSPACE_ROLES,
-} from '@/lib/lms/roles';
+  getNavigationSections,
+  type NavigationItem,
+  type NavigationItemKey,
+} from '@/lib/lms/navigation';
+import { isAdminRole } from '@/lib/lms/roles';
 import { cn } from '@/lib/utils';
 
 interface AppSidebarProps {
   role: Role;
 }
 
-type NavigationItem = {
-  activeRoutes?: readonly string[];
-  href: string;
-  icon: typeof LayoutDashboard;
-  label: string;
-  roles: readonly Role[];
+const iconByKey: Record<NavigationItemKey, typeof LayoutDashboard> = {
+  'accounting-approvals': CreditCard,
+  'accounting-invoices': ReceiptText,
+  'accounting-ledger': Landmark,
+  'admin-curriculum': School,
+  'admin-radar': Activity,
+  'admin-storage': HardDrive,
+  'admin-users': Users,
+  catalog: BookOpen,
+  dashboard: LayoutDashboard,
+  live: Radio,
+  'parent-attendance': Users,
+  'parent-invoices': ReceiptText,
+  'parent-reports': FileText,
+  profile: TrendingUp,
+  settings: Settings,
+  'support-lookup': Search,
+  'support-resets': KeyRound,
+  'support-tickets': TicketCheck,
+  'teacher-courses': GraduationCap,
+  'teacher-grading': ClipboardCheck,
+  'teacher-home': Home,
+  'teacher-zoom': CalendarPlus,
 };
 
-const sections: readonly {
-  items: readonly NavigationItem[];
-  label: string;
-}[] = [
-  {
-    label: 'Academic management',
-    items: [
-      {
-        href: '/dashboard',
-        icon: LayoutDashboard,
-        label: 'Dashboard',
-        roles: WORKSPACE_ROLES,
-      },
-      {
-        href: '/catalog',
-        icon: BookOpen,
-        label: 'Catalog',
-        roles: WORKSPACE_ROLES,
-      },
-      {
-        activeRoutes: ['/live', '/live-classes'],
-        href: '/live',
-        icon: Radio,
-        label: 'Live Classes',
-        roles: WORKSPACE_ROLES,
-      },
-      {
-        activeRoutes: ['/admin/curriculum', '/admin/k12'],
-        href: '/admin/curriculum',
-        icon: School,
-        label: 'K-12 Manager',
-        roles: ADMIN_ROLES,
-      },
-      {
-        href: '/teacher',
-        icon: GraduationCap,
-        label: 'Teacher Studio',
-        roles: TEACHING_ROLES,
-      },
-      {
-        href: '/teacher/grading',
-        icon: ClipboardCheck,
-        label: 'Assignment Grading',
-        roles: TEACHING_ROLES,
-      },
-    ],
-  },
-  {
-    label: 'Student & operations radar',
-    items: [
-      {
-        href: '/admin/radar',
-        icon: Activity,
-        label: 'Activity Radar',
-        roles: ADMIN_ROLES,
-      },
-      {
-        href: '/admin/users',
-        icon: Users,
-        label: 'Manage Users',
-        roles: ADMIN_ROLES,
-      },
-    ],
-  },
-  {
-    label: 'Financial & support portals',
-    items: [
-      {
-        href: '/support',
-        icon: LifeBuoy,
-        label: 'Support Portal',
-        roles: SUPPORT_ROLES,
-      },
-      {
-        href: '/accounting',
-        icon: Landmark,
-        label: 'Accounting Ledger',
-        roles: ACCOUNTING_ROLES,
-      },
-      {
-        href: '/admin/storage',
-        icon: HardDrive,
-        label: 'Cloudflare R2 Storage',
-        roles: ADMIN_ROLES,
-      },
-    ],
-  },
-  {
-    label: 'Account',
-    items: [
-      {
-        href: '/settings',
-        icon: Settings,
-        label: 'Platform Settings',
-        roles: WORKSPACE_ROLES,
-      },
-    ],
-  },
-] as const;
-
-function matchesPath(pathname: string, item: NavigationItem) {
-  const routes = item.activeRoutes ?? [item.href];
+function matchesPath(pathname: string, currentHash: string, item: NavigationItem) {
+  const [, itemHash] = item.href.split('#');
+  if (itemHash) {
+    const route = item.href.split(/[?#]/)[0];
+    return (
+      (pathname === route || pathname.startsWith(`${route}/`)) &&
+      currentHash === `#${itemHash}`
+    );
+  }
+  const routes = item.activeRoutes ?? [item.href.split(/[?#]/)[0]];
+  if (currentHash && routes.includes(pathname)) return false;
   return routes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 }
 
+function NavigationLink({
+  collapsed,
+  currentHash,
+  item,
+  mobile,
+  pathname,
+}: {
+  collapsed: boolean;
+  currentHash: string;
+  item: NavigationItem;
+  mobile: boolean;
+  pathname: string;
+}) {
+  const Icon = iconByKey[item.key];
+  const active = matchesPath(pathname, currentHash, item);
+  const link = (
+    <Link
+      aria-current={active ? 'page' : undefined}
+      aria-label={collapsed && !mobile ? item.label : undefined}
+      className={cn(
+        'group flex min-w-0 items-center rounded-xl px-3 py-2.5 text-sm font-bold transition',
+        collapsed && !mobile ? 'justify-center gap-0' : 'gap-3',
+        active
+          ? 'bg-violet-400 text-black shadow-lg shadow-violet-500/15'
+          : 'text-zinc-400 hover:bg-white/5 hover:text-white',
+      )}
+      href={item.href}
+      title={collapsed && !mobile ? item.label : item.description}
+    >
+      <Icon aria-hidden="true" className="size-5 shrink-0" />
+      <span
+        className={cn(
+          'min-w-0 flex-1 truncate whitespace-nowrap',
+          collapsed && !mobile && 'sr-only',
+        )}
+      >
+        {item.label}
+      </span>
+    </Link>
+  );
+
+  return mobile ? <SheetClose asChild>{link}</SheetClose> : link;
+}
+
 function SidebarNavigation({
   collapsed,
+  currentHash,
   mobile = false,
   pathname,
   role,
 }: {
   collapsed: boolean;
+  currentHash: string;
   mobile?: boolean;
   pathname: string;
   role: Role;
 }) {
-  const visibleSections = sections
-    .map((section) => ({
-      ...section,
-      items: section.items.filter((item) => item.roles.includes(role)),
-    }))
-    .filter((section) => section.items.length > 0);
+  const visibleSections = getNavigationSections(role);
+  const collapsibleSections = isAdminRole(role) && !collapsed;
 
   return (
     <nav
       aria-label={mobile ? 'Mobile portal navigation' : 'Portal navigation'}
       className="flex min-w-0 flex-col gap-5"
     >
-      {visibleSections.map((section) => (
-        <section className="min-w-0" key={section.label}>
-          <h2
-            className={cn(
-              'mb-2 truncate px-3 text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600',
-              collapsed && !mobile && 'sr-only',
-            )}
-          >
-            {section.label}
-          </h2>
+      {visibleSections.map((section) => {
+        const links = (
           <div className="flex min-w-0 flex-col gap-1">
-            {section.items.map((item) => {
-              const active = matchesPath(pathname, item);
-              const link = (
-                <Link
-                  aria-current={active ? 'page' : undefined}
-                  aria-label={collapsed && !mobile ? item.label : undefined}
-                  className={cn(
-                    'group flex min-w-0 items-center rounded-xl px-3 py-2.5 text-sm font-bold transition',
-                    collapsed && !mobile
-                      ? 'justify-center gap-0'
-                      : 'gap-3',
-                    active
-                      ? 'bg-violet-400 text-black shadow-lg shadow-violet-500/15'
-                      : 'text-zinc-400 hover:bg-white/5 hover:text-white',
-                  )}
-                  href={item.href}
-                  title={collapsed && !mobile ? item.label : undefined}
-                >
-                  <item.icon
-                    className="size-5 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span
-                    className={cn(
-                      'min-w-0 flex-1 truncate whitespace-nowrap',
-                      collapsed && !mobile && 'sr-only',
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              );
-
-              return mobile ? (
-                <SheetClose asChild key={item.href}>
-                  {link}
-                </SheetClose>
-              ) : (
-                <div key={item.href}>{link}</div>
-              );
-            })}
+            {section.items.map((item) => (
+              <NavigationLink
+                collapsed={collapsed}
+                currentHash={currentHash}
+                item={item}
+                key={`${section.label}-${item.href}`}
+                mobile={mobile}
+                pathname={pathname}
+              />
+            ))}
           </div>
-        </section>
-      ))}
+        );
+
+        if (collapsibleSections) {
+          return (
+            <details className="group/section min-w-0" key={section.label} open>
+              <summary className="mb-2 flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600 transition hover:bg-white/5 hover:text-zinc-400 [&::-webkit-details-marker]:hidden">
+                <span className="truncate">{section.label}</span>
+                <ChevronDown
+                  aria-hidden="true"
+                  className="size-3 shrink-0 transition group-open/section:rotate-180"
+                />
+              </summary>
+              {links}
+            </details>
+          );
+        }
+
+        return (
+          <section className="min-w-0" key={section.label}>
+            <h2
+              className={cn(
+                'mb-2 truncate px-3 text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600',
+                collapsed && !mobile && 'sr-only',
+              )}
+            >
+              {section.label}
+            </h2>
+            {links}
+          </section>
+        );
+      })}
     </nav>
   );
 }
@@ -243,6 +209,16 @@ function SidebarNavigation({
 export function AppSidebar({ role }: AppSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [currentHash, setCurrentHash] = useState('');
+
+  useEffect(() => {
+    function synchronizeHash() {
+      setCurrentHash(window.location.hash);
+    }
+    synchronizeHash();
+    window.addEventListener('hashchange', synchronizeHash);
+    return () => window.removeEventListener('hashchange', synchronizeHash);
+  }, [pathname]);
 
   return (
     <>
@@ -263,7 +239,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
               Way Ground
             </p>
             <p className="mt-0.5 truncate text-[10px] font-bold text-zinc-600">
-              Portal navigation
+              {isAdminRole(role) ? 'Full platform navigation' : 'Your navigation'}
             </p>
           </div>
           <button
@@ -275,9 +251,9 @@ export function AppSidebar({ role }: AppSidebarProps) {
             type="button"
           >
             {collapsed ? (
-              <PanelLeftOpen className="size-5" aria-hidden="true" />
+              <PanelLeftOpen aria-hidden="true" className="size-5" />
             ) : (
-              <PanelLeftClose className="size-5" aria-hidden="true" />
+              <PanelLeftClose aria-hidden="true" className="size-5" />
             )}
           </button>
         </div>
@@ -288,6 +264,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
         >
           <SidebarNavigation
             collapsed={collapsed}
+            currentHash={currentHash}
             pathname={pathname}
             role={role}
           />
@@ -300,7 +277,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
           )}
           title={role}
         >
-          {collapsed ? role.slice(0, 1) : role.replace('_', ' ')}
+          {collapsed ? role.slice(0, 1) : role.replaceAll('_', ' ')}
         </div>
       </aside>
 
@@ -311,7 +288,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
             className="fixed bottom-24 left-4 z-40 flex h-11 items-center gap-2 rounded-full border border-violet-300/25 bg-violet-400 px-4 text-sm font-black text-black shadow-xl shadow-black/50 transition hover:bg-violet-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white md:hidden"
             type="button"
           >
-            <Menu className="size-4" aria-hidden="true" />
+            <Menu aria-hidden="true" className="size-4" />
             Menu
           </button>
         </SheetTrigger>
@@ -319,7 +296,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
           <SheetHeader className="border-b border-white/10 p-5">
             <SheetTitle>Way Ground navigation</SheetTitle>
             <SheetDescription>
-              Choose a workspace tool. This menu closes after selection.
+              Only the tools available to your role are shown.
             </SheetDescription>
           </SheetHeader>
           <div
@@ -328,6 +305,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
           >
             <SidebarNavigation
               collapsed={false}
+              currentHash={currentHash}
               mobile
               pathname={pathname}
               role={role}

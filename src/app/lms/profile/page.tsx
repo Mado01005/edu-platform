@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/UI/card';
-import { LmsHeader } from '@/components/lms/LmsHeader';
+import { PortalShell } from '@/components/erp/PortalShell';
 import { requireLmsPageUser } from '@/lib/lms/auth';
 
 export const dynamic = 'force-dynamic';
@@ -35,9 +35,8 @@ export default async function LmsProfilePage() {
   const displayName = user.name?.trim() || user.email.split('@')[0];
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black text-white">
-      <LmsHeader user={user} />
-      <main className="mx-auto flex w-full max-w-4xl min-w-0 flex-col gap-6 px-4 py-10 sm:px-6">
+    <PortalShell user={user}>
+      <div className="flex w-full max-w-4xl min-w-0 flex-col gap-6">
         <Card className="overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.18),transparent_46%)] p-6 sm:p-8">
           <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
             <Avatar className="size-20 border-violet-400/20 shadow-xl shadow-violet-950/40">
@@ -142,7 +141,7 @@ export default async function LmsProfilePage() {
             </Card>
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </PortalShell>
   );
 }

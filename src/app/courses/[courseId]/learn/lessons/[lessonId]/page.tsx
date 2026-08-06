@@ -11,6 +11,7 @@ import {
 import { updateLessonProgressAction } from '@/app/lms/actions';
 import { DiscussionThread } from '@/components/lms/DiscussionThread';
 import { LmsHeader } from '@/components/lms/LmsHeader';
+import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { UniversalVideoPlayer } from '@/components/lms/UniversalVideoPlayer';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { MaterialList } from '@/components/course/material-list';
@@ -144,6 +145,7 @@ export default async function LessonPlayerPage({
       <LmsHeader user={user} />
       <main className="mx-auto grid w-full max-w-[1500px] min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px]">
         <article className="flex min-w-0 flex-col gap-7 px-4 py-6 sm:px-8 lg:px-10">
+          <Breadcrumbs role={user.role} />
           {isPreview ? (
             <div className="rounded-xl border border-violet-300/40 bg-violet-400/15 px-4 py-3 text-sm font-black text-violet-100">
               <span aria-hidden="true">👁️ </span>

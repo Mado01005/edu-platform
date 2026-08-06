@@ -1,5 +1,8 @@
 import { notFound } from 'next/navigation';
-import { CourseEditor } from '@/components/teacher/course-editor';
+import {
+  CourseEditor,
+  type CourseEditorTab,
+} from '@/components/teacher/course-editor';
 import { requireTeacherPage } from '@/lib/lms/auth';
 import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
@@ -14,8 +17,24 @@ const materialSelect = {
   title: true,
 } as const;
 
-export default async function TeacherCourseEditorPage({ params }: { params: Promise<{ courseId: string }> }) {
-  const [{ courseId }, teacher] = await Promise.all([params, requireTeacherPage()]);
+function editorTab(value: string | undefined): CourseEditorTab {
+  return ['curriculum', 'details', 'resources', 'zoom'].includes(value ?? '')
+    ? (value as CourseEditorTab)
+    : 'details';
+}
+
+export default async function TeacherCourseEditorPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ courseId: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const [{ courseId }, query, teacher] = await Promise.all([
+    params,
+    searchParams,
+    requireTeacherPage(),
+  ]);
   const course = await getPrisma().course.findFirst({
     where: { id: courseId, ...(isAdminRole(teacher.role) ? {} : { teacherId: teacher.id }) },
     include: {
@@ -39,7 +58,7 @@ export default async function TeacherCourseEditorPage({ params }: { params: Prom
   if (!course) notFound();
 
   return (
-    <CourseEditor course={{
+    <CourseEditor initialTab={editorTab(query.tab)} course={{
         ...course,
         priceEGP: course.priceEGP.toFixed(2),
         priceUSD: course.priceUSD.toFixed(2),

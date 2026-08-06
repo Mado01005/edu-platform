@@ -5,9 +5,10 @@ import {
   BookOpen,
   CalendarDays,
   Clock3,
+  PlayCircle,
   Radio,
 } from 'lucide-react';
-import { LmsHeader } from '@/components/lms/LmsHeader';
+import { PortalShell } from '@/components/erp/PortalShell';
 import { LocalDateTime } from '@/components/lms/LocalDateTime';
 import { getPrisma } from '@/lib/prisma';
 
@@ -18,6 +19,7 @@ export async function StudentLmsDashboard({
   notice?: string;
   user: User;
 }) {
+  const now = new Date();
   const [enrollments, liveClasses] = await Promise.all([
     getPrisma().enrollment.findMany({
       where: { studentId: user.id },
@@ -45,7 +47,7 @@ export async function StudentLmsDashboard({
     }),
     getPrisma().zoomSession.findMany({
       where: {
-        startTime: { gte: new Date() },
+        startTime: { gte: now },
         course: { enrollments: { some: { studentId: user.id } } },
       },
       include: { course: { select: { title: true } } },
@@ -53,11 +55,38 @@ export async function StudentLmsDashboard({
       take: 4,
     }),
   ]);
+  const progressByCourse = new Map(
+    enrollments.map(({ course }) => {
+      const lessons = course.modules.flatMap((module) => module.lessons);
+      const completed = lessons.filter(
+        (lesson) => lesson.progress[0]?.isCompleted,
+      ).length;
+      return [
+        course.id,
+        {
+          completed,
+          firstIncomplete: lessons.find(
+            (lesson) => !lesson.progress[0]?.isCompleted,
+          ),
+          lessons,
+        },
+      ] as const;
+    }),
+  );
+  const urgentLiveClass = liveClasses.find(
+    (session) => session.startTime.getTime() <= now.getTime() + 60 * 60 * 1000,
+  );
+  const resumableCourse = enrollments
+    .map(({ course }) => ({ course, progress: progressByCourse.get(course.id)! }))
+    .find(
+      ({ progress }) =>
+        progress.completed > 0 &&
+        progress.completed < progress.lessons.length &&
+        progress.firstIncomplete,
+    );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black text-white">
-      <LmsHeader user={user} />
-      <main className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-8 px-4 py-10">
+    <PortalShell user={user}>
         {notice ? (
           <div
             className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm font-bold text-amber-100"
@@ -65,6 +94,57 @@ export async function StudentLmsDashboard({
           >
             {notice}
           </div>
+        ) : null}
+        {urgentLiveClass ? (
+          <section className="flex min-w-0 flex-col gap-4 rounded-3xl border border-emerald-300/25 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,.24),transparent_58%)] p-5 sm:flex-row sm:items-center sm:p-6">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-black">
+              <Radio aria-hidden="true" className="size-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">
+                What to do next · Starting within one hour
+              </p>
+              <h2 className="mt-1 truncate text-xl font-black">
+                {urgentLiveClass.title}
+              </h2>
+              <p className="mt-1 truncate text-xs text-zinc-400">
+                {urgentLiveClass.course.title}
+              </p>
+            </div>
+            <a
+              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-300 px-4 text-sm font-black text-black transition hover:bg-emerald-200"
+              href={urgentLiveClass.meetingUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Radio aria-hidden="true" className="size-4" />
+              Join Live Zoom Class Now
+            </a>
+          </section>
+        ) : resumableCourse?.progress.firstIncomplete ? (
+          <section className="flex min-w-0 flex-col gap-4 rounded-3xl border border-violet-300/25 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.24),transparent_58%)] p-5 sm:flex-row sm:items-center sm:p-6">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-violet-300 text-black">
+              <PlayCircle aria-hidden="true" className="size-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-300">
+                What to do next · Continue learning
+              </p>
+              <h2 className="mt-1 truncate text-xl font-black">
+                {resumableCourse.progress.firstIncomplete.title}
+              </h2>
+              <p className="mt-1 truncate text-xs text-zinc-400">
+                {resumableCourse.course.title}
+              </p>
+            </div>
+            <Link
+              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-black text-black transition hover:bg-violet-100"
+              href={`/courses/${resumableCourse.course.id}/learn/lessons/${resumableCourse.progress.firstIncomplete.id}`}
+            >
+              <PlayCircle aria-hidden="true" className="size-4" />
+              Resume Lesson: {resumableCourse.progress.firstIncomplete.title}
+            </Link>
+          </section>
         ) : null}
         <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.2),transparent_50%)] p-6 sm:p-8">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
@@ -91,16 +171,12 @@ export async function StudentLmsDashboard({
 
           <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
             {enrollments.map(({ course }) => {
-              const lessons = course.modules.flatMap((module) => module.lessons);
-              const completed = lessons.filter(
-                (lesson) => lesson.progress[0]?.isCompleted,
-              ).length;
+              const { completed, firstIncomplete, lessons } =
+                progressByCourse.get(course.id)!;
               const percentage = lessons.length
                 ? Math.round((completed / lessons.length) * 100)
                 : 0;
-              const firstIncomplete =
-                lessons.find((lesson) => !lesson.progress[0]?.isCompleted) ??
-                lessons[0];
+              const nextLesson = firstIncomplete ?? lessons[0];
 
               return (
                 <article className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-zinc-950 p-5" key={course.id}>
@@ -118,10 +194,10 @@ export async function StudentLmsDashboard({
                     <span>Progress</span>
                     <span>{percentage}%</span>
                   </div>
-                  {firstIncomplete ? (
+                  {nextLesson ? (
                     <Link
                       className="mt-5 flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-black"
-                      href={`/courses/${course.id}/learn/lessons/${firstIncomplete.id}`}
+                      href={`/courses/${course.id}/learn/lessons/${nextLesson.id}`}
                     >
                       Continue course <ArrowRight className="size-4" />
                     </Link>
@@ -177,7 +253,6 @@ export async function StudentLmsDashboard({
             ) : null}
           </div>
         </section>
-      </main>
-    </div>
+    </PortalShell>
   );
 }

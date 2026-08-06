@@ -1,5 +1,6 @@
 'use client';
 
+import type { Role } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
@@ -12,11 +13,11 @@ import {
   Settings,
   X,
 } from 'lucide-react';
-import CommandSearch from '@/components/CommandSearch';
+import { CommandMenu } from '@/components/navigation/command-menu';
 
 interface NavbarProps {
   isAdmin?: boolean;
-  roleLabel?: string;
+  roleLabel?: Role;
   userImage?: string;
   userName?: string;
 }
@@ -30,7 +31,7 @@ export default function Navbar({
   const [loggingOut, setLoggingOut] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const initials = userName?.trim().charAt(0).toUpperCase() || '?';
-  const visibleRole = roleLabel ?? (isAdmin ? 'ADMIN' : 'STUDENT');
+  const visibleRole: Role = roleLabel ?? (isAdmin ? 'ADMIN' : 'STUDENT');
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -69,15 +70,11 @@ export default function Navbar({
             </span>
           </Link>
 
-          <div className="hidden min-w-0 max-w-md flex-1 md:block">
-            <CommandSearch />
+          <div className="ml-auto w-10 min-w-0 sm:w-full sm:max-w-md lg:ml-0">
+            <CommandMenu role={visibleRole} />
           </div>
 
           <div className="ml-auto flex min-w-0 shrink-0 items-center gap-2 whitespace-nowrap">
-            <div className="md:hidden">
-              <CommandSearch />
-            </div>
-
             {userName ? (
               <Link
                 className="hidden min-w-0 max-w-[13rem] items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-1.5 pr-2 transition hover:border-indigo-400/30 hover:bg-white/10 sm:flex"

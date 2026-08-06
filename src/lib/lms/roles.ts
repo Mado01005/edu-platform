@@ -33,13 +33,7 @@ export const ACCOUNTING_ROLES = [
   'ACCOUNTING',
 ] as const satisfies readonly Role[];
 
-export const WORKSPACE_ROLES = [
-  'SUPER_ADMIN',
-  'ADMIN',
-  'TEACHER',
-  'SUPPORT',
-  'ACCOUNTING',
-] as const satisfies readonly Role[];
+export const WORKSPACE_ROLES = LMS_ROLES;
 
 export function isLmsRole(value: unknown): value is Role {
   return (

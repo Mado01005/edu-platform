@@ -36,14 +36,22 @@ function BasicDetails({ course }: { course: TeacherCourse }) {
   );
 }
 
-export function CourseEditor({ course }: { course: TeacherCourse }) {
+export type CourseEditorTab = 'curriculum' | 'details' | 'resources' | 'zoom';
+
+export function CourseEditor({
+  course,
+  initialTab = 'details',
+}: {
+  course: TeacherCourse;
+  initialTab?: CourseEditorTab;
+}) {
   return (
     <section
       aria-label="Course editor"
       className="custom-scrollbar h-[calc(100dvh-7rem)] min-h-0 w-full min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable]"
       data-course-editor-scroll
     >
-      <Tabs className="min-h-full w-full min-w-0 gap-0" defaultValue="details">
+      <Tabs className="min-h-full w-full min-w-0 gap-0" defaultValue={initialTab}>
         <div
           className="sticky top-0 z-30 min-w-0 border-b border-zinc-800 bg-zinc-950/95 pb-4 backdrop-blur-md"
           data-course-editor-sticky

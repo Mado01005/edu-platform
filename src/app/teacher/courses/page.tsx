@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Layers3 } from 'lucide-react';
+import { ArrowRight, CalendarPlus, Layers3 } from 'lucide-react';
 import { CourseCreateForm } from '@/components/teacher/course-create-form';
 import { requireTeacherPage } from '@/lib/lms/auth';
 import { isAdminRole } from '@/lib/lms/roles';
@@ -29,27 +29,38 @@ export default async function TeacherCoursesPage() {
 
       <CourseCreateForm />
 
-      <section className="flex w-full min-w-0 flex-col gap-3">
+      <section className="flex w-full min-w-0 scroll-mt-28 flex-col gap-3" id="course-list">
         {courses.length ? (
           courses.map((course) => (
-            <Link
-              className="group flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4 transition hover:border-violet-400/50"
-              href={`/teacher/courses/${course.id}`}
+            <article
+              className="flex min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-3 transition hover:border-violet-400/50 sm:flex-row sm:items-center"
               key={course.id}
             >
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/5">
-                <Layers3 className="size-5 text-violet-300" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-black">{course.title}</span>
-                <span className="mt-1 block truncate text-xs text-zinc-500">
-                  {course.isPublished ? 'Published' : 'Draft'} ·{' '}
-                  {course._count.modules} modules · {course._count.enrollments}{' '}
-                  students
+              <Link
+                className="group flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1"
+                href={`/teacher/courses/${course.id}`}
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/5">
+                  <Layers3 className="size-5 text-violet-300" />
                 </span>
-              </span>
-              <ArrowRight className="size-4 shrink-0 text-zinc-600 transition group-hover:translate-x-1 group-hover:text-violet-300" />
-            </Link>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-black">{course.title}</span>
+                  <span className="mt-1 block truncate text-xs text-zinc-500">
+                    {course.isPublished ? 'Published' : 'Draft'} ·{' '}
+                    {course._count.modules} modules · {course._count.enrollments}{' '}
+                    students
+                  </span>
+                </span>
+                <ArrowRight className="size-4 shrink-0 text-zinc-600 transition group-hover:translate-x-1 group-hover:text-violet-300" />
+              </Link>
+              <Link
+                className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-cyan-300/20 px-3 text-xs font-black text-cyan-200 transition hover:bg-cyan-300 hover:text-black"
+                href={`/teacher/courses/${course.id}?tab=zoom`}
+              >
+                <CalendarPlus aria-hidden="true" className="size-4" />
+                Schedule Zoom
+              </Link>
+            </article>
           ))
         ) : (
           <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">

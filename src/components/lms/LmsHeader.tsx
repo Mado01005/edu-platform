@@ -11,6 +11,7 @@ import {
 import { buttonVariants } from '@/components/UI/button';
 import { NotificationBell } from '@/components/navbar/notification-bell';
 import { UserNav } from '@/components/navbar/user-nav';
+import { CommandMenu } from '@/components/navigation/command-menu';
 import { cn } from '@/lib/utils';
 
 interface LmsHeaderProps {
@@ -46,22 +47,28 @@ export function LmsHeader({ user }: LmsHeaderProps) {
             </span>
           </Link>
 
-          {/* Center zone: primary links, hidden before desktop to protect names. */}
-          <nav
-            aria-label="Primary navigation"
-            className="hidden min-w-0 flex-1 items-center justify-center gap-2 lg:flex"
-          >
-            {navigation.map(({ href, icon: Icon, label }) => (
-              <Link
-                className="flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
-                href={href}
-                key={href}
-              >
-                <Icon className="size-4" aria-hidden="true" />
-                {label}
-              </Link>
-            ))}
-          </nav>
+          {/* Center zone: global command search for signed-in users. */}
+          {user ? (
+            <div className="ml-auto w-10 min-w-0 sm:w-full sm:max-w-md lg:ml-0">
+              <CommandMenu role={user.role} />
+            </div>
+          ) : (
+            <nav
+              aria-label="Primary navigation"
+              className="hidden min-w-0 flex-1 items-center justify-center gap-2 lg:flex"
+            >
+              {navigation.map(({ href, icon: Icon, label }) => (
+                <Link
+                  className="flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                  href={href}
+                  key={href}
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* Right zone: alerts and account. */}
           <div className="ml-auto flex min-w-0 shrink-0 items-center gap-2">

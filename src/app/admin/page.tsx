@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { isMasterAdmin } from '@/lib/constants';
 import Navbar from '@/components/Navbar';
 import { AppSidebar } from '@/components/navigation/app-sidebar';
+import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { MobileDock } from '@/components/navigation/mobile-dock';
 import { WorkspaceActionHub } from '@/components/navigation/workspace-action-hub';
 import AdminClient from './AdminClient';
@@ -60,6 +61,7 @@ export default async function AdminPage() {
         <div className="mx-auto flex w-full max-w-7xl min-w-0 items-start gap-6 px-4 py-6 sm:px-6">
           <AppSidebar role={adminRole} />
           <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 md:pb-12">
+            <Breadcrumbs role={adminRole} />
             <WorkspaceActionHub
               mode="admin"
               userName={session.user?.name}

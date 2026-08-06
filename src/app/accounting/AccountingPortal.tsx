@@ -271,7 +271,7 @@ export function AccountingPortal({
         </div>
       )}
 
-      <Card>
+      <Card className="scroll-mt-28" id="invoice-generator">
         <CardHeader>
           <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300">
             <BadgeDollarSign className="size-5" aria-hidden="true" />
@@ -408,7 +408,7 @@ export function AccountingPortal({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="scroll-mt-28" id="payment-approvals">
         <CardHeader>
           <CardTitle className="text-xl">Online receipt approval desk</CardTitle>
           <p className="text-sm leading-6 text-zinc-400">Private screenshot uploads remain inaccessible until an authorized reviewer opens a short-lived preview.</p>
@@ -530,7 +530,7 @@ export function AccountingPortal({
         </CardContent>
       </Card>
 
-      <section className="flex min-w-0 flex-col gap-3">
+      <section className="flex min-w-0 scroll-mt-28 flex-col gap-3" id="revenue-ledger">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-black">Recent ledger</h2>
           <Badge variant="secondary">{ledger.length} records</Badge>
