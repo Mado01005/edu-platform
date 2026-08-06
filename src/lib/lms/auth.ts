@@ -2,7 +2,12 @@ import 'server-only';
 
 import { Prisma, type Role, type User } from '@prisma/client';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { cache } from 'react';
+import {
+  ACTIVE_SESSION_COOKIE,
+  hasValidActiveSession,
+} from '@/lib/lms/active-session';
 import { normalizePhoneNumber } from '@/lib/phone';
 import { getPrisma } from '@/lib/prisma';
 import { recordStudentActivity } from '@/lib/lms/health';
@@ -141,8 +146,8 @@ async function synchronizeLmsUser(
   return user;
 }
 
-export const getLmsUser = cache(
-  async function getLmsUser(): Promise<User | null> {
+export const getLmsUserWithoutActiveSessionCheck = cache(
+  async function getLmsUserWithoutActiveSessionCheck(): Promise<User | null> {
     const identity = await getVerifiedLmsIdentity();
 
     if (!identity) {
@@ -174,7 +179,29 @@ export const getLmsUser = cache(
       });
     }
 
+    return activeUser;
+  },
+);
+
+export type LmsAuthState = {
+  reason: 'concurrent_login' | 'signed_out' | null;
+  user: User | null;
+};
+
+export const getLmsAuthState = cache(
+  async function getLmsAuthState(): Promise<LmsAuthState> {
+    const activeUser = await getLmsUserWithoutActiveSessionCheck();
+    if (!activeUser) {
+      return { reason: 'signed_out', user: null };
+    }
+
     if (activeUser.role === 'STUDENT') {
+      const cookieStore = await cookies();
+      const cookieToken = cookieStore.get(ACTIVE_SESSION_COOKIE)?.value;
+      if (!hasValidActiveSession(activeUser, cookieToken)) {
+        return { reason: 'concurrent_login', user: null };
+      }
+
       try {
         await recordStudentActivity(activeUser.id);
       } catch (error) {
@@ -182,9 +209,13 @@ export const getLmsUser = cache(
       }
     }
 
-    return activeUser;
+    return { reason: null, user: activeUser };
   },
 );
+
+export const getLmsUser = cache(async function getLmsUser() {
+  return (await getLmsAuthState()).user;
+});
 
 export async function requireAdminPage() {
   return requireLmsPageRole(ADMIN_ROLES, 'admin-required');
@@ -213,13 +244,16 @@ export async function requireLmsRole(
 }
 
 export async function requireLmsPageUser() {
-  const user = await getLmsUser();
+  const state = await getLmsAuthState();
 
-  if (!user) {
+  if (!state.user) {
+    if (state.reason === 'concurrent_login') {
+      redirect('/lms/login?reason=concurrent_login');
+    }
     redirect('/lms/login');
   }
 
-  return user;
+  return state.user;
 }
 
 export async function requireLmsPageRole(

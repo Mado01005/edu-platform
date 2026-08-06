@@ -96,6 +96,11 @@ export function UserNav({ user }: UserNavProps) {
         return;
       }
 
+      await fetch('/api/lms/session', {
+        credentials: 'same-origin',
+        method: 'DELETE',
+      }).catch(() => undefined);
+
       const supabase = createSupabaseBrowserClient();
       const { error: signOutError } = await supabase.auth.signOut();
 

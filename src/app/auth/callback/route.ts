@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type { GradeLevel } from '@prisma/client';
 import { normalizePhoneNumber } from '@/lib/phone';
+import {
+  ACTIVE_SESSION_COOKIE,
+  activateStudentSession,
+  activeSessionCookieOptions,
+} from '@/lib/lms/active-session';
 import { recalculateStudentHealthScores } from '@/lib/lms/health';
 import { getPrisma } from '@/lib/prisma';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -100,6 +105,19 @@ export async function GET(request: NextRequest) {
         await recalculateStudentHealthScores([profile.id]);
 
         const response = NextResponse.redirect(new URL(next, request.url));
+        const activeSessionToken = await activateStudentSession(
+          profile,
+          request.headers.get('user-agent'),
+        );
+        if (activeSessionToken) {
+          response.cookies.set(
+            ACTIVE_SESSION_COOKIE,
+            activeSessionToken,
+            activeSessionCookieOptions(),
+          );
+        } else {
+          response.cookies.delete(ACTIVE_SESSION_COOKIE);
+        }
         response.headers.set(
           'Cache-Control',
           'private, no-cache, no-store, must-revalidate, max-age=0',

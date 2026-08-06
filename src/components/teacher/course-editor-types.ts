@@ -21,6 +21,10 @@ export type TeacherLesson = {
   textContent: string | null;
   title: string;
   videoUrl: string | null;
+  videoUrl360: string | null;
+  videoUrl480: string | null;
+  videoUrl720: string | null;
+  videoUrl1080: string | null;
 };
 
 export type TeacherModule = {

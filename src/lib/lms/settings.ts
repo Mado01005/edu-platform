@@ -7,7 +7,7 @@ import { normalizePhoneNumber } from '@/lib/phone';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export const PLAYBACK_SPEEDS = [1, 1.25, 1.5, 2] as const;
-export const VIDEO_QUALITIES = ['AUTO', '1080P', '720P', '480P'] as const;
+export const VIDEO_QUALITIES = ['AUTO', '1080P', '720P', '480P', '360P'] as const;
 
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
 export type VideoQuality = (typeof VIDEO_QUALITIES)[number];

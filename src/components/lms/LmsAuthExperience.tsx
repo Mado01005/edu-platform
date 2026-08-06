@@ -65,6 +65,20 @@ const RESEND_COOLDOWN_SECONDS = 60;
 const PHONE_AUTH_PENDING_MESSAGE =
   'Phone sign-in is temporarily unavailable while SMS and WhatsApp delivery is being configured. Please use Email / Password or Google instead.';
 
+async function activateAppSession(
+  supabase: ReturnType<typeof createSupabaseBrowserClient>,
+) {
+  const response = await fetch('/api/lms/session', {
+    credentials: 'same-origin',
+    method: 'POST',
+  });
+
+  if (response.ok) return;
+
+  await supabase.auth.signOut({ scope: 'local' }).catch(() => undefined);
+  throw new Error('The secure device session could not be started.');
+}
+
 function GoogleLogo() {
   return (
     <svg aria-hidden="true" className="size-5" viewBox="0 0 24 24">
@@ -193,6 +207,7 @@ export function LmsAuthExperience({
         return;
       }
 
+      await activateAppSession(supabase);
       router.push(nextPath);
       router.refresh();
     } catch {
@@ -255,6 +270,7 @@ export function LmsAuthExperience({
       }
 
       if (data.session) {
+        await activateAppSession(supabase);
         router.push('/dashboard');
         router.refresh();
         return;
@@ -378,6 +394,7 @@ export function LmsAuthExperience({
         return;
       }
 
+      await activateAppSession(supabase);
       router.push(nextPath);
       router.refresh();
     } catch {

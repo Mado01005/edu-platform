@@ -113,6 +113,9 @@ model User {
   notifyZoomClasses      Boolean                   @default(true) @map("notify_zoom_classes")
   notifyAnnouncements    Boolean                   @default(true) @map("notify_announcements")
   notifyDiscussions      Boolean                   @default(true) @map("notify_discussions")
+  activeSessionToken     String?                   @unique @map("active_session_token")
+  lastLoginDevice        String?                   @map("last_login_device")
+  lastLoginAt            DateTime?                 @map("last_login_at")
   role                   Role                      @default(STUDENT)
   status                 AccountStatus             @default(ACTIVE)
   gradeLevel             GradeLevel?               @map("grade_level")
@@ -211,6 +214,10 @@ model Lesson {
   position          Int
   contentType       ContentType            @default(VIMEO) @map("content_type")
   videoUrl          String?                @map("video_url")
+  videoUrl360       String?                @map("video_url_360")
+  videoUrl480       String?                @map("video_url_480")
+  videoUrl720       String?                @map("video_url_720")
+  videoUrl1080      String?                @map("video_url_1080")
   pdfUrl            String?                @map("pdf_url")
   textContent       String?                @map("text_content") @db.Text
   durationMin       Int?                   @map("duration_min")

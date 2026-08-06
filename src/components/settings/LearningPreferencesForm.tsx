@@ -21,6 +21,7 @@ const QUALITIES = [
   { label: '1080p', value: '1080P' },
   { label: '720p', value: '720P' },
   { label: '480p', value: '480P' },
+  { label: '360p (Data Saver)', value: '360P' },
 ] as const;
 
 interface LearningPreferencesFormProps {

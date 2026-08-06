@@ -61,6 +61,22 @@ function LessonEditor({ lesson }: { lesson: TeacherLesson }) {
         </label>
         {type === 'VIMEO' || type === 'YOUTUBE' ? <label className="text-xs font-bold text-zinc-400">Video URL<input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.videoUrl ?? ''} name="videoUrl" type="url" /></label> : null}
         {type === 'R2_VIDEO' ? <R2UploadField accept="video" initialUrl={lesson.videoUrl} label="Video file" lessonId={lesson.id} name="r2VideoUrl" /> : null}
+        {type === 'R2_VIDEO' ? (
+          <details className="rounded-xl border border-white/10 bg-black/40 p-3">
+            <summary className="cursor-pointer text-xs font-black text-zinc-300">
+              Optional low-bandwidth renditions
+            </summary>
+            <p className="mt-2 text-xs leading-5 text-zinc-500">
+              Upload pre-encoded versions to let students reduce mobile data use. Missing qualities remain unavailable in the player.
+            </p>
+            <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-2">
+              <R2UploadField accept="video" initialUrl={lesson.videoUrl360} label="360p · Data Saver" lessonId={lesson.id} name="videoUrl360" />
+              <R2UploadField accept="video" initialUrl={lesson.videoUrl480} label="480p · SD" lessonId={lesson.id} name="videoUrl480" />
+              <R2UploadField accept="video" initialUrl={lesson.videoUrl720} label="720p · HD" lessonId={lesson.id} name="videoUrl720" />
+              <R2UploadField accept="video" initialUrl={lesson.videoUrl1080} label="1080p · HD" lessonId={lesson.id} name="videoUrl1080" />
+            </div>
+          </details>
+        ) : null}
         {VIDEO_TYPES.includes(type) ? <label className="text-xs font-bold text-zinc-400">Duration (Minutes)<input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.durationMin ?? ''} max="1440" min="1" name="durationMin" type="number" /></label> : null}
         {type === 'PDF' ? <R2UploadField accept="pdf" initialUrl={lesson.pdfUrl} label="PDF resource" lessonId={lesson.id} name="pdfUrl" /> : null}
         {type === 'TEXT' ? <label className="text-xs font-bold text-zinc-400">Lesson Content<textarea className="mt-1 min-h-40 w-full min-w-0 resize-y rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.textContent ?? ''} name="textContent" /></label> : null}

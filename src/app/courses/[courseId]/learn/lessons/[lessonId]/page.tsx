@@ -172,6 +172,12 @@ export default async function LessonPlayerPage({
             key={lesson.id}
             lessonId={user.role === 'STUDENT' && !isPreview ? lesson.id : undefined}
             preferredQuality={user.defaultVideoQuality}
+            qualitySources={{
+              '1080p': lesson.videoUrl1080,
+              '360p': lesson.videoUrl360,
+              '480p': lesson.videoUrl480,
+              '720p': lesson.videoUrl720,
+            }}
             title={lesson.title}
             type={lesson.contentType}
             url={

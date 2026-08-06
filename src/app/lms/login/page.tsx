@@ -17,13 +17,22 @@ function safeMode(value: string | undefined): LoginMode {
 export default async function LmsLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; mode?: string; next?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    mode?: string;
+    next?: string;
+    reason?: string;
+  }>;
 }) {
-  const { error, mode, next } = await searchParams;
+  const { error, mode, next, reason } = await searchParams;
+  const initialError =
+    reason === 'concurrent_login'
+      ? '⚠️ Session Terminated — Your account was accessed from another device.'
+      : error?.slice(0, 240);
 
   return (
     <LmsAuthExperience
-      initialError={error?.slice(0, 240)}
+      initialError={initialError}
       initialMode={safeMode(mode)}
       nextPath={safeNextPath(next)}
     />

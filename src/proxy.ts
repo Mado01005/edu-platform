@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import type { Role } from '@prisma/client';
 import {
+  ACTIVE_SESSION_COOKIE,
+  hasValidActiveSession,
+} from '@/lib/lms/active-session-core';
+import {
   ACCOUNTING_ROLES,
   ADMIN_ROLES,
   SUPPORT_ROLES,
@@ -115,7 +119,7 @@ export async function proxy(request: NextRequest) {
 
     const { data: profile, error } = await supabase!
       .from('lms_users')
-      .select('role, status')
+      .select('active_session_token, role, status')
       .eq('supabase_id', userId)
       .maybeSingle();
 
@@ -132,6 +136,28 @@ export async function proxy(request: NextRequest) {
       const loginUrl = new URL('/lms/login', request.url);
       loginUrl.searchParams.set('error', 'Your account is unavailable.');
       return redirectWithSessionCookies(loginUrl, response);
+    }
+
+    if (
+      profile.role === 'STUDENT' &&
+      !hasValidActiveSession(
+        {
+          activeSessionToken: profile.active_session_token,
+          role: profile.role,
+        },
+        request.cookies.get(ACTIVE_SESSION_COOKIE)?.value,
+      )
+    ) {
+      await supabase!.auth.signOut({ scope: 'local' }).catch(() => undefined);
+      const loginUrl = new URL('/lms/login', request.url);
+      loginUrl.searchParams.set('reason', 'concurrent_login');
+      loginUrl.searchParams.set(
+        'next',
+        `${pathname}${request.nextUrl.search}`,
+      );
+      const redirectResponse = redirectWithSessionCookies(loginUrl, response);
+      redirectResponse.cookies.delete(ACTIVE_SESSION_COOKIE);
+      return redirectResponse;
     }
 
     if (

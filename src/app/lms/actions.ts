@@ -359,6 +359,22 @@ export async function updateLessonAction(
       : type === 'R2_VIDEO'
         ? assertR2PublicUrl(optionalString(formData, 'r2VideoUrl', 2_000))
         : null;
+  const videoUrl360 =
+    type === 'R2_VIDEO'
+      ? assertR2PublicUrl(optionalString(formData, 'videoUrl360', 2_000))
+      : null;
+  const videoUrl480 =
+    type === 'R2_VIDEO'
+      ? assertR2PublicUrl(optionalString(formData, 'videoUrl480', 2_000))
+      : null;
+  const videoUrl720 =
+    type === 'R2_VIDEO'
+      ? assertR2PublicUrl(optionalString(formData, 'videoUrl720', 2_000))
+      : null;
+  const videoUrl1080 =
+    type === 'R2_VIDEO'
+      ? assertR2PublicUrl(optionalString(formData, 'videoUrl1080', 2_000))
+      : null;
   if (
     (type === 'VIMEO' || type === 'YOUTUBE') &&
     videoUrl &&
@@ -405,6 +421,10 @@ export async function updateLessonAction(
         contentType: type,
         durationMin: ['VIMEO', 'YOUTUBE', 'R2_VIDEO'].includes(type) ? durationMin : null,
         videoUrl,
+        videoUrl360,
+        videoUrl480,
+        videoUrl720,
+        videoUrl1080,
         pdfUrl,
         textContent: type === 'TEXT' ? optionalString(formData, 'textContent') : null,
         isFree: formData.get('isFree') === 'on',
