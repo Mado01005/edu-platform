@@ -12,7 +12,6 @@ Copy the LMS variables from `.env.example` into `.env.local` and Vercel.
 - `DIRECT_URL` must use the direct database connection on port `5432`.
 - Keep the R2 access key and secret server-only.
 - `R2_PUBLIC_URL` must be the public or custom domain used for lesson playback.
-- `DIGITAL_CODE_SECRET` must be a stable random value of at least 32 characters.
 
 ## 2. Database and roles
 
@@ -51,6 +50,10 @@ POST /api/checkout/upload
 ```
 
 Teacher/admin content uploads are restricted to PDF and supported video types.
+Course and lesson attachments accept PDF, Word, PowerPoint, Excel, and ZIP files
+up to 100 MB. The browser uploads directly to R2, then registers the verified
+object through `POST /api/lms/materials`; authorized downloads use the
+short-lived `/api/lms/materials/[materialId]/download` route.
 Authenticated students may request private JPG, PNG, or WebP receipt uploads up
 to 8 MB. All object keys are randomized, checkout URLs expire after 10 minutes,
 and the browser must send the returned `Content-Type` header unchanged.
@@ -58,14 +61,14 @@ and the browser must send the returned `Content-Type` header unchanged.
 ## 4. Main routes
 
 - `/dashboard` — Supabase users see enrolled courses, completion, and live classes.
-- `/catalog` — published catalog, digital-code redemption, and online checkout.
+- `/catalog` — published catalog and online checkout.
 - `/courses/[courseId]/learn/lessons/[lessonId]` — video, resources, progress, and Q&A.
 - `/live-classes` — upcoming Zoom sessions.
 - `/mps` — PIN-protected parent activity, grades, subscriptions, and invoices.
-- `/admin/codes` — HMAC-backed 12-digit access-code batch generator.
 - `/accounting` — private receipt approval and payment-channel configuration.
 - `/teacher/courses` — teacher course list.
-- `/teacher/courses/[courseId]/edit` — curriculum, R2 uploads, and Zoom scheduler.
+- `/teacher/courses/[courseId]/edit` — curriculum, course and lesson materials,
+  R2 uploads, and Zoom scheduler.
 - `/lms/login` — Supabase password or Google sign-in.
 
 ## 5. Verification

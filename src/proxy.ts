@@ -16,6 +16,7 @@ const PUBLIC_PATHS = [
   '/login',
   '/lms/login',
   '/auth/callback',
+  '/auth/sync',
   '/catalog',
   '/mps',
   '/api/auth',
@@ -38,7 +39,6 @@ const LMS_PAGE_RULES: readonly {
   { route: '/admin/curriculum', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/admin/k12', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/admin/radar', allowed: ADMIN_ROLES, notice: 'admin-required' },
-  { route: '/admin/codes', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/support', allowed: SUPPORT_ROLES, notice: 'support-required' },
   {
     route: '/accounting',
@@ -119,7 +119,16 @@ export async function proxy(request: NextRequest) {
       .eq('supabase_id', userId)
       .maybeSingle();
 
-    if (error || !profile || profile.status !== 'ACTIVE') {
+    if (error || !profile) {
+      const syncUrl = new URL('/auth/sync', request.url);
+      syncUrl.searchParams.set(
+        'next',
+        `${pathname}${request.nextUrl.search}`,
+      );
+      return redirectWithSessionCookies(syncUrl, response);
+    }
+
+    if (profile.status !== 'ACTIVE') {
       const loginUrl = new URL('/lms/login', request.url);
       loginUrl.searchParams.set('error', 'Your account is unavailable.');
       return redirectWithSessionCookies(loginUrl, response);

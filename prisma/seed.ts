@@ -96,6 +96,7 @@ async function main() {
       where: { id: seedIds.course },
       create: {
         id: seedIds.course,
+        slug: 'full-stack-web-development-cloud-arch-seed',
         title: 'Full-Stack Web Development & Cloud Architecture',
         description:
           'Master Next.js App Router, Supabase PostgreSQL, Prisma ORM, and Cloudflare R2 storage.',
@@ -103,6 +104,7 @@ async function main() {
         teacherId: teacher.id,
       },
       update: {
+        slug: 'full-stack-web-development-cloud-arch-seed',
         title: 'Full-Stack Web Development & Cloud Architecture',
         description:
           'Master Next.js App Router, Supabase PostgreSQL, Prisma ORM, and Cloudflare R2 storage.',

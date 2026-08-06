@@ -9,7 +9,6 @@ import {
   BookOpen,
   GraduationCap,
   HardDrive,
-  KeyRound,
   Landmark,
   LayoutDashboard,
   LifeBuoy,
@@ -99,12 +98,6 @@ const sections: readonly {
         href: '/admin/radar',
         icon: Activity,
         label: 'Activity Radar',
-        roles: ADMIN_ROLES,
-      },
-      {
-        href: '/admin/codes',
-        icon: KeyRound,
-        label: 'Digital Prepaid Codes',
         roles: ADMIN_ROLES,
       },
       {

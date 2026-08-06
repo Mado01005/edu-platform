@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Role } from '@prisma/client';
-import { BookOpen, CalendarDays, ScanLine, Settings } from 'lucide-react';
-import { isAdminRole, isTeachingRole } from '@/lib/lms/roles';
+import { BookOpen, CalendarDays, LayoutDashboard, Settings } from 'lucide-react';
+import { isTeachingRole } from '@/lib/lms/roles';
 import { cn } from '@/lib/utils';
 
 export function MobileDock({ role }: { role: Role }) {
@@ -22,9 +22,9 @@ export function MobileDock({ role }: { role: Role }) {
       label: 'Live',
     },
     {
-      href: isAdminRole(role) ? '/admin/codes' : '/catalog#digital-code',
-      icon: ScanLine,
-      label: 'Scanner',
+      href: teaching ? '/teacher' : '/dashboard',
+      icon: LayoutDashboard,
+      label: teaching ? 'Studio' : 'Home',
     },
     {
       href: '/settings',

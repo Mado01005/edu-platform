@@ -13,6 +13,7 @@ import { DiscussionThread } from '@/components/lms/DiscussionThread';
 import { LmsHeader } from '@/components/lms/LmsHeader';
 import { UniversalVideoPlayer } from '@/components/lms/UniversalVideoPlayer';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
+import { MaterialList } from '@/components/course/material-list';
 import { requireLmsPageUser } from '@/lib/lms/auth';
 import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
@@ -31,6 +32,16 @@ export default async function LessonPlayerPage({
   const course = await getPrisma().course.findUnique({
     where: { id: courseId },
     include: {
+      materials: {
+        orderBy: { createdAt: 'desc' },
+        select: {
+          fileSize: true,
+          fileType: true,
+          fileUrl: true,
+          id: true,
+          title: true,
+        },
+      },
       enrollments: {
         where: { studentId: user.id },
         select: { id: true },
@@ -41,6 +52,16 @@ export default async function LessonPlayerPage({
           lessons: {
             orderBy: { position: 'asc' },
             include: {
+              materials: {
+                orderBy: { createdAt: 'desc' },
+                select: {
+                  fileSize: true,
+                  fileType: true,
+                  fileUrl: true,
+                  id: true,
+                  title: true,
+                },
+              },
               progress: {
                 where: { studentId: user.id },
                 select: { isCompleted: true, watchPercentage: true },
@@ -188,6 +209,11 @@ export default async function LessonPlayerPage({
               </a>
             </section>
           ) : null}
+
+          <MaterialList
+            courseMaterials={course.materials}
+            lessonMaterials={lesson.materials}
+          />
 
           <DiscussionThread discussions={discussions} lessonId={lesson.id} />
         </article>

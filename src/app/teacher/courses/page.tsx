@@ -1,7 +1,6 @@
 import Link from 'next/link';
-import { ArrowRight, BookPlus, Layers3 } from 'lucide-react';
-import { createCourseAction } from '@/app/lms/actions';
-import { Button } from '@/components/UI/button';
+import { ArrowRight, Layers3 } from 'lucide-react';
+import { CourseCreateForm } from '@/components/teacher/course-create-form';
 import { requireTeacherPage } from '@/lib/lms/auth';
 import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
@@ -28,31 +27,7 @@ export default async function TeacherCoursesPage() {
         </p>
       </section>
 
-      <form
-        action={createCourseAction}
-        className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4"
-        id="new-course"
-      >
-        <div className="flex items-center gap-2 text-sm font-black">
-          <BookPlus className="size-4 text-violet-300" />
-          Create a course
-        </div>
-        <input
-          className="w-full min-w-0 rounded-xl border border-white/10 bg-black px-3 py-3 text-sm outline-none focus:border-violet-400"
-          maxLength={200}
-          name="title"
-          placeholder="Course title"
-          required
-        />
-        <textarea
-          className="min-h-24 w-full min-w-0 resize-y rounded-xl border border-white/10 bg-black px-3 py-3 text-sm outline-none focus:border-violet-400"
-          name="description"
-          placeholder="What will students learn?"
-        />
-        <Button className="w-full" type="submit">
-          Create course
-        </Button>
-      </form>
+      <CourseCreateForm />
 
       <section className="flex w-full min-w-0 flex-col gap-3">
         {courses.length ? (

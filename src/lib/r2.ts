@@ -144,10 +144,23 @@ export async function getR2ObjectMetadata(key: string) {
 export async function getPresignedDownloadUrl(
   key: string,
   expiresIn = 300,
+  fileName?: string,
 ) {
+  const safeFileName = fileName
+    ?.replace(/[\r\n"\\]/g, '_')
+    .trim()
+    .slice(0, 180);
+  const contentDisposition = safeFileName
+    ? `attachment; filename="${safeFileName}"; filename*=UTF-8''${encodeURIComponent(safeFileName)}`
+    : undefined;
+
   return getSignedUrl(
     r2Client,
-    new GetObjectCommand({ Bucket: R2_BUCKET, Key: key }),
+    new GetObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      ResponseContentDisposition: contentDisposition,
+    }),
     { expiresIn },
   );
 }

@@ -1,12 +1,13 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useActionState, useMemo, useState } from 'react';
 import type { ContentType } from '@prisma/client';
 import {
   CalendarPlus,
   ChevronDown,
   GripVertical,
   FileText,
+  Paperclip,
   Plus,
   Radio,
   Save,
@@ -18,12 +19,17 @@ import {
   reorderLessonsAction,
   reorderModulesAction,
   scheduleZoomAction,
+  type CourseActionState,
   updateCourseAction,
   updateLessonAction,
 } from '@/app/lms/actions';
 import { R2UploadField } from '@/components/lms/R2UploadField';
 import { LocalDateTime } from '@/components/lms/LocalDateTime';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
+import {
+  MaterialUploader,
+  type TeacherMaterial,
+} from '@/components/teacher/material-uploader';
 
 type LessonData = {
   id: string;
@@ -34,6 +40,7 @@ type LessonData = {
   pdfUrl: string | null;
   textContent: string | null;
   isFree: boolean;
+  materials: TeacherMaterial[];
 };
 
 type ModuleData = {
@@ -51,6 +58,7 @@ type CourseData = {
   isPublished: boolean;
   priceEGP: string;
   priceUSD: string;
+  materials: TeacherMaterial[];
   modules: ModuleData[];
   zoomSessions: {
     id: string;
@@ -58,6 +66,11 @@ type CourseData = {
     startTime: string;
     duration: number;
   }[];
+};
+
+const initialCourseActionState: CourseActionState = {
+  error: null,
+  success: false,
 };
 
 function LessonEditor({
@@ -155,6 +168,13 @@ function LessonEditor({
           Save lesson
         </ActionSubmitButton>
       </form>
+      <div className="border-t border-white/10 p-3">
+        <MaterialUploader
+          initialMaterials={lesson.materials}
+          lessonId={lesson.id}
+          title="Lesson attachments"
+        />
+      </div>
     </details>
   );
 }
@@ -266,7 +286,10 @@ export function CourseBuilder({ course }: { course: CourseData }) {
   );
   const [draggedModule, setDraggedModule] = useState<string | null>(null);
   const [reorderError, setReorderError] = useState('');
-  const updateCourse = updateCourseAction.bind(null, course.id);
+  const [courseActionState, updateCourse] = useActionState(
+    updateCourseAction.bind(null, course.id),
+    initialCourseActionState,
+  );
   const createModule = createModuleAction.bind(null, course.id);
   const scheduleZoom = scheduleZoomAction.bind(null, course.id);
 
@@ -288,7 +311,7 @@ export function CourseBuilder({ course }: { course: CourseData }) {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
-      <nav aria-label="Course builder shortcuts" className="grid min-w-0 grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-zinc-950 p-2">
+      <nav aria-label="Course builder shortcuts" className="grid min-w-0 grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-zinc-950 p-2">
         <a className="flex min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-3 py-3 text-sm font-black text-black" href="#course-settings">
           <Settings className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate whitespace-nowrap">Course Settings</span>
@@ -296,6 +319,10 @@ export function CourseBuilder({ course }: { course: CourseData }) {
         <a className="flex min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-black text-zinc-300 hover:bg-white/5" href="#curriculum">
           <FileText className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate whitespace-nowrap">Lessons</span>
+        </a>
+        <a className="flex min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-black text-zinc-300 hover:bg-white/5" href="#course-materials">
+          <Paperclip className="size-4 shrink-0" aria-hidden="true" />
+          <span className="truncate whitespace-nowrap">Materials</span>
         </a>
       </nav>
 
@@ -349,6 +376,21 @@ export function CourseBuilder({ course }: { course: CourseData }) {
           <input defaultChecked={course.isPublished} name="isPublished" type="checkbox" />
           Published in catalog
         </label>
+        {courseActionState.error ? (
+          <p
+            aria-live="polite"
+            className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-200"
+          >
+            {courseActionState.error}
+          </p>
+        ) : courseActionState.success ? (
+          <p
+            aria-live="polite"
+            className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-200"
+          >
+            Course settings saved.
+          </p>
+        ) : null}
         <ActionSubmitButton
           className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black"
           pendingLabel="Saving course…"
@@ -356,6 +398,14 @@ export function CourseBuilder({ course }: { course: CourseData }) {
           <Save className="size-4" /> Save course
         </ActionSubmitButton>
       </form>
+
+      <div className="scroll-mt-24" id="course-materials">
+        <MaterialUploader
+          courseId={course.id}
+          initialMaterials={course.materials}
+          title="Course resources & attachments"
+        />
+      </div>
 
       <div className="flex scroll-mt-24 items-center justify-between" id="curriculum">
         <div>

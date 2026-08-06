@@ -21,7 +21,6 @@ import {
   type CourseCategory,
 } from '@/components/lms/CourseCard';
 import { LmsHeader } from '@/components/lms/LmsHeader';
-import { RedeemAccessCode } from '@/components/lms/RedeemAccessCode';
 import { getLmsUser } from '@/lib/lms/auth';
 import { serializeCoursePrice } from '@/lib/lms/catalog-serialization';
 import { withPrismaRetry } from '@/lib/prisma';
@@ -225,7 +224,6 @@ export default async function CatalogPage({
                   Browse catalog
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
-                {user?.role === 'STUDENT' ? <RedeemAccessCode /> : null}
                 <Link
                   className={buttonVariants({ size: 'lg', variant: 'outline' })}
                   href="/live-classes"

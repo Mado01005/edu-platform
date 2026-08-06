@@ -81,12 +81,6 @@ enum AttendanceType {
   ONLINE_QUIZ
 }
 
-enum AccessCodeStatus {
-  ACTIVE
-  REDEEMED
-  REVOKED
-}
-
 enum OnlinePaymentMethod {
   INSTAPAY
   VODAFONE_CASH
@@ -133,8 +127,6 @@ model User {
   parentLinks            ParentStudent[]           @relation("ParentLinks")
   studentParentLinks     ParentStudent[]           @relation("StudentLinks")
   digitalAttendance      DigitalAttendance[]
-  createdAccessCodes     DigitalAccessCode[]       @relation("CreatedAccessCodes")
-  redeemedAccessCodes    DigitalAccessCode[]       @relation("RedeemedAccessCodes")
   onlinePayments         OnlinePaymentSubmission[] @relation("StudentOnlinePayments")
   reviewedOnlinePayments OnlinePaymentSubmission[] @relation("ReviewedOnlinePayments")
   updatedPaymentChannels PaymentChannel[]          @relation("UpdatedPaymentChannels")
@@ -165,6 +157,7 @@ model Subject {
 model Course {
   id                String                    @id @default(cuid())
   title             String
+  slug              String                    @unique
   description       String?                   @db.Text
   imageUrl          String?                   @map("image_url")
   isPublished       Boolean                   @default(false) @map("is_published")
@@ -178,7 +171,7 @@ model Course {
   assignments       Assignment[]
   subscriptions     StudentSubscription[]
   digitalAttendance DigitalAttendance[]
-  accessCodes       DigitalAccessCode[]
+  materials         CourseMaterial[]
   onlinePayments    OnlinePaymentSubmission[]
   priceEGP          Decimal                   @default(0) @map("price_egp") @db.Decimal(12, 2)
   priceUSD          Decimal                   @default(0) @map("price_usd") @db.Decimal(12, 2)
@@ -217,10 +210,29 @@ model Lesson {
   progress          LessonProgress[]
   discussions       Discussion[]
   digitalAttendance DigitalAttendance[]
+  materials         CourseMaterial[]
   createdAt         DateTime            @default(now()) @map("created_at")
 
   @@index([moduleId, position])
   @@map("lms_lessons")
+}
+
+model CourseMaterial {
+  id        String   @id @default(cuid())
+  title     String
+  fileUrl   String   @map("file_url")
+  objectKey String   @unique @map("object_key")
+  fileType  String   @map("file_type")
+  fileSize  Int?     @map("file_size")
+  courseId  String?  @map("course_id")
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonId  String?  @map("lesson_id")
+  lesson    Lesson?  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([courseId, createdAt])
+  @@index([lessonId, createdAt])
+  @@map("lms_course_materials")
 }
 
 model Enrollment {
@@ -453,31 +465,6 @@ model DigitalAttendance {
   @@index([studentId, joinedAt])
   @@index([courseId, type, joinedAt])
   @@map("lms_digital_attendance")
-}
-
-model DigitalAccessCode {
-  id           String           @id @default(cuid())
-  codeHash     String           @unique @map("code_hash")
-  codeLastFour String           @map("code_last_four")
-  batchId      String           @map("batch_id")
-  courseId     String?          @map("course_id")
-  course       Course?          @relation(fields: [courseId], references: [id], onDelete: Restrict)
-  gradeLevel   GradeLevel?      @map("grade_level")
-  status       AccessCodeStatus @default(ACTIVE)
-  createdById  String           @map("created_by_id")
-  createdBy    User             @relation("CreatedAccessCodes", fields: [createdById], references: [id], onDelete: Restrict)
-  redeemedById String?          @map("redeemed_by_id")
-  redeemedBy   User?            @relation("RedeemedAccessCodes", fields: [redeemedById], references: [id], onDelete: Restrict)
-  redeemedAt   DateTime?        @map("redeemed_at")
-  expiresAt    DateTime?        @map("expires_at")
-  createdAt    DateTime         @default(now()) @map("created_at")
-
-  @@index([batchId])
-  @@index([status, createdAt])
-  @@index([courseId])
-  @@index([gradeLevel])
-  @@index([redeemedById])
-  @@map("lms_digital_access_codes")
 }
 
 model PaymentChannel {

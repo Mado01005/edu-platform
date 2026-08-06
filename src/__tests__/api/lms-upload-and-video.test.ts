@@ -2,6 +2,7 @@ const mockRequireLmsRole = jest.fn();
 const mockGetPresignedUploadUrl = jest.fn();
 const mockGetPublicUrl = jest.fn();
 const mockLessonFindFirst = jest.fn();
+const mockCourseFindFirst = jest.fn();
 
 class MockLmsAuthError extends Error {
   constructor(message: string, public readonly status = 401) {
@@ -21,6 +22,7 @@ jest.mock('@/lib/r2', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   getPrisma: () => ({
+    course: { findFirst: mockCourseFindFirst },
     lesson: { findFirst: mockLessonFindFirst },
   }),
 }));
@@ -43,6 +45,7 @@ describe('LMS R2 presigned upload', () => {
       role: 'TEACHER',
     });
     mockLessonFindFirst.mockResolvedValue({ id: 'lesson_1' });
+    mockCourseFindFirst.mockResolvedValue({ id: 'course_1' });
     mockGetPresignedUploadUrl.mockResolvedValue(
       'https://account.r2.cloudflarestorage.com/signed',
     );
@@ -150,6 +153,38 @@ describe('LMS R2 presigned upload', () => {
       900,
     );
     expect(body.requiredHeaders).toEqual({ 'Content-Type': 'video/mp4' });
+  });
+
+  it('allows a teacher to prepare a course material upload', async () => {
+    mockGetPublicUrl.mockReturnValue(
+      'https://media.example.com/lms/teacher_1/materials/course/course_1/slides.pptx',
+    );
+    const response = await createPresignedUpload(
+      uploadRequest({
+        contentType:
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        courseId: 'course_1',
+        fileName: 'Week 1 Slides.pptx',
+        size: 2_048,
+        uploadKind: 'material',
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(mockCourseFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'course_1', teacherId: 'teacher_1' },
+      }),
+    );
+    expect(mockGetPresignedUploadUrl).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^lms\/teacher_1\/materials\/course\/course_1\/[a-f0-9-]+-week-1-slides\.pptx$/,
+      ),
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      900,
+    );
+    expect(body.fileType).toBe('SLIDES');
   });
 });
 

@@ -1,8 +1,11 @@
 'use server';
 
 import { Prisma, type ContentType, type Role } from '@prisma/client';
+import { nanoid } from 'nanoid';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { redirect } from 'next/navigation';
+import { z } from 'zod';
 import { getPrisma } from '@/lib/prisma';
 import {
   LmsAuthError,
@@ -21,6 +24,113 @@ const CONTENT_TYPES = new Set<ContentType>([
   'TEXT',
 ]);
 
+const nullableDescription = z
+  .string()
+  .trim()
+  .max(10_000, 'Description must be 10,000 characters or fewer.')
+  .transform((value) => value || null);
+const moneyString = z
+  .string()
+  .trim()
+  .regex(
+    /^\d{1,9}(?:\.\d{1,2})?$/,
+    'Use a non-negative amount with up to two decimal places.',
+  );
+const createCourseSchema = z.object({
+  description: nullableDescription,
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Course title is required.')
+    .max(200, 'Course title must be 200 characters or fewer.'),
+});
+const updateCourseSchema = createCourseSchema.extend({
+  imageUrl: z
+    .string()
+    .trim()
+    .max(2_000, 'Course image URL is too long.')
+    .transform((value) => value || null),
+  isPublished: z.boolean(),
+  priceEGP: moneyString,
+  priceUSD: moneyString,
+});
+
+export type CourseActionState = {
+  error: string | null;
+  success: boolean;
+};
+
+function courseActionFailure(error: unknown): CourseActionState {
+  if (isRedirectError(error)) throw error;
+
+  console.error('Course Save Error:', error);
+  return {
+    error:
+      error instanceof Error
+        ? error.message
+        : 'Failed to save course.',
+    success: false,
+  };
+}
+
+function parseCourseInput<T extends z.ZodTypeAny>(
+  schema: T,
+  input: unknown,
+): z.infer<T> {
+  const result = schema.safeParse(input);
+
+  if (!result.success) {
+    throw new Error(
+      result.error.issues[0]?.message ?? 'Enter valid course details.',
+    );
+  }
+
+  return result.data;
+}
+
+function slugBase(title: string) {
+  return (
+    title
+      .normalize('NFKD')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 170) || 'course'
+  );
+}
+
+async function createCourseWithUniqueSlug({
+  description,
+  teacherId,
+  title,
+}: {
+  description: string | null;
+  teacherId: string;
+  title: string;
+}) {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      return await getPrisma().course.create({
+        data: {
+          description,
+          slug: `${slugBase(title)}-${nanoid(4).toLowerCase()}`,
+          teacherId,
+          title,
+        },
+      });
+    } catch (error) {
+      if (
+        !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+        error.code !== 'P2002'
+      ) {
+        throw error;
+      }
+    }
+  }
+
+  throw new Error('Unable to create a unique course address. Try again.');
+}
+
 function requiredString(formData: FormData, name: string, max = 200) {
   const value = formData.get(name);
 
@@ -36,14 +146,6 @@ function optionalString(formData: FormData, name: string, max = 10_000) {
   return typeof value === 'string' && value.trim()
     ? value.trim().slice(0, max)
     : null;
-}
-
-function nonNegativeMoney(formData: FormData, name: string) {
-  const value = requiredString(formData, name, 20);
-  if (!/^\d{1,9}(?:\.\d{1,2})?$/.test(value)) {
-    throw new Error(`${name} must be a non-negative amount with up to two decimals.`);
-  }
-  return new Prisma.Decimal(value);
 }
 
 function contentType(formData: FormData): ContentType {
@@ -100,49 +202,71 @@ async function teacherCourse(courseId: string) {
   return { course, teacher };
 }
 
-export async function createCourseAction(formData: FormData) {
-  const teacher = await requireTeacher();
-  const course = await getPrisma().course.create({
-    data: {
-      title: requiredString(formData, 'title'),
-      description: optionalString(formData, 'description'),
+export async function createCourseAction(
+  _previousState: CourseActionState,
+  formData: FormData,
+): Promise<CourseActionState> {
+  try {
+    const input = parseCourseInput(createCourseSchema, {
+      description: formData.get('description') ?? '',
+      title: formData.get('title'),
+    });
+    const teacher = await requireTeacher();
+    const course = await createCourseWithUniqueSlug({
+      ...input,
       teacherId: teacher.id,
-    },
-  });
+    });
 
-  redirect(`/teacher/courses/${course.id}/edit`);
+    redirect(`/teacher/courses/${course.id}/edit`);
+  } catch (error) {
+    return courseActionFailure(error);
+  }
 }
 
-export async function updateCourseAction(courseId: string, formData: FormData) {
-  await teacherCourse(courseId);
-  const isPublished = formData.get('isPublished') === 'on';
-
-  if (isPublished) {
-    const lessonCount = await getPrisma().lesson.count({
-      where: { module: { courseId } },
+export async function updateCourseAction(
+  courseId: string,
+  _previousState: CourseActionState,
+  formData: FormData,
+): Promise<CourseActionState> {
+  try {
+    const input = parseCourseInput(updateCourseSchema, {
+      description: formData.get('description') ?? '',
+      imageUrl: formData.get('imageUrl') ?? '',
+      isPublished: formData.get('isPublished') === 'on',
+      priceEGP: formData.get('priceEGP'),
+      priceUSD: formData.get('priceUSD'),
+      title: formData.get('title'),
     });
-    if (!lessonCount) {
-      throw new Error('Add at least one lesson before publishing this course.');
-    }
-  }
+    await teacherCourse(courseId);
 
-  await getPrisma().course.update({
-    where: { id: courseId },
-    data: {
-      title: requiredString(formData, 'title'),
-      description: optionalString(formData, 'description'),
-      imageUrl: assertR2PublicUrl(
-        optionalString(formData, 'imageUrl', 2_000),
-      ),
-      isPublished,
-      priceEGP: nonNegativeMoney(formData, 'priceEGP'),
-      priceUSD: nonNegativeMoney(formData, 'priceUSD'),
-    },
-  });
-  revalidatePath(`/teacher/courses/${courseId}/edit`);
-  revalidatePath('/teacher/courses');
-  revalidatePath('/catalog');
-  revalidateTag('catalog', 'max');
+    if (input.isPublished) {
+      const lessonCount = await getPrisma().lesson.count({
+        where: { module: { courseId } },
+      });
+      if (!lessonCount) {
+        throw new Error('Add at least one lesson before publishing this course.');
+      }
+    }
+
+    await getPrisma().course.update({
+      where: { id: courseId },
+      data: {
+        description: input.description,
+        imageUrl: assertR2PublicUrl(input.imageUrl),
+        isPublished: input.isPublished,
+        priceEGP: new Prisma.Decimal(input.priceEGP),
+        priceUSD: new Prisma.Decimal(input.priceUSD),
+        title: input.title,
+      },
+    });
+    revalidatePath(`/teacher/courses/${courseId}/edit`);
+    revalidatePath('/teacher/courses');
+    revalidatePath('/catalog');
+    revalidateTag('catalog', 'max');
+    return { error: null, success: true };
+  } catch (error) {
+    return courseActionFailure(error);
+  }
 }
 
 export async function createModuleAction(courseId: string, formData: FormData) {
@@ -367,7 +491,7 @@ export async function enrollCourseAction(courseId: string) {
 
   if (!course) throw new Error('Course not found.');
   if (course.priceEGP.gt(0) || course.priceUSD.gt(0)) {
-    throw new LmsAuthError('Paid courses require an approved online payment or access code.', 409);
+    throw new LmsAuthError('Paid courses require an approved online payment.', 409);
   }
 
   await getPrisma().enrollment.upsert({

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { Role, User } from '@prisma/client';
+import { Prisma, type Role, type User } from '@prisma/client';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import { normalizePhoneNumber } from '@/lib/phone';
@@ -10,6 +10,7 @@ import {
   ADMIN_ROLES,
   TEACHING_ROLES,
   hasLmsRole,
+  isLmsRole,
 } from '@/lib/lms/roles';
 import { createSupabaseServerClient } from '@/lib/supabase/ssr-server';
 
@@ -34,6 +35,16 @@ function readDisplayName(claims: Record<string, unknown>) {
   return typeof candidate === 'string' && candidate.trim()
     ? candidate.trim()
     : null;
+}
+
+function readAppRole(claims: Record<string, unknown>): Role {
+  const metadata = claims.app_metadata;
+  const role =
+    metadata && typeof metadata === 'object'
+      ? Reflect.get(metadata, 'role')
+      : null;
+
+  return isLmsRole(role) ? role : 'STUDENT';
 }
 
 export async function getVerifiedLmsIdentity() {
@@ -68,7 +79,66 @@ export async function getVerifiedLmsIdentity() {
     email,
     name: readDisplayName(claims),
     phoneNumber,
+    role: readAppRole(claims),
   };
+}
+
+async function synchronizeLmsUser(
+  identity: NonNullable<Awaited<ReturnType<typeof getVerifiedLmsIdentity>>>,
+) {
+  const prisma = getPrisma();
+  let user = await prisma.user.findUnique({
+    where: { supabaseId: identity.supabaseId },
+  });
+
+  if (user) return user;
+
+  const existingEmailUser = await prisma.user.findUnique({
+    where: { email: identity.email },
+  });
+
+  if (existingEmailUser) {
+    return prisma.user.update({
+      where: { id: existingEmailUser.id },
+      data: {
+        supabaseId: identity.supabaseId,
+        ...(identity.name ? { name: identity.name } : {}),
+        ...(identity.phoneNumber
+          ? { phoneNumber: identity.phoneNumber }
+          : {}),
+      },
+    });
+  }
+
+  try {
+    user = await prisma.user.create({
+      data: {
+        email: identity.email,
+        name: identity.name,
+        phoneNumber: identity.phoneNumber,
+        role: identity.role,
+        supabaseId: identity.supabaseId,
+      },
+    });
+  } catch (error) {
+    if (
+      !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+      error.code !== 'P2002'
+    ) {
+      throw error;
+    }
+
+    user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { supabaseId: identity.supabaseId },
+          { email: identity.email },
+        ],
+      },
+    });
+  }
+
+  return user;
 }
 
 export const getLmsUser = cache(
@@ -79,9 +149,7 @@ export const getLmsUser = cache(
       return null;
     }
 
-    const user = await getPrisma().user.findUnique({
-      where: { supabaseId: identity.supabaseId },
-    });
+    const user = await synchronizeLmsUser(identity);
 
     if (!user || user.status !== 'ACTIVE') {
       return null;

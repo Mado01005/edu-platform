@@ -63,7 +63,7 @@ export async function POST(req: Request) {
           sender_email: 'SYSTEM_ROBOT',
           receiver_email: ADMIN_EMAIL,
           subject: `[System Alert] New Student Registration: ${session.user.email}`,
-          body: `Access Code Accepted.\n\nA new student completed onboarding.\n\nStudent Email: ${session.user.email}\nRegistry Name: ${session.user.name || 'Unknown User'}\nTimestamp: ${new Date().toISOString()}\n\nYou may now grant them instructor privileges from the Admin Dashboard if necessary.`,
+          body: `Onboarding completed.\n\nA new student completed onboarding.\n\nStudent Email: ${session.user.email}\nRegistry Name: ${session.user.name || 'Unknown User'}\nTimestamp: ${new Date().toISOString()}\n\nYou may now grant them instructor privileges from the Admin Dashboard if necessary.`,
           is_read: false
         });
       }

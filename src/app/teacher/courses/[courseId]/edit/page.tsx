@@ -21,9 +21,35 @@ export default async function EditCoursePage({
       ...(isAdminRole(teacher.role) ? {} : { teacherId: teacher.id }),
     },
     include: {
+      materials: {
+        orderBy: { createdAt: 'desc' },
+        select: {
+          fileSize: true,
+          fileType: true,
+          fileUrl: true,
+          id: true,
+          title: true,
+        },
+      },
       modules: {
         orderBy: { position: 'asc' },
-        include: { lessons: { orderBy: { position: 'asc' } } },
+        include: {
+          lessons: {
+            orderBy: { position: 'asc' },
+            include: {
+              materials: {
+                orderBy: { createdAt: 'desc' },
+                select: {
+                  fileSize: true,
+                  fileType: true,
+                  fileUrl: true,
+                  id: true,
+                  title: true,
+                },
+              },
+            },
+          },
+        },
       },
       zoomSessions: { orderBy: { startTime: 'asc' } },
     },

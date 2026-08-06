@@ -50,4 +50,26 @@ describe('ERP proxy role redirects', () => {
       );
     },
   );
+
+  it('routes a verified session with a missing profile through Prisma sync', async () => {
+    const profileQuery = {
+      eq: jest.fn().mockReturnThis(),
+      maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+      select: jest.fn().mockReturnThis(),
+    };
+    mockGetSupabaseRequestContext.mockResolvedValue({
+      response: { cookies: { getAll: () => [] } },
+      supabase: { from: jest.fn(() => profileQuery) },
+      userId: 'authenticated-user-id',
+    });
+
+    const response = await proxy(
+      new NextRequest('https://www.edu-platform.me/teacher/courses'),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toBe(
+      'https://www.edu-platform.me/auth/sync?next=%2Fteacher%2Fcourses',
+    );
+  });
 });

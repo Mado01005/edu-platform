@@ -6,8 +6,11 @@ const mockCourseFindFirst = jest.fn();
 const mockEnrollmentUpsert = jest.fn();
 const mockLessonFindUnique = jest.fn();
 const mockProgressUpsert = jest.fn();
+const mockRedirect = jest.fn();
+const mockIsRedirectError = jest.fn();
 
 jest.mock('server-only', () => ({}));
+jest.mock('nanoid', () => ({ nanoid: () => 'a1b2' }));
 
 class MockLmsAuthError extends Error {
   constructor(message: string, public readonly status = 401) {
@@ -39,7 +42,11 @@ jest.mock('next/cache', () => ({
 }));
 
 jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+  redirect: mockRedirect,
+}));
+
+jest.mock('next/dist/client/components/redirect-error', () => ({
+  isRedirectError: mockIsRedirectError,
 }));
 
 import {
@@ -52,6 +59,7 @@ import {
 describe('LMS Server Action role boundaries', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsRedirectError.mockReturnValue(false);
     mockRequireLmsRole.mockRejectedValue(
       new MockLmsAuthError('Forbidden', 403),
     );
@@ -77,8 +85,11 @@ describe('LMS Server Action role boundaries', () => {
     const formData = new FormData();
     formData.set('title', 'Unauthorized course');
 
-    await expect(createCourseAction(formData)).rejects.toMatchObject({
-      status: 403,
+    await expect(
+      createCourseAction({ error: null, success: false }, formData),
+    ).resolves.toMatchObject({
+      error: 'Forbidden',
+      success: false,
     });
     expect(mockRequireLmsRole).toHaveBeenCalledWith([
       'SUPER_ADMIN',
@@ -86,6 +97,45 @@ describe('LMS Server Action role boundaries', () => {
       'TEACHER',
     ]);
     expect(mockCourseCreate).not.toHaveBeenCalled();
+  });
+
+  it('creates collision-resistant course slugs for valid teacher input', async () => {
+    mockRequireLmsRole.mockResolvedValue({ id: 'teacher-1', role: 'TEACHER' });
+    mockCourseCreate.mockResolvedValue({ id: 'course-1' });
+    const formData = new FormData();
+    formData.set('title', 'Physics Foundations');
+    formData.set('description', 'A practical physics course.');
+
+    await createCourseAction(
+      { error: null, success: false },
+      formData,
+    );
+
+    expect(mockCourseCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        description: 'A practical physics course.',
+        slug: expect.stringMatching(/^physics-foundations-[a-z0-9_-]{4}$/),
+        teacherId: 'teacher-1',
+        title: 'Physics Foundations',
+      }),
+    });
+    expect(mockRedirect).toHaveBeenCalledWith('/teacher/courses/course-1/edit');
+  });
+
+  it('rethrows Next.js redirect exceptions instead of reporting a save crash', async () => {
+    const redirectError = new Error('NEXT_REDIRECT');
+    mockRequireLmsRole.mockResolvedValue({ id: 'teacher-1', role: 'TEACHER' });
+    mockCourseCreate.mockResolvedValue({ id: 'course-1' });
+    mockRedirect.mockImplementation(() => {
+      throw redirectError;
+    });
+    mockIsRedirectError.mockImplementation((error) => error === redirectError);
+    const formData = new FormData();
+    formData.set('title', 'Redirect-safe course');
+
+    await expect(
+      createCourseAction({ error: null, success: false }, formData),
+    ).rejects.toBe(redirectError);
   });
 
   it('requires student role before enrolling', async () => {
@@ -105,7 +155,7 @@ describe('LMS Server Action role boundaries', () => {
     });
 
     await expect(enrollCourseAction('course-1')).rejects.toMatchObject({
-      message: 'Paid courses require an approved online payment or access code.',
+      message: 'Paid courses require an approved online payment.',
       status: 409,
     });
     expect(mockEnrollmentUpsert).not.toHaveBeenCalled();
