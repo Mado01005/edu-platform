@@ -9,8 +9,8 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { buttonVariants } from '@/components/UI/button';
-import { LmsAccountMenu } from '@/components/lms/LmsAccountMenu';
 import { NotificationBell } from '@/components/navbar/notification-bell';
+import { UserNav } from '@/components/navbar/user-nav';
 import { cn } from '@/lib/utils';
 
 interface LmsHeaderProps {
@@ -68,7 +68,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
             {user ? (
               <div className="flex min-w-0 items-center gap-2 whitespace-nowrap">
                 <NotificationBell />
-                <LmsAccountMenu user={user} />
+                <UserNav user={user} />
               </div>
             ) : (
               <div className="flex min-w-0 items-center gap-2 whitespace-nowrap">

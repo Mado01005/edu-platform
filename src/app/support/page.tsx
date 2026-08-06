@@ -18,7 +18,7 @@ import {
   resendNotificationAction,
   resetStudentPasswordAction,
 } from '@/app/support/actions';
-import { LmsHeader } from '@/components/lms/LmsHeader';
+import { PortalShell } from '@/components/erp/PortalShell';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { Badge } from '@/components/UI/badge';
 import { Button, buttonVariants } from '@/components/UI/button';
@@ -94,50 +94,43 @@ export default async function SupportPortalPage({
 }: {
   searchParams: Promise<SupportSearchParams>;
 }) {
-  const operator = await requireLmsPageRole(
-    SUPPORT_ROLES,
-    'support-required',
-  );
-  const params = await searchParams;
+  const [operator, params] = await Promise.all([
+    requireLmsPageRole(SUPPORT_ROLES, 'support-required'),
+    searchParams,
+  ]);
   const query = firstValue(params.q).trim().slice(0, 160);
   const selectedStudentId = firstValue(params.student).trim().slice(0, 100);
   const noticeCode = firstValue(params.notice);
   const errorCode = firstValue(params.error);
-  let searchError = '';
-  let students: Awaited<ReturnType<typeof searchStudentsForSupport>> = [];
-
-  if (query) {
-    try {
-      students = await searchStudentsForSupport(query);
-    } catch (error) {
-      searchError =
-        error instanceof SupportPortalError
-          ? ERROR_MESSAGES[error.code] ?? ERROR_MESSAGES['operation-failed']
-          : ERROR_MESSAGES['operation-failed'];
-    }
-  }
-
-  let selectedStudent: Awaited<
-    ReturnType<typeof getStudentSupportRecord>
-  > = null;
-
-  if (selectedStudentId) {
-    try {
-      selectedStudent = await getStudentSupportRecord(selectedStudentId);
-    } catch {
-      selectedStudent = null;
-    }
-  }
+  const [studentSearchResult, selectedStudentResult] =
+    await Promise.allSettled([
+      query ? searchStudentsForSupport(query) : Promise.resolve([]),
+      selectedStudentId
+        ? getStudentSupportRecord(selectedStudentId)
+        : Promise.resolve(null),
+    ]);
+  const students =
+    studentSearchResult.status === 'fulfilled'
+      ? studentSearchResult.value
+      : [];
+  const selectedStudent =
+    selectedStudentResult.status === 'fulfilled'
+      ? selectedStudentResult.value
+      : null;
+  const searchError =
+    studentSearchResult.status === 'rejected'
+      ? studentSearchResult.reason instanceof SupportPortalError
+        ? ERROR_MESSAGES[studentSearchResult.reason.code] ??
+          ERROR_MESSAGES['operation-failed']
+        : ERROR_MESSAGES['operation-failed']
+      : '';
 
   const noticeMessage = NOTICE_MESSAGES[noticeCode];
   const errorMessage = ERROR_MESSAGES[errorCode] ?? searchError;
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-start overflow-x-hidden bg-black px-4 text-white">
+    <PortalShell user={operator}>
       <div className="box-border flex w-full max-w-md min-w-0 flex-col gap-4">
-        <LmsHeader user={operator} />
-
-        <main className="flex w-full min-w-0 flex-col gap-4 pb-20">
           <header className="w-full min-w-0 rounded-3xl border border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.2),transparent_56%)] p-5">
             <span className="flex size-11 items-center justify-center rounded-2xl bg-cyan-300 text-black shadow-lg shadow-cyan-500/20">
               <Headphones className="size-5" aria-hidden="true" />
@@ -549,8 +542,7 @@ export default async function SupportPortalPage({
               </CardHeader>
             </Card>
           )}
-        </main>
       </div>
-    </div>
+    </PortalShell>
   );
 }

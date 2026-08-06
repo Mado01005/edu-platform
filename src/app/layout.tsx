@@ -97,7 +97,9 @@ export default async function RootLayout({
           ) : null}
 
           <SpotifyProvider accessToken={spotifyToken} refreshToken={spotifyRefreshToken} tokenExpiresAt={spotifyTokenExpiresAt}>
-            {children}
+            <div className="flex min-h-screen w-full min-w-0">
+              <div className="min-w-0 flex-1">{children}</div>
+            </div>
             {session ? <MusicPlayer /> : null}
           </SpotifyProvider>
         </Providers>

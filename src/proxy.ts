@@ -35,6 +35,7 @@ const LMS_PAGE_RULES: readonly {
   { route: '/teacher', allowed: TEACHING_ROLES, notice: 'teacher-required' },
   { route: '/admin/users', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/admin/storage', allowed: ADMIN_ROLES, notice: 'admin-required' },
+  { route: '/admin/curriculum', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/admin/k12', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/admin/radar', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/admin/codes', allowed: ADMIN_ROLES, notice: 'admin-required' },
@@ -92,6 +93,7 @@ export async function proxy(request: NextRequest) {
     matchesRoute(pathname, '/settings') ||
     matchesRoute(pathname, '/lms/profile') ||
     matchesRoute(pathname, '/courses') ||
+    matchesRoute(pathname, '/live') ||
     matchesRoute(pathname, '/live-classes');
   const isDashboardRoute = matchesRoute(pathname, '/dashboard');
 

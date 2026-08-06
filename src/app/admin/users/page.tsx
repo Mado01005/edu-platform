@@ -16,49 +16,61 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminUsersPage() {
   const admin = await requireAdminPage();
-  const users = await getPrisma().user.findMany({
-    orderBy: { createdAt: 'desc' },
-    select: {
-      _count: { select: { enrollments: true } },
-      createdAt: true,
-      email: true,
-      id: true,
-      name: true,
-      phoneNumber: true,
-      role: true,
-      status: true,
-      supabaseId: true,
-    },
-  });
-  const parentLinks = await getPrisma().parentStudent.findMany({
-    include: {
-      parent: { select: { email: true, id: true, name: true, phoneNumber: true } },
-      student: { select: { email: true, id: true, name: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const prisma = getPrisma();
+  const [usersResult, parentLinksResult, authUsersResult, storageResult] =
+    await Promise.allSettled([
+      prisma.user.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          _count: { select: { enrollments: true } },
+          createdAt: true,
+          email: true,
+          id: true,
+          name: true,
+          phoneNumber: true,
+          role: true,
+          status: true,
+          supabaseId: true,
+        },
+      }),
+      prisma.parentStudent.findMany({
+        include: {
+          parent: {
+            select: {
+              email: true,
+              id: true,
+              name: true,
+              phoneNumber: true,
+            },
+          },
+          student: { select: { email: true, id: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      listAllSupabaseAuthUsers(),
+      getR2StorageSnapshot(0),
+    ]);
 
-  let authStatusAvailable = true;
-  let storageSnapshot: Awaited<
-    ReturnType<typeof getR2StorageSnapshot>
-  > | null = null;
-  let authUsersById = new Map<
-    string,
-    Awaited<ReturnType<typeof listAllSupabaseAuthUsers>>[number]
-  >();
+  if (usersResult.status === 'rejected') throw usersResult.reason;
+  if (parentLinksResult.status === 'rejected') throw parentLinksResult.reason;
 
-  try {
-    const authUsers = await listAllSupabaseAuthUsers();
-    authUsersById = new Map(authUsers.map((user) => [user.id, user]));
-  } catch (error) {
-    authStatusAvailable = false;
-    console.error('[LMS_ADMIN_USER_DIRECTORY]', error);
+  const users = usersResult.value;
+  const parentLinks = parentLinksResult.value;
+  const authStatusAvailable = authUsersResult.status === 'fulfilled';
+  const storageSnapshot =
+    storageResult.status === 'fulfilled' ? storageResult.value : null;
+  const authUsersById = new Map(
+    authUsersResult.status === 'fulfilled'
+      ? authUsersResult.value.map((user) => [user.id, user])
+      : [],
+  );
+
+  if (authUsersResult.status === 'rejected') {
+    console.error('[LMS_ADMIN_USER_DIRECTORY]', authUsersResult.reason);
   }
 
-  try {
-    storageSnapshot = await getR2StorageSnapshot(0);
-  } catch (error) {
-    console.error('[LMS_ADMIN_STORAGE_WIDGET]', error);
+  if (storageResult.status === 'rejected') {
+    console.error('[LMS_ADMIN_STORAGE_WIDGET]', storageResult.reason);
   }
 
   const records: AdminUserRecord[] = users.map((user) => {

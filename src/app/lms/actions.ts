@@ -1,7 +1,7 @@
 'use server';
 
 import { Prisma, type ContentType, type Role } from '@prisma/client';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getPrisma } from '@/lib/prisma';
 import {
@@ -142,6 +142,7 @@ export async function updateCourseAction(courseId: string, formData: FormData) {
   revalidatePath(`/teacher/courses/${courseId}/edit`);
   revalidatePath('/teacher/courses');
   revalidatePath('/catalog');
+  revalidateTag('catalog', 'max');
 }
 
 export async function createModuleAction(courseId: string, formData: FormData) {
@@ -379,6 +380,7 @@ export async function enrollCourseAction(courseId: string) {
 
   const firstLesson = course.modules.flatMap((module) => module.lessons)[0];
   revalidatePath('/catalog');
+  revalidateTag('catalog', 'max');
   redirect(
     firstLesson
       ? `/courses/${courseId}/learn/lessons/${firstLesson.id}`

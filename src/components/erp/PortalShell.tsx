@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { LmsHeader } from '@/components/lms/LmsHeader';
 import { AppSidebar } from '@/components/navigation/app-sidebar';
 import { MobileDock } from '@/components/navigation/mobile-dock';
-import { isTeachingRole } from '@/lib/lms/roles';
+import { isWorkspaceRole } from '@/lib/lms/roles';
 
 export function PortalShell({
   children,
@@ -12,7 +12,7 @@ export function PortalShell({
   children: ReactNode;
   user: Pick<User, 'avatarUrl' | 'email' | 'name' | 'role'>;
 }) {
-  const showWorkspaceSidebar = isTeachingRole(user.role);
+  const showWorkspaceSidebar = isWorkspaceRole(user.role);
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-black text-white">

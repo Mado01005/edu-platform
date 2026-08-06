@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { unstable_cache } from 'next/cache';
 import {
   ArrowRight,
   BookOpen,
@@ -26,6 +27,48 @@ import { getPrisma } from '@/lib/prisma';
 import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
+const getCachedPublishedCourses = unstable_cache(
+  async () =>
+    getPrisma().course.findMany({
+      where: { isPublished: true },
+      include: {
+        teacher: { select: { name: true } },
+        modules: {
+          orderBy: { position: 'asc' },
+          select: {
+            lessons: {
+              orderBy: { position: 'asc' },
+              select: { contentType: true },
+            },
+          },
+        },
+        _count: { select: { enrollments: true, zoomSessions: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 500,
+    }),
+  ['published-course-catalog-v1'],
+  { revalidate: 60, tags: ['catalog'] },
+);
+
+const getCachedPaymentChannels = unstable_cache(
+  async () =>
+    getPrisma().paymentChannel.findMany({
+      where: { isActive: true },
+      orderBy: { displayName: 'asc' },
+      select: {
+        accountValue: true,
+        currency: true,
+        displayName: true,
+        instructions: true,
+        method: true,
+      },
+    }),
+  ['active-payment-channels-v1'],
+  { revalidate: 60, tags: ['catalog'] },
+);
 
 function selectedCategory(value: string | undefined): CourseCategory {
   return COURSE_CATEGORIES.includes(value as CourseCategory)
@@ -72,57 +115,44 @@ export default async function CatalogPage({
 }: {
   searchParams: Promise<{ category?: string; q?: string }>;
 }) {
-  const [{ category, q }, user] = await Promise.all([
-    searchParams,
-    getLmsUser(),
-  ]);
+  const userPromise = getLmsUser();
+  const enrollmentRowsPromise = userPromise.then((user) =>
+    user
+      ? getPrisma().enrollment.findMany({
+          where: { studentId: user.id },
+          select: { courseId: true },
+        })
+      : [],
+  );
+  const [
+    { category, q },
+    user,
+    cachedCatalog,
+    cachedPaymentChannels,
+    enrollmentRows,
+  ] =
+    await Promise.all([
+      searchParams,
+      userPromise,
+      getCachedPublishedCourses(),
+      getCachedPaymentChannels(),
+      enrollmentRowsPromise,
+    ]);
   const query = q?.trim().slice(0, 100) ?? '';
   const activeCategory = selectedCategory(category);
-  const [catalog, paymentChannels] = await Promise.all([
-    getPrisma().course.findMany({
-    where: {
-      isPublished: true,
-      ...(query
-        ? {
-            OR: [
-              { title: { contains: query, mode: 'insensitive' } },
-              { description: { contains: query, mode: 'insensitive' } },
-            ],
-          }
-        : {}),
-    },
-    include: {
-      teacher: { select: { name: true } },
-      modules: {
-        orderBy: { position: 'asc' },
-        select: {
-          lessons: {
-            orderBy: { position: 'asc' },
-            select: { contentType: true },
-          },
-        },
-      },
-      enrollments: user
-        ? { where: { studentId: user.id }, select: { id: true } }
-        : false,
-      _count: { select: { enrollments: true, zoomSessions: true } },
-    },
-    orderBy: { updatedAt: 'desc' },
-    }),
-    user?.role === 'STUDENT'
-      ? getPrisma().paymentChannel.findMany({
-          where: { isActive: true },
-          orderBy: { displayName: 'asc' },
-          select: {
-            accountValue: true,
-            currency: true,
-            displayName: true,
-            instructions: true,
-            method: true,
-          },
-        })
-      : Promise.resolve([]),
-  ]);
+  const enrolledCourseIds = new Set(
+    enrollmentRows.map(({ courseId }) => courseId),
+  );
+  const normalizedQuery = query.toLocaleLowerCase();
+  const catalog = normalizedQuery
+    ? cachedCatalog.filter((course) =>
+        [course.title, course.description ?? ''].some((value) =>
+          value.toLocaleLowerCase().includes(normalizedQuery),
+        ),
+      )
+    : cachedCatalog;
+  const paymentChannels =
+    user?.role === 'STUDENT' ? cachedPaymentChannels : [];
   const serializedCatalog = catalog.map((course) => ({
     ...course,
     priceEGP: course.priceEGP.toFixed(2),
@@ -310,9 +340,7 @@ export default async function CatalogPage({
                 <CourseCard
                   channels={paymentChannels}
                   course={course}
-                  enrolled={
-                    'enrollments' in course && course.enrollments.length > 0
-                  }
+                  enrolled={enrolledCourseIds.has(course.id)}
                   key={course.id}
                   user={user}
                 />

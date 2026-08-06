@@ -2,6 +2,7 @@ import 'server-only';
 
 import type { Role, User } from '@prisma/client';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
 import { normalizePhoneNumber } from '@/lib/phone';
 import { getPrisma } from '@/lib/prisma';
 import { recordStudentActivity } from '@/lib/lms/health';
@@ -70,50 +71,52 @@ export async function getVerifiedLmsIdentity() {
   };
 }
 
-export async function getLmsUser(): Promise<User | null> {
-  const identity = await getVerifiedLmsIdentity();
+export const getLmsUser = cache(
+  async function getLmsUser(): Promise<User | null> {
+    const identity = await getVerifiedLmsIdentity();
 
-  if (!identity) {
-    return null;
-  }
-
-  const user = await getPrisma().user.findUnique({
-    where: { supabaseId: identity.supabaseId },
-  });
-
-  if (!user || user.status !== 'ACTIVE') {
-    return null;
-  }
-
-  let activeUser = user;
-
-  if (
-    user.email !== identity.email ||
-    (identity.name && user.name !== identity.name) ||
-    (identity.phoneNumber && user.phoneNumber !== identity.phoneNumber)
-  ) {
-    activeUser = await getPrisma().user.update({
-      where: { id: user.id },
-      data: {
-        email: identity.email,
-        ...(identity.name ? { name: identity.name } : {}),
-        ...(identity.phoneNumber
-          ? { phoneNumber: identity.phoneNumber }
-          : {}),
-      },
-    });
-  }
-
-  if (activeUser.role === 'STUDENT') {
-    try {
-      await recordStudentActivity(activeUser.id);
-    } catch (error) {
-      console.error('[LMS_STUDENT_ACTIVITY_TOUCH]', error);
+    if (!identity) {
+      return null;
     }
-  }
 
-  return activeUser;
-}
+    const user = await getPrisma().user.findUnique({
+      where: { supabaseId: identity.supabaseId },
+    });
+
+    if (!user || user.status !== 'ACTIVE') {
+      return null;
+    }
+
+    let activeUser = user;
+
+    if (
+      user.email !== identity.email ||
+      (identity.name && user.name !== identity.name) ||
+      (identity.phoneNumber && user.phoneNumber !== identity.phoneNumber)
+    ) {
+      activeUser = await getPrisma().user.update({
+        where: { id: user.id },
+        data: {
+          email: identity.email,
+          ...(identity.name ? { name: identity.name } : {}),
+          ...(identity.phoneNumber
+            ? { phoneNumber: identity.phoneNumber }
+            : {}),
+        },
+      });
+    }
+
+    if (activeUser.role === 'STUDENT') {
+      try {
+        await recordStudentActivity(activeUser.id);
+      } catch (error) {
+        console.error('[LMS_STUDENT_ACTIVITY_TOUCH]', error);
+      }
+    }
+
+    return activeUser;
+  },
+);
 
 export async function requireAdminPage() {
   return requireLmsPageRole(ADMIN_ROLES, 'admin-required');

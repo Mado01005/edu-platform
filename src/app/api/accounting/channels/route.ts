@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { isSameOriginRequest } from '@/lib/http/same-origin';
 import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
 import { OnlinePaymentError, updatePaymentChannel } from '@/lib/lms/online-payments';
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
       isActive: body.isActive,
       method: body.method,
     });
+    revalidateTag('catalog', 'max');
     return NextResponse.json({ id: channel.id });
   } catch (error) {
     if (error instanceof OnlinePaymentError || error instanceof LmsAuthError) return NextResponse.json({ error: error.message }, { status: error.status });

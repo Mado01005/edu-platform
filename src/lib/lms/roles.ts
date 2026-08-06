@@ -33,6 +33,14 @@ export const ACCOUNTING_ROLES = [
   'ACCOUNTING',
 ] as const satisfies readonly Role[];
 
+export const WORKSPACE_ROLES = [
+  'SUPER_ADMIN',
+  'ADMIN',
+  'TEACHER',
+  'SUPPORT',
+  'ACCOUNTING',
+] as const satisfies readonly Role[];
+
 export function isLmsRole(value: unknown): value is Role {
   return (
     typeof value === 'string' &&
@@ -53,4 +61,8 @@ export function isAdminRole(role: Role) {
 
 export function isTeachingRole(role: Role) {
   return hasLmsRole(role, TEACHING_ROLES);
+}
+
+export function isWorkspaceRole(role: Role) {
+  return hasLmsRole(role, WORKSPACE_ROLES);
 }
