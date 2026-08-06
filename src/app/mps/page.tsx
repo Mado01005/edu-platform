@@ -67,7 +67,7 @@ export default async function ParentPortalPage({
     prisma.assignmentSubmission.findMany({
       where: { studentId: selected.id, assignment: { type: 'QUIZ' } },
       include: { assignment: { include: { course: { select: { title: true } } } } },
-      orderBy: { submittedAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: 50,
     }),
     prisma.onlinePaymentSubmission.findMany({
@@ -90,11 +90,11 @@ export default async function ParentPortalPage({
   const averages = submissions.length
     ? await prisma.assignmentSubmission.groupBy({
         by: ['assignmentId'],
-        where: { assignmentId: { in: submissions.map(({ assignmentId }) => assignmentId) }, scorePercentage: { not: null } },
-        _avg: { scorePercentage: true },
+        where: { assignmentId: { in: submissions.map(({ assignmentId }) => assignmentId) }, grade: { not: null } },
+        _avg: { grade: true },
       })
     : [];
-  const averageByAssignment = new Map(averages.map((item) => [item.assignmentId, item._avg.scorePercentage]));
+  const averageByAssignment = new Map(averages.map((item) => [item.assignmentId, item._avg.grade]));
   const videoProgress = enrollments.map(({ course }) => {
     const lessons = course.modules.flatMap((module) => module.lessons);
     const total = lessons.reduce((sum, lesson) => sum + (lesson.progress[0]?.watchPercentage ?? 0), 0);
@@ -132,7 +132,7 @@ export default async function ParentPortalPage({
 
         <section className="rounded-2xl border border-white/10 bg-zinc-950 p-4">
           <h2 className="flex items-center gap-2 font-black"><Activity className="size-4 text-amber-300" /> Online quiz grades</h2>
-          <div className="mt-3 flex flex-col gap-2">{submissions.map((submission) => <article className="rounded-xl bg-black p-3" key={submission.id}><div className="flex min-w-0 justify-between gap-2"><span className="min-w-0 truncate text-sm font-bold">{submission.assignment.title}</span><span className="shrink-0 font-black text-amber-300">{submission.scorePercentage?.toFixed(1) ?? '—'}%</span></div><p className="mt-1 text-xs text-zinc-500">{submission.assignment.course.title} · Class avg {averageByAssignment.get(submission.assignmentId)?.toFixed(1) ?? '—'}%</p>{submission.teacherFeedback ? <p className="mt-2 text-xs leading-5 text-zinc-300">Teacher: {submission.teacherFeedback}</p> : null}</article>)}{!submissions.length ? <p className="text-sm text-zinc-500">No quiz submissions yet.</p> : null}</div>
+          <div className="mt-3 flex flex-col gap-2">{submissions.map((submission) => <article className="rounded-xl bg-black p-3" key={submission.id}><div className="flex min-w-0 justify-between gap-2"><span className="min-w-0 truncate text-sm font-bold">{submission.assignment.title}</span><span className="shrink-0 font-black text-amber-300">{submission.grade?.toFixed(1) ?? '—'}%</span></div><p className="mt-1 text-xs text-zinc-500">{submission.assignment.course.title} · Class avg {averageByAssignment.get(submission.assignmentId)?.toFixed(1) ?? '—'}%</p>{submission.feedback ? <p className="mt-2 text-xs leading-5 text-zinc-300">Teacher: {submission.feedback}</p> : null}</article>)}{!submissions.length ? <p className="text-sm text-zinc-500">No quiz submissions yet.</p> : null}</div>
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-zinc-950 p-4">

@@ -1,0 +1,119 @@
+'use client';
+
+import { useState } from 'react';
+import type { ContentType } from '@prisma/client';
+import { ChevronDown, FileText, GripVertical, Plus, Save } from 'lucide-react';
+import { createLessonAction, createModuleAction, updateLessonAction } from '@/app/lms/actions';
+import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
+import { R2UploadField } from '@/components/lms/R2UploadField';
+import { MaterialUploader } from '@/components/teacher/material-uploader';
+import type { TeacherCourse, TeacherLesson, TeacherModule } from '@/components/teacher/course-editor-types';
+
+const VIDEO_TYPES: ContentType[] = ['VIMEO', 'YOUTUBE', 'R2_VIDEO'];
+
+function cairoInputValue(value: string | null) {
+  if (!value) return '';
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date(value));
+  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day}T${byType.hour}:${byType.minute}`;
+}
+
+function badgeFor(lesson: TeacherLesson) {
+  if (VIDEO_TYPES.includes(lesson.contentType)) {
+    return { label: 'Video Lesson', icon: '🎥', detail: `${lesson.durationMin ?? '—'} min · ${lesson.videoUrl ? 'Ready' : 'Needs upload'}` };
+  }
+  if (lesson.contentType === 'QUIZ') {
+    return { label: 'Quiz / Exam', icon: '📝', detail: `${lesson.assignment?.questionCount ?? 0} questions` };
+  }
+  if (lesson.contentType === 'ASSIGNMENT') {
+    return { label: 'Assignment / Homework', icon: '📥', detail: lesson.materials.length ? 'Worksheet attached' : 'No worksheet yet' };
+  }
+  return { label: lesson.contentType === 'PDF' ? 'PDF / Resource' : 'Text Lesson', icon: '📄', detail: lesson.contentType.replaceAll('_', ' ') };
+}
+
+function LessonEditor({ lesson }: { lesson: TeacherLesson }) {
+  const [type, setType] = useState<ContentType>(lesson.contentType);
+  const badge = badgeFor(lesson);
+
+  return (
+    <details className="group min-w-0 rounded-xl border border-white/10 bg-black/60">
+      <summary className="flex min-w-0 cursor-pointer list-none items-center gap-2 p-3">
+        <GripVertical className="size-4 shrink-0 text-zinc-600" aria-label="Drag lesson" />
+        <span aria-hidden="true" className="shrink-0">{badge.icon}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-black">{lesson.title}</span>
+          <span className="block truncate text-[10px] text-zinc-500">{badge.detail}</span>
+        </span>
+        <span className="hidden shrink-0 rounded-full bg-white/5 px-2 py-1 text-[10px] font-black text-zinc-400 sm:block">{badge.label}</span>
+        <ChevronDown className="size-4 shrink-0 text-zinc-600 transition group-open:rotate-180" />
+      </summary>
+      <form action={updateLessonAction.bind(null, lesson.id)} className="flex min-w-0 flex-col gap-3 border-t border-white/10 p-3">
+        <label className="text-xs font-bold text-zinc-400">Lesson Title
+          <input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.title} name="title" required />
+        </label>
+        <label className="text-xs font-bold text-zinc-400">Lesson Type
+          <select className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" name="contentType" onChange={(event) => setType(event.target.value as ContentType)} value={type}>
+            <option value="VIMEO">Vimeo video</option><option value="YOUTUBE">YouTube video</option><option value="R2_VIDEO">Uploaded video</option><option value="QUIZ">Quiz / Exam</option><option value="ASSIGNMENT">Assignment / Homework</option><option value="PDF">PDF / Resource</option><option value="TEXT">Text lesson</option>
+          </select>
+        </label>
+        {type === 'VIMEO' || type === 'YOUTUBE' ? <label className="text-xs font-bold text-zinc-400">Video URL<input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.videoUrl ?? ''} name="videoUrl" type="url" /></label> : null}
+        {type === 'R2_VIDEO' ? <R2UploadField accept="video" initialUrl={lesson.videoUrl} label="Video file" lessonId={lesson.id} name="r2VideoUrl" /> : null}
+        {VIDEO_TYPES.includes(type) ? <label className="text-xs font-bold text-zinc-400">Duration (Minutes)<input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.durationMin ?? ''} max="1440" min="1" name="durationMin" type="number" /></label> : null}
+        {type === 'PDF' ? <R2UploadField accept="pdf" initialUrl={lesson.pdfUrl} label="PDF resource" lessonId={lesson.id} name="pdfUrl" /> : null}
+        {type === 'TEXT' ? <label className="text-xs font-bold text-zinc-400">Lesson Content<textarea className="mt-1 min-h-40 w-full min-w-0 resize-y rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.textContent ?? ''} name="textContent" /></label> : null}
+        {type === 'QUIZ' || type === 'ASSIGNMENT' ? <>
+          <label className="text-xs font-bold text-zinc-400">Instructions<textarea className="mt-1 min-h-28 w-full min-w-0 resize-y rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.assignment?.instructions ?? ''} name="instructions" placeholder="Explain what students need to submit." /></label>
+          {type === 'QUIZ' ? <label className="text-xs font-bold text-zinc-400">Questions Count<input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={lesson.assignment?.questionCount ?? 0} max="500" min="0" name="questionCount" type="number" /></label> : null}
+          <label className="text-xs font-bold text-zinc-400">Due Date & Time (Cairo)<input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white" defaultValue={cairoInputValue(lesson.assignment?.dueAt ?? null)} name="dueAt" type="datetime-local" /></label>
+        </> : null}
+        <label className="flex items-center gap-2 text-xs font-bold text-zinc-300"><input defaultChecked={lesson.isFree} name="isFree" type="checkbox" /> Free preview lesson</label>
+        <ActionSubmitButton className="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-black text-black" pendingLabel="Saving lesson…"><Save className="size-4" /> Save lesson</ActionSubmitButton>
+      </form>
+      <div className="border-t border-white/10 p-3"><MaterialUploader initialMaterials={lesson.materials} lessonId={lesson.id} title={type === 'ASSIGNMENT' ? 'Assignment worksheet & references' : 'Lesson attachments'} /></div>
+    </details>
+  );
+}
+
+function ModuleCard({ module }: { module: TeacherModule }) {
+  return (
+    <details className="group min-w-0 rounded-2xl border border-white/10 bg-zinc-950" open>
+      <summary className="flex min-w-0 cursor-pointer list-none items-center gap-2 p-4">
+        <GripVertical className="size-5 shrink-0 text-zinc-600" aria-label="Drag module" />
+        <span className="min-w-0 flex-1 truncate font-black">{module.title}</span>
+        <span className="shrink-0 text-xs text-zinc-500">{module.lessons.length} lessons</span>
+        <ChevronDown className="size-4 shrink-0 text-zinc-600 transition group-open:rotate-180" />
+      </summary>
+      <div className="flex min-w-0 flex-col gap-3 border-t border-white/10 p-3">
+        {module.lessons.map((lesson) => <LessonEditor key={lesson.id} lesson={lesson} />)}
+        {!module.lessons.length ? <p className="rounded-xl border border-dashed border-white/10 p-4 text-center text-xs text-zinc-500">Add the first learning activity below.</p> : null}
+        <form action={createLessonAction.bind(null, module.id)} className="flex min-w-0 flex-col gap-2 rounded-xl border border-dashed border-white/15 p-3">
+          <label className="text-xs font-bold text-zinc-400">New Activity Title<input className="mt-1 w-full min-w-0 rounded-lg border border-white/10 bg-black px-3 py-2 text-sm text-white" name="title" placeholder="e.g. Fractions practice" required /></label>
+          <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
+            <button className="rounded-lg border border-white/10 px-3 py-2 text-xs font-black hover:bg-white/5" name="contentType" type="submit" value="R2_VIDEO">+ Add Video Lesson</button>
+            <button className="rounded-lg border border-white/10 px-3 py-2 text-xs font-black hover:bg-white/5" name="contentType" type="submit" value="QUIZ">+ Add Quiz</button>
+            <button className="rounded-lg border border-white/10 px-3 py-2 text-xs font-black hover:bg-white/5" name="contentType" type="submit" value="ASSIGNMENT">+ Add Assignment</button>
+          </div>
+        </form>
+      </div>
+    </details>
+  );
+}
+
+export function CurriculumBuilder({ course }: { course: TeacherCourse }) {
+  return (
+    <section className="flex w-full min-w-0 flex-col gap-4">
+      <header className="rounded-2xl border border-white/10 bg-zinc-950 p-4">
+        <h2 className="flex items-center gap-2 font-black"><FileText className="size-5 text-violet-300" /> Curriculum & lessons</h2>
+        <p className="mt-2 text-sm text-zinc-400">Open a module to manage its videos, quizzes, assignments, and resources.</p>
+      </header>
+      {course.modules.map((module) => <ModuleCard key={module.id} module={module} />)}
+      <form action={createModuleAction.bind(null, course.id)} className="flex min-w-0 flex-col gap-2 rounded-2xl border border-dashed border-white/15 p-3 sm:flex-row">
+        <label className="min-w-0 flex-1 text-xs font-bold text-zinc-400">New Module Title<input className="mt-1 w-full min-w-0 rounded-xl border border-white/10 bg-zinc-950 px-3 py-3 text-sm text-white" name="title" placeholder="Module 1: Foundations" required /></label>
+        <ActionSubmitButton className="mt-auto flex shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black" pendingLabel="Adding module…"><Plus className="size-4" /> Add Module</ActionSubmitButton>
+      </form>
+    </section>
+  );
+}

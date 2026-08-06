@@ -34,7 +34,7 @@ export default async function TeacherCoursesPage() {
           courses.map((course) => (
             <Link
               className="group flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4 transition hover:border-violet-400/50"
-              href={`/teacher/courses/${course.id}/edit`}
+              href={`/teacher/courses/${course.id}`}
               key={course.id}
             >
               <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/5">

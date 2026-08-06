@@ -7,6 +7,7 @@ import type { Role } from '@prisma/client';
 import {
   Activity,
   BookOpen,
+  ClipboardCheck,
   GraduationCap,
   HardDrive,
   Landmark,
@@ -87,6 +88,12 @@ const sections: readonly {
         href: '/teacher',
         icon: GraduationCap,
         label: 'Teacher Studio',
+        roles: TEACHING_ROLES,
+      },
+      {
+        href: '/teacher/grading',
+        icon: ClipboardCheck,
+        label: 'Assignment Grading',
         roles: TEACHING_ROLES,
       },
     ],

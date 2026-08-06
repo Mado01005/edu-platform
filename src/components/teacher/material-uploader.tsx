@@ -17,6 +17,7 @@ import {
   type MaterialFileType,
 } from '@/lib/lms/material-types';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/UI/dialog';
 
 export type TeacherMaterial = {
   fileSize: number | null;
@@ -30,6 +31,7 @@ type MaterialUploaderProps = {
   courseId?: string;
   initialMaterials: TeacherMaterial[];
   lessonId?: string;
+  moduleId?: string;
   title: string;
 };
 
@@ -54,6 +56,7 @@ export function MaterialUploader({
   courseId,
   initialMaterials,
   lessonId,
+  moduleId,
   title,
 }: MaterialUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,6 +65,7 @@ export function MaterialUploader({
   const [error, setError] = useState('');
   const [pendingFile, setPendingFile] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [previewing, setPreviewing] = useState<TeacherMaterial | null>(null);
 
   async function upload(file: File) {
     setError('');
@@ -78,6 +82,7 @@ export function MaterialUploader({
           courseId,
           fileName: file.name,
           lessonId,
+          moduleId,
           size: file.size,
           uploadKind: 'material',
         }),
@@ -113,6 +118,7 @@ export function MaterialUploader({
           fileSize: file.size,
           fileType: presign.fileType,
           lessonId,
+          moduleId,
           objectKey: presign.key,
           title: file.name,
         }),
@@ -245,15 +251,14 @@ export function MaterialUploader({
                 </span>
               </span>
               <span className="grid shrink-0 grid-cols-3 gap-1">
-                <a
+                <button
                   aria-label={`Preview ${material.title}`}
                   className="flex size-9 items-center justify-center rounded-lg border border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white"
-                  href={material.fileUrl}
-                  rel="noopener noreferrer"
-                  target="_blank"
+                  onClick={() => setPreviewing(material)}
+                  type="button"
                 >
                   <ExternalLink className="size-4" aria-hidden="true" />
-                </a>
+                </button>
                 <a
                   aria-label={`Download ${material.title}`}
                   className="flex size-9 items-center justify-center rounded-lg border border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white"
@@ -289,6 +294,23 @@ export function MaterialUploader({
           {error}
         </p>
       ) : null}
+
+      <Dialog open={Boolean(previewing)} onOpenChange={(open) => { if (!open) setPreviewing(null); }}>
+        {previewing ? (
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle className="truncate">{previewing.title}</DialogTitle>
+              <DialogDescription>{previewing.fileType} · {formatMaterialFileSize(previewing.fileSize)}</DialogDescription>
+            </DialogHeader>
+            {previewing.fileType === 'PDF' ? (
+              <iframe className="h-[60dvh] w-full rounded-xl border border-white/10 bg-white" src={previewing.fileUrl} title={`Preview ${previewing.title}`} />
+            ) : (
+              <div className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-400">This file type opens in its native viewer.</div>
+            )}
+            <a className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-black" href={previewing.fileUrl} rel="noopener noreferrer" target="_blank"><ExternalLink className="size-4" /> Open in new tab</a>
+          </DialogContent>
+        ) : null}
+      </Dialog>
     </section>
   );
 }

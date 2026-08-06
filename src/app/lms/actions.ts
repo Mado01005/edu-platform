@@ -1,6 +1,6 @@
 'use server';
 
-import { Prisma, type ContentType, type Role } from '@prisma/client';
+import { GradeLevel, Prisma, type ContentType, type Role } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
@@ -15,6 +15,7 @@ import {
 import { TEACHING_ROLES, isAdminRole } from '@/lib/lms/roles';
 import { recalculateStudentHealthScores } from '@/lib/lms/health';
 import { getVideoEmbedUrl } from '@/lib/lms/video';
+import { cairoDateTimeLocalToUtc } from '@/lib/lms/timezone';
 
 const CONTENT_TYPES = new Set<ContentType>([
   'VIMEO',
@@ -22,6 +23,8 @@ const CONTENT_TYPES = new Set<ContentType>([
   'R2_VIDEO',
   'PDF',
   'TEXT',
+  'QUIZ',
+  'ASSIGNMENT',
 ]);
 
 const nullableDescription = z
@@ -51,6 +54,7 @@ const updateCourseSchema = createCourseSchema.extend({
     .max(2_000, 'Course image URL is too long.')
     .transform((value) => value || null),
   isPublished: z.boolean(),
+  gradeLevel: z.nativeEnum(GradeLevel).nullable(),
   priceEGP: moneyString,
   priceUSD: moneyString,
 });
@@ -217,7 +221,7 @@ export async function createCourseAction(
       teacherId: teacher.id,
     });
 
-    redirect(`/teacher/courses/${course.id}/edit`);
+    redirect(`/teacher/courses/${course.id}`);
   } catch (error) {
     return courseActionFailure(error);
   }
@@ -232,6 +236,7 @@ export async function updateCourseAction(
     const input = parseCourseInput(updateCourseSchema, {
       description: formData.get('description') ?? '',
       imageUrl: formData.get('imageUrl') ?? '',
+      gradeLevel: formData.get('gradeLevel') || null,
       isPublished: formData.get('isPublished') === 'on',
       priceEGP: formData.get('priceEGP'),
       priceUSD: formData.get('priceUSD'),
@@ -252,6 +257,7 @@ export async function updateCourseAction(
       where: { id: courseId },
       data: {
         description: input.description,
+        gradeLevel: input.gradeLevel,
         imageUrl: assertR2PublicUrl(input.imageUrl),
         isPublished: input.isPublished,
         priceEGP: new Prisma.Decimal(input.priceEGP),
@@ -259,7 +265,7 @@ export async function updateCourseAction(
         title: input.title,
       },
     });
-    revalidatePath(`/teacher/courses/${courseId}/edit`);
+    revalidatePath(`/teacher/courses/${courseId}`);
     revalidatePath('/teacher/courses');
     revalidatePath('/catalog');
     revalidateTag('catalog', 'max');
@@ -284,7 +290,7 @@ export async function createModuleAction(courseId: string, formData: FormData) {
       position: (lastModule?.position ?? 0) + 1,
     },
   });
-  revalidatePath(`/teacher/courses/${courseId}/edit`);
+  revalidatePath(`/teacher/courses/${courseId}`);
 }
 
 export async function createLessonAction(moduleId: string, formData: FormData) {
@@ -304,15 +310,29 @@ export async function createLessonAction(moduleId: string, formData: FormData) {
     select: { position: true },
   });
 
-  await getPrisma().lesson.create({
-    data: {
-      moduleId,
-      title: requiredString(formData, 'title'),
-      contentType: contentType(formData),
-      position: (lastLesson?.position ?? 0) + 1,
-    },
+  const type = contentType(formData);
+  const title = requiredString(formData, 'title');
+  await getPrisma().$transaction(async (transaction) => {
+    const lesson = await transaction.lesson.create({
+      data: {
+        moduleId,
+        title,
+        contentType: type,
+        position: (lastLesson?.position ?? 0) + 1,
+      },
+    });
+    if (type === 'QUIZ' || type === 'ASSIGNMENT') {
+      await transaction.assignment.create({
+        data: {
+          courseId: courseModule.courseId,
+          lessonId: lesson.id,
+          title,
+          type: type === 'QUIZ' ? 'QUIZ' : 'HOMEWORK',
+        },
+      });
+    }
   });
-  revalidatePath(`/teacher/courses/${courseModule.courseId}/edit`);
+  revalidatePath(`/teacher/courses/${courseModule.courseId}`);
 }
 
 export async function updateLessonAction(
@@ -321,7 +341,10 @@ export async function updateLessonAction(
 ) {
   const lesson = await getPrisma().lesson.findUnique({
     where: { id: lessonId },
-    select: { module: { select: { courseId: true } } },
+    select: {
+      assignment: { select: { id: true, _count: { select: { submissions: true } } } },
+      module: { select: { courseId: true } },
+    },
   });
 
   if (!lesson) {
@@ -348,19 +371,70 @@ export async function updateLessonAction(
       ? assertR2PublicUrl(optionalString(formData, 'pdfUrl', 2_000))
       : null;
 
-  await getPrisma().lesson.update({
-    where: { id: lessonId },
-    data: {
-      title: requiredString(formData, 'title'),
-      contentType: type,
-      videoUrl,
-      pdfUrl,
-      textContent:
-        type === 'TEXT' ? optionalString(formData, 'textContent') : null,
-      isFree: formData.get('isFree') === 'on',
-    },
+  const durationRaw = optionalString(formData, 'durationMin', 4);
+  const durationMin = durationRaw ? Number(durationRaw) : null;
+  if (durationMin !== null && (!Number.isInteger(durationMin) || durationMin < 1 || durationMin > 1440)) {
+    throw new Error('Duration must be between 1 and 1,440 minutes.');
+  }
+
+  const instructions = optionalString(formData, 'instructions', 20_000);
+  const questionRaw = optionalString(formData, 'questionCount', 3);
+  const questionCount = questionRaw ? Number(questionRaw) : 0;
+  if (!Number.isInteger(questionCount) || questionCount < 0 || questionCount > 500) {
+    throw new Error('Question count must be between 0 and 500.');
+  }
+  const dueAtValue = optionalString(formData, 'dueAt', 100);
+  const dueAt = dueAtValue ? cairoDateTimeLocalToUtc(dueAtValue) : null;
+  if (dueAtValue && !dueAt) throw new Error('Enter a valid Cairo due date and time.');
+
+  const title = requiredString(formData, 'title');
+  if (
+    lesson.assignment?._count.submissions &&
+    type !== 'QUIZ' &&
+    type !== 'ASSIGNMENT'
+  ) {
+    throw new Error(
+      'This activity has student submissions and cannot be changed to another lesson type.',
+    );
+  }
+  await getPrisma().$transaction(async (transaction) => {
+    await transaction.lesson.update({
+      where: { id: lessonId },
+      data: {
+        title,
+        contentType: type,
+        durationMin: ['VIMEO', 'YOUTUBE', 'R2_VIDEO'].includes(type) ? durationMin : null,
+        videoUrl,
+        pdfUrl,
+        textContent: type === 'TEXT' ? optionalString(formData, 'textContent') : null,
+        isFree: formData.get('isFree') === 'on',
+      },
+    });
+    if (type === 'QUIZ' || type === 'ASSIGNMENT') {
+      await transaction.assignment.upsert({
+        where: { lessonId },
+        create: {
+          courseId: lesson.module.courseId,
+          lessonId,
+          title,
+          type: type === 'QUIZ' ? 'QUIZ' : 'HOMEWORK',
+          instructions,
+          questionCount: type === 'QUIZ' ? questionCount : 0,
+          dueAt,
+        },
+        update: {
+          title,
+          type: type === 'QUIZ' ? 'QUIZ' : 'HOMEWORK',
+          instructions,
+          questionCount: type === 'QUIZ' ? questionCount : 0,
+          dueAt,
+        },
+      });
+    } else if (lesson.assignment) {
+      await transaction.assignment.delete({ where: { id: lesson.assignment.id } });
+    }
   });
-  revalidatePath(`/teacher/courses/${lesson.module.courseId}/edit`);
+  revalidatePath(`/teacher/courses/${lesson.module.courseId}`);
 }
 
 export async function reorderModulesAction(
@@ -390,7 +464,7 @@ export async function reorderModulesAction(
       }),
     ),
   );
-  revalidatePath(`/teacher/courses/${courseId}/edit`);
+  revalidatePath(`/teacher/courses/${courseId}`);
 }
 
 export async function reorderLessonsAction(
@@ -426,54 +500,68 @@ export async function reorderLessonsAction(
       }),
     ),
   );
-  revalidatePath(`/teacher/courses/${courseModule.courseId}/edit`);
+  revalidatePath(`/teacher/courses/${courseModule.courseId}`);
 }
 
 export async function scheduleZoomAction(
   courseId: string,
+  _previousState: CourseActionState,
   formData: FormData,
-) {
-  const { teacher } = await teacherCourse(courseId);
-  const meetingUrl = requiredString(formData, 'meetingUrl', 2_000);
-  const parsedUrl = new URL(meetingUrl);
+): Promise<CourseActionState> {
+  try {
+    const { teacher } = await teacherCourse(courseId);
+    const meetingUrl = requiredString(formData, 'meetingUrl', 2_000);
+    const parsedUrl = new URL(meetingUrl);
 
-  const zoomHost = parsedUrl.hostname.toLowerCase();
-  if (
-    parsedUrl.protocol !== 'https:' ||
-    (zoomHost !== 'zoom.us' && !zoomHost.endsWith('.zoom.us'))
-  ) {
-    throw new Error('Enter a valid Zoom HTTPS meeting URL.');
+    const zoomHost = parsedUrl.hostname.toLowerCase();
+    if (
+      parsedUrl.protocol !== 'https:' ||
+      (zoomHost !== 'zoom.us' && !zoomHost.endsWith('.zoom.us'))
+    ) {
+      throw new Error('Enter a valid Zoom HTTPS meeting URL.');
+    }
+
+    const startTimeValue = requiredString(formData, 'startTime', 100);
+    const startTime = cairoDateTimeLocalToUtc(startTimeValue);
+    const duration = Number(requiredString(formData, 'duration', 5));
+
+    if (
+      !startTime ||
+      startTime.getTime() <= Date.now() ||
+      !Number.isInteger(duration) ||
+      duration < 5 ||
+      duration > 480
+    ) {
+      throw new Error('Enter a valid start time and duration.');
+    }
+
+    await getPrisma().zoomSession.create({
+      data: {
+        courseId,
+        teacherId: teacher.id,
+        title: requiredString(formData, 'title'),
+        meetingUrl: parsedUrl.toString(),
+        startTime,
+        duration,
+      },
+    });
+    revalidatePath(`/teacher/courses/${courseId}`);
+    revalidatePath('/live-classes');
+    return { error: null, success: true };
+  } catch (error) {
+    return courseActionFailure(error);
   }
+}
 
-  const startTimeValue = requiredString(formData, 'startTime', 100);
-  const startTime = new Date(
-    /(?:Z|[+-]\d{2}:\d{2})$/.test(startTimeValue)
-      ? startTimeValue
-      : `${startTimeValue}:00Z`,
-  );
-  const duration = Number(requiredString(formData, 'duration', 5));
-
-  if (
-    Number.isNaN(startTime.getTime()) ||
-    startTime.getTime() <= Date.now() ||
-    !Number.isInteger(duration) ||
-    duration < 5 ||
-    duration > 480
-  ) {
-    throw new Error('Enter a valid start time and duration.');
-  }
-
-  await getPrisma().zoomSession.create({
-    data: {
-      courseId,
-      teacherId: teacher.id,
-      title: requiredString(formData, 'title'),
-      meetingUrl: parsedUrl.toString(),
-      startTime,
-      duration,
-    },
+export async function cancelZoomSessionAction(sessionId: string) {
+  const session = await getPrisma().zoomSession.findUnique({
+    where: { id: sessionId },
+    select: { courseId: true },
   });
-  revalidatePath(`/teacher/courses/${courseId}/edit`);
+  if (!session) throw new Error('Zoom session not found.');
+  await teacherCourse(session.courseId);
+  await getPrisma().zoomSession.delete({ where: { id: sessionId } });
+  revalidatePath(`/teacher/courses/${session.courseId}`);
   revalidatePath('/live-classes');
 }
 

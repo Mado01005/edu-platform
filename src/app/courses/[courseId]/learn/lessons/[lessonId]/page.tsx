@@ -14,6 +14,7 @@ import { LmsHeader } from '@/components/lms/LmsHeader';
 import { UniversalVideoPlayer } from '@/components/lms/UniversalVideoPlayer';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { MaterialList } from '@/components/course/material-list';
+import { AssignmentSubmissionCard } from '@/components/course/assignment-submission-card';
 import { requireLmsPageUser } from '@/lib/lms/auth';
 import { isAdminRole } from '@/lib/lms/roles';
 import { getPrisma } from '@/lib/prisma';
@@ -22,11 +23,14 @@ export const dynamic = 'force-dynamic';
 
 export default async function LessonPlayerPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ courseId: string; lessonId: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }) {
-  const [{ courseId, lessonId }, user] = await Promise.all([
+  const [{ courseId, lessonId }, query, user] = await Promise.all([
     params,
+    searchParams,
     requireLmsPageUser(),
   ]);
   const course = await getPrisma().course.findUnique({
@@ -49,9 +53,24 @@ export default async function LessonPlayerPage({
       modules: {
         orderBy: { position: 'asc' },
         include: {
+          materials: {
+            orderBy: { createdAt: 'desc' },
+            select: {
+              fileSize: true, fileType: true, fileUrl: true, id: true, title: true,
+            },
+          },
           lessons: {
             orderBy: { position: 'asc' },
             include: {
+              assignment: {
+                include: {
+                  submissions: {
+                    where: { studentId: user.id },
+                    select: { feedback: true, fileUrl: true, grade: true, status: true },
+                    take: 1,
+                  },
+                },
+              },
               materials: {
                 orderBy: { createdAt: 'desc' },
                 select: {
@@ -75,7 +94,7 @@ export default async function LessonPlayerPage({
 
   if (!course) notFound();
   const lessons = course.modules.flatMap((module) =>
-    module.lessons.map((lesson) => ({ ...lesson, moduleTitle: module.title })),
+    module.lessons.map((lesson) => ({ ...lesson, moduleMaterials: module.materials, moduleTitle: module.title })),
   );
   const activeIndex = lessons.findIndex((lesson) => lesson.id === lessonId);
   const lesson = lessons[activeIndex];
@@ -86,10 +105,13 @@ export default async function LessonPlayerPage({
     isAdminRole(user.role) ||
     (user.role === 'TEACHER' && user.id === course.teacherId);
   const isEnrolled = course.enrollments.length > 0;
+  const isPreview = query.preview === 'true';
+
+  if (isPreview && !canTeach) redirect('/catalog');
 
   if (
-    (!course.isPublished && !canTeach) ||
-    (course.isPublished && !isEnrolled && !canTeach && !lesson.isFree)
+    !isPreview && ((!course.isPublished && !canTeach) ||
+    (course.isPublished && !isEnrolled && !canTeach && !lesson.isFree))
   ) {
     redirect('/catalog');
   }
@@ -110,17 +132,19 @@ export default async function LessonPlayerPage({
     lesson.contentType,
   );
   const toggleProgress =
-    user.role === 'STUDENT' && !isVideoLesson
+    user.role === 'STUDENT' && !isPreview && !isVideoLesson
       ? updateLessonProgressAction.bind(null, lesson.id, !completed)
       : null;
   const previous = lessons[activeIndex - 1];
   const next = lessons[activeIndex + 1];
+  const previewSuffix = isPreview ? '?preview=true' : '';
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-black text-white">
       <LmsHeader user={user} />
       <main className="mx-auto grid w-full max-w-[1500px] min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px]">
         <article className="flex min-w-0 flex-col gap-7 px-4 py-6 sm:px-8 lg:px-10">
+          {isPreview ? <div className="rounded-xl border border-violet-300/30 bg-violet-400/10 px-4 py-3 text-sm font-bold text-violet-100">Student preview mode · progress and submissions are disabled.</div> : null}
           <div className="min-w-0">
             <p className="truncate text-xs font-black uppercase tracking-[0.2em] text-violet-300">
               {course.title} · {lesson.moduleTitle}
@@ -133,7 +157,7 @@ export default async function LessonPlayerPage({
           <UniversalVideoPlayer
             autoPlayNextHref={
               user.autoPlayNext && next
-                ? `/courses/${courseId}/learn/lessons/${next.id}`
+                ? `/courses/${courseId}/learn/lessons/${next.id}${previewSuffix}`
                 : undefined
             }
             defaultPlaybackSpeed={user.defaultPlaybackSpeed}
@@ -141,7 +165,7 @@ export default async function LessonPlayerPage({
               lesson.progress[0]?.watchPercentage ?? 0
             }
             key={lesson.id}
-            lessonId={user.role === 'STUDENT' ? lesson.id : undefined}
+            lessonId={user.role === 'STUDENT' && !isPreview ? lesson.id : undefined}
             preferredQuality={user.defaultVideoQuality}
             title={lesson.title}
             type={lesson.contentType}
@@ -157,7 +181,7 @@ export default async function LessonPlayerPage({
               {previous ? (
                 <Link
                   className="flex min-w-0 items-center gap-1 rounded-xl border border-white/10 px-3 py-2 text-sm font-bold hover:bg-white/5"
-                  href={`/courses/${courseId}/learn/lessons/${previous.id}`}
+                  href={`/courses/${courseId}/learn/lessons/${previous.id}${previewSuffix}`}
                 >
                   <ChevronLeft className="size-4 shrink-0" />
                   <span className="truncate">Previous</span>
@@ -166,7 +190,7 @@ export default async function LessonPlayerPage({
               {next ? (
                 <Link
                   className="flex min-w-0 items-center gap-1 rounded-xl border border-white/10 px-3 py-2 text-sm font-bold hover:bg-white/5"
-                  href={`/courses/${courseId}/learn/lessons/${next.id}`}
+                  href={`/courses/${courseId}/learn/lessons/${next.id}${previewSuffix}`}
                 >
                   <span className="truncate">Next</span>
                   <ChevronRight className="size-4 shrink-0" />
@@ -212,8 +236,17 @@ export default async function LessonPlayerPage({
 
           <MaterialList
             courseMaterials={course.materials}
-            lessonMaterials={lesson.materials}
+            lessonMaterials={[...lesson.moduleMaterials, ...lesson.materials]}
           />
+
+          {lesson.contentType === 'ASSIGNMENT' && lesson.assignment && user.role === 'STUDENT' && !isPreview ? (
+            <AssignmentSubmissionCard
+              assignmentId={lesson.assignment.id}
+              dueAt={lesson.assignment.dueAt?.toISOString() ?? null}
+              initialSubmission={lesson.assignment.submissions[0] ?? null}
+              instructions={lesson.assignment.instructions}
+            />
+          ) : null}
 
           <DiscussionThread discussions={discussions} lessonId={lesson.id} />
         </article>
@@ -236,7 +269,7 @@ export default async function LessonPlayerPage({
                     return (
                       <Link
                         className={`flex min-w-0 items-start gap-3 px-4 py-3 text-sm transition hover:bg-white/5 ${item.id === lesson.id ? 'bg-violet-500/10 text-violet-100' : 'text-zinc-400'}`}
-                        href={`/courses/${courseId}/learn/lessons/${item.id}`}
+                        href={`/courses/${courseId}/learn/lessons/${item.id}${previewSuffix}`}
                         key={item.id}
                       >
                         <span className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border ${itemCompleted ? 'border-emerald-300 bg-emerald-300 text-black' : 'border-zinc-700'}`}>

@@ -47,6 +47,11 @@ export async function GET(
             },
           },
         },
+        module: {
+          select: {
+            course: { select: { id: true, isPublished: true, teacherId: true, ...enrollmentFilter } },
+          },
+        },
       },
     });
 
@@ -57,7 +62,7 @@ export async function GET(
       );
     }
 
-    const course = material.course ?? material.lesson?.module.course;
+    const course = material.course ?? material.module?.course ?? material.lesson?.module.course;
     const enrollmentCount =
       course && 'enrollments' in course ? course.enrollments.length : 0;
     const canTeach =

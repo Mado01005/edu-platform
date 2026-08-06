@@ -24,17 +24,18 @@ const materialInputSchema = z
     fileSize: z.number().int().min(1).max(MAX_MATERIAL_UPLOAD_BYTES),
     fileType: z.enum(MATERIAL_FILE_TYPES),
     lessonId: z.string().trim().min(1).max(64).nullable().optional(),
+    moduleId: z.string().trim().min(1).max(64).nullable().optional(),
     objectKey: z
       .string()
       .trim()
       .max(500)
-      .regex(/^lms\/[^/]+\/materials\/(course|lesson)\/[^/]+\/[^/]+$/),
+      .regex(/^lms\/[^/]+\/materials\/(course|module|lesson)\/[^/]+\/[^/]+$/),
     title: z.string().trim().min(1).max(200),
   })
   .refine(
-    ({ courseId, lessonId }) =>
-      Number(Boolean(courseId)) + Number(Boolean(lessonId)) === 1,
-    { message: 'Choose exactly one course or lesson for this material.' },
+    ({ courseId, lessonId, moduleId }) =>
+      Number(Boolean(courseId)) + Number(Boolean(moduleId)) + Number(Boolean(lessonId)) === 1,
+    { message: 'Choose exactly one course, module, or lesson for this material.' },
   );
 
 export async function POST(request: Request) {
@@ -66,7 +67,9 @@ export async function POST(request: Request) {
     let targetCourseId = input.courseId ?? '';
     const expectedTarget = input.courseId
       ? `/materials/course/${input.courseId}/`
-      : `/materials/lesson/${input.lessonId}/`;
+      : input.moduleId
+        ? `/materials/module/${input.moduleId}/`
+        : `/materials/lesson/${input.lessonId}/`;
 
     if (
       !input.objectKey.startsWith(`lms/${teacher.id}/`) ||
@@ -92,6 +95,16 @@ export async function POST(request: Request) {
           { status: 404 },
         );
       }
+    } else if (input.moduleId) {
+      const courseModule = await getPrisma().module.findFirst({
+        where: {
+          id: input.moduleId,
+          ...(isAdminRole(teacher.role) ? {} : { course: { teacherId: teacher.id } }),
+        },
+        select: { courseId: true },
+      });
+      if (!courseModule) return NextResponse.json({ error: 'Module not found.' }, { status: 404 });
+      targetCourseId = courseModule.courseId;
     } else {
       const lesson = await getPrisma().lesson.findFirst({
         where: {
@@ -127,12 +140,13 @@ export async function POST(request: Request) {
           fileType: input.fileType,
           fileUrl: getPublicUrl(input.objectKey),
           lessonId: input.lessonId ?? null,
+          moduleId: input.moduleId ?? null,
           objectKey: input.objectKey,
           title: input.title,
         },
       });
 
-      revalidatePath(`/teacher/courses/${targetCourseId}/edit`);
+      revalidatePath(`/teacher/courses/${targetCourseId}`);
       revalidatePath(`/courses/${targetCourseId}/learn`);
       return NextResponse.json({ material }, { status: 201 });
     } catch (error) {

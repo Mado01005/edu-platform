@@ -119,7 +119,7 @@ describe('LMS Server Action role boundaries', () => {
         title: 'Physics Foundations',
       }),
     });
-    expect(mockRedirect).toHaveBeenCalledWith('/teacher/courses/course-1/edit');
+    expect(mockRedirect).toHaveBeenCalledWith('/teacher/courses/course-1');
   });
 
   it('rethrows Next.js redirect exceptions instead of reporting a save crash', async () => {
@@ -170,8 +170,12 @@ describe('LMS Server Action role boundaries', () => {
 
   it('requires teacher or admin role before scheduling Zoom', async () => {
     await expect(
-      scheduleZoomAction('course_1', new FormData()),
-    ).rejects.toMatchObject({ status: 403 });
+      scheduleZoomAction(
+        'course_1',
+        { error: null, success: false },
+        new FormData(),
+      ),
+    ).resolves.toMatchObject({ error: 'Forbidden', success: false });
     expect(mockRequireLmsRole).toHaveBeenCalledWith([
       'SUPER_ADMIN',
       'ADMIN',

@@ -46,6 +46,7 @@ function readUploadInput(value: unknown) {
   const size = Reflect.get(value, 'size');
   const lessonId = Reflect.get(value, 'lessonId');
   const courseId = Reflect.get(value, 'courseId');
+  const moduleId = Reflect.get(value, 'moduleId');
   const uploadKind = Reflect.get(value, 'uploadKind');
 
   if (
@@ -70,6 +71,10 @@ function readUploadInput(value: unknown) {
     courseId:
       typeof courseId === 'string' && /^[a-zA-Z0-9_-]{1,64}$/.test(courseId)
         ? courseId
+        : null,
+    moduleId:
+      typeof moduleId === 'string' && /^[a-zA-Z0-9_-]{1,64}$/.test(moduleId)
+        ? moduleId
         : null,
     uploadKind: uploadKind === 'material' ? 'material' : 'lesson-content',
   };
@@ -115,9 +120,9 @@ export async function POST(request: Request) {
           { status: 415 },
         );
       }
-      if (Number(Boolean(input.courseId)) + Number(Boolean(input.lessonId)) !== 1) {
+      if (Number(Boolean(input.courseId)) + Number(Boolean(input.moduleId)) + Number(Boolean(input.lessonId)) !== 1) {
         return NextResponse.json(
-          { error: 'Choose exactly one course or lesson for this material.' },
+          { error: 'Choose exactly one course, module, or lesson for this material.' },
           { status: 400 },
         );
       }
@@ -186,14 +191,25 @@ export async function POST(request: Request) {
       }
     }
 
-    const targetId = input.courseId ?? input.lessonId ?? 'unassigned';
+    if (input.moduleId) {
+      const courseModule = await getPrisma().module.findFirst({
+        where: {
+          id: input.moduleId,
+          ...(isAdminRole(teacher.role) ? {} : { course: { teacherId: teacher.id } }),
+        },
+        select: { id: true },
+      });
+      if (!courseModule) return NextResponse.json({ error: 'The target module was not found.' }, { status: 404 });
+    }
+
+    const targetId = input.courseId ?? input.moduleId ?? input.lessonId ?? 'unassigned';
     const key =
       input.uploadKind === 'material'
         ? [
             'lms',
             teacher.id,
             'materials',
-            input.courseId ? 'course' : 'lesson',
+            input.courseId ? 'course' : input.moduleId ? 'module' : 'lesson',
             targetId,
             `${randomUUID()}-${sanitizeFileName(input.fileName)}`,
           ].join('/')

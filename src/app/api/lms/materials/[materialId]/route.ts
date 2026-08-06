@@ -35,9 +35,10 @@ export async function DELETE(
             },
           },
         },
+        module: { select: { course: { select: { id: true, teacherId: true } } } },
       },
     });
-    const course = material?.course ?? material?.lesson?.module.course;
+    const course = material?.course ?? material?.module?.course ?? material?.lesson?.module.course;
 
     if (
       !material ||
@@ -52,7 +53,7 @@ export async function DELETE(
 
     await deleteR2Object(material.objectKey);
     await getPrisma().courseMaterial.delete({ where: { id: material.id } });
-    revalidatePath(`/teacher/courses/${course.id}/edit`);
+    revalidatePath(`/teacher/courses/${course.id}`);
     revalidatePath(`/courses/${course.id}/learn`);
 
     return NextResponse.json({ success: true });

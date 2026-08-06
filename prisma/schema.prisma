@@ -44,11 +44,18 @@ enum ContentType {
   R2_VIDEO
   PDF
   TEXT
+  QUIZ
+  ASSIGNMENT
 }
 
 enum AssignmentType {
   QUIZ
   HOMEWORK
+}
+
+enum AssignmentSubmissionStatus {
+  SUBMITTED
+  GRADED
 }
 
 enum PaymentCurrency {
@@ -165,6 +172,7 @@ model Course {
   teacher           User                      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   subjectId         String?                   @map("subject_id")
   subject           Subject?                  @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  gradeLevel        GradeLevel?               @map("grade_level")
   modules           Module[]
   enrollments       Enrollment[]
   zoomSessions      ZoomSession[]
@@ -184,34 +192,38 @@ model Course {
 }
 
 model Module {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   title     String
   position  Int
-  courseId  String   @map("course_id")
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  String           @map("course_id")
+  course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessons   Lesson[]
-  createdAt DateTime @default(now()) @map("created_at")
+  materials CourseMaterial[]
+  createdAt DateTime         @default(now()) @map("created_at")
 
   @@index([courseId, position])
   @@map("lms_modules")
 }
 
 model Lesson {
-  id                String              @id @default(cuid())
+  id                String                 @id @default(cuid())
   title             String
   position          Int
-  contentType       ContentType         @default(VIMEO) @map("content_type")
-  videoUrl          String?             @map("video_url")
-  pdfUrl            String?             @map("pdf_url")
-  textContent       String?             @map("text_content") @db.Text
-  isFree            Boolean             @default(false) @map("is_free")
-  moduleId          String              @map("module_id")
-  module            Module              @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  contentType       ContentType            @default(VIMEO) @map("content_type")
+  videoUrl          String?                @map("video_url")
+  pdfUrl            String?                @map("pdf_url")
+  textContent       String?                @map("text_content") @db.Text
+  durationMin       Int?                   @map("duration_min")
+  isFree            Boolean                @default(false) @map("is_free")
+  moduleId          String                 @map("module_id")
+  module            Module                 @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress          LessonProgress[]
   discussions       Discussion[]
   digitalAttendance DigitalAttendance[]
   materials         CourseMaterial[]
-  createdAt         DateTime            @default(now()) @map("created_at")
+  assignment        Assignment?
+  submissions       AssignmentSubmission[]
+  createdAt         DateTime               @default(now()) @map("created_at")
 
   @@index([moduleId, position])
   @@map("lms_lessons")
@@ -226,11 +238,14 @@ model CourseMaterial {
   fileSize  Int?     @map("file_size")
   courseId  String?  @map("course_id")
   course    Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  moduleId  String?  @map("module_id")
+  module    Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   lessonId  String?  @map("lesson_id")
   lesson    Lesson?  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
 
   @@index([courseId, createdAt])
+  @@index([moduleId, createdAt])
   @@index([lessonId, createdAt])
   @@map("lms_course_materials")
 }
@@ -299,31 +314,46 @@ model Discussion {
 }
 
 model Assignment {
-  id          String                 @id @default(cuid())
-  title       String
-  type        AssignmentType
-  courseId    String                 @map("course_id")
-  course      Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  dueAt       DateTime?              @map("due_at")
-  submissions AssignmentSubmission[]
-  createdAt   DateTime               @default(now()) @map("created_at")
+  id            String                 @id @default(cuid())
+  title         String
+  type          AssignmentType
+  courseId      String                 @map("course_id")
+  course        Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonId      String                 @unique @map("lesson_id")
+  lesson        Lesson                 @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  instructions  String?                @db.Text
+  questionCount Int                    @default(0) @map("question_count")
+  dueAt         DateTime?              @map("due_at")
+  submissions   AssignmentSubmission[]
+  createdAt     DateTime               @default(now()) @map("created_at")
 
   @@index([courseId, dueAt])
   @@map("lms_assignments")
 }
 
 model AssignmentSubmission {
-  id              String     @id @default(cuid())
-  assignmentId    String     @map("assignment_id")
-  assignment      Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  studentId       String     @map("student_id")
-  student         User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  scorePercentage Float?     @map("score_percentage")
-  teacherFeedback String?    @map("teacher_feedback") @db.Text
-  submittedAt     DateTime   @default(now()) @map("submitted_at")
+  id           String                     @id @default(cuid())
+  assignmentId String                     @map("assignment_id")
+  assignment   Assignment                 @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  lessonId     String                     @map("lesson_id")
+  lesson       Lesson                     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  studentId    String                     @map("student_id")
+  student      User                       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  fileUrl      String                     @map("file_url")
+  objectKey    String                     @unique @map("object_key")
+  fileType     String                     @map("file_type")
+  fileSize     Int?                       @map("file_size")
+  grade        Float?                     @map("score_percentage")
+  feedback     String?                    @map("teacher_feedback") @db.Text
+  status       AssignmentSubmissionStatus @default(SUBMITTED)
+  createdAt    DateTime                   @default(now()) @map("submitted_at")
+  gradedAt     DateTime?                  @map("graded_at")
+  updatedAt    DateTime                   @updatedAt @map("updated_at")
 
   @@unique([assignmentId, studentId])
-  @@index([studentId, submittedAt])
+  @@index([studentId, createdAt])
+  @@index([lessonId, status, createdAt])
+  @@index([status, createdAt])
   @@map("lms_assignment_submissions")
 }
 
