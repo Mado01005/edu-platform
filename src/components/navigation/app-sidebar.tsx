@@ -179,7 +179,7 @@ function SidebarNavigation({
   return (
     <nav
       aria-label={mobile ? 'Mobile portal navigation' : 'Portal navigation'}
-      className="flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-3 pb-4"
+      className="flex min-w-0 flex-col gap-5"
     >
       {visibleSections.map((section) => (
         <section className="min-w-0" key={section.label}>
@@ -248,7 +248,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
     <>
       <aside
         className={cn(
-          'sticky top-20 hidden h-[calc(100vh-6rem)] min-w-0 shrink-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/95 shadow-2xl shadow-black/30 backdrop-blur-xl transition-[width] duration-200 md:flex',
+          'sticky top-16 -mt-6 hidden h-[calc(100vh-4rem)] min-w-0 shrink-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/95 shadow-2xl shadow-black/30 backdrop-blur-xl transition-[width] duration-200 md:flex',
           collapsed ? 'w-20' : 'w-72',
         )}
       >
@@ -282,7 +282,10 @@ export function AppSidebar({ role }: AppSidebarProps) {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 pt-4">
+        <div
+          className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-12 pt-4 [scrollbar-gutter:stable]"
+          data-sidebar-scroll-region
+        >
           <SidebarNavigation
             collapsed={collapsed}
             pathname={pathname}
@@ -319,7 +322,10 @@ export function AppSidebar({ role }: AppSidebarProps) {
               Choose a workspace tool. This menu closes after selection.
             </SheetDescription>
           </SheetHeader>
-          <div className="min-h-0 flex-1 pt-5">
+          <div
+            className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-12 pt-5 [scrollbar-gutter:stable]"
+            data-mobile-sidebar-scroll-region
+          >
             <SidebarNavigation
               collapsed={false}
               mobile
