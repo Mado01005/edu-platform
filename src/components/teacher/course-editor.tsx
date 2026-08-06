@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { Save } from 'lucide-react';
 import { updateCourseAction, type CourseActionState } from '@/app/lms/actions';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
+import { CourseHeader } from '@/components/teacher/course-header';
 import { CourseEditorTabs } from '@/components/teacher/course-editor-tabs';
 import { CurriculumBuilder } from '@/components/teacher/curriculum-builder';
 import { ResourceManager } from '@/components/teacher/resource-manager';
@@ -37,12 +38,26 @@ function BasicDetails({ course }: { course: TeacherCourse }) {
 
 export function CourseEditor({ course }: { course: TeacherCourse }) {
   return (
-    <Tabs className="w-full min-w-0" defaultValue="details">
-      <CourseEditorTabs />
-      <TabsContent value="details"><BasicDetails course={course} /></TabsContent>
-      <TabsContent value="curriculum"><CurriculumBuilder course={course} /></TabsContent>
-      <TabsContent value="resources"><ResourceManager course={course} /></TabsContent>
-      <TabsContent value="zoom"><ZoomScheduler course={course} /></TabsContent>
-    </Tabs>
+    <section
+      aria-label="Course editor"
+      className="custom-scrollbar h-[calc(100dvh-7rem)] min-h-0 w-full min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable]"
+      data-course-editor-scroll
+    >
+      <Tabs className="min-h-full w-full min-w-0 gap-0" defaultValue="details">
+        <div
+          className="sticky top-0 z-30 min-w-0 border-b border-zinc-800 bg-zinc-950/95 pb-4 backdrop-blur-md"
+          data-course-editor-sticky
+        >
+          <CourseHeader slug={course.slug} title={course.title} />
+          <CourseEditorTabs />
+        </div>
+        <div className="min-w-0 pb-28 pt-4 md:pb-12">
+          <TabsContent value="details"><BasicDetails course={course} /></TabsContent>
+          <TabsContent value="curriculum"><CurriculumBuilder course={course} /></TabsContent>
+          <TabsContent value="resources"><ResourceManager course={course} /></TabsContent>
+          <TabsContent value="zoom"><ZoomScheduler course={course} /></TabsContent>
+        </div>
+      </Tabs>
+    </section>
   );
 }

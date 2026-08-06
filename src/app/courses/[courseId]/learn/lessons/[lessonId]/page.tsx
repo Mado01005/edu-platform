@@ -144,7 +144,12 @@ export default async function LessonPlayerPage({
       <LmsHeader user={user} />
       <main className="mx-auto grid w-full max-w-[1500px] min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px]">
         <article className="flex min-w-0 flex-col gap-7 px-4 py-6 sm:px-8 lg:px-10">
-          {isPreview ? <div className="rounded-xl border border-violet-300/30 bg-violet-400/10 px-4 py-3 text-sm font-bold text-violet-100">Student preview mode · progress and submissions are disabled.</div> : null}
+          {isPreview ? (
+            <div className="rounded-xl border border-violet-300/40 bg-violet-400/15 px-4 py-3 text-sm font-black text-violet-100">
+              <span aria-hidden="true">👁️ </span>
+              STUDENT PREVIEW MODE — Editing controls are hidden. You are viewing this course as a student.
+            </div>
+          ) : null}
           <div className="min-w-0">
             <p className="truncate text-xs font-black uppercase tracking-[0.2em] text-violet-300">
               {course.title} · {lesson.moduleTitle}
