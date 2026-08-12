@@ -83,7 +83,7 @@ export default function AdminActionBar({
                   : 'bg-indigo-600 text-white border-transparent shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 hover:scale-105 active:scale-95'
               }`}
             >
-              {showUploader ? 'Close Uploader' : '↑ Transmission Hub'}
+              {showUploader ? 'Close Uploader' : '↑ Upload Content'}
             </button>
             <button 
               onClick={() => setIsCreatingFolder(true)}

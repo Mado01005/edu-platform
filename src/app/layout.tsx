@@ -19,7 +19,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
 
 export const metadata: Metadata = {
   title: 'Way Ground LMS — Learn, Build, Progress',
-  description: 'A modern education platform for students. Access courses in Dynamics, Physics, Chemistry, Communication Skills, Academic Writing, Calculus, and Programming.',
+  description: 'A modern education platform for structured courses, resources, and live classes.',
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
   icons: {

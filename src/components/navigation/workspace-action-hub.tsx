@@ -17,7 +17,10 @@ export function WorkspaceActionHub({
     {
       accent: 'bg-sky-100 text-sky-700',
       description: 'Start a course and add lessons in one guided workspace.',
-      href: '/teacher/courses#new-course',
+      href:
+        mode === 'admin'
+          ? '/admin/curriculum#new-course'
+          : '/teacher/courses#new-course',
       icon: PlusCircle,
       label: 'Create Course',
     },

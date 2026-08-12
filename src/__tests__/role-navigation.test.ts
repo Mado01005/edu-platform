@@ -60,7 +60,7 @@ describe('role-aware universal navigation', () => {
       expect(adminLabels).toEqual(
         expect.arrayContaining([
           'Admin Dashboard',
-          'K-12 Curriculum Manager',
+          'Course & Lesson Manager',
           'Teacher Studio',
           'Student Activity Radar',
           'Support Portal',

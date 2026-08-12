@@ -115,14 +115,14 @@ export default function TopologyViewer() {
 
   return (
     <div className="w-full h-[600px] bg-[#0A0A0F] border border-white/10 rounded-[2rem] overflow-hidden relative shadow-2xl">
-       {/* God Mode Controls */}
+       {/* Admin heatmap controls */}
        {isAdmin && (
          <div className="absolute top-4 right-4 z-10 flex gap-2">
             <button 
               onClick={() => setHeatMapActive(!heatMapActive)}
               className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${heatMapActive ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]' : 'bg-white/10 text-gray-400 hover:bg-white/20'}`}
             >
-              God Mode: Heatmap 
+              Admin View: Heatmap
               {heatMapActive ? ' (Active)' : ''}
             </button>
          </div>

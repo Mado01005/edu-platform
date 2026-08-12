@@ -56,7 +56,7 @@ export default function ActiveSessionsFeed() {
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>
-            God Mode: Live Telemetry
+            Active Sessions
           </h2>
           <p className="text-sm text-gray-400 mt-1">Real-time tracker of all connected network users and their location.</p>
         </div>

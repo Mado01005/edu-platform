@@ -38,8 +38,8 @@ export default function ManageTab({
   return (
     <div className="space-y-10 animate-in fade-in duration-700">
       <div className="space-y-4 max-w-2xl px-2">
-        <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Curriculum Control</h2>
-        <p className="text-sm text-gray-500 font-medium leading-relaxed">Full administrative override for subjects, modules, and binary assets.</p>
+        <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Course &amp; Lesson Manager</h2>
+        <p className="text-sm text-gray-500 font-medium leading-relaxed">Review subjects, lessons, folders, and uploaded files.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -69,7 +69,7 @@ export default function ManageTab({
                   {expandedLessons.has(lesson.id!) && (
                      <ul className="space-y-2 mt-4 animate-in slide-in-from-top-2 duration-300">
                       {lesson.content?.length === 0 && (
-                        <p className="text-[9px] text-gray-700 italic px-6">Folder is currently empty</p>
+                        <p className="text-[9px] text-gray-700 italic px-6">No files added yet</p>
                       )}
                       {lesson.content?.map((item: ContentNode) => (
                         <li key={item.id} className="flex justify-between items-center text-xs py-4 px-6 rounded-2xl hover:bg-white/5 transition border border-transparent hover:border-white/5 group/item bg-black/40">
@@ -116,6 +116,12 @@ export default function ManageTab({
             </div>
           </div>
         ))}
+        {!localSubjects.length ? (
+          <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600 lg:col-span-2">
+            No subjects or lessons created yet. Open Add lessons to create the
+            first subject.
+          </p>
+        ) : null}
       </div>
 
       {selectedItems.size > 0 && (
@@ -123,13 +129,13 @@ export default function ManageTab({
            <div className="flex items-center gap-5">
               <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center font-black text-2xl shadow-inner">!</div>
               <div>
-                <p className="font-black uppercase tracking-[0.2em] text-sm">{selectedItems.size} Selected Assets</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Marked for secure deletion</p>
+                <p className="font-black uppercase tracking-[0.2em] text-sm">{selectedItems.size} Selected Files</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Ready to delete</p>
               </div>
            </div>
            <div className="flex gap-4">
               <button onClick={() => setSelectedItems(new Set())} className="text-[10px] font-black uppercase tracking-widest opacity-60 hover:opacity-100 transition px-4">Cancel</button>
-              <button onClick={onBatchDelete} className="bg-black/20 hover:bg-black/40 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl">Purge Cluster</button>
+              <button onClick={onBatchDelete} className="bg-black/20 hover:bg-black/40 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl">Delete Selected</button>
            </div>
         </div>
       )}

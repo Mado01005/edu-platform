@@ -238,11 +238,11 @@ const sections: readonly NavigationSection[] = [
         roles: ADMIN,
       },
       {
-        description: 'Manage grade levels, subjects, and teacher mapping.',
+        description: 'Create subjects, courses, modules, and lessons.',
         href: '/admin/curriculum',
         key: 'admin-curriculum',
         keywords: ['k12', 'subjects', 'grades'],
-        label: 'K-12 Curriculum Manager',
+        label: 'Course & Lesson Manager',
         roles: ADMIN,
       },
       {

@@ -9,11 +9,18 @@ export const dynamic = 'force-dynamic';
 
 export default async function TeacherCoursesPage() {
   const teacher = await requireTeacherPage();
-  const courses = await getPrisma().course.findMany({
-    where: isAdminRole(teacher.role) ? {} : { teacherId: teacher.id },
-    include: { _count: { select: { modules: true, enrollments: true } } },
-    orderBy: { updatedAt: 'desc' },
-  });
+  const [courses, subjects] = await Promise.all([
+    getPrisma().course.findMany({
+      where: isAdminRole(teacher.role) ? {} : { teacherId: teacher.id },
+      include: { _count: { select: { modules: true, enrollments: true } } },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    getPrisma().subject.findMany({
+      where: isAdminRole(teacher.role) ? {} : { teacherId: teacher.id },
+      orderBy: [{ grade: 'asc' }, { name: 'asc' }],
+      select: { grade: true, id: true, name: true },
+    }),
+  ]);
 
   return (
     <>
@@ -27,7 +34,7 @@ export default async function TeacherCoursesPage() {
         </p>
       </section>
 
-      <CourseCreateForm />
+      <CourseCreateForm requireSubject subjects={subjects} />
 
       <section className="flex w-full min-w-0 scroll-mt-28 flex-col gap-3" id="course-list">
         {courses.length ? (
@@ -64,7 +71,7 @@ export default async function TeacherCoursesPage() {
           ))
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-            Your first course will appear here.
+            No courses created yet. Click &apos;Create Course&apos; to get started.
           </div>
         )}
       </section>

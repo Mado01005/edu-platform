@@ -52,28 +52,28 @@ export default function UploadTab({
   return (
     <div className="space-y-12 pb-20">
       <div className="space-y-4 max-w-2xl text-center md:text-left mx-auto md:mx-0">
-        <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Initialize Deployment</h2>
-        <p className="text-sm text-gray-400 font-medium leading-relaxed">Transmit encrypted educational content to the global infrastructure clusters.</p>
+        <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Add New Lesson</h2>
+        <p className="text-sm text-gray-400 font-medium leading-relaxed">Choose a subject and lesson, then add files, videos, or links.</p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
          <div className="xl:col-span-4 space-y-6">
             <div className="p-8 bg-white/5 border border-white/10 rounded-[2.5rem] space-y-6">
-               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">01 Target Coordinates</label>
+               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">1. Select Subject and Lesson</label>
                <div className="space-y-4">
                   <select className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all cursor-pointer" value={selectedSubjectId} onChange={(e) => { setSelectedSubjectId(e.target.value); setSelectedLessonId(''); }}>
-                    <option value="">-- Select Subject Cluster --</option>
+                    <option value="">Select Subject / Course</option>
                     {localSubjects.map(s => <option key={s.id} value={s.id!}>{s.icon} {s.title}</option>)}
                   </select>
                   {selectedSubjectId && (
                     <select className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all animate-in slide-in-from-top-2" value={selectedLessonId} onChange={(e) => setSelectedLessonId(e.target.value)}>
-                      <option value="">-- Select Deployment Unit --</option>
+                      <option value="">Select Lesson</option>
                       {activeLessons.map((l: LessonMeta) => <option key={l.id} value={l.id}>{l.title}</option>)}
                     </select>
                   )}
                   <div className="flex gap-2 pt-2">
-                    <button type="button" onClick={handleCreateSubject} className="flex-1 text-[9px] font-black uppercase tracking-widest py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition">+ Create Folder</button>
-                    {selectedSubjectId && <button type="button" onClick={() => handleCreateLesson(selectedSubjectId)} className="flex-1 text-[9px] font-black uppercase tracking-widest py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition">+ Create Module</button>}
+                    <button type="button" onClick={handleCreateSubject} className="flex-1 text-[9px] font-black uppercase tracking-widest py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition">+ Create Subject</button>
+                    {selectedSubjectId && <button type="button" onClick={() => handleCreateLesson(selectedSubjectId)} className="flex-1 text-[9px] font-black uppercase tracking-widest py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition">+ Create Lesson</button>}
                   </div>
                </div>
             </div>
@@ -83,7 +83,7 @@ export default function UploadTab({
            <div className="xl:col-span-8 space-y-8 animate-in slide-in-from-right-4 duration-500">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 block">03 Target Folder</label>
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 block">2. Save In</label>
                   <select 
                     className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all cursor-pointer"
                     value={selectedFolderId}
@@ -98,7 +98,7 @@ export default function UploadTab({
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 block">04 Virtual Path (Optional)</label>
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 block">Optional Subfolder</label>
                   <input type="text" placeholder="e.g., Chapter 1" value={subfolder} onChange={e => setSubfolder(e.target.value)} className="w-full bg-black border border-white/10 rounded-2xl px-6 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold placeholder:text-gray-700" />
                 </div>
               </div>

@@ -24,7 +24,7 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
         body: JSON.stringify({ targetEmail: user.email, action, value }),
       });
       if (res.ok) {
-        setMessage('Action successfully executed');
+        setMessage('Changes saved.');
         onUpdate();
         if (action !== 'UPDATE_NOTES' && action !== 'UPDATE_STREAK') {
            setTimeout(onClose, 1000);
@@ -41,37 +41,99 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
-      <div className="bg-[#0A0A0F] border border-white/10 w-full max-w-xl rounded-[3rem] overflow-hidden shadow-3xl relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] pointer-events-none"></div>
-        
-        <div className="px-10 py-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-          <h3 className="text-xl font-black text-white uppercase tracking-tighter">Identity Config — {user.email.split('@')[0]}</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">✕</button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
+      <div
+        aria-labelledby="manage-user-title"
+        aria-modal="true"
+        className="relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-2xl"
+        role="dialog"
+      >
+        <div className="flex min-w-0 items-center justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-7">
+          <div className="min-w-0">
+            <h3
+              className="truncate text-xl font-bold text-slate-900"
+              id="manage-user-title"
+            >
+              Manage User Account
+            </h3>
+            <p className="mt-1 truncate text-sm text-slate-500">{user.email}</p>
+          </div>
+          <button
+            aria-label="Close user account settings"
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+            onClick={onClose}
+            type="button"
+          >
+            ✕
+          </button>
         </div>
 
-        <div className="p-10 space-y-8">
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Streak Override</label>
-            <div className="flex gap-4">
-              <input type="number" value={streak} onChange={e => setStreak(e.target.value)} className="flex-1 bg-black border border-white/10 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-indigo-500 text-white font-bold" />
-              <button onClick={() => handleAction('UPDATE_STREAK', streak)} disabled={isSaving} className="px-8 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[9px] tracking-widest hover:bg-indigo-500 transition-all disabled:opacity-50">Sync</button>
+        <div className="space-y-6 p-5 sm:p-7">
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-slate-700" htmlFor="activity-streak">
+              Activity Streak
+            </label>
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
+              <input
+                className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 font-semibold text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                id="activity-streak"
+                min="0"
+                onChange={(event) => setStreak(event.target.value)}
+                type="number"
+                value={streak}
+              />
+              <button
+                className="rounded-xl bg-sky-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-sky-700 disabled:opacity-50"
+                disabled={isSaving}
+                onClick={() => handleAction('UPDATE_STREAK', streak)}
+                type="button"
+              >
+                Save Streak
+              </button>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Internal Deployment Notes</label>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Personnel background, behavior logs, or admin context..." className="w-full bg-black border border-white/10 rounded-3xl px-6 py-6 outline-none focus:ring-2 focus:ring-indigo-500 text-white text-sm min-h-[120px] resize-none" />
-            <button onClick={() => handleAction('UPDATE_NOTES', notes)} disabled={isSaving} className="w-full py-4 bg-white/5 border border-white/10 text-gray-400 rounded-2xl font-black uppercase text-[9px] tracking-widest hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">Commit Notes</button>
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-slate-700" htmlFor="admin-notes">
+              Private Admin Notes
+            </label>
+            <textarea
+              className="min-h-32 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+              id="admin-notes"
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Add notes for other administrators."
+              value={notes}
+            />
+            <button
+              className="w-full rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-bold text-sky-800 transition hover:bg-sky-100 disabled:opacity-50"
+              disabled={isSaving}
+              onClick={() => handleAction('UPDATE_NOTES', notes)}
+              type="button"
+            >
+              Save Notes
+            </button>
           </div>
 
-          <div className="pt-4 space-y-3">
-             <p className="text-[10px] font-black uppercase tracking-widest text-red-500/60 mb-4">Critical Commands</p>
-             <button disabled={isSaving} className="w-full py-4 bg-red-500/5 border border-red-500/10 text-red-500 hover:bg-red-500/20 rounded-2xl font-black uppercase text-[9px] tracking-widest transition-all">Emergency Security Reset (Password)</button>
-             <p className="text-[9px] text-gray-600 text-center italic mt-2">Password reset requires SMTP configuration to be active on Supabase.</p>
+          <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm font-bold text-slate-900">Password Reset</p>
+            <button
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-400"
+              disabled
+              type="button"
+            >
+              Send Password Reset Email
+            </button>
+            <p className="text-xs leading-5 text-slate-500">
+              Email delivery must be configured before password reset messages
+              can be sent.
+            </p>
           </div>
 
-          {message && <p className="text-center text-xs font-bold text-indigo-400 animate-pulse">{message}</p>}
+          {message ? (
+            <p aria-live="polite" className="text-center text-sm font-bold text-sky-700">
+              {message}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

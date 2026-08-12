@@ -41,13 +41,19 @@ const moneyString = z
   );
 const createCourseSchema = z.object({
   description: nullableDescription,
+  gradeLevel: z.nativeEnum(GradeLevel).nullable(),
+  subjectId: z
+    .string()
+    .trim()
+    .max(128, 'Subject selection is invalid.')
+    .transform((value) => value || null),
   title: z
     .string()
     .trim()
     .min(1, 'Course title is required.')
     .max(200, 'Course title must be 200 characters or fewer.'),
 });
-const updateCourseSchema = createCourseSchema.extend({
+const updateCourseSchema = createCourseSchema.omit({ subjectId: true }).extend({
   imageUrl: z
     .string()
     .trim()
@@ -105,10 +111,14 @@ function slugBase(title: string) {
 
 async function createCourseWithUniqueSlug({
   description,
+  gradeLevel,
+  subjectId,
   teacherId,
   title,
 }: {
   description: string | null;
+  gradeLevel: GradeLevel | null;
+  subjectId: string | null;
   teacherId: string;
   title: string;
 }) {
@@ -117,7 +127,9 @@ async function createCourseWithUniqueSlug({
       return await getPrisma().course.create({
         data: {
           description,
+          gradeLevel,
           slug: `${slugBase(title)}-${nanoid(4).toLowerCase()}`,
+          subjectId,
           teacherId,
           title,
         },
@@ -213,11 +225,34 @@ export async function createCourseAction(
   try {
     const input = parseCourseInput(createCourseSchema, {
       description: formData.get('description') ?? '',
+      gradeLevel: formData.get('gradeLevel') || null,
+      subjectId: formData.get('subjectId') ?? '',
       title: formData.get('title'),
     });
     const teacher = await requireTeacher();
+    let gradeLevel = input.gradeLevel;
+
+    if (input.subjectId) {
+      const subject = await getPrisma().subject.findUnique({
+        where: { id: input.subjectId },
+        select: { grade: true, teacherId: true },
+      });
+
+      if (
+        !subject ||
+        (!isAdminRole(teacher.role) && subject.teacherId !== teacher.id)
+      ) {
+        throw new Error('Choose a subject you are allowed to teach.');
+      }
+      if (gradeLevel && subject.grade !== gradeLevel) {
+        throw new Error('The selected subject does not belong to that grade.');
+      }
+      gradeLevel = subject.grade;
+    }
+
     const course = await createCourseWithUniqueSlug({
       ...input,
+      gradeLevel,
       teacherId: teacher.id,
     });
 

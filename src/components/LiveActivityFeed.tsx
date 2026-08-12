@@ -231,7 +231,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
           <div className="relative">
             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
           </div>
-          GOD MODE — COMMAND CENTER
+          ADMIN ACTIVITY
           <button onClick={() => setShowRawStream(!showRawStream)} className={`text-[8px] font-black px-2 py-0.5 rounded-full border transition ${
             connectionStatus === 'connected' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
             connectionStatus === 'connecting' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 animate-pulse' :
@@ -339,7 +339,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
               </div>
 
               <div className="bg-white/10 rounded-xl p-3 border border-indigo-500/20 mb-6">
-                <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Last Transmission</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Last Activity</p>
                 <p className="text-sm text-white font-mono">{new Date(s.lastSeen).toLocaleString()}</p>
                 <p className="text-[10px] text-indigo-400/60 mt-1">Status: Active Trace Locked ({timeAgo(s.lastSeen)})</p>
               </div>
@@ -375,7 +375,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
                 <tr>
                   <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Subscriber</th>
                   <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Network Action</th>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Telemetry Data</th>
+                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Activity Details</th>
                   <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest text-right">Timestamp</th>
                 </tr>
               </thead>
@@ -645,7 +645,7 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
                           {shadowLogs.filter(l => l.action === 'USER_CLICK').length === 0 && (
                             <div className="h-full flex flex-col items-center justify-center opacity-10">
                                <div className="text-4xl mb-2">🖱️</div>
-                               <p className="text-[9px] font-black uppercase tracking-widest text-center">Awaiting click telemetry...</p>
+                               <p className="text-[9px] font-black uppercase tracking-widest text-center">No detailed interaction data yet.</p>
                             </div>
                           )}
                        </div>

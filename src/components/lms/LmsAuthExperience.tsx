@@ -582,7 +582,7 @@ export function LmsAuthExperience({
         <div className="relative max-w-xl">
           <span className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-sky-700">
             <Sparkles className="size-3.5" aria-hidden="true" />
-            Your learning command center
+            Your learning space
           </span>
           <h1 className="mt-6 text-5xl font-black leading-[1.02] tracking-[-0.045em] xl:text-6xl">
             Welcome back to your{' '}

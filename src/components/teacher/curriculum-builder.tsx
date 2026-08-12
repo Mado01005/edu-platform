@@ -104,13 +104,23 @@ function ModuleCard({ module }: { module: TeacherModule }) {
       </summary>
       <div className="flex min-w-0 flex-col gap-3 border-t border-slate-200 p-3">
         {module.lessons.map((lesson) => <LessonEditor key={lesson.id} lesson={lesson} />)}
-        {!module.lessons.length ? <p className="rounded-xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">Add the first learning activity below.</p> : null}
+        {!module.lessons.length ? <p className="rounded-xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">No lessons added yet. Use the form below to add the first lesson.</p> : null}
         <form action={createLessonAction.bind(null, module.id)} className="flex min-w-0 flex-col gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
-          <label className="text-xs font-bold text-slate-600">New Activity Title<input className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-500" name="title" placeholder="e.g. Fractions practice" required /></label>
-          <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
-            <button className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50" name="contentType" type="submit" value="R2_VIDEO">+ Add Video Lesson</button>
-            <button className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50" name="contentType" type="submit" value="QUIZ">+ Add Quiz</button>
-            <button className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50" name="contentType" type="submit" value="ASSIGNMENT">+ Add Assignment</button>
+          <label className="text-xs font-bold text-slate-600">New Lesson Title<input className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-500" name="title" placeholder="e.g. Fractions practice" required /></label>
+          <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
+            <label className="text-xs font-bold text-slate-600">
+              Lesson Type
+              <select className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-500" defaultValue="R2_VIDEO" name="contentType">
+                <option value="R2_VIDEO">Video lesson</option>
+                <option value="TEXT">Text lesson</option>
+                <option value="PDF">PDF resource</option>
+                <option value="QUIZ">Quiz</option>
+                <option value="ASSIGNMENT">Assignment</option>
+                <option value="VIMEO">Vimeo video</option>
+                <option value="YOUTUBE">YouTube video</option>
+              </select>
+            </label>
+            <ActionSubmitButton className="mt-auto rounded-lg bg-sky-600 px-4 py-2 text-xs font-bold text-white hover:bg-sky-700" pendingLabel="Adding lesson…">+ Add Lesson</ActionSubmitButton>
           </div>
         </form>
       </div>
@@ -122,8 +132,8 @@ export function CurriculumBuilder({ course }: { course: TeacherCourse }) {
   return (
     <section className="flex w-full min-w-0 flex-col gap-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="flex items-center gap-2 font-black"><FileText className="size-5 text-sky-700" /> Curriculum & lessons</h2>
-        <p className="mt-2 text-sm text-slate-600">Open a module to manage its videos, quizzes, assignments, and resources.</p>
+        <h2 className="flex items-center gap-2 font-black"><FileText className="size-5 text-sky-700" /> Modules &amp; Lessons</h2>
+        <p className="mt-2 text-sm text-slate-600">Create a module, then add lessons and resources inside it.</p>
       </header>
       {course.modules.map((module) => <ModuleCard key={module.id} module={module} />)}
       <form action={createModuleAction.bind(null, course.id)} className="flex min-w-0 flex-col gap-2 rounded-2xl border border-dashed border-slate-300 bg-white p-3 sm:flex-row">

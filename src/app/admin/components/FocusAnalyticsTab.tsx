@@ -76,7 +76,7 @@ export default function FocusAnalyticsTab() {
       <div className="text-center py-20 bg-white/5 border border-white/10 rounded-3xl">
         <div className="text-6xl mb-4">🎧</div>
         <h3 className="text-xl font-bold text-white uppercase tracking-widest mb-2">Awaiting Student Data</h3>
-        <p className="text-gray-400 text-sm">Focus telemetry streams will visualize here once students activate Deep Work sessions.</p>
+        <p className="text-gray-400 text-sm">Focus charts will appear here after students start study sessions.</p>
       </div>
     );
   }
@@ -85,7 +85,7 @@ export default function FocusAnalyticsTab() {
     <div className="space-y-8 fade-in">
       <div className="space-y-2 max-w-2xl text-center md:text-left mx-auto md:mx-0">
         <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Productivity Pulse</h2>
-        <p className="text-sm text-indigo-400 font-bold uppercase tracking-widest leading-relaxed">God Mode Overview</p>
+        <p className="text-sm text-indigo-400 font-bold uppercase tracking-widest leading-relaxed">Focus Overview</p>
       </div>
 
       {/* Top Metrics */}

@@ -64,15 +64,15 @@ export default function PromotionModal({ open, userEmail }: PromotionModalProps)
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <span className="text-green-400 text-lg mt-0.5">✓</span>
-                <span className="text-sm text-slate-600">Upload new HD videos, encrypted PDFs, and visual telemetry to any subject module.</span>
+                <span className="text-sm text-slate-600">Upload videos, PDFs, and learning resources to course modules.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-green-400 text-lg mt-0.5">✓</span>
-                <span className="text-sm text-slate-600">Create brand new academic Subjects and instantly distribute global tracking links.</span>
+                <span className="text-sm text-slate-600">Create subjects, courses, modules, and lessons.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-green-400 text-lg mt-0.5">✓</span>
-                <span className="text-sm text-slate-600">Publish Global Announcements directly to all active student dashboards.</span>
+                <span className="text-sm text-slate-600">Publish announcements to student dashboards.</span>
               </li>
             </ul>
           </div>
@@ -82,7 +82,7 @@ export default function PromotionModal({ open, userEmail }: PromotionModalProps)
             disabled={loading}
             className="mx-auto flex w-full items-center justify-center gap-3 rounded-xl bg-sky-600 px-10 py-4 font-semibold text-white transition hover:bg-sky-700 disabled:opacity-50 sm:w-auto"
           >
-            {loading ? 'Authenticating...' : 'Enter Command Center'}
+            {loading ? 'Opening dashboard…' : 'Open Admin Dashboard'}
             {!loading && (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />

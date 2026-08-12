@@ -29,7 +29,7 @@ export default function AnnouncementTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: '', is_active: false })
       });
-      if (res.ok) alert('All global announcements have been archived. 🗑️');
+      if (res.ok) alert('All announcements have been archived. 🗑️');
     } catch {
       alert('Network Error');
     }

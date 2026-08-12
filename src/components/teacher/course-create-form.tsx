@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState } from 'react';
+import type { GradeLevel } from '@prisma/client';
+import { useActionState, useMemo, useState } from 'react';
 import { BookPlus } from 'lucide-react';
 import {
   createCourseAction,
@@ -13,18 +14,84 @@ const initialState: CourseActionState = {
   success: false,
 };
 
-export function CourseCreateForm() {
+export type CourseSubjectOption = {
+  grade: GradeLevel;
+  id: string;
+  name: string;
+};
+
+const grades = Array.from(
+  { length: 12 },
+  (_, index) => `GRADE_${index + 1}` as GradeLevel,
+);
+const EMPTY_SUBJECTS: CourseSubjectOption[] = [];
+
+export function CourseCreateForm({
+  requireSubject = false,
+  subjects = EMPTY_SUBJECTS,
+}: {
+  requireSubject?: boolean;
+  subjects?: CourseSubjectOption[];
+}) {
   const [state, action] = useActionState(createCourseAction, initialState);
+  const [gradeLevel, setGradeLevel] = useState<GradeLevel | ''>('');
+  const matchingSubjects = useMemo(
+    () => subjects.filter((subject) => subject.grade === gradeLevel),
+    [gradeLevel, subjects],
+  );
 
   return (
     <form
       action={action}
-      className="mx-auto flex w-full max-w-md min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
       id="new-course"
     >
       <div className="flex items-center gap-2 text-sm font-black">
         <BookPlus className="size-4 text-sky-700" aria-hidden="true" />
         Create a course
+      </div>
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
+        <label className="min-w-0 text-xs font-bold text-slate-700">
+          Grade Level
+          <select
+            className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            name="gradeLevel"
+            onChange={(event) =>
+              setGradeLevel(event.target.value as GradeLevel | '')
+            }
+            required={requireSubject}
+            value={gradeLevel}
+          >
+            <option value="">Choose grade</option>
+            {grades.map((grade, index) => (
+              <option key={grade} value={grade}>
+                Grade {index + 1}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="min-w-0 text-xs font-bold text-slate-700">
+          Subject
+          <select
+            className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none disabled:bg-slate-100 disabled:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            disabled={!gradeLevel}
+            name="subjectId"
+            required={requireSubject}
+          >
+            <option value="">
+              {!gradeLevel
+                ? 'Choose grade first'
+                : matchingSubjects.length
+                  ? 'Choose subject'
+                  : 'No subjects in this grade'}
+            </option>
+            {matchingSubjects.map((subject) => (
+              <option key={subject.id} value={subject.id}>
+                {subject.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
       <input
         className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100"

@@ -20,7 +20,7 @@ export default function AdminSidebar<TabId extends string>({
   const { setIsPending, executeMutation } = useAdmin();
 
   const handleAuditR2 = async () => {
-    if (!confirm('Run a full recursive audit of the Cloudflare R2 bucket to identify orphaned files?')) return;
+    if (!confirm('Check file storage for uploads that are no longer linked to a lesson?')) return;
     
     try {
       setIsPending(true);
@@ -29,17 +29,17 @@ export default function AdminSidebar<TabId extends string>({
       const data = await res.json().catch(() => ({}));
       
       if (!res.ok) {
-        return alert(`Audit Failed: ${data.error || 'Network Error'}`);
+        return alert(`Storage check failed: ${data.error || 'Please try again.'}`);
       }
 
       const { orphanedCount, totalR2Objects, totalDbLinks } = data;
       
       if (orphanedCount === 0) {
-        return alert(`✅ Clean! Checked ${totalR2Objects} bucket items against ${totalDbLinks} database links. No orphaned files detected.`);
+        return alert(`All ${totalR2Objects} stored files are linked to platform content.`);
       }
 
-      // 2. Execute Purge Prompt
-      const wantPurge = confirm(`⚠️ Found ${orphanedCount} orphaned files occupying bucket space.\n\nTotal R2 Objects: ${totalR2Objects}\nRegistered DB Links: ${totalDbLinks}\n\nExecute permanent deletion? This cannot be undone.`);
+      // Ask before permanently deleting unused objects.
+      const wantPurge = confirm(`Found ${orphanedCount} unused files.\n\nStored files checked: ${totalR2Objects}\nFiles linked to content: ${totalDbLinks}\n\nDelete the unused files permanently? This cannot be undone.`);
       
       if (!wantPurge) return;
 
@@ -50,11 +50,11 @@ export default function AdminSidebar<TabId extends string>({
       );
       
       if (purgeData) {
-        alert(`🗑️ Purged ${purgeData.purged} stray files successfully.`);
+        alert(`Deleted ${purgeData.purged} unused files.`);
       }
       
     } catch {
-      alert('Network Error during R2 Audit'); 
+      alert('Could not check file storage. Please try again.');
     } finally {
       setIsPending(false);
     }

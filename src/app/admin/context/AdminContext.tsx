@@ -91,13 +91,13 @@ export function AdminProvider({ children, refreshPageData }: { children: React.R
   };
 
   const handleCreateSubject = async () => {
-    const title = prompt('New Subject Title:');
+    const title = prompt('New subject name:');
     if (!title) return;
     await executeMutation('/api/admin/subjects', 'POST', { title, icon: '📂' });
   };
 
   const handleCreateLesson = async (subjectId: string) => {
-    const title = prompt('New Module Title:');
+    const title = prompt('New lesson title:');
     if (!title || !subjectId) return;
     await executeMutation('/api/admin/lessons', 'POST', { subjectId, title });
   };
