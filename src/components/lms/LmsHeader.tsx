@@ -26,23 +26,20 @@ const navigation = [
 
 export function LmsHeader({ user }: LmsHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 h-16 w-full border-b border-zinc-800 bg-zinc-950/90 px-4 backdrop-blur-md">
+    <header className="sticky top-0 z-50 h-16 w-full border-b border-slate-200 bg-white px-4 shadow-sm">
         <div className="mx-auto flex h-full w-full max-w-7xl min-w-0 items-center justify-between gap-4">
           {/* Left zone: brand */}
           <Link
             aria-label="Way Ground LMS catalog"
-            className="group flex min-w-max shrink-0 items-center gap-3 font-black"
+            className="group flex min-w-max shrink-0 items-center gap-3 font-bold"
             href="/catalog"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-500 text-black shadow-lg shadow-violet-500/20 transition group-hover:scale-105">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-600 text-white transition-colors group-hover:bg-sky-700">
               <GraduationCap className="size-5" aria-hidden="true" />
             </span>
             <span className="hidden min-w-0 sm:block">
-              <span className="block max-w-32 truncate whitespace-nowrap text-sm tracking-tight text-white">
+              <span className="block max-w-32 truncate whitespace-nowrap text-base tracking-tight text-slate-900">
                 Way Ground
-              </span>
-              <span className="block whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.18em] text-violet-300">
-                Learning platform
               </span>
             </span>
           </Link>
@@ -59,7 +56,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
             >
               {navigation.map(({ href, icon: Icon, label }) => (
                 <Link
-                  className="flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                  className="flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-sky-50 hover:text-sky-700"
                   href={href}
                   key={href}
                 >
@@ -95,7 +92,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
                 <Link
                   className={cn(
                     buttonVariants({ size: 'sm' }),
-                    'h-10 rounded-xl bg-gradient-to-r from-violet-400 to-fuchsia-500 px-3.5 text-black shadow-lg shadow-violet-500/20 hover:from-violet-300 hover:to-fuchsia-400',
+                    'h-10 rounded-xl px-3.5',
                   )}
                   href="/lms/login?mode=signup"
                 >

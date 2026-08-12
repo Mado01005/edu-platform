@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'Way Ground LMS',
   },
 };
@@ -78,11 +78,10 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className="dark"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <body className={`${inter.className} bg-gray-950 text-gray-100 antialiased`}>
+      <body className={`${inter.className} overflow-x-hidden bg-slate-50 text-slate-900 antialiased`}>
         <Providers>
           <PWAInstallPrompt />
           <KeyboardShortcuts />

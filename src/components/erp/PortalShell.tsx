@@ -13,9 +13,9 @@ export function PortalShell({
   user: Pick<User, 'avatarUrl' | 'email' | 'name' | 'role'>;
 }) {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-black text-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900">
       <LmsHeader user={user} />
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-start gap-6 px-4 py-6 sm:px-6">
+      <div className="mx-auto flex w-full max-w-[92rem] min-w-0 items-start gap-6 px-4 py-6 sm:px-6">
         <AppSidebar role={user.role} />
         <main className="flex w-full min-w-0 flex-1 flex-col gap-4 pb-24 md:pb-10">
           <Breadcrumbs role={user.role} />

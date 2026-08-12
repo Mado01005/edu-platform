@@ -67,14 +67,14 @@ export function Breadcrumbs({ role }: { role: Role }) {
   if (!segments.length) return null;
 
   return (
-    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 px-3 py-2.5 backdrop-blur-sm">
+    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-0 pb-3">
       <nav
         aria-label="Breadcrumbs"
-        className="custom-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-xs font-bold text-zinc-500"
+        className="custom-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-xs font-medium text-slate-500"
       >
         <Link
           aria-label="Home"
-          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 transition hover:bg-white/5 hover:text-white"
+          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 transition hover:bg-sky-50 hover:text-sky-700"
           href={home}
         >
           <Home aria-hidden="true" className="size-3.5" />
@@ -85,14 +85,14 @@ export function Breadcrumbs({ role }: { role: Role }) {
           const current = index === segments.length - 1;
           return (
             <span className="flex shrink-0 items-center gap-1" key={href}>
-              <ChevronRight aria-hidden="true" className="size-3 text-zinc-700" />
+              <ChevronRight aria-hidden="true" className="size-3 text-slate-300" />
               {current || !navigablePaths.has(href) ? (
-                <span aria-current={current ? 'page' : undefined} className="max-w-44 truncate px-2 py-1.5 text-zinc-200">
+                <span aria-current={current ? 'page' : undefined} className="max-w-44 truncate px-2 py-1.5 text-slate-900">
                   {segmentLabel(segment)}
                 </span>
               ) : (
                 <Link
-                  className="max-w-44 truncate rounded-lg px-2 py-1.5 transition hover:bg-white/5 hover:text-white"
+                  className="max-w-44 truncate rounded-lg px-2 py-1.5 transition hover:bg-sky-50 hover:text-sky-700"
                   href={href}
                 >
                   {segmentLabel(segment)}
@@ -105,7 +105,7 @@ export function Breadcrumbs({ role }: { role: Role }) {
 
       {segments.length > 1 ? (
         <button
-          className="flex min-h-9 shrink-0 items-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-black text-zinc-300 transition hover:bg-white/5 hover:text-white"
+          className="flex min-h-9 shrink-0 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
           onClick={() => router.back()}
           type="button"
         >

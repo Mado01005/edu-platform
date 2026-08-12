@@ -4,7 +4,6 @@ import { useRef, useState } from 'react';
 import {
   Download,
   ExternalLink,
-  FileArchive,
   FileText,
   Loader2,
   Trash2,
@@ -45,11 +44,7 @@ type PresignResponse = {
 };
 
 function MaterialIcon({ fileType }: { fileType: string }) {
-  return fileType === 'ZIP' ? (
-    <FileArchive className="size-5" aria-hidden="true" />
-  ) : (
-    <FileText className="size-5" aria-hidden="true" />
-  );
+  return <FileText className="size-5" aria-hidden="true" />;
 }
 
 export function MaterialUploader({
@@ -73,10 +68,10 @@ export function MaterialUploader({
 
     try {
       if (file.size <= 0 || file.size > MAX_MATERIAL_UPLOAD_BYTES) {
-        throw new Error('Choose a file between 1 byte and 100 MB.');
+        throw new Error('Choose a document between 1 byte and 50 MiB.');
       }
 
-      const presignRequest = await fetch('/api/upload/r2', {
+      const presignRequest = await fetch('/api/storage/presigned', {
         body: JSON.stringify({
           contentType: file.type,
           courseId,
@@ -176,11 +171,11 @@ export function MaterialUploader({
   }
 
   return (
-    <section className="flex min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-black/30 p-3">
+    <section className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
       <div>
-        <h3 className="text-sm font-black text-white">{title}</h3>
-        <p className="mt-1 text-xs leading-5 text-zinc-500">
-          PDF, Word, PowerPoint, Excel, or ZIP · up to 100 MB
+        <h3 className="text-sm font-black text-slate-900">{title}</h3>
+        <p className="mt-1 text-xs leading-5 text-slate-500">
+          PDF, PPTX, DOCX, or XLSX · up to 50 MiB
         </p>
       </div>
 
@@ -188,8 +183,8 @@ export function MaterialUploader({
         className={cn(
           'flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-dashed p-4 transition',
           dragging
-            ? 'border-violet-300 bg-violet-400/10'
-            : 'border-white/15 bg-zinc-950 hover:border-violet-400/60',
+            ? 'border-sky-500 bg-sky-50'
+            : 'border-slate-300 bg-slate-50 hover:border-sky-400',
           pendingFile && 'pointer-events-none opacity-70',
         )}
         onDragEnter={() => setDragging(true)}
@@ -204,7 +199,7 @@ export function MaterialUploader({
           if (file) void upload(file);
         }}
       >
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-violet-300">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
           {pendingFile ? (
             <Loader2 className="size-5 animate-spin" aria-hidden="true" />
           ) : (
@@ -212,11 +207,11 @@ export function MaterialUploader({
           )}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-bold text-zinc-200">
+          <span className="block truncate text-sm font-bold text-slate-700">
             {pendingFile ? `Uploading ${pendingFile}…` : 'Drop a file or choose one'}
           </span>
-          <span className="mt-1 block text-xs text-zinc-600">
-            Uploads directly to Cloudflare R2
+          <span className="mt-1 block text-xs text-slate-500">
+            Secure direct upload to Cloudflare R2
           </span>
         </span>
         <input
@@ -236,24 +231,24 @@ export function MaterialUploader({
         <ul className="flex min-w-0 flex-col gap-2">
           {materials.map((material) => (
             <li
-              className="flex min-w-0 flex-col gap-3 rounded-xl border border-white/10 bg-zinc-950 p-3 sm:flex-row sm:items-center"
+              className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center"
               key={material.id}
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/5 text-violet-300">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700">
                 <MaterialIcon fileType={material.fileType} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-bold text-zinc-200">
+                <span className="block truncate text-sm font-bold text-slate-700">
                   {material.title}
                 </span>
-                <span className="mt-1 block text-[10px] font-black uppercase tracking-wider text-zinc-600">
+                <span className="mt-1 block text-[10px] font-black uppercase tracking-wider text-slate-500">
                   {material.fileType} · {formatMaterialFileSize(material.fileSize)}
                 </span>
               </span>
               <span className="grid shrink-0 grid-cols-3 gap-1">
                 <button
                   aria-label={`Preview ${material.title}`}
-                  className="flex size-9 items-center justify-center rounded-lg border border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white"
+                  className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-sky-700"
                   onClick={() => setPreviewing(material)}
                   type="button"
                 >
@@ -261,14 +256,14 @@ export function MaterialUploader({
                 </button>
                 <a
                   aria-label={`Download ${material.title}`}
-                  className="flex size-9 items-center justify-center rounded-lg border border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white"
+                  className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-sky-700"
                   href={`/api/lms/materials/${material.id}/download`}
                 >
                   <Download className="size-4" aria-hidden="true" />
                 </a>
                 <button
                   aria-label={`Delete ${material.title}`}
-                  className="flex size-9 items-center justify-center rounded-lg border border-red-400/20 text-red-300 hover:bg-red-400/10 disabled:opacity-50"
+                  className="flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50"
                   disabled={deletingId === material.id}
                   onClick={() => void remove(material)}
                   type="button"
@@ -284,13 +279,13 @@ export function MaterialUploader({
           ))}
         </ul>
       ) : (
-        <p className="rounded-xl border border-dashed border-white/10 px-3 py-4 text-center text-xs text-zinc-600">
+        <p className="rounded-xl border border-dashed border-slate-300 px-3 py-4 text-center text-xs text-slate-500">
           No materials uploaded yet.
         </p>
       )}
 
       {error ? (
-        <p aria-live="polite" className="text-xs text-red-300">
+        <p aria-live="polite" className="text-xs text-red-600">
           {error}
         </p>
       ) : null}
@@ -303,11 +298,11 @@ export function MaterialUploader({
               <DialogDescription>{previewing.fileType} · {formatMaterialFileSize(previewing.fileSize)}</DialogDescription>
             </DialogHeader>
             {previewing.fileType === 'PDF' ? (
-              <iframe className="h-[60dvh] w-full rounded-xl border border-white/10 bg-white" src={previewing.fileUrl} title={`Preview ${previewing.title}`} />
+              <iframe className="h-[60dvh] w-full rounded-xl border border-slate-200 bg-white" src={previewing.fileUrl} title={`Preview ${previewing.title}`} />
             ) : (
-              <div className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-400">This file type opens in its native viewer.</div>
+              <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">This file type opens in its native viewer.</div>
             )}
-            <a className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-black" href={previewing.fileUrl} rel="noopener noreferrer" target="_blank"><ExternalLink className="size-4" /> Open in new tab</a>
+            <a className="flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-3 text-sm font-bold text-white hover:bg-sky-700" href={previewing.fileUrl} rel="noopener noreferrer" target="_blank"><ExternalLink className="size-4" /> Open in new tab</a>
           </DialogContent>
         ) : null}
       </Dialog>

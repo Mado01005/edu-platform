@@ -3,7 +3,7 @@ export function LmsPageSkeleton() {
     <div
       aria-label="Loading page"
       aria-live="polite"
-      className="flex min-h-screen w-full flex-col items-center overflow-x-hidden bg-black px-4 py-6 text-white"
+      className="flex min-h-screen w-full flex-col items-center overflow-x-hidden bg-slate-50 px-4 py-6 text-slate-900"
       role="status"
     >
       <div className="flex w-full max-w-md animate-pulse flex-col gap-4">

@@ -115,12 +115,12 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
   const instructorName = course.teacher.name ?? 'Dr. Abdallah Saad';
 
   return (
-    <Card className="group overflow-hidden border-white/10 bg-zinc-950/90 py-0 transition duration-500 hover:-translate-y-1.5 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-950/40">
-      <div className="relative aspect-video overflow-hidden bg-zinc-900">
+    <Card className="group overflow-hidden py-0 transition duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-sm">
+      <div className="relative aspect-video overflow-hidden bg-slate-100">
         {course.imageUrl ? (
           <Image
             alt={`${course.title} course cover`}
-            className="object-cover transition duration-700 group-hover:scale-105"
+            className="object-cover transition duration-300 group-hover:scale-[1.02]"
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             src={course.imageUrl}
@@ -128,17 +128,15 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
         ) : (
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(192,132,252,.8),transparent_26%),radial-gradient(circle_at_85%_75%,rgba(59,130,246,.5),transparent_30%),linear-gradient(135deg,#18181b,#09090b)]"
+            className="absolute inset-0 bg-sky-100"
           >
-            <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:28px_28px]" />
-            <BookOpen className="absolute bottom-5 left-5 size-12 text-white/70 transition duration-500 group-hover:-rotate-6 group-hover:scale-110" />
+            <BookOpen className="absolute bottom-5 left-5 size-12 text-sky-600 transition duration-300 group-hover:-rotate-3" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10" />
-        <Badge className="absolute right-3 top-3 border-white/10 bg-black/70 text-white backdrop-blur-md">
+        <Badge className="absolute right-3 top-3 border-slate-200 bg-white text-slate-700 shadow-sm">
           {categories[0]}
         </Badge>
-        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/65 px-2.5 py-1 text-[10px] font-bold text-zinc-200 backdrop-blur-md">
+        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-medium text-slate-600 shadow-sm">
           <Users className="size-3" aria-hidden="true" />
           {course._count.enrollments} learners
         </span>
@@ -152,10 +150,10 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
             </AvatarFallback>
           </Avatar>
           <span className="min-w-0">
-            <span className="block truncate text-xs font-black text-zinc-200">
+            <span className="block truncate text-xs font-semibold text-slate-700">
               {instructorName}
             </span>
-            <span className="block text-[10px] font-medium text-zinc-500">
+            <span className="block text-[10px] font-medium text-slate-500">
               Course instructor
             </span>
           </span>
@@ -171,26 +169,26 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
 
       <CardContent className="mt-5">
         <div className="grid min-w-0 grid-cols-2 gap-2">
-          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-white/[0.04] px-3 py-2 text-xs text-zinc-400">
-            <Layers3 className="size-3.5 shrink-0 text-violet-300" aria-hidden="true" />
+          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            <Layers3 className="size-3.5 shrink-0 text-sky-600" aria-hidden="true" />
             <span className="truncate">
               {course.modules.length} {course.modules.length === 1 ? 'Module' : 'Modules'}
             </span>
           </span>
-          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-white/[0.04] px-3 py-2 text-xs text-zinc-400">
+          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600">
             {lessonTypes.has('PDF') ? (
-              <FileText className="size-3.5 shrink-0 text-fuchsia-300" aria-hidden="true" />
+              <FileText className="size-3.5 shrink-0 text-sky-600" aria-hidden="true" />
             ) : (
-              <PlayCircle className="size-3.5 shrink-0 text-fuchsia-300" aria-hidden="true" />
+              <PlayCircle className="size-3.5 shrink-0 text-sky-600" aria-hidden="true" />
             )}
             <span className="truncate">{contentLabel(lessonTypes)}</span>
           </span>
         </div>
-        <p className="mt-3 flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
+        <p className="mt-3 flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
           {course._count.zoomSessions > 0 ? (
-            <Radio className="size-3 text-emerald-300" aria-hidden="true" />
+            <Radio className="size-3 text-emerald-600" aria-hidden="true" />
           ) : (
-            <BookOpen className="size-3 text-violet-300" aria-hidden="true" />
+            <BookOpen className="size-3 text-sky-600" aria-hidden="true" />
           )}
           {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
           {course._count.zoomSessions > 0
@@ -198,13 +196,13 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
             : ''}
         </p>
         {Number(course.priceEGP) > 0 || Number(course.priceUSD) > 0 ? (
-          <p className="mt-3 text-sm font-black text-emerald-300">
+          <p className="mt-3 text-sm font-bold text-slate-900">
             {Number(course.priceEGP) > 0 ? `${course.priceEGP} EGP` : ''}
             {Number(course.priceEGP) > 0 && Number(course.priceUSD) > 0 ? ' · ' : ''}
             {Number(course.priceUSD) > 0 ? `${course.priceUSD} USD` : ''}
           </p>
         ) : (
-          <p className="mt-3 text-sm font-black text-emerald-300">Free access</p>
+          <p className="mt-3 text-sm font-bold text-emerald-700">Free access</p>
         )}
       </CardContent>
 
@@ -225,10 +223,7 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
           </Link>
         ) : (
           <Link
-            className={cn(
-              buttonVariants(),
-              'w-full bg-gradient-to-r from-violet-400 to-fuchsia-500 text-black hover:from-violet-300 hover:to-fuchsia-400',
-            )}
+            className={cn(buttonVariants(), 'w-full')}
             href={`/lms/login?next=${encodeURIComponent('/catalog')}`}
           >
             Sign in to enroll

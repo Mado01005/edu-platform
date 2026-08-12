@@ -18,10 +18,10 @@ export function SettingsToast({
 
   return (
     <div
-      className={`fixed bottom-4 left-1/2 z-50 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-xl ${
+      className={`fixed bottom-4 left-1/2 z-50 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-3 rounded-2xl border p-4 shadow-sm ${
         success
-          ? 'border-emerald-400/20 bg-emerald-950/90 text-emerald-100'
-          : 'border-red-400/20 bg-red-950/90 text-red-100'
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+          : 'border-red-200 bg-red-50 text-red-800'
       }`}
       role={success ? 'status' : 'alert'}
     >
@@ -35,7 +35,7 @@ export function SettingsToast({
       </p>
       <button
         aria-label="Dismiss notification"
-        className="rounded-lg p-1 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        className="rounded-lg p-1 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
         onClick={onDismiss}
         type="button"
       >

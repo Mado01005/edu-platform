@@ -48,19 +48,19 @@ export default function WhatsNewBanner() {
   });
 
   return (
-    <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start gap-4 shadow-lg shadow-emerald-500/5 fade-in relative">
-      <div className="p-2 bg-emerald-500/20 rounded-xl shrink-0 mt-0.5 animate-pulse">
-        <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="relative mb-6 flex items-start gap-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm fade-in">
+      <div className="mt-0.5 shrink-0 rounded-xl bg-emerald-100 p-2">
+        <svg className="h-5 w-5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
       </div>
       <div className="flex-1">
-        <p className="text-sm font-bold text-emerald-300 mb-1">📚 New Material Added!</p>
-        <p className="text-sm text-gray-300">
+        <p className="mb-1 text-sm font-semibold text-emerald-800">📚 New Material Added!</p>
+        <p className="text-sm text-slate-600">
           {newItems.length} new file{newItems.length !== 1 ? 's' : ''} added in the last 24 hours — check your courses for fresh content!
         </p>
       </div>
-      <button onClick={handleDismiss} className="shrink-0 text-gray-500 hover:text-white transition p-1 rounded-lg hover:bg-white/10">
+      <button onClick={handleDismiss} className="shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-emerald-100 hover:text-slate-700">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
       </button>
     </div>

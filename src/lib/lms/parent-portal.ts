@@ -1,14 +1,18 @@
 import 'server-only';
 
-import { createHash, randomBytes, scrypt as rawScrypt, timingSafeEqual } from 'node:crypto';
+import { randomBytes, scrypt as rawScrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { Prisma } from '@prisma/client';
 import { cookies } from 'next/headers';
 import { normalizePhoneNumber } from '@/lib/phone';
+import {
+  hashParentPortalSessionToken,
+  PARENT_PORTAL_SESSION_COOKIE,
+  validateParentPortalSessionToken,
+} from '@/lib/lms/parent-session';
 import { getPrisma } from '@/lib/prisma';
 
 const scrypt = promisify(rawScrypt);
-const SESSION_COOKIE = 'wayground_mps_session';
 const SESSION_DAYS = 30;
 const MAX_ATTEMPTS = 5;
 const LOCK_MINUTES = 15;
@@ -49,10 +53,6 @@ async function verifyParentPin(pin: string, encoded: string) {
   } catch {
     return false;
   }
-}
-
-function hashSessionToken(token: string) {
-  return createHash('sha256').update(token).digest('hex');
 }
 
 export async function loginParentPortal(phoneValue: unknown, pinValue: unknown) {
@@ -112,14 +112,18 @@ export async function loginParentPortal(phoneValue: unknown, pinValue: unknown) 
   const token = randomBytes(32).toString('base64url');
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1_000);
   await prisma.parentPortalSession.create({
-    data: { expiresAt, parentId: parent.id, tokenHash: hashSessionToken(token) },
+    data: {
+      expiresAt,
+      parentId: parent.id,
+      tokenHash: hashParentPortalSessionToken(token),
+    },
   });
   return { expiresAt, token };
 }
 
 export async function setParentSessionCookie(token: string, expiresAt: Date) {
   const store = await cookies();
-  store.set(SESSION_COOKIE, token, {
+  store.set(PARENT_PORTAL_SESSION_COOKIE, token, {
     expires: expiresAt,
     httpOnly: true,
     path: '/',
@@ -129,42 +133,23 @@ export async function setParentSessionCookie(token: string, expiresAt: Date) {
 }
 
 export async function getParentPortalSession() {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-  const prisma = getPrisma();
-  const session = await prisma.parentPortalSession.findFirst({
-    where: {
-      expiresAt: { gt: new Date() },
-      revokedAt: null,
-      tokenHash: hashSessionToken(token),
-      parent: { role: 'PARENT', status: 'ACTIVE' },
-    },
-    select: {
-      id: true,
-      lastSeenAt: true,
-      parent: { select: { email: true, id: true, name: true, phoneNumber: true } },
-    },
-  });
-  if (!session) return null;
-  if (Date.now() - session.lastSeenAt.getTime() > 5 * 60_000) {
-    await prisma.parentPortalSession.update({
-      where: { id: session.id },
-      data: { lastSeenAt: new Date() },
-    });
-  }
-  return session;
+  const token = (await cookies()).get(PARENT_PORTAL_SESSION_COOKIE)?.value;
+  return validateParentPortalSessionToken(token);
 }
 
 export async function logoutParentPortal() {
   const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
+  const token = store.get(PARENT_PORTAL_SESSION_COOKIE)?.value;
   if (token) {
     await getPrisma().parentPortalSession.updateMany({
-      where: { revokedAt: null, tokenHash: hashSessionToken(token) },
+      where: {
+        revokedAt: null,
+        tokenHash: hashParentPortalSessionToken(token),
+      },
       data: { revokedAt: new Date() },
     });
   }
-  store.delete(SESSION_COOKIE);
+  store.delete(PARENT_PORTAL_SESSION_COOKIE);
 }
 
 export async function configureParentAccess({

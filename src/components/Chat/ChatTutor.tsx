@@ -106,8 +106,10 @@ export default function ChatTutor() {
         reader.onloadend = async () => {
           try {
             const pdfjs = await import('pdfjs-dist');
-            // Use local worker to avoid external CDNs
-            pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+            pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+              'pdfjs-dist/build/pdf.worker.min.mjs',
+              import.meta.url,
+            ).toString();
 
             const arrayBuffer = reader.result as ArrayBuffer;
             const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;

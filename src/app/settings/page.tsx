@@ -26,17 +26,17 @@ export default async function SettingsPage() {
   return (
     <PortalShell user={user}>
       <div className="flex w-full min-w-0 flex-col gap-6">
-          <header className="w-full rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.24),transparent_52%)] p-5 sm:p-7">
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400 text-black shadow-lg shadow-violet-500/20">
+          <header className="w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
               <Settings2 className="size-5" aria-hidden="true" />
             </span>
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+            <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
               Personal control center
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
               Settings built around how you learn.
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
               Manage your public profile, lesson defaults, notifications, and
               credentials from one secure workspace.
             </p>

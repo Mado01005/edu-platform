@@ -34,7 +34,7 @@ AUTH_SECRET="f7h3j9k2l8m4n5p6q7r8s9t0u1v2w3x4y5z6A7B8C9"
 NEXTAUTH_URL="https://www.edu-platform.me"
 NEXT_PUBLIC_SUPABASE_URL="https://cqvmeucgatkjozkgzcql.supabase.com"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="sb_publishable_..."
-SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIs..."
+SUPABASE_SERVICE_ROLE_KEY="<redacted: configure in deployment environment>"
 
 # OAuth Providers
 GOOGLE_CLIENT_ID="157909199935-43p8gv8oskphso7fsiv4kkk4vb23pq51.apps.googleusercontent.com"
@@ -44,7 +44,7 @@ SPOTIFY_CLIENT_SECRET="279cdc709cb1428ca8f06b11003af5a1"
 
 # Cloudflare R2 Storage
 R2_ACCESS_KEY_ID="2f6fd89a90ef87e13dd4f8f0ac60304d"
-R2_SECRET_ACCESS_KEY="d14c53ffa50cbf499e84458ec5fe6aae1bb01367cd3db23bd0c89ae842621bb9"
+R2_SECRET_ACCESS_KEY="<redacted: configure in deployment environment>"
 R2_BUCKET_NAME="eduportal-media"
 R2_ENDPOINT="https://a465b8268cd40561314a96404e81d446.r2.cloudflarestorage.com"
 R2_PUBLIC_URL="https://pub-7bcb18f4378c4e489916424048e040ec.r2.dev"

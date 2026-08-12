@@ -37,7 +37,7 @@ export function R2UploadField({
     setFileName(file.name);
 
     try {
-      const presignRequest = await fetch('/api/upload/r2', {
+      const presignRequest = await fetch('/api/storage/presigned', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,10 +84,10 @@ export function R2UploadField({
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <input name={name} type="hidden" value={url} />
-      <span className="text-sm font-bold text-zinc-200">{label}</span>
+      <span className="text-sm font-bold text-slate-700">{label}</span>
 
-      <label className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-white/15 bg-black/40 p-4 transition hover:border-violet-400/60">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300">
+      <label className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 transition hover:border-sky-400">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
           {pending ? (
             <Loader2 className="size-5 animate-spin" />
           ) : url ? (
@@ -104,13 +104,13 @@ export function R2UploadField({
                 ? fileName || 'Upload complete'
                 : `Choose a ${accept === 'pdf' ? 'PDF' : 'video'}`}
           </span>
-          <span className="mt-1 block text-xs text-zinc-500">
-            Direct to Cloudflare R2 · maximum 2 GB
+          <span className="mt-1 block text-xs text-slate-500">
+            {accept === 'pdf' ? 'PDF only · up to 50 MiB' : 'MP4 only · up to 500 MiB'}
           </span>
         </span>
         <input
           ref={inputRef}
-          accept={accept === 'pdf' ? 'application/pdf' : 'video/mp4,video/webm,video/quicktime'}
+          accept={accept === 'pdf' ? 'application/pdf,.pdf' : 'video/mp4,.mp4'}
           className="sr-only"
           disabled={pending}
           onChange={(event) => {
@@ -122,11 +122,11 @@ export function R2UploadField({
       </label>
 
       {url ? (
-        <div className="flex min-w-0 items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
+        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
           <span className="min-w-0 flex-1 truncate">{url}</span>
           <button
             aria-label="Remove uploaded file"
-            className="shrink-0 rounded p-1 hover:bg-white/10"
+            className="shrink-0 rounded p-1 hover:bg-emerald-100"
             onClick={() => {
               setUrl('');
               setFileName('');
@@ -138,7 +138,7 @@ export function R2UploadField({
         </div>
       ) : null}
 
-      {error ? <p className="text-xs text-red-300">{error}</p> : null}
+      {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>
   );
 }

@@ -42,7 +42,7 @@ export default function BookmarkedLessons() {
 
   return (
     <div className="mb-10 fade-in" style={{ animationDelay: '0.12s' }}>
-      <h3 className="text-sm font-bold text-yellow-400/80 uppercase tracking-widest mb-4 flex items-center gap-2">
+      <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-amber-700">
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
         My Saved Lessons
       </h3>
@@ -51,10 +51,10 @@ export default function BookmarkedLessons() {
           <Link
             key={i}
             href={`/subjects/${encodeURIComponent(b.subjectSlug)}/${encodeURIComponent(b.lessonSlug)}`}
-            className="shrink-0 bg-yellow-500/5 border border-yellow-500/10 rounded-xl px-4 py-3 hover:bg-yellow-500/10 hover:border-yellow-500/20 transition-all group min-w-[180px]"
+            className="group min-w-[180px] shrink-0 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 transition hover:border-amber-300 hover:bg-amber-100"
           >
-            <p className="text-sm font-bold text-white truncate group-hover:text-yellow-300 transition">{b.lessonTitle}</p>
-            <p className="text-[11px] text-gray-500 mt-0.5 truncate">{b.subjectTitle}</p>
+            <p className="truncate text-sm font-semibold text-slate-900 transition group-hover:text-amber-800">{b.lessonTitle}</p>
+            <p className="mt-0.5 truncate text-[11px] text-slate-500">{b.subjectTitle}</p>
           </Link>
         ))}
       </div>

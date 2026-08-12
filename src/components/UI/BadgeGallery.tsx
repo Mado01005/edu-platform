@@ -35,41 +35,36 @@ export default function BadgeGallery() {
   }, []);
 
   if (loading) return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 animate-pulse">
+    <div className="grid grid-cols-2 gap-4 animate-pulse md:grid-cols-4">
       {[1, 2, 3, 4].map(i => (
-        <div key={i} className="h-40 bg-white/5 rounded-[2.5rem] border border-white/5"></div>
+        <div key={i} className="h-40 rounded-2xl border border-slate-200 bg-white"></div>
       ))}
     </div>
   );
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
       {achievements.map((ach) => (
         <div 
           key={ach.id} 
-          className={`relative group bg-[#0A0A0F] border rounded-[2.5rem] p-6 flex flex-col items-center text-center transition-all duration-700 hover:scale-105 ${ach.isUnlocked ? 'border-indigo-500/30' : 'border-white/5 opacity-40 grayscale'}`}
+          className={`group relative flex min-w-0 flex-col items-center rounded-2xl border bg-white p-5 text-center shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${ach.isUnlocked ? 'border-sky-200' : 'border-slate-200 opacity-60 grayscale'}`}
         >
-          {ach.isUnlocked && (
-            <div className="absolute inset-0 bg-indigo-500/5 blur-[40px] rounded-full pointer-events-none group-hover:bg-indigo-500/10 transition-all"></div>
-          )}
-          
           <div 
-            className="w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-4xl mb-4 relative z-10 border transition-all duration-500"
+            className="relative z-10 mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border text-4xl transition"
             style={{ 
-              backgroundColor: ach.isUnlocked ? `${ach.color}15` : '#111',
-              borderColor: ach.isUnlocked ? `${ach.color}30` : '#222',
-              boxShadow: ach.isUnlocked ? `0 0 30px ${ach.color}15` : 'none'
+              backgroundColor: ach.isUnlocked ? '#f0f9ff' : '#f8fafc',
+              borderColor: ach.isUnlocked ? '#bae6fd' : '#e2e8f0',
             }}
           >
             {ach.icon}
           </div>
 
-          <h4 className="text-[11px] font-black uppercase tracking-[0.2em] mb-2 text-white/90 group-hover:text-indigo-400 transition-colors">{ach.name}</h4>
-          <p className="text-[9px] text-gray-500 font-bold leading-relaxed">{ach.description}</p>
+          <h4 className="mb-2 break-words text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-900 transition-colors group-hover:text-sky-700">{ach.name}</h4>
+          <p className="text-[10px] font-medium leading-relaxed text-slate-500">{ach.description}</p>
           
           {ach.isUnlocked && (
-             <div className="mt-4 px-3 py-1 bg-indigo-500/10 rounded-full border border-indigo-500/20">
-               <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Achieved</span>
+             <div className="mt-4 rounded-full border border-sky-200 bg-sky-50 px-3 py-1">
+               <span className="text-[8px] font-semibold uppercase tracking-wider text-sky-700">Achieved</span>
              </div>
           )}
         </div>

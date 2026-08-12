@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command, HeadObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -54,16 +56,26 @@ export const r2Client = new Proxy({} as S3Client, {
 
 /**
  * Generate a presigned PUT URL so the browser can upload directly to R2.
- * The URL expires in 1 hour by default.
+ * Content-Type is explicitly included in the signature. When contentLength is
+ * provided, the browser's automatically generated Content-Length must match it.
  */
-export async function getPresignedUploadUrl(key: string, contentType: string, expiresIn: number = 3600) {
+export async function getPresignedUploadUrl(
+  key: string,
+  contentType: string,
+  expiresIn: number = 3600,
+  contentLength?: number,
+) {
   const command = new PutObjectCommand({
     Bucket: R2_BUCKET,
     Key: key,
     ContentType: contentType,
+    ...(contentLength === undefined ? {} : { ContentLength: contentLength }),
   });
 
-  const signedUrl = await getSignedUrl(r2Client, command, { expiresIn });
+  const signedUrl = await getSignedUrl(r2Client, command, {
+    expiresIn,
+    signableHeaders: new Set(['content-type']),
+  });
   return signedUrl;
 }
 

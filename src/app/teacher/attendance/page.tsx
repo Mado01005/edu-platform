@@ -26,17 +26,17 @@ export default async function TeacherAttendancePage() {
 
   return (
     <>
-      <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_55%)] p-5 sm:p-6">
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-cyan-300 text-black">
+      <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
           <CalendarCheck2 className="size-5" aria-hidden="true" />
         </span>
-        <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">
+        <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
           Digital attendance
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">
           Student attendance
         </h1>
-        <p className="mt-2 text-sm leading-6 text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-slate-600">
           See when students joined live classes or watched at least half of a video lesson.
         </p>
       </header>
@@ -47,25 +47,25 @@ export default async function TeacherAttendancePage() {
           { icon: Radio, label: 'Live joins', value: liveCount },
           { icon: MonitorPlay, label: 'All records', value: attendance.length },
         ].map(({ icon: Icon, label, value }) => (
-          <div className="min-w-0 rounded-2xl border border-white/10 bg-zinc-950 p-3 text-center" key={label}>
-            <Icon className="mx-auto size-4 text-cyan-300" aria-hidden="true" />
+          <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm" key={label}>
+            <Icon className="mx-auto size-4 text-sky-700" aria-hidden="true" />
             <p className="mt-2 text-xl font-black">{value}</p>
-            <p className="truncate text-[9px] font-bold uppercase tracking-wider text-zinc-500">
+            <p className="truncate text-[9px] font-bold uppercase tracking-wider text-slate-500">
               {label}
             </p>
           </div>
         ))}
       </section>
 
-      <section className="overflow-hidden rounded-3xl border border-white/10 bg-zinc-950">
-        <div className="border-b border-white/10 px-4 py-4 sm:px-5">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
           <h2 className="font-black">Recent attendance</h2>
-          <p className="mt-1 text-xs text-zinc-500">Latest 200 digital attendance records</p>
+          <p className="mt-1 text-xs text-slate-500">Latest 200 digital attendance records</p>
         </div>
-        <div className="divide-y divide-white/5">
+        <div className="divide-y divide-slate-100">
           {attendance.map((record) => (
             <article className="flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center sm:p-5" key={record.id}>
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
                 {record.type === 'LIVE_ZOOM' ? (
                   <Radio className="size-4" aria-hidden="true" />
                 ) : (
@@ -76,11 +76,11 @@ export default async function TeacherAttendancePage() {
                 <p className="truncate font-black">
                   {record.student.name ?? record.student.email}
                 </p>
-                <p className="mt-1 break-words text-xs text-zinc-500">
+                <p className="mt-1 break-words text-xs text-slate-500">
                   {record.course.title} · {record.zoomSession?.title ?? record.lesson?.title ?? record.type.replaceAll('_', ' ')}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-3 text-xs text-zinc-500 sm:text-right">
+              <div className="flex shrink-0 items-center gap-3 text-xs text-slate-500 sm:text-right">
                 <span className="flex items-center gap-1">
                   <Clock3 className="size-3" aria-hidden="true" />
                   {record.durationMin} min
@@ -90,7 +90,7 @@ export default async function TeacherAttendancePage() {
             </article>
           ))}
           {!attendance.length ? (
-            <p className="p-10 text-center text-sm text-zinc-500">
+            <p className="p-10 text-center text-sm text-slate-500">
               Attendance will appear after students join a live class or watch half of a lesson.
             </p>
           ) : null}

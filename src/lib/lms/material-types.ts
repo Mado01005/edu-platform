@@ -1,11 +1,11 @@
-export const MAX_MATERIAL_UPLOAD_BYTES = 100 * 1024 * 1024;
+import { STANDARD_MAX_UPLOAD_BYTES } from '@/lib/lms/upload-validation';
+
+export const MAX_MATERIAL_UPLOAD_BYTES = STANDARD_MAX_UPLOAD_BYTES;
 
 export const MATERIAL_FILE_TYPES = [
   'PDF',
-  'DOC',
   'DOCX',
   'SLIDES',
-  'ZIP',
   'WORKSHEET',
 ] as const;
 
@@ -24,21 +24,11 @@ const MATERIAL_RULES: readonly MaterialRule[] = [
     mimeTypes: ['application/pdf'],
   },
   {
-    extensions: ['doc'],
-    fileType: 'DOC',
-    mimeTypes: ['application/msword'],
-  },
-  {
     extensions: ['docx'],
     fileType: 'DOCX',
     mimeTypes: [
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ],
-  },
-  {
-    extensions: ['ppt'],
-    fileType: 'SLIDES',
-    mimeTypes: ['application/vnd.ms-powerpoint'],
   },
   {
     extensions: ['pptx'],
@@ -48,21 +38,11 @@ const MATERIAL_RULES: readonly MaterialRule[] = [
     ],
   },
   {
-    extensions: ['xls'],
-    fileType: 'WORKSHEET',
-    mimeTypes: ['application/vnd.ms-excel'],
-  },
-  {
     extensions: ['xlsx'],
     fileType: 'WORKSHEET',
     mimeTypes: [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ],
-  },
-  {
-    extensions: ['zip'],
-    fileType: 'ZIP',
-    mimeTypes: ['application/zip', 'application/x-zip-compressed'],
   },
 ];
 
@@ -83,10 +63,7 @@ export function getMaterialFileType(
 
   if (!rule) return null;
 
-  const browserDidNotDetectType =
-    !normalizedContentType || normalizedContentType === 'application/octet-stream';
-
-  return browserDidNotDetectType || rule.mimeTypes.includes(normalizedContentType)
+  return rule.mimeTypes.includes(normalizedContentType)
     ? rule.fileType
     : null;
 }

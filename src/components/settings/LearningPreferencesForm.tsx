@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Gauge, Loader2, Play, Save, Sparkles } from 'lucide-react';
+import { Gauge, Loader2, Play, Save, WandSparkles } from 'lucide-react';
 import { Button } from '@/components/UI/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/UI/card';
 import { Switch } from '@/components/UI/switch';
@@ -69,13 +69,13 @@ export function LearningPreferencesForm({
     <>
       <Card>
         <CardHeader>
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
             <Play className="size-5" aria-hidden="true" />
           </span>
           <CardTitle className="mt-2 text-xl">
             Video &amp; learning preferences
           </CardTitle>
-          <p className="text-sm leading-6 text-zinc-400">
+          <p className="text-sm leading-6 text-slate-600">
             Tune the default lesson experience to match your pace and
             connection.
           </p>
@@ -84,7 +84,7 @@ export function LearningPreferencesForm({
           <form className="flex min-w-0 flex-col gap-6" onSubmit={handleSubmit}>
             <fieldset className="min-w-0">
               <legend className="flex items-center gap-2 text-sm font-black">
-                <Gauge className="size-4 text-cyan-300" aria-hidden="true" />
+                <Gauge className="size-4 text-sky-700" aria-hidden="true" />
                 Default playback speed
               </legend>
               <div className="mt-3 grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">
@@ -92,8 +92,8 @@ export function LearningPreferencesForm({
                   <label
                     className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border text-sm font-black transition ${
                       defaultPlaybackSpeed === speed
-                        ? 'border-cyan-300 bg-cyan-300 text-black'
-                        : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:border-white/20 hover:text-white'
+                        ? 'border-sky-600 bg-sky-600 text-white'
+                        : 'border-slate-300 bg-white text-slate-600 hover:border-sky-300 hover:text-sky-700'
                     }`}
                     key={speed}
                   >
@@ -114,7 +114,7 @@ export function LearningPreferencesForm({
             <label className="min-w-0 text-sm font-black">
               Default video quality
               <select
-                className="mt-2 h-12 w-full min-w-0 rounded-xl border border-white/10 bg-zinc-950 px-4 text-sm outline-none focus:border-cyan-400/50 focus:ring-4 focus:ring-cyan-500/10"
+                className="mt-2 h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
                 onChange={(event) =>
                   setDefaultVideoQuality(event.target.value)
                 }
@@ -128,15 +128,15 @@ export function LearningPreferencesForm({
               </select>
             </label>
 
-            <div className="flex min-w-0 items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-violet-300">
-                <Sparkles className="size-5" aria-hidden="true" />
+            <div className="flex min-w-0 items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                <WandSparkles className="size-5" aria-hidden="true" />
               </span>
               <label className="min-w-0 flex-1" htmlFor="autoplay-next">
                 <span className="block text-sm font-black">
                   Autoplay next lesson
                 </span>
-                <span className="mt-1 block text-xs leading-5 text-zinc-500">
+                <span className="mt-1 block text-xs leading-5 text-slate-500">
                   Move to the next lesson when the current R2 video finishes.
                 </span>
               </label>

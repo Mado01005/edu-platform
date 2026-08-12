@@ -2,39 +2,16 @@ import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { getPresignedUploadUrl, getPublicUrl } from '@/lib/r2';
 import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
-import {
-  getMaterialFileType,
-  MAX_MATERIAL_UPLOAD_BYTES,
-} from '@/lib/lms/material-types';
+import { getMaterialFileType } from '@/lib/lms/material-types';
 import { TEACHING_ROLES, isAdminRole } from '@/lib/lms/roles';
+import {
+  PRESIGNED_UPLOAD_EXPIRY_SECONDS,
+  sanitizeUploadFileStem,
+  validateUploadFile,
+} from '@/lib/lms/upload-validation';
 import { getPrisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
-
-const MAX_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024;
-const ALLOWED_CONTENT_TYPES = new Set([
-  'application/pdf',
-  'video/mp4',
-  'video/webm',
-  'video/quicktime',
-]);
-const CONTENT_TYPE_EXTENSIONS: Record<string, readonly string[]> = {
-  'application/pdf': ['pdf'],
-  'video/mp4': ['mp4'],
-  'video/webm': ['webm'],
-  'video/quicktime': ['mov', 'qt'],
-};
-
-function sanitizeFileName(fileName: string) {
-  const normalized = fileName
-    .normalize('NFKD')
-    .replace(/[^\w.-]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^[-.]+|[-.]+$/g, '')
-    .toLowerCase();
-
-  return (normalized || 'upload').slice(-120);
-}
 
 function readUploadInput(value: unknown) {
   if (!value || typeof value !== 'object') {
@@ -55,14 +32,14 @@ function readUploadInput(value: unknown) {
     fileName.length > 255 ||
     typeof contentType !== 'string' ||
     typeof size !== 'number' ||
-    !Number.isFinite(size)
+    !Number.isSafeInteger(size)
   ) {
     return null;
   }
 
   return {
     fileName,
-    contentType: contentType.toLowerCase() || 'application/octet-stream',
+    contentType: contentType.trim().toLowerCase(),
     size,
     lessonId:
       typeof lessonId === 'string' && /^[a-zA-Z0-9_-]{1,64}$/.test(lessonId)
@@ -101,58 +78,56 @@ export async function POST(request: Request) {
       );
     }
 
+    const validation = validateUploadFile(
+      input.fileName,
+      input.contentType,
+      input.size,
+    );
+    if (!validation.ok) {
+      return NextResponse.json(
+        { error: validation.error },
+        { status: validation.status },
+      );
+    }
+
     const materialFileType =
       input.uploadKind === 'material'
-        ? getMaterialFileType(input.fileName, input.contentType)
+        ? getMaterialFileType(
+            input.fileName,
+            validation.value.contentType,
+          )
         : null;
-    const maximumBytes =
-      input.uploadKind === 'material'
-        ? MAX_MATERIAL_UPLOAD_BYTES
-        : MAX_UPLOAD_BYTES;
 
     if (input.uploadKind === 'material') {
       if (!materialFileType) {
         return NextResponse.json(
           {
-            error:
-              'Only PDF, Word, PowerPoint, Excel, and ZIP materials are allowed.',
+            error: 'Course materials must be PDF, PPTX, DOCX, or XLSX files.',
           },
           { status: 415 },
         );
       }
-      if (Number(Boolean(input.courseId)) + Number(Boolean(input.moduleId)) + Number(Boolean(input.lessonId)) !== 1) {
+      if (
+        Number(Boolean(input.courseId)) +
+          Number(Boolean(input.moduleId)) +
+          Number(Boolean(input.lessonId)) !==
+        1
+      ) {
         return NextResponse.json(
-          { error: 'Choose exactly one course, module, or lesson for this material.' },
+          {
+            error:
+              'Choose exactly one course, module, or lesson for this material.',
+          },
           { status: 400 },
         );
       }
     } else {
-      if (!ALLOWED_CONTENT_TYPES.has(input.contentType)) {
+      if (!input.lessonId || input.courseId || input.moduleId) {
         return NextResponse.json(
-          { error: 'Only PDF, MP4, WebM, and QuickTime files are allowed.' },
-          { status: 415 },
+          { error: 'A valid target lesson is required for lesson content.' },
+          { status: 400 },
         );
       }
-
-      const extension = input.fileName.split('.').pop()?.toLowerCase() ?? '';
-      if (!CONTENT_TYPE_EXTENSIONS[input.contentType]?.includes(extension)) {
-        return NextResponse.json(
-          { error: 'The file extension does not match its declared content type.' },
-          { status: 415 },
-        );
-      }
-    }
-
-    if (input.size <= 0 || input.size > maximumBytes) {
-      return NextResponse.json(
-        {
-          error:
-            input.uploadKind === 'material'
-              ? 'Course materials must be larger than 0 bytes and no larger than 100 MB.'
-              : 'The file must be larger than 0 bytes and no larger than 2 GB.',
-        },
-        { status: 413 },
-      );
     }
 
     if (input.courseId) {
@@ -195,14 +170,25 @@ export async function POST(request: Request) {
       const courseModule = await getPrisma().module.findFirst({
         where: {
           id: input.moduleId,
-          ...(isAdminRole(teacher.role) ? {} : { course: { teacherId: teacher.id } }),
+          ...(isAdminRole(teacher.role)
+            ? {}
+            : { course: { teacherId: teacher.id } }),
         },
         select: { id: true },
       });
-      if (!courseModule) return NextResponse.json({ error: 'The target module was not found.' }, { status: 404 });
+      if (!courseModule) {
+        return NextResponse.json(
+          { error: 'The target module was not found.' },
+          { status: 404 },
+        );
+      }
     }
 
-    const targetId = input.courseId ?? input.moduleId ?? input.lessonId ?? 'unassigned';
+    const targetId =
+      input.courseId ?? input.moduleId ?? input.lessonId ?? 'unassigned';
+    const randomizedFileName =
+      [randomUUID(), sanitizeUploadFileStem(input.fileName)].join('-') +
+      validation.value.extension;
     const key =
       input.uploadKind === 'material'
         ? [
@@ -211,20 +197,21 @@ export async function POST(request: Request) {
             'materials',
             input.courseId ? 'course' : input.moduleId ? 'module' : 'lesson',
             targetId,
-            `${randomUUID()}-${sanitizeFileName(input.fileName)}`,
+            randomizedFileName,
           ].join('/')
         : [
             'lms',
             teacher.id,
             targetId,
-            `${randomUUID()}-${sanitizeFileName(input.fileName)}`,
+            randomizedFileName,
           ].join('/');
 
-    const expiresIn = 15 * 60;
+    const expiresIn = PRESIGNED_UPLOAD_EXPIRY_SECONDS;
     const uploadUrl = await getPresignedUploadUrl(
       key,
-      input.contentType,
+      validation.value.contentType,
       expiresIn,
+      input.size,
     );
 
     return NextResponse.json({
@@ -234,7 +221,7 @@ export async function POST(request: Request) {
       fileType: materialFileType,
       expiresIn,
       requiredHeaders: {
-        'Content-Type': input.contentType,
+        'Content-Type': validation.value.contentType,
       },
     });
   } catch (error) {

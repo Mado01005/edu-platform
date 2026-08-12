@@ -93,19 +93,19 @@ export function SecuritySettingsForm({
       <div className="flex min-w-0 flex-col gap-4">
         <Card>
           <CardHeader>
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
               <ShieldCheck className="size-5" aria-hidden="true" />
             </span>
             <CardTitle className="mt-2 text-xl">
               Security &amp; credentials
             </CardTitle>
-            <p className="text-sm leading-6 text-zinc-400">
+            <p className="text-sm leading-6 text-slate-600">
               Review connected sign-in methods and keep credentials current.
             </p>
           </CardHeader>
           <CardContent className="pb-5 pt-6">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-zinc-500">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
                 Active providers
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -119,7 +119,7 @@ export function SecuritySettingsForm({
                   <Badge variant="outline">Provider unavailable</Badge>
                 )}
               </div>
-              <p className="mt-3 break-all text-xs leading-5 text-zinc-500">
+              <p className="mt-3 break-all text-xs leading-5 text-slate-500">
                 Signed in as {email}
               </p>
             </div>
@@ -128,11 +128,11 @@ export function SecuritySettingsForm({
 
         <Card>
           <CardHeader>
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
               <KeyRound className="size-5" aria-hidden="true" />
             </span>
             <CardTitle className="mt-2 text-lg">Update password</CardTitle>
-            <p className="text-sm leading-6 text-zinc-400">
+            <p className="text-sm leading-6 text-slate-600">
               {hasPasswordProvider
                 ? 'Confirm your current password before choosing a new one.'
                 : 'This account currently signs in through an OAuth provider.'}
@@ -193,7 +193,7 @@ export function SecuritySettingsForm({
                 </Button>
               </form>
             ) : (
-              <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-cyan-400/15 bg-cyan-400/5 p-4 text-sm text-cyan-100">
+              <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
                 <LockKeyhole className="mt-0.5 size-5 shrink-0" />
                 Continue using your connected OAuth provider to manage this
                 account securely.

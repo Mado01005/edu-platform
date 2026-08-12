@@ -41,39 +41,38 @@ export default function PromotionModal({ open, userEmail }: PromotionModalProps)
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 fade-in">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
+      <div className="absolute inset-0 bg-slate-950/40"></div>
       
-      <div className="relative w-full max-w-2xl max-h-[90vh] bg-[#05050A]/90 backdrop-blur-3xl border border-indigo-500/30 rounded-3xl p-6 sm:p-12 shadow-[0_0_100px_rgba(99,102,241,0.2)] overflow-y-auto custom-scrollbar scale-in">
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 sticky top-0 z-20"></div>
-        <div className="absolute -top-[150px] -right-[150px] w-[300px] h-[300px] bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl custom-scrollbar scale-in sm:p-12">
+        <div className="absolute inset-x-0 top-0 z-20 h-1 bg-sky-600"></div>
 
         <div className="relative z-10 text-center">
-          <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-5xl sm:text-6xl shadow-[0_0_50px_rgba(99,102,241,0.5)] mb-8 border-4 border-white/10 animate-pulse">
+          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full border-4 border-sky-100 bg-sky-600 text-5xl sm:h-28 sm:w-28 sm:text-6xl">
             🎓
           </div>
           
-          <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 tracking-tight mb-4">
+          <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             Welcome to the Faculty!
           </h2>
           
-          <p className="text-gray-300 text-base sm:text-lg leading-relaxed mb-4 font-medium">
-            Congratulations, <span className="text-indigo-400">{userEmail}</span>! You have been officially promoted to an <strong className="text-white">Instructor</strong>.
+          <p className="mb-4 text-base font-medium leading-relaxed text-slate-600 sm:text-lg">
+            Congratulations, <span className="text-sky-700">{userEmail}</span>! You have been officially promoted to an <strong className="text-slate-900">Instructor</strong>.
           </p>
           
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left mb-10 shadow-inner">
-            <p className="text-sm text-gray-400 mb-3 uppercase tracking-widest font-bold">New Security Clearances Granted:</p>
+          <div className="mb-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-left">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-600">New capabilities granted:</p>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <span className="text-green-400 text-lg mt-0.5">✓</span>
-                <span className="text-gray-300 text-sm">Upload new HD videos, encrypted PDFs, and visual telemetry to any subject module.</span>
+                <span className="text-sm text-slate-600">Upload new HD videos, encrypted PDFs, and visual telemetry to any subject module.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-green-400 text-lg mt-0.5">✓</span>
-                <span className="text-gray-300 text-sm">Create brand new academic Subjects and instantly distribute global tracking links.</span>
+                <span className="text-sm text-slate-600">Create brand new academic Subjects and instantly distribute global tracking links.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-green-400 text-lg mt-0.5">✓</span>
-                <span className="text-gray-300 text-sm">Publish Global Announcements directly to all active student dashboards.</span>
+                <span className="text-sm text-slate-600">Publish Global Announcements directly to all active student dashboards.</span>
               </li>
             </ul>
           </div>
@@ -81,7 +80,7 @@ export default function PromotionModal({ open, userEmail }: PromotionModalProps)
           <button
             onClick={handleAcknowledge}
             disabled={loading}
-            className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-black uppercase tracking-widest px-10 py-4 rounded-xl shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 hover:scale-105 disabled:opacity-50 flex items-center justify-center gap-3 mx-auto"
+            className="mx-auto flex w-full items-center justify-center gap-3 rounded-xl bg-sky-600 px-10 py-4 font-semibold text-white transition hover:bg-sky-700 disabled:opacity-50 sm:w-auto"
           >
             {loading ? 'Authenticating...' : 'Enter Command Center'}
             {!loading && (

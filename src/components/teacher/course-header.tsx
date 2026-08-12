@@ -14,13 +14,13 @@ export function CourseHeader({ slug, title }: { slug: string; title: string }) {
   return (
     <header className="flex min-w-0 flex-col gap-3 px-4 pb-3 pt-4 sm:flex-row sm:items-center">
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
           Teacher Studio
         </p>
         <h1 className="mt-1 truncate text-2xl font-black">{title}</h1>
       </div>
       <button
-        className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-black transition-colors hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+        className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
         onClick={openStudentPreview}
         type="button"
       >

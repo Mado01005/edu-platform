@@ -112,11 +112,11 @@ function NavigationLink({
       aria-current={active ? 'page' : undefined}
       aria-label={collapsed && !mobile ? item.label : undefined}
       className={cn(
-        'group flex min-w-0 items-center rounded-xl px-3 py-2.5 text-sm font-bold transition',
+        'group flex min-w-0 items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
         collapsed && !mobile ? 'justify-center gap-0' : 'gap-3',
         active
-          ? 'bg-violet-400 text-black shadow-lg shadow-violet-500/15'
-          : 'text-zinc-400 hover:bg-white/5 hover:text-white',
+          ? 'bg-sky-100 text-sky-700'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
       )}
       href={item.href}
       title={collapsed && !mobile ? item.label : item.description}
@@ -176,7 +176,7 @@ function SidebarNavigation({
         if (collapsibleSections) {
           return (
             <details className="group/section min-w-0" key={section.label} open>
-              <summary className="mb-2 flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600 transition hover:bg-white/5 hover:text-zinc-400 [&::-webkit-details-marker]:hidden">
+              <summary className="mb-2 flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 [&::-webkit-details-marker]:hidden">
                 <span className="truncate">{section.label}</span>
                 <ChevronDown
                   aria-hidden="true"
@@ -192,7 +192,7 @@ function SidebarNavigation({
           <section className="min-w-0" key={section.label}>
             <h2
               className={cn(
-                'mb-2 truncate px-3 text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600',
+                'mb-2 truncate px-3 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400',
                 collapsed && !mobile && 'sr-only',
               )}
             >
@@ -224,28 +224,28 @@ export function AppSidebar({ role }: AppSidebarProps) {
     <>
       <aside
         className={cn(
-          'sticky top-16 -mt-6 hidden h-[calc(100vh-4rem)] min-w-0 shrink-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/95 shadow-2xl shadow-black/30 backdrop-blur-xl transition-[width] duration-200 md:flex',
+          'sticky top-20 hidden h-[calc(100vh-6rem)] min-w-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-[width] duration-200 md:flex',
           collapsed ? 'w-20' : 'w-72',
         )}
       >
         <div
           className={cn(
-            'flex min-w-0 items-center border-b border-white/10 p-3',
+            'flex min-w-0 items-center border-b border-slate-200 p-3',
             collapsed ? 'justify-center' : 'justify-between gap-3',
           )}
         >
           <div className={cn('min-w-0 px-2', collapsed && 'sr-only')}>
-            <p className="truncate text-xs font-black uppercase tracking-[0.18em] text-violet-300">
+            <p className="truncate text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">
               Way Ground
             </p>
-            <p className="mt-0.5 truncate text-[10px] font-bold text-zinc-600">
+            <p className="mt-0.5 truncate text-[10px] font-medium text-slate-500">
               {isAdminRole(role) ? 'Full platform navigation' : 'Your navigation'}
             </p>
           </div>
           <button
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-pressed={collapsed}
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             onClick={() => setCollapsed((value) => !value)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             type="button"
@@ -272,7 +272,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
 
         <div
           className={cn(
-            'border-t border-white/10 p-3 text-[10px] font-black uppercase tracking-wider text-zinc-600',
+            'border-t border-slate-200 p-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400',
             collapsed ? 'text-center' : 'truncate px-5',
           )}
           title={role}
@@ -285,7 +285,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
         <SheetTrigger asChild>
           <button
             aria-label="Open portal navigation"
-            className="fixed bottom-24 left-4 z-40 flex h-11 items-center gap-2 rounded-full border border-violet-300/25 bg-violet-400 px-4 text-sm font-black text-black shadow-xl shadow-black/50 transition hover:bg-violet-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white md:hidden"
+            className="fixed bottom-24 left-4 z-40 flex h-11 items-center gap-2 rounded-full border border-sky-600 bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 md:hidden"
             type="button"
           >
             <Menu aria-hidden="true" className="size-4" />
@@ -293,7 +293,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
           </button>
         </SheetTrigger>
         <SheetContent>
-          <SheetHeader className="border-b border-white/10 p-5">
+          <SheetHeader className="border-b border-slate-200 p-5">
             <SheetTitle>Way Ground navigation</SheetTitle>
             <SheetDescription>
               Only the tools available to your role are shown.

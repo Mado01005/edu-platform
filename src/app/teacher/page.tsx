@@ -23,23 +23,23 @@ export default async function TeacherHomePage() {
 
   return (
     <>
-      <section className="flex min-w-0 flex-col gap-4 rounded-3xl border border-cyan-300/25 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.2),transparent_58%)] p-5 sm:flex-row sm:items-center sm:p-6">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-300 text-black">
+      <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
           <ClipboardCheck aria-hidden="true" className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-sky-700">
             What to do next · Assignment queue
           </p>
           <h2 className="mt-1 text-xl font-black">
             {pendingAssignments} assignment{pendingAssignments === 1 ? '' : 's'} waiting for grading
           </h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1 text-sm text-slate-600">
             Open the grading desk to review student work and send feedback.
           </p>
         </div>
         <Link
-          className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-300 px-4 text-sm font-black text-black transition hover:bg-cyan-200"
+          className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-bold text-white transition hover:bg-sky-700"
           href="/teacher/grading"
         >
           <ClipboardCheck aria-hidden="true" className="size-4" />

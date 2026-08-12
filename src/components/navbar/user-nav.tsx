@@ -123,7 +123,7 @@ export function UserNav({ user }: UserNavProps) {
       <DropdownMenuTrigger asChild>
         <button
           aria-label={`Open account menu for ${displayName}`}
-          className="flex min-w-0 max-w-[11rem] items-center gap-2 whitespace-nowrap rounded-xl border border-white/10 bg-white/5 p-1.5 pr-2 text-left transition hover:border-violet-400/30 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 sm:max-w-[13rem]"
+          className="flex min-w-0 max-w-[11rem] items-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white p-1.5 pr-2 text-left transition hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:max-w-[13rem]"
           type="button"
         >
           <Avatar>
@@ -134,7 +134,7 @@ export function UserNav({ user }: UserNavProps) {
             <AvatarFallback>{initials(user.name, user.email)}</AvatarFallback>
           </Avatar>
           <span className="hidden min-w-0 flex-1 sm:block">
-            <span className="block max-w-28 truncate whitespace-nowrap text-xs font-black text-white">
+            <span className="block max-w-28 truncate whitespace-nowrap text-xs font-semibold text-slate-900">
               {displayName}
             </span>
             <Badge
@@ -144,16 +144,16 @@ export function UserNav({ user }: UserNavProps) {
               {user.role}
             </Badge>
           </span>
-          <ChevronDown className="hidden size-3.5 shrink-0 text-zinc-500 sm:block" />
+          <ChevronDown className="hidden size-3.5 shrink-0 text-slate-400 sm:block" />
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
         <DropdownMenuLabel className="min-w-0">
-          <span className="block truncate text-sm font-black text-white">
+          <span className="block truncate text-sm font-semibold text-slate-900">
             {displayName}
           </span>
-          <span className="mt-0.5 block truncate font-normal text-zinc-500">
+          <span className="mt-0.5 block truncate font-normal text-slate-500">
             {user.email}
           </span>
         </DropdownMenuLabel>

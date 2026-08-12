@@ -89,30 +89,38 @@ export async function StudentLmsDashboard({
     <PortalShell user={user}>
         {notice ? (
           <div
-            className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm font-bold text-amber-100"
+            className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
             role="status"
           >
             {notice}
           </div>
         ) : null}
+        <header className="py-2 sm:py-3">
+          <h1 className="break-words text-4xl font-bold tracking-tight text-slate-900">
+            Welcome back, {user.name?.split(' ')[0] ?? 'learner'}.
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Pick up where you left off or join your next live class.
+          </p>
+        </header>
         {urgentLiveClass ? (
-          <section className="flex min-w-0 flex-col gap-4 rounded-3xl border border-emerald-300/25 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,.24),transparent_58%)] p-5 sm:flex-row sm:items-center sm:p-6">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-black">
+          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
               <Radio aria-hidden="true" className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700">
                 What to do next · Starting within one hour
               </p>
-              <h2 className="mt-1 truncate text-xl font-black">
+              <h2 className="mt-1 truncate text-xl font-semibold text-slate-900">
                 {urgentLiveClass.title}
               </h2>
-              <p className="mt-1 truncate text-xs text-zinc-400">
+              <p className="mt-1 truncate text-xs text-slate-500">
                 {urgentLiveClass.course.title}
               </p>
             </div>
             <a
-              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-300 px-4 text-sm font-black text-black transition hover:bg-emerald-200"
+              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700"
               href={urgentLiveClass.meetingUrl}
               rel="noopener noreferrer"
               target="_blank"
@@ -122,23 +130,23 @@ export async function StudentLmsDashboard({
             </a>
           </section>
         ) : resumableCourse?.progress.firstIncomplete ? (
-          <section className="flex min-w-0 flex-col gap-4 rounded-3xl border border-violet-300/25 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.24),transparent_58%)] p-5 sm:flex-row sm:items-center sm:p-6">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-violet-300 text-black">
+          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
               <PlayCircle aria-hidden="true" className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-300">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700">
                 What to do next · Continue learning
               </p>
-              <h2 className="mt-1 truncate text-xl font-black">
+              <h2 className="mt-1 truncate text-xl font-semibold text-slate-900">
                 {resumableCourse.progress.firstIncomplete.title}
               </h2>
-              <p className="mt-1 truncate text-xs text-zinc-400">
+              <p className="mt-1 truncate text-xs text-slate-500">
                 {resumableCourse.course.title}
               </p>
             </div>
             <Link
-              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-black text-black transition hover:bg-violet-100"
+              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700"
               href={`/courses/${resumableCourse.course.id}/learn/lessons/${resumableCourse.progress.firstIncomplete.id}`}
             >
               <PlayCircle aria-hidden="true" className="size-4" />
@@ -146,25 +154,13 @@ export async function StudentLmsDashboard({
             </Link>
           </section>
         ) : null}
-        <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.2),transparent_50%)] p-6 sm:p-8">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
-            Student dashboard
-          </p>
-          <h1 className="mt-3 break-words text-4xl font-black">
-            Welcome back, {user.name?.split(' ')[0] ?? 'learner'}.
-          </h1>
-          <p className="mt-3 text-sm text-zinc-400">
-            Pick up where you left off or join your next live class.
-          </p>
-        </header>
-
         <section className="min-w-0">
           <div className="mb-4 flex min-w-0 items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <BookOpen className="size-5 text-violet-300" />
-              <h2 className="text-xl font-black">Enrolled courses</h2>
+              <BookOpen className="size-5 text-sky-600" />
+              <h2 className="text-xl font-semibold text-slate-900">Enrolled courses</h2>
             </div>
-            <Link className="shrink-0 text-sm font-bold text-violet-300" href="/catalog">
+            <Link className="shrink-0 text-sm font-semibold text-sky-700 hover:text-sky-800" href="/catalog">
               Browse catalog
             </Link>
           </div>
@@ -179,24 +175,24 @@ export async function StudentLmsDashboard({
               const nextLesson = firstIncomplete ?? lessons[0];
 
               return (
-                <article className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-zinc-950 p-5" key={course.id}>
-                  <p className="text-xs font-black uppercase tracking-wider text-zinc-500">
+                <article className="flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" key={course.id}>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                     {completed}/{lessons.length} lessons complete
                   </p>
-                  <h3 className="mt-2 break-words text-xl font-black">{course.title}</h3>
-                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
+                  <h3 className="mt-2 break-words text-xl font-semibold text-slate-900">{course.title}</h3>
+                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-violet-400"
+                      className="h-full rounded-full bg-sky-600"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
-                  <div className="mt-2 flex justify-between text-xs text-zinc-500">
+                  <div className="mt-2 flex justify-between text-xs text-slate-500">
                     <span>Progress</span>
                     <span>{percentage}%</span>
                   </div>
                   {nextLesson ? (
                     <Link
-                      className="mt-5 flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-black"
+                      className="mt-5 flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-sky-300 bg-white px-4 py-3 text-sm font-semibold text-sky-700 hover:bg-sky-50"
                       href={`/courses/${course.id}/learn/lessons/${nextLesson.id}`}
                     >
                       Continue course <ArrowRight className="size-4" />
@@ -208,29 +204,29 @@ export async function StudentLmsDashboard({
           </div>
 
           {!enrollments.length ? (
-            <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center">
-              <p className="text-sm text-zinc-500">You are not enrolled in a course yet.</p>
-              <Link className="mt-4 inline-block rounded-xl bg-violet-400 px-4 py-3 text-sm font-black text-black" href="/catalog">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
+              <p className="text-sm text-slate-500">You are not enrolled in a course yet.</p>
+              <Link className="mt-4 inline-block rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-sky-700" href="/catalog">
                 Explore courses
               </Link>
             </div>
           ) : null}
         </section>
 
-        <section className="min-w-0 rounded-3xl border border-white/10 bg-zinc-950 p-5 sm:p-6">
+        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex items-center gap-2">
-            <Radio className="size-5 text-emerald-300" />
-            <h2 className="text-xl font-black">Upcoming live classes</h2>
+            <Radio className="size-5 text-sky-600" />
+            <h2 className="text-xl font-semibold text-slate-900">Upcoming live classes</h2>
           </div>
           <div className="flex min-w-0 flex-col gap-2">
             {liveClasses.map((session) => (
-              <div className="flex min-w-0 flex-col gap-3 rounded-xl bg-black p-4 sm:flex-row sm:items-center" key={session.id}>
+              <div className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center" key={session.id}>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-bold text-emerald-300">
+                  <p className="truncate text-xs font-semibold text-sky-700">
                     {session.course.title}
                   </p>
-                  <p className="mt-1 break-words font-black">{session.title}</p>
-                  <p className="mt-2 flex flex-wrap gap-3 text-xs text-zinc-500">
+                  <p className="mt-1 break-words font-semibold text-slate-900">{session.title}</p>
+                  <p className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
                       <CalendarDays className="size-3" />{' '}
                       <LocalDateTime date={session.startTime} dateOnly />
@@ -241,13 +237,13 @@ export async function StudentLmsDashboard({
                     </span>
                   </p>
                 </div>
-                <a className="shrink-0 rounded-xl bg-emerald-300 px-4 py-2 text-center text-sm font-black text-black" href={session.meetingUrl} rel="noopener noreferrer" target="_blank">
+                <a className="shrink-0 rounded-xl border border-sky-300 bg-white px-4 py-2 text-center text-sm font-semibold text-sky-700 hover:bg-sky-50" href={session.meetingUrl} rel="noopener noreferrer" target="_blank">
                   Join
                 </a>
               </div>
             ))}
             {!liveClasses.length ? (
-              <p className="py-8 text-center text-sm text-zinc-500">
+              <p className="py-8 text-center text-sm text-slate-500">
                 No upcoming classes.
               </p>
             ) : null}

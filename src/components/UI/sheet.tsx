@@ -30,10 +30,10 @@ function SheetContent({
 }: React.ComponentProps<typeof SheetPrimitive.Content>) {
   return (
     <SheetPrimitive.Portal>
-      <SheetPrimitive.Overlay className="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm data-[state=closed]:animate-[sheet-overlay-out_150ms_ease-in] data-[state=open]:animate-[sheet-overlay-in_200ms_ease-out]" />
+      <SheetPrimitive.Overlay className="fixed inset-0 z-[70] bg-slate-950/40 data-[state=closed]:animate-[sheet-overlay-out_150ms_ease-in] data-[state=open]:animate-[sheet-overlay-in_200ms_ease-out]" />
       <SheetPrimitive.Content
         className={cn(
-          'fixed inset-y-0 left-0 z-[71] flex h-dvh w-[min(20rem,calc(100vw-2rem))] min-w-0 flex-col overflow-hidden border-r border-white/10 bg-zinc-950 text-white shadow-2xl shadow-black/70 outline-none data-[state=closed]:animate-[sheet-out_150ms_ease-in] data-[state=open]:animate-[sheet-in_200ms_ease-out]',
+          'fixed inset-y-0 left-0 z-[71] flex h-dvh w-[min(20rem,calc(100vw-2rem))] min-w-0 flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-900 shadow-sm outline-none data-[state=closed]:animate-[sheet-out_150ms_ease-in] data-[state=open]:animate-[sheet-in_200ms_ease-out]',
           className,
         )}
         data-slot="sheet-content"
@@ -42,7 +42,7 @@ function SheetContent({
         {children}
         <SheetPrimitive.Close
           aria-label="Close navigation menu"
-          className="absolute right-3 top-3 rounded-xl border border-white/10 bg-white/5 p-2 text-zinc-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+          className="absolute right-3 top-3 rounded-xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
         >
           <X className="size-4" aria-hidden="true" />
         </SheetPrimitive.Close>
@@ -83,7 +83,7 @@ function SheetDescription({
 }: React.ComponentProps<typeof SheetPrimitive.Description>) {
   return (
     <SheetPrimitive.Description
-      className={cn('text-xs leading-5 text-zinc-500', className)}
+      className={cn('text-xs leading-5 text-slate-500', className)}
       data-slot="sheet-description"
       {...props}
     />

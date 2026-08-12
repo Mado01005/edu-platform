@@ -72,35 +72,35 @@ function notificationPresentation(type: string) {
     return {
       Icon: CalendarCheck2,
       label: 'Attendance',
-      tone: 'bg-cyan-400/10 text-cyan-300',
+      tone: 'bg-sky-100 text-sky-700',
     };
   }
   if (type === 'GRADE') {
     return {
       Icon: GraduationCap,
       label: 'Grade',
-      tone: 'bg-violet-400/10 text-violet-300',
+      tone: 'bg-sky-100 text-sky-700',
     };
   }
   if (type === 'PAYMENT') {
     return {
       Icon: ReceiptText,
       label: 'Payment',
-      tone: 'bg-emerald-400/10 text-emerald-300',
+      tone: 'bg-emerald-50 text-emerald-700',
     };
   }
   if (type === 'ANNOUNCEMENT') {
     return {
       Icon: Megaphone,
       label: 'Announcement',
-      tone: 'bg-amber-400/10 text-amber-300',
+      tone: 'bg-amber-50 text-amber-700',
     };
   }
 
   return {
     Icon: BellRing,
     label: 'System',
-    tone: 'bg-white/5 text-zinc-300',
+    tone: 'bg-slate-100 text-slate-700',
   };
 }
 
@@ -414,12 +414,12 @@ export function NotificationBell() {
               ? `Notifications, ${unreadCount} unread`
               : 'Notifications'
           }
-          className="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-300 transition hover:border-violet-400/30 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+          className="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
           type="button"
         >
           <Bell className="size-4.5" aria-hidden="true" />
           {unreadCount ? (
-            <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-black bg-red-500 px-1 text-[9px] font-black leading-none text-white">
+            <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-sky-600 px-1 text-[9px] font-bold leading-none text-white">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           ) : null}
@@ -430,17 +430,17 @@ export function NotificationBell() {
         className="w-80 max-w-[calc(100vw-2rem)] overflow-hidden p-0"
         collisionPadding={16}
       >
-        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
           <span className="min-w-0">
-            <span className="block text-sm font-black text-white">
+            <span className="block text-sm font-semibold text-slate-900">
               Notifications
             </span>
-            <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">
+            <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500">
               {unreadCount ? `${unreadCount} unread` : 'All caught up'}
             </span>
           </span>
           <button
-            className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[10px] font-black text-violet-300 transition hover:bg-violet-400/10 disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-sky-700 transition hover:bg-sky-50 disabled:opacity-40"
             disabled={!unreadCount || markingRead}
             onClick={() => void markAllRead()}
             type="button"
@@ -456,7 +456,7 @@ export function NotificationBell() {
 
         <div className="max-h-[min(60vh,20rem)] overflow-y-auto overscroll-contain p-1.5">
           {loading ? (
-            <div className="flex items-center justify-center gap-2 px-4 py-10 text-xs font-bold text-zinc-500">
+            <div className="flex items-center justify-center gap-2 px-4 py-10 text-xs font-medium text-slate-500">
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
               Loading alerts…
             </div>
@@ -468,7 +468,7 @@ export function NotificationBell() {
               return (
                 <article
                   className={`relative flex min-w-0 gap-3 rounded-xl px-3 py-3 ${
-                    notification.isRead ? 'bg-transparent' : 'bg-violet-400/[0.06]'
+                    notification.isRead ? 'bg-transparent' : 'bg-sky-50'
                   }`}
                   key={notification.id}
                 >
@@ -479,20 +479,20 @@ export function NotificationBell() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex min-w-0 items-start gap-2">
-                      <span className="min-w-0 flex-1 break-words text-xs font-black text-white">
+                      <span className="min-w-0 flex-1 break-words text-xs font-semibold text-slate-900">
                         {notification.title}
                       </span>
                       {!notification.isRead ? (
                         <span
                           aria-label="Unread"
-                          className="mt-1 size-2 shrink-0 rounded-full bg-violet-400"
+                          className="mt-1 size-2 shrink-0 rounded-full bg-sky-600"
                         />
                       ) : null}
                     </span>
-                    <span className="mt-1 block break-words text-[11px] leading-5 text-zinc-400">
+                    <span className="mt-1 block break-words text-[11px] leading-5 text-slate-600">
                       {notification.message}
                     </span>
-                    <span className="mt-2 flex min-w-0 items-center justify-between gap-2 text-[9px] font-bold uppercase tracking-[0.12em] text-zinc-600">
+                    <span className="mt-2 flex min-w-0 items-center justify-between gap-2 text-[9px] font-medium uppercase tracking-[0.1em] text-slate-400">
                       <span className="truncate">{presentation.label}</span>
                       <time className="shrink-0 normal-case tracking-normal" dateTime={notification.createdAt}>
                         {relativeTime(notification.createdAt)}
@@ -504,16 +504,16 @@ export function NotificationBell() {
             })
           ) : (
             <div className="px-5 py-10 text-center">
-              <BellRing className="mx-auto size-7 text-zinc-700" aria-hidden="true" />
-              <p className="mt-3 text-sm font-black text-white">No alerts yet</p>
-              <p className="mt-1 text-xs leading-5 text-zinc-500">
+              <BellRing className="mx-auto size-7 text-slate-300" aria-hidden="true" />
+              <p className="mt-3 text-sm font-semibold text-slate-900">No alerts yet</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
                 Attendance, grades, payments, and academy notices will appear here.
               </p>
             </div>
           )}
         </div>
 
-        <div className="border-t border-white/10 p-3">
+        <div className="border-t border-slate-200 p-3">
           {feedError ? (
             <p className="mb-2 break-words text-[11px] font-bold leading-5 text-red-300" role="alert">
               {feedError}
@@ -548,12 +548,12 @@ export function NotificationBell() {
                     : 'Enable browser push'}
               </Button>
             ) : (
-              <p className="text-center text-[10px] font-bold leading-5 text-zinc-600">
+              <p className="text-center text-[10px] font-medium leading-5 text-slate-500">
                 Browser push is unavailable on this device. In-app alerts remain active.
               </p>
             )
           ) : (
-            <p className="text-center text-[10px] font-bold leading-5 text-zinc-600">
+            <p className="text-center text-[10px] font-medium leading-5 text-slate-500">
               In-app alerts are active. Browser push can be enabled when VAPID keys are configured.
             </p>
           )}

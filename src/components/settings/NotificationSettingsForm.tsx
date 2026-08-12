@@ -74,7 +74,7 @@ export function NotificationSettingsForm({
       id: 'notify-zoom',
       label: 'Zoom class reminders',
       onChange: setNotifyZoomClasses,
-      tone: 'text-cyan-300 bg-cyan-400/10',
+      tone: 'text-sky-700 bg-sky-100',
     },
     {
       checked: notifyAnnouncements,
@@ -84,7 +84,7 @@ export function NotificationSettingsForm({
       id: 'notify-announcements',
       label: 'Course announcements',
       onChange: setNotifyAnnouncements,
-      tone: 'text-amber-300 bg-amber-400/10',
+      tone: 'text-amber-700 bg-amber-50',
     },
     {
       checked: notifyDiscussions,
@@ -93,7 +93,7 @@ export function NotificationSettingsForm({
       id: 'notify-discussions',
       label: 'Discussion replies',
       onChange: setNotifyDiscussions,
-      tone: 'text-emerald-300 bg-emerald-400/10',
+      tone: 'text-emerald-700 bg-emerald-50',
     },
   ] as const;
 
@@ -101,11 +101,11 @@ export function NotificationSettingsForm({
     <>
       <Card>
         <CardHeader>
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-amber-400/10 text-amber-300">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
             <BellRing className="size-5" aria-hidden="true" />
           </span>
           <CardTitle className="mt-2 text-xl">Notification center</CardTitle>
-          <p className="text-sm leading-6 text-zinc-400">
+          <p className="text-sm leading-6 text-slate-600">
             Choose which learning events should reach your inbox.
           </p>
         </CardHeader>
@@ -115,7 +115,7 @@ export function NotificationSettingsForm({
               const Icon = item.icon;
               return (
                 <div
-                  className="flex min-w-0 items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                  className="flex min-w-0 items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
                   key={item.id}
                 >
                   <span
@@ -127,7 +127,7 @@ export function NotificationSettingsForm({
                     <span className="block text-sm font-black">
                       {item.label}
                     </span>
-                    <span className="mt-1 block text-xs leading-5 text-zinc-500">
+                    <span className="mt-1 block text-xs leading-5 text-slate-500">
                       {item.description}
                     </span>
                   </label>

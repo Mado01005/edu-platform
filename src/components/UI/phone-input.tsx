@@ -114,24 +114,24 @@ export function PhoneInput({
 
   return (
     <div className={cn('relative min-w-0', className)} ref={rootRef}>
-      <div className="flex h-12 min-w-0 items-center rounded-xl border border-white/10 bg-white/5 backdrop-blur-md transition focus-within:border-purple-500/50 focus-within:ring-4 focus-within:ring-purple-500/10">
+      <div className="flex h-12 min-w-0 items-center rounded-xl border border-slate-300 bg-white transition focus-within:border-sky-500 focus-within:ring-4 focus-within:ring-sky-100">
         <button
           aria-expanded={open}
           aria-haspopup="listbox"
           aria-label="Choose phone country code"
-          className="flex h-full shrink-0 items-center gap-2 border-r border-white/10 px-3 text-sm font-bold text-zinc-300 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-full shrink-0 items-center gap-2 border-r border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           disabled={disabled}
           onClick={() => setOpen((current) => !current)}
           type="button"
         >
           <span aria-hidden="true">{selected?.flag ?? '🌐'}</span>
           <span>+{selected?.callingCode ?? ''}</span>
-          <ChevronDown className="size-3.5 text-zinc-500" aria-hidden="true" />
+          <ChevronDown className="size-3.5 text-slate-400" aria-hidden="true" />
         </button>
         <input
           aria-label="Phone number"
           autoComplete="tel-national"
-          className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-zinc-600"
+          className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm text-slate-900 outline-none placeholder:text-slate-400"
           disabled={disabled}
           id={id}
           inputMode="tel"
@@ -155,13 +155,13 @@ export function PhoneInput({
       </div>
 
       {open ? (
-        <div className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 p-2 shadow-2xl shadow-black/60">
-          <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3">
-            <Search className="size-4 shrink-0 text-zinc-500" aria-hidden="true" />
+        <div className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+          <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3">
+            <Search className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
             <span className="sr-only">Search countries</span>
             <input
               autoFocus
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-600"
+              className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search country or dialing code"
               type="search"
@@ -176,7 +176,7 @@ export function PhoneInput({
             {visibleCountries.map((option) => (
               <button
                 aria-selected={option.code === country}
-                className="flex min-h-11 w-full min-w-0 items-center gap-3 rounded-xl px-3 text-left text-sm transition hover:bg-white/5"
+                className="flex min-h-11 w-full min-w-0 items-center gap-3 rounded-xl px-3 text-left text-sm text-slate-700 transition hover:bg-sky-50"
                 key={option.code}
                 onClick={() => selectCountry(option.code)}
                 role="option"
@@ -186,16 +186,16 @@ export function PhoneInput({
                   {option.flag}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{option.name}</span>
-                <span className="shrink-0 font-mono text-xs text-zinc-500">
+                <span className="shrink-0 font-mono text-xs text-slate-500">
                   +{option.callingCode}
                 </span>
                 {option.code === country ? (
-                  <Check className="size-4 shrink-0 text-violet-300" />
+                  <Check className="size-4 shrink-0 text-sky-600" />
                 ) : null}
               </button>
             ))}
             {!visibleCountries.length ? (
-              <p className="px-3 py-6 text-center text-sm text-zinc-500">
+              <p className="px-3 py-6 text-center text-sm text-slate-500">
                 No countries match that search.
               </p>
             ) : null}

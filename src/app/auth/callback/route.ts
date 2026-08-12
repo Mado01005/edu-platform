@@ -11,10 +11,64 @@ import { getPrisma } from '@/lib/prisma';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/ssr-server';
 
+const DEFAULT_AUTH_REDIRECT = '/dashboard';
+const MAX_REDIRECT_PATH_LENGTH = 2_048;
+
 function safeNextPath(value: string | null) {
-  return value?.startsWith('/') && !value.startsWith('//')
-    ? value
-    : '/dashboard';
+  if (
+    !value ||
+    value.length > MAX_REDIRECT_PATH_LENGTH ||
+    !value.startsWith('/') ||
+    value.startsWith('//') ||
+    value.includes('\\') ||
+    /[\u0000-\u001f\u007f]/.test(value)
+  ) {
+    return DEFAULT_AUTH_REDIRECT;
+  }
+
+  try {
+    const base = new URL('https://auth-redirect.invalid');
+    const target = new URL(value, base);
+
+    if (target.origin !== base.origin) {
+      return DEFAULT_AUTH_REDIRECT;
+    }
+
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return DEFAULT_AUTH_REDIRECT;
+  }
+}
+
+function authErrorMessage(error: string | null, errorCode: string | null) {
+  const reason = (errorCode ?? error)?.toLowerCase();
+
+  if (reason === 'access_denied') {
+    return 'Sign-in was cancelled.';
+  }
+
+  if (reason === 'temporarily_unavailable' || reason === 'server_error') {
+    return 'Sign-in is temporarily unavailable. Please try again.';
+  }
+
+  return 'Unable to complete sign in. Please try again.';
+}
+
+function loginErrorRedirect(
+  request: NextRequest,
+  message: string,
+  next: string,
+) {
+  const errorUrl = new URL('/lms/login', request.url);
+  errorUrl.searchParams.set('error', message);
+  errorUrl.searchParams.set('next', next);
+
+  const response = NextResponse.redirect(errorUrl);
+  response.headers.set(
+    'Cache-Control',
+    'private, no-cache, no-store, must-revalidate, max-age=0',
+  );
+  return response;
 }
 
 function readGradeLevel(value: unknown): GradeLevel | null {
@@ -24,16 +78,34 @@ function readGradeLevel(value: unknown): GradeLevel | null {
 }
 
 export async function GET(request: NextRequest) {
-  const code = request.nextUrl.searchParams.get('code');
-  const next = safeNextPath(request.nextUrl.searchParams.get('next'));
+  const { searchParams } = request.nextUrl;
+  const code = searchParams.get('code');
+  const next = safeNextPath(searchParams.get('next'));
+  const oauthError = searchParams.get('error');
+  const oauthErrorCode = searchParams.get('error_code');
 
-  if (code) {
-    try {
-      const supabase = await createSupabaseServerClient();
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-      const user = data.session?.user;
+  if (oauthError || oauthErrorCode || searchParams.has('error_description')) {
+    return loginErrorRedirect(
+      request,
+      authErrorMessage(oauthError, oauthErrorCode),
+      next,
+    );
+  }
 
-      if (!error && user?.email) {
+  if (!code) {
+    return loginErrorRedirect(
+      request,
+      'The sign-in link is missing or has expired. Please try again.',
+      next,
+    );
+  }
+
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    const user = data.session?.user;
+
+    if (!error && user?.email) {
         const metadataPhone = normalizePhoneNumber(
           typeof user.user_metadata?.phone_number === 'string'
             ? user.user_metadata.phone_number
@@ -122,15 +194,16 @@ export async function GET(request: NextRequest) {
           'Cache-Control',
           'private, no-cache, no-store, must-revalidate, max-age=0',
         );
-        return response;
-      }
-    } catch {
-      // Fall through to the safe login error redirect. A valid auth session
-      // without a synchronized LMS profile must not enter the application.
+      return response;
     }
+  } catch {
+    // A valid Auth session without a synchronized LMS profile must not enter
+    // the application. Do not expose provider or database errors in the URL.
   }
 
-  const errorUrl = new URL('/lms/login', request.url);
-  errorUrl.searchParams.set('error', 'Unable to complete sign in.');
-  return NextResponse.redirect(errorUrl);
+  return loginErrorRedirect(
+    request,
+    'Unable to complete sign in. Please try again.',
+    next,
+  );
 }

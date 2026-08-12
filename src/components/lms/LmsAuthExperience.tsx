@@ -116,10 +116,10 @@ function AuthField({
         <span>{label}</span>
         {labelAction}
       </span>
-      <span className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 backdrop-blur-md transition focus-within:border-purple-500/50 focus-within:ring-4 focus-within:ring-purple-500/10">
-        <Icon className="size-4 shrink-0 text-zinc-500" aria-hidden="true" />
+      <span className="flex min-w-0 items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 transition focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100">
+        <Icon className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
         <input
-          className="h-12 min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-zinc-600"
+          className="h-12 min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
           id={id}
           {...props}
         />
@@ -429,7 +429,7 @@ export function LmsAuthExperience({
 
     try {
       const supabase = createSupabaseBrowserClient();
-      const redirectTo = callbackUrl();
+      const redirectTo = callbackUrl(nextPath);
       if (process.env.NODE_ENV !== 'production') {
         console.info('[LMS_GOOGLE_OAUTH_REDIRECT]', redirectTo);
       }
@@ -551,7 +551,7 @@ export function LmsAuthExperience({
   const passwordToggle = (
     <button
       aria-label={showPassword ? 'Hide password' : 'Show password'}
-      className="text-zinc-500 transition hover:text-white"
+      className="text-slate-500 transition hover:text-sky-700"
       onClick={() => setShowPassword((value) => !value)}
       type="button"
     >
@@ -564,65 +564,57 @@ export function LmsAuthExperience({
   );
 
   return (
-    <main className="grid min-h-screen w-full grid-cols-1 overflow-x-hidden bg-zinc-950 text-white lg:grid-cols-2">
-      <section className="relative hidden min-w-0 overflow-hidden border-r border-white/10 bg-black p-10 lg:flex lg:flex-col lg:justify-between xl:p-16">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(124,58,237,.38),transparent_32%),radial-gradient(circle_at_80%_68%,rgba(37,99,235,.2),transparent_30%),linear-gradient(145deg,#09090b,#030712)]"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.14)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.14)_1px,transparent_1px)] [background-size:52px_52px]"
-        />
+    <main className="grid min-h-screen w-full grid-cols-1 overflow-x-hidden bg-white text-slate-900 lg:grid-cols-2">
+      <section className="relative hidden min-w-0 overflow-hidden border-r border-slate-200 bg-sky-50 p-10 lg:flex lg:flex-col lg:justify-between xl:p-16">
 
         <Link className="relative flex w-fit items-center gap-3" href="/catalog">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-500 text-black shadow-xl shadow-violet-500/20">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-sm">
             <GraduationCap className="size-6" aria-hidden="true" />
           </span>
           <span>
             <span className="block text-base font-black">Way Ground LMS</span>
-            <span className="block text-[9px] font-bold uppercase tracking-[0.24em] text-violet-300">
+            <span className="block text-[9px] font-bold uppercase tracking-[0.24em] text-sky-700">
               Learn. Build. Progress.
             </span>
           </span>
         </Link>
 
         <div className="relative max-w-xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-violet-200">
+          <span className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-sky-700">
             <Sparkles className="size-3.5" aria-hidden="true" />
             Your learning command center
           </span>
           <h1 className="mt-6 text-5xl font-black leading-[1.02] tracking-[-0.045em] xl:text-6xl">
             Welcome back to your{' '}
-            <span className="bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
+            <span className="text-sky-700">
               learning space.
             </span>
           </h1>
-          <p className="mt-6 max-w-lg text-base leading-8 text-zinc-400">
+          <p className="mt-6 max-w-lg text-base leading-8 text-slate-600">
             Structured courses, practical resources, and live classrooms that
             keep every next step clear.
           </p>
         </div>
 
-        <div className="relative grid min-w-0 grid-cols-2 gap-3 rounded-3xl border border-white/10 bg-white/[0.055] p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl">
-          <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-black/30 p-4">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-400/15 text-violet-300">
+        <div className="relative grid min-w-0 grid-cols-2 gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-slate-50 p-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
               <UsersRound className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
               <span className="block text-xl font-black">300+</span>
-              <span className="block truncate text-xs text-zinc-500">
+              <span className="block truncate text-xs text-slate-500">
                 Active students
               </span>
             </span>
           </div>
-          <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-black/30 p-4">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
+          <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-slate-50 p-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
               <Radio className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
               <span className="block text-xl font-black">Live</span>
-              <span className="block truncate text-xs text-zinc-500">
+              <span className="block truncate text-xs text-slate-500">
                 Session hubs
               </span>
             </span>
@@ -631,13 +623,9 @@ export function LmsAuthExperience({
       </section>
 
       <section className="relative flex min-w-0 items-center justify-center overflow-hidden px-4 py-10 sm:px-8 lg:px-12">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(124,58,237,.18),transparent_65%)] lg:hidden"
-        />
         <div className="relative flex w-full max-w-md min-w-0 flex-col">
           <Link
-            className="mb-8 flex w-fit items-center gap-2 text-sm font-bold text-zinc-500 transition hover:text-white lg:hidden"
+            className="mb-8 flex w-fit items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-sky-700 lg:hidden"
             href="/catalog"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
@@ -645,20 +633,20 @@ export function LmsAuthExperience({
           </Link>
 
           {verificationEmail ? (
-            <div className="flex min-w-0 flex-col items-center rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 text-center shadow-2xl shadow-violet-950/20 backdrop-blur-2xl sm:p-8">
-              <span className="relative flex size-20 items-center justify-center rounded-3xl bg-violet-400/15 text-violet-300">
+            <div className="flex min-w-0 flex-col items-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
+              <span className="relative flex size-20 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
                 <Mail className="size-9 animate-bounce" aria-hidden="true" />
                 <span className="absolute right-1 top-1 size-3 rounded-full bg-emerald-300 shadow-lg shadow-emerald-400/50" />
               </span>
-              <p className="mt-6 text-[10px] font-black uppercase tracking-[0.22em] text-violet-300">
+              <p className="mt-6 text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">
                 One last step
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight">
                 Check your inbox
               </h1>
-              <p className="mt-4 text-sm leading-7 text-zinc-400">
+              <p className="mt-4 text-sm leading-7 text-slate-600">
                 We sent a confirmation link to{' '}
-                <strong className="break-all text-white">
+                <strong className="break-all text-slate-900">
                   {verificationEmail}
                 </strong>
                 . Click the link in the email to activate your account.
@@ -678,7 +666,7 @@ export function LmsAuthExperience({
                 </p>
               ) : null}
               <button
-                className="mt-7 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm font-black transition hover:border-violet-400/30 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-7 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={pending || cooldown > 0}
                 onClick={() => void handleResend()}
                 type="button"
@@ -693,7 +681,7 @@ export function LmsAuthExperience({
                   : 'Resend confirmation email'}
               </button>
               <button
-                className="mt-3 text-sm font-bold text-zinc-500 transition hover:text-white"
+                className="mt-3 text-sm font-bold text-slate-500 transition hover:text-sky-700"
                 onClick={() => {
                   setVerificationEmail('');
                   switchMode('signin');
@@ -706,10 +694,10 @@ export function LmsAuthExperience({
           ) : (
             <>
               <div className="mb-7">
-                <span className="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-500 text-black shadow-lg shadow-violet-500/20 lg:hidden">
+                <span className="flex size-12 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-sm lg:hidden">
                   <GraduationCap className="size-6" aria-hidden="true" />
                 </span>
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.22em] text-violet-300">
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">
                   {mode === 'signup'
                     ? 'Start learning today'
                     : mode === 'phone'
@@ -735,7 +723,7 @@ export function LmsAuthExperience({
                             ? 'Secure your account.'
                             : 'Sign in to Way Ground.'}
                 </h1>
-                <p className="mt-3 text-sm leading-6 text-zinc-500">
+                <p className="mt-3 text-sm leading-6 text-slate-600">
                   {mode === 'signup'
                     ? 'Build your profile and unlock your learning dashboard.'
                     : mode === 'phone'
@@ -756,7 +744,7 @@ export function LmsAuthExperience({
               mode === 'otp' ? (
                 <div
                   aria-label="Authentication mode"
-                  className="mb-6 grid min-w-0 grid-cols-2 rounded-2xl border border-white/10 bg-black/40 p-1"
+                  className="mb-6 grid min-w-0 grid-cols-2 rounded-2xl border border-slate-200 bg-slate-100 p-1"
                   role="tablist"
                 >
                   {(['signin', 'signup'] as const).map((tab) => {
@@ -772,8 +760,8 @@ export function LmsAuthExperience({
                         className={cn(
                           'h-10 rounded-xl text-sm font-black transition',
                           active
-                            ? 'bg-white text-black shadow-lg'
-                            : 'text-zinc-500 hover:text-white',
+                            ? 'bg-white text-sky-700 shadow-sm'
+                            : 'text-slate-500 hover:text-sky-700',
                         )}
                         key={tab}
                         onClick={() => switchMode(tab)}
@@ -836,7 +824,7 @@ export function LmsAuthExperience({
                   <label className="flex min-w-0 flex-col gap-2 text-sm font-bold">
                     Grade Level
                     <select
-                      className="h-12 w-full min-w-0 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none transition focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
+                      className="h-12 w-full min-w-0 rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
                       onChange={(event) => setGradeLevel(event.target.value)}
                       required
                       value={gradeLevel}
@@ -878,8 +866,8 @@ export function LmsAuthExperience({
                             className={cn(
                               'flex h-11 cursor-pointer items-center justify-center rounded-xl border text-sm font-black transition',
                               otpChannel === channel
-                                ? 'border-violet-300 bg-violet-300 text-black'
-                                : 'border-white/10 bg-white/5 text-zinc-400 hover:text-white',
+                                ? 'border-sky-600 bg-sky-600 text-white'
+                                : 'border-slate-300 bg-white text-slate-600 hover:border-sky-300 hover:text-sky-700',
                             )}
                             key={channel}
                           >
@@ -957,7 +945,7 @@ export function LmsAuthExperience({
                     labelAction={
                       mode === 'signin' ? (
                         <button
-                          className="text-xs font-bold text-violet-300 transition hover:text-violet-200"
+                          className="text-xs font-bold text-sky-700 transition hover:text-sky-800"
                           onClick={() => switchMode('forgot')}
                           type="button"
                         >
@@ -989,7 +977,7 @@ export function LmsAuthExperience({
                             ? 'Hide confirmation password'
                             : 'Show confirmation password'
                         }
-                        className="text-zinc-500 transition hover:text-white"
+                        className="text-slate-500 transition hover:text-sky-700"
                         onClick={() =>
                           setShowConfirmPassword((value) => !value)
                         }
@@ -1008,24 +996,24 @@ export function LmsAuthExperience({
                 ) : null}
 
                 {notice ? (
-                  <p className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+                  <p className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
                     <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
                     {notice}
                   </p>
                 ) : null}
                 {phoneWarning ? (
                   <div
-                    className="flex min-w-0 items-start gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-3 text-sm leading-5 text-amber-100"
+                    className="flex min-w-0 items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm leading-5 text-amber-800"
                     role="status"
                   >
                     <Smartphone
-                      className="mt-0.5 size-4 shrink-0 text-amber-300"
+                      className="mt-0.5 size-4 shrink-0 text-amber-700"
                       aria-hidden="true"
                     />
                     <p className="min-w-0 flex-1">{phoneWarning}</p>
                     <button
                       aria-label="Dismiss phone sign-in warning"
-                      className="shrink-0 rounded-md p-1 text-amber-300 transition hover:bg-amber-300/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                      className="shrink-0 rounded-md p-1 text-amber-700 transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                       onClick={() => setPhoneWarning('')}
                       type="button"
                     >
@@ -1036,14 +1024,14 @@ export function LmsAuthExperience({
                 {error ? (
                   <p
                     aria-live="polite"
-                    className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+                    className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
                   >
                     {error}
                   </p>
                 ) : null}
 
                 <button
-                  className="mt-1 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-400 to-fuchsia-500 px-4 text-sm font-black text-black shadow-xl shadow-violet-950/40 transition hover:from-violet-300 hover:to-fuchsia-400 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-1 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-sky-600 px-4 text-sm font-black text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={pending}
                   type="submit"
                 >
@@ -1071,7 +1059,7 @@ export function LmsAuthExperience({
 
               {mode === 'signin' ? (
                 <button
-                  className="mt-3 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-violet-400/20 bg-violet-400/[0.06] px-4 text-sm font-black text-violet-200 transition hover:border-violet-400/40 hover:bg-violet-400/10"
+                  className="mt-3 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-4 text-sm font-black text-sky-700 transition hover:border-sky-300 hover:bg-sky-100"
                   onClick={() => switchMode('phone')}
                   type="button"
                 >
@@ -1080,7 +1068,7 @@ export function LmsAuthExperience({
                 </button>
               ) : mode === 'phone' ? (
                 <button
-                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 text-sm font-bold text-zinc-500 transition hover:text-white"
+                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 text-sm font-bold text-slate-500 transition hover:text-sky-700"
                   onClick={() => switchMode('signin')}
                   type="button"
                 >
@@ -1090,14 +1078,14 @@ export function LmsAuthExperience({
               ) : mode === 'otp' ? (
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <button
-                    className="h-11 rounded-xl border border-white/10 text-xs font-black text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                    className="h-11 rounded-xl border border-slate-300 text-xs font-black text-slate-600 transition hover:bg-slate-50 hover:text-sky-700"
                     onClick={() => switchMode('phone')}
                     type="button"
                   >
                     Change number
                   </button>
                   <button
-                    className="h-11 rounded-xl border border-white/10 text-xs font-black text-violet-200 transition hover:bg-white/5 disabled:opacity-50"
+                    className="h-11 rounded-xl border border-slate-300 text-xs font-black text-sky-700 transition hover:bg-sky-50 disabled:opacity-50"
                     disabled={pending || cooldown > 0}
                     onClick={() => void handlePhoneResend()}
                     type="button"
@@ -1111,13 +1099,13 @@ export function LmsAuthExperience({
               mode === 'signup' ||
               mode === 'phone' ? (
                 <>
-                  <div className="my-6 flex items-center gap-3 text-xs font-bold text-zinc-600">
-                    <span className="h-px flex-1 bg-white/10" />
+                  <div className="my-6 flex items-center gap-3 text-xs font-bold text-slate-500">
+                    <span className="h-px flex-1 bg-slate-200" />
                     OR
-                    <span className="h-px flex-1 bg-white/10" />
+                    <span className="h-px flex-1 bg-slate-200" />
                   </div>
                   <button
-                    className="flex h-12 w-full min-w-0 items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4 text-sm font-black transition hover:border-white/20 hover:bg-white/[0.07] disabled:opacity-60"
+                    className="flex h-12 w-full min-w-0 items-center justify-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-sky-300 hover:bg-slate-50 disabled:opacity-60"
                     disabled={pending}
                     onClick={() => void handleGoogleSignIn()}
                     type="button"
@@ -1128,7 +1116,7 @@ export function LmsAuthExperience({
                 </>
               ) : mode === 'forgot' || mode === 'recovery' ? (
                 <button
-                  className="mt-5 flex items-center gap-2 text-sm font-bold text-zinc-500 transition hover:text-white"
+                  className="mt-5 flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-sky-700"
                   onClick={() => switchMode('signin')}
                   type="button"
                 >
@@ -1137,7 +1125,7 @@ export function LmsAuthExperience({
                 </button>
               ) : null}
 
-              <p className="mt-7 text-center text-xs leading-5 text-zinc-600">
+              <p className="mt-7 text-center text-xs leading-5 text-slate-500">
                 By continuing, you agree to use this learning space responsibly
                 and keep your account secure.
               </p>

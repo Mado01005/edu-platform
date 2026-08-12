@@ -17,12 +17,12 @@ export default async function TeacherCoursesPage() {
 
   return (
     <>
-      <section className="rounded-3xl border border-white/10 bg-zinc-950 p-5">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
           Course workspace
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">Your courses</h1>
-        <p className="mt-2 text-sm leading-6 text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-slate-600">
           Build modules, upload resources, and schedule live classes.
         </p>
       </section>
@@ -33,28 +33,28 @@ export default async function TeacherCoursesPage() {
         {courses.length ? (
           courses.map((course) => (
             <article
-              className="flex min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-3 transition hover:border-violet-400/50 sm:flex-row sm:items-center"
+              className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-sky-300 sm:flex-row sm:items-center"
               key={course.id}
             >
               <Link
                 className="group flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1"
                 href={`/teacher/courses/${course.id}`}
               >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/5">
-                  <Layers3 className="size-5 text-violet-300" />
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-100">
+                  <Layers3 className="size-5 text-sky-700" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-black">{course.title}</span>
-                  <span className="mt-1 block truncate text-xs text-zinc-500">
+                  <span className="mt-1 block truncate text-xs text-slate-500">
                     {course.isPublished ? 'Published' : 'Draft'} ·{' '}
                     {course._count.modules} modules · {course._count.enrollments}{' '}
                     students
                   </span>
                 </span>
-                <ArrowRight className="size-4 shrink-0 text-zinc-600 transition group-hover:translate-x-1 group-hover:text-violet-300" />
+                <ArrowRight className="size-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-sky-700" />
               </Link>
               <Link
-                className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-cyan-300/20 px-3 text-xs font-black text-cyan-200 transition hover:bg-cyan-300 hover:text-black"
+                className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-sky-200 px-3 text-xs font-bold text-sky-700 transition hover:bg-sky-50"
                 href={`/teacher/courses/${course.id}?tab=zoom`}
               >
                 <CalendarPlus aria-hidden="true" className="size-4" />
@@ -63,7 +63,7 @@ export default async function TeacherCoursesPage() {
             </article>
           ))
         ) : (
-          <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
             Your first course will appear here.
           </div>
         )}

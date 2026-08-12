@@ -99,12 +99,12 @@ export function ProfileSettingsForm({
 
   async function uploadAvatar(file: File) {
     if (
-      !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
+      !['image/jpeg', 'image/png'].includes(file.type) ||
       file.size <= 0 ||
       file.size > 5 * 1024 * 1024
     ) {
       setNotice({
-        message: 'Choose a JPEG, PNG, or WebP avatar no larger than 5 MB.',
+        message: 'Choose a JPG or PNG avatar no larger than 5 MiB.',
         type: 'error',
       });
       return;
@@ -184,18 +184,18 @@ export function ProfileSettingsForm({
     <>
       <Card>
         <CardHeader>
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
             <UserRound className="size-5" aria-hidden="true" />
           </span>
           <CardTitle className="mt-2 text-xl">Profile &amp; public bio</CardTitle>
-          <p className="text-sm leading-6 text-zinc-400">
+          <p className="text-sm leading-6 text-slate-600">
             Shape how your name and expertise appear across the learning space.
           </p>
         </CardHeader>
         <CardContent className="pb-5 pt-6">
           <form className="flex min-w-0 flex-col gap-5" onSubmit={handleSubmit}>
-            <div className="flex min-w-0 flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:flex-row sm:items-center">
-              <Avatar className="size-20 border-violet-400/30">
+            <div className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center">
+              <Avatar className="size-20 border-sky-200">
                 <AvatarImage
                   alt={`${name || initialUser.email} avatar`}
                   src={previewUrl ?? avatarUrl ?? undefined}
@@ -206,9 +206,9 @@ export function ProfileSettingsForm({
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="font-black">Custom avatar</p>
-                <p className="mt-1 text-xs leading-5 text-zinc-500">
-                  JPEG, PNG, or WebP. Uploaded directly to Cloudflare R2, up to
-                  5 MB.
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  JPG or PNG. Secure direct upload to Cloudflare R2, up to
+                  5 MiB.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button
@@ -241,7 +241,7 @@ export function ProfileSettingsForm({
                   ) : null}
                 </div>
                 <input
-                  accept="image/jpeg,image/png,image/webp"
+                  accept="image/jpeg,image/png,.jpg,.jpeg,.png"
                   className="hidden"
                   onChange={(event) => {
                     const file = event.target.files?.[0];
@@ -282,7 +282,7 @@ export function ProfileSettingsForm({
               />
               <span
                 className={`mt-2 flex items-center gap-1.5 text-xs font-bold ${
-                  phoneVerified ? 'text-emerald-300' : 'text-amber-300'
+                  phoneVerified ? 'text-emerald-700' : 'text-amber-700'
                 }`}
               >
                 {phoneVerified ? (
@@ -318,7 +318,7 @@ export function ProfileSettingsForm({
                 placeholder="Share what you are learning, building, or teaching."
                 value={bio}
               />
-              <span className="mt-1 block text-right text-xs font-medium text-zinc-600">
+              <span className="mt-1 block text-right text-xs font-medium text-slate-500">
                 {bio.length}/1000
               </span>
             </label>
@@ -326,7 +326,7 @@ export function ProfileSettingsForm({
             <label className="min-w-0 text-sm font-bold">
               Timezone
               <select
-                className="mt-2 h-12 w-full min-w-0 rounded-xl border border-white/10 bg-zinc-950 px-4 text-sm outline-none focus:border-violet-400/50 focus:ring-4 focus:ring-violet-500/10"
+                className="mt-2 h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
                 onChange={(event) => setTimezone(event.target.value)}
                 value={timezone}
               >

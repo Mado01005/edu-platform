@@ -1,18 +1,23 @@
-[
-  {
-    "AllowedOrigins": [
-      "http://localhost:3000",
-      "https://your-production-domain.example"
-    ],
-    "AllowedMethods": [
-      "PUT"
-    ],
-    "AllowedHeaders": [
-      "Content-Type"
-    ],
-    "ExposeHeaders": [
-      "ETag"
-    ],
-    "MaxAgeSeconds": 3600
-  }
-]
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": [
+          "http://localhost:3000",
+          "https://edu-platform.me",
+          "https://www.edu-platform.me"
+        ],
+        "methods": [
+          "PUT"
+        ],
+        "headers": [
+          "Content-Type"
+        ]
+      },
+      "exposeHeaders": [
+        "ETag"
+      ],
+      "maxAgeSeconds": 3600
+    }
+  ]
+}

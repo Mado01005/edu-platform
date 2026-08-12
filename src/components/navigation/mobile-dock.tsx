@@ -74,7 +74,7 @@ export function MobileDock({ role }: { role: Role }) {
   return (
     <nav
       aria-label="Mobile quick navigation"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-zinc-950/95 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-12px_30px_rgba(0,0,0,.45)] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-sm md:hidden"
     >
       <div className="mx-auto grid w-full max-w-md grid-cols-4 gap-1">
         {items.map(({ href, icon: Icon, label }) => {
@@ -88,10 +88,10 @@ export function MobileDock({ role }: { role: Role }) {
             <Link
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-black transition',
+                'flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-semibold transition-colors',
                 active
-                  ? 'bg-violet-400/15 text-violet-200'
-                  : 'text-zinc-500 hover:bg-white/5 hover:text-white',
+                  ? 'bg-sky-100 text-sky-700'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900',
               )}
               href={href}
               key={label}

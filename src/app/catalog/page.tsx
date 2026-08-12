@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import {
@@ -7,7 +8,6 @@ import {
   Layers3,
   Search,
   SlidersHorizontal,
-  Sparkles,
   Video,
   Zap,
 } from 'lucide-react';
@@ -111,22 +111,16 @@ const featureMetrics = [
     icon: Zap,
     label: 'Active Students',
     value: '300+',
-    accent: 'text-amber-300',
-    glow: 'bg-amber-400/15',
   },
   {
     icon: Video,
     label: 'Live Interactive Zoom Sessions',
     value: 'Live',
-    accent: 'text-cyan-300',
-    glow: 'bg-cyan-400/15',
   },
   {
     icon: Layers3,
     label: 'Structured Course Modules & Resources',
     value: 'Guided',
-    accent: 'text-violet-300',
-    glow: 'bg-violet-400/15',
   },
 ] as const;
 
@@ -183,32 +177,17 @@ export default async function CatalogPage({
         );
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-black text-white">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[720px] bg-[radial-gradient(circle_at_18%_15%,rgba(124,58,237,.22),transparent_30%),radial-gradient(circle_at_82%_12%,rgba(37,99,235,.16),transparent_28%)]"
-      />
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
       <LmsHeader user={user} />
 
-      <main className="relative mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-10 px-4 py-8 sm:px-6 sm:py-12 lg:gap-14 lg:py-16">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/70 p-5 shadow-2xl shadow-violet-950/20 backdrop-blur-sm sm:p-8 lg:p-10">
-          <div
-            aria-hidden="true"
-            className="absolute -right-24 -top-24 size-72 rounded-full bg-violet-500/15 blur-3xl"
-          />
-          <div className="relative grid min-w-0 gap-10 lg:grid-cols-12 lg:items-center">
-            <div className="min-w-0 lg:col-span-7">
-              <span className="inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-violet-200">
-                <Sparkles className="size-3.5" aria-hidden="true" />
-                Built for focused learning
-              </span>
-              <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
-                Courses built for
-                <span className="mt-1 block bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
-                  real progress.
-                </span>
+      <main className="mx-auto flex w-full max-w-[92rem] min-w-0 flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:gap-10">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="grid min-w-0 lg:min-h-[25rem] lg:grid-cols-2 lg:items-stretch">
+            <div className="flex min-w-0 flex-col justify-center p-6 sm:p-10 lg:p-12">
+              <h1 className="max-w-2xl text-4xl font-bold leading-[1.08] tracking-[-0.035em] text-slate-900 sm:text-5xl lg:text-6xl">
+                Courses built for real progress.
               </h1>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
+              <p className="mt-5 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
                 Learn through structured paths, expert-led video, downloadable
                 resources, and live classes—all inside one thoughtfully designed
                 workspace.
@@ -217,7 +196,7 @@ export default async function CatalogPage({
                 <Link
                   className={cn(
                     buttonVariants({ size: 'lg' }),
-                    'bg-gradient-to-r from-violet-400 to-fuchsia-500 text-black shadow-xl shadow-violet-950/40 hover:from-violet-300 hover:to-fuchsia-400',
+                    'shadow-sm',
                   )}
                   href="#course-catalog"
                 >
@@ -233,50 +212,31 @@ export default async function CatalogPage({
                 </Link>
               </div>
             </div>
-
-            <Card className="relative overflow-hidden border-white/10 bg-black/55 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-6 lg:col-span-5">
-              <div
-                aria-hidden="true"
-                className="absolute -right-12 -top-12 size-40 rounded-full bg-fuchsia-500/15 blur-3xl"
+            <div className="relative min-h-64 overflow-hidden bg-slate-100 lg:min-h-full">
+              <Image
+                alt="A learner taking notes while studying online at home"
+                className="object-cover object-center"
+                fill
+                priority
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                src="/images/catalog-learning-hero.png"
               />
-              <div className="relative">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">
-                  Way Ground network
-                </p>
-                <h2 className="mt-2 text-2xl font-black tracking-tight">
-                  Learn with momentum.
-                </h2>
-                <div className="mt-5 flex min-w-0 flex-col gap-3">
-                  {featureMetrics.map(
-                    ({ accent, glow, icon: Icon, label, value }) => (
-                      <div
-                        className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/5 bg-white/[0.035] p-3.5"
-                        key={label}
-                      >
-                        <span
-                          className={cn(
-                            'flex size-10 shrink-0 items-center justify-center rounded-xl',
-                            glow,
-                            accent,
-                          )}
-                        >
-                          <Icon className="size-5" aria-hidden="true" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xl font-black text-white">
-                            {value}
-                          </span>
-                          <span className="block truncate text-xs font-medium text-zinc-500">
-                            {label}
-                          </span>
-                        </span>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-            </Card>
+            </div>
           </div>
+        </section>
+
+        <section className="grid min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3 sm:p-6">
+          {featureMetrics.map(({ icon: Icon, label, value }) => (
+            <div className="flex min-w-0 items-center gap-3 sm:border-r sm:border-slate-200 sm:last:border-r-0" key={label}>
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                <Icon className="size-5" aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xl font-bold text-slate-900">{value}</span>
+                <span className="block text-xs text-slate-500">{label}</span>
+              </span>
+            </div>
+          ))}
         </section>
 
         <section
@@ -285,28 +245,28 @@ export default async function CatalogPage({
         >
           <div className="mb-6 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
-              <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-sky-700">
                 <BookOpen className="size-4" aria-hidden="true" />
                 Course catalog
               </p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
                 Find your next skill.
               </h2>
             </div>
-            <p className="text-sm font-medium text-zinc-500">
+            <p className="text-sm font-medium text-slate-500">
               {courses.length} {courses.length === 1 ? 'course' : 'courses'} available
             </p>
           </div>
 
-          <form className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.035] p-2 backdrop-blur-md sm:flex-row">
+          <form className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm sm:flex-row">
             <label className="relative min-w-0 flex-1">
               <span className="sr-only">Search courses</span>
               <Search
-                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400"
                 aria-hidden="true"
               />
               <Input
-                className="h-12 border-transparent bg-transparent pl-11 focus:border-purple-500/50"
+                className="h-12 border-transparent bg-transparent pl-11 focus:border-sky-500"
                 defaultValue={query}
                 name="q"
                 placeholder="Search courses, skills, or instructors"
@@ -333,10 +293,10 @@ export default async function CatalogPage({
                 <Link
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'inline-flex min-w-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-bold transition',
+                    'inline-flex min-w-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-medium transition-colors',
                     active
-                      ? 'border-violet-400/40 bg-violet-400 text-black shadow-lg shadow-violet-950/30'
-                      : 'border-white/10 bg-white/[0.035] text-zinc-400 hover:border-violet-400/30 hover:bg-white/[0.07] hover:text-white',
+                      ? 'border-sky-200 bg-sky-100 text-sky-700'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700',
                   )}
                   href={categoryHref(courseCategory, query)}
                   key={courseCategory}
@@ -351,7 +311,7 @@ export default async function CatalogPage({
           </div>
 
           {courses.length ? (
-            <div className="mt-7 grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-7 grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
               {courses.map((course) => (
                 <CourseCard
                   channels={paymentChannels}
@@ -363,12 +323,12 @@ export default async function CatalogPage({
               ))}
             </div>
           ) : (
-            <Card className="mt-7 items-center border-dashed bg-zinc-950/60 p-10 text-center sm:p-14">
-              <span className="flex size-12 items-center justify-center rounded-2xl bg-white/5 text-zinc-500">
+            <Card className="mt-7 items-center border-dashed p-10 text-center sm:p-14">
+              <span className="flex size-12 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
                 <Search className="size-5" aria-hidden="true" />
               </span>
-              <h3 className="mt-4 text-lg font-black">No matching courses</h3>
-              <p className="mt-2 max-w-md text-sm leading-6 text-zinc-500">
+              <h3 className="mt-4 text-lg font-semibold">No matching courses</h3>
+              <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
                 Try another search phrase or choose a different category.
               </p>
               <Link

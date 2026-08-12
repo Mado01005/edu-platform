@@ -1,6 +1,7 @@
 const mockAuth = jest.fn();
 const mockGetSupabaseRequestContext = jest.fn();
 
+jest.mock('server-only', () => ({}));
 jest.mock('@/auth', () => ({ auth: mockAuth }));
 jest.mock('@/lib/supabase/proxy', () => ({
   getSupabaseRequestContext: mockGetSupabaseRequestContext,
