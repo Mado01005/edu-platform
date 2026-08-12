@@ -242,12 +242,8 @@ const LMS_PAGE_RULES: readonly {
   notice: string;
   route: string;
 }[] = [
+  { route: '/admin', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/teacher', allowed: TEACHING_ROLES, notice: 'teacher-required' },
-  { route: '/admin/users', allowed: ADMIN_ROLES, notice: 'admin-required' },
-  { route: '/admin/storage', allowed: ADMIN_ROLES, notice: 'admin-required' },
-  { route: '/admin/curriculum', allowed: ADMIN_ROLES, notice: 'admin-required' },
-  { route: '/admin/k12', allowed: ADMIN_ROLES, notice: 'admin-required' },
-  { route: '/admin/radar', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/support', allowed: SUPPORT_ROLES, notice: 'support-required' },
   {
     route: '/accounting',
@@ -264,6 +260,15 @@ function redirectWithSessionCookies(
   response.cookies.getAll().forEach((cookie) => {
     redirectResponse.cookies.set(cookie);
   });
+
+  // @supabase/ssr supplies these headers whenever it rotates auth cookies.
+  // They must survive redirects so a CDN cannot cache one user's refreshed
+  // session response and so the browser receives the full settlement response.
+  for (const header of ['cache-control', 'expires', 'pragma']) {
+    const value = response.headers.get(header);
+    if (value) redirectResponse.headers.set(header, value);
+  }
+
   return redirectResponse;
 }
 
@@ -279,6 +284,37 @@ export async function proxy(request: NextRequest) {
 
   if (matchesRoute(pathname, '/api')) {
     return protectApiRequest(request);
+  }
+
+  // Refresh an existing Supabase session even when a user navigates directly
+  // to a sign-in page. Active users should not be shown a login form, and any
+  // rotated cookie/header state must be attached to the redirect response.
+  if (pathname === '/login' || pathname === '/lms/login') {
+    const supabaseContext = await getSupabaseRequestContext(request);
+
+    if (supabaseContext.userId && supabaseContext.supabase) {
+      const { data: profile } = await supabaseContext.supabase
+        .from('lms_users')
+        .select('status')
+        .eq('supabase_id', supabaseContext.userId)
+        .maybeSingle();
+
+      if (profile?.status === 'ACTIVE') {
+        return redirectWithSessionCookies(
+          new URL('/dashboard', request.url),
+          supabaseContext.response,
+        );
+      }
+    }
+
+    if (pathname === '/login' && (await auth().catch(() => null))) {
+      return redirectWithSessionCookies(
+        new URL('/dashboard', request.url),
+        supabaseContext.response,
+      );
+    }
+
+    return supabaseContext.response;
   }
 
   // Allow public/static paths, PWA assets
@@ -309,19 +345,22 @@ export async function proxy(request: NextRequest) {
   const isDashboardRoute = matchesRoute(pathname, '/dashboard');
 
   if (isSupabaseOnlyRoute || isDashboardRoute) {
-    const { response, supabase, userId } =
-      await getSupabaseRequestContext(request);
+    const supabaseContext = await getSupabaseRequestContext(request);
+    const { supabase, userId } = supabaseContext;
 
     if (!userId) {
-      // Preserve the existing NextAuth-backed dashboard while the LMS routes use
-      // Supabase Auth exclusively.
-      if (isDashboardRoute && (await auth())) {
-        return response;
+      // Preserve the existing NextAuth-backed dashboard and exact legacy admin
+      // landing page while the nested LMS workspaces use Supabase Auth.
+      if (
+        (isDashboardRoute || pathname === '/admin') &&
+        (await auth().catch(() => null))
+      ) {
+        return supabaseContext.response;
       }
 
       const loginUrl = new URL('/lms/login', request.url);
       loginUrl.searchParams.set('next', `${pathname}${request.nextUrl.search}`);
-      return redirectWithSessionCookies(loginUrl, response);
+      return redirectWithSessionCookies(loginUrl, supabaseContext.response);
     }
 
     const { data: profile, error } = await supabase!
@@ -336,13 +375,13 @@ export async function proxy(request: NextRequest) {
         'next',
         `${pathname}${request.nextUrl.search}`,
       );
-      return redirectWithSessionCookies(syncUrl, response);
+      return redirectWithSessionCookies(syncUrl, supabaseContext.response);
     }
 
     if (profile.status !== 'ACTIVE') {
       const loginUrl = new URL('/lms/login', request.url);
       loginUrl.searchParams.set('error', 'Your account is unavailable.');
-      return redirectWithSessionCookies(loginUrl, response);
+      return redirectWithSessionCookies(loginUrl, supabaseContext.response);
     }
 
     if (
@@ -362,7 +401,10 @@ export async function proxy(request: NextRequest) {
         'next',
         `${pathname}${request.nextUrl.search}`,
       );
-      const redirectResponse = redirectWithSessionCookies(loginUrl, response);
+      const redirectResponse = redirectWithSessionCookies(
+        loginUrl,
+        supabaseContext.response,
+      );
       redirectResponse.cookies.delete(ACTIVE_SESSION_COOKIE);
       return redirectResponse;
     }
@@ -374,10 +416,13 @@ export async function proxy(request: NextRequest) {
     ) {
       const dashboardUrl = new URL('/dashboard', request.url);
       dashboardUrl.searchParams.set('notice', pageRule.notice);
-      return redirectWithSessionCookies(dashboardUrl, response);
+      return redirectWithSessionCookies(
+        dashboardUrl,
+        supabaseContext.response,
+      );
     }
 
-    return response;
+    return supabaseContext.response;
   }
 
   const session = await auth();

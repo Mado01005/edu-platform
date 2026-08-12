@@ -39,12 +39,20 @@ export async function getSupabaseRequestContext(request: NextRequest) {
     },
   });
 
-  // getClaims validates the token and refreshes it when necessary.
-  const { data, error } = await supabase.auth.getClaims();
-  const subject = data?.claims?.sub;
+  // getUser initializes the request-bound session, refreshes an expired access
+  // token, and verifies the resulting JWT with Supabase Auth. Keep this call
+  // immediately after client creation so refreshed cookies reach the response
+  // before any page or route handler runs.
+  const { data, error } = await supabase.auth.getUser();
+  const subject = data.user?.id;
 
   return {
-    response,
+    // Auth operations performed after this function returns (for example a
+    // forced local sign-out) can invoke setAll again and replace `response`.
+    // A getter ensures callers always receive the latest cookie-bearing value.
+    get response() {
+      return response;
+    },
     supabase,
     userId:
       !error && typeof subject === 'string' && subject.length > 0

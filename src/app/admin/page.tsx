@@ -4,7 +4,10 @@ export const dynamic = 'force-dynamic';
 import { getAllSubjects } from '@/lib/content';
 import { supabaseAdmin } from '@/lib/supabase';
 import { isMasterAdmin } from '@/lib/constants';
+import { getLmsUserWithoutActiveSessionCheck } from '@/lib/lms/auth';
+import { isAdminRole } from '@/lib/lms/roles';
 import Navbar from '@/components/Navbar';
+import { PortalShell } from '@/components/erp/PortalShell';
 import { AppSidebar } from '@/components/navigation/app-sidebar';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { MobileDock } from '@/components/navigation/mobile-dock';
@@ -13,13 +16,24 @@ import AdminClient from './AdminClient';
 import AnalyticsPanel from './AnalyticsPanel';
 
 export default async function AdminPage() {
-  const session = await auth();
-  
-  const isAdmin = session?.user?.isAdmin || isMasterAdmin(session?.user?.email);
-  if (!session || !isAdmin) {
+  const [session, lmsUser] = await Promise.all([
+    auth(),
+    getLmsUserWithoutActiveSessionCheck(),
+  ]);
+  const lmsAdmin = lmsUser && isAdminRole(lmsUser.role) ? lmsUser : null;
+  const isLegacyAdmin = Boolean(
+    session &&
+      (session.user?.isAdmin || isMasterAdmin(session.user?.email)),
+  );
+
+  if (!lmsAdmin && !isLegacyAdmin) {
     redirect('/dashboard');
   }
-  const adminRole = isMasterAdmin(session.user?.email) ? 'SUPER_ADMIN' : 'ADMIN';
+
+  const adminRole = lmsAdmin?.role ??
+    (isMasterAdmin(session?.user?.email) ? 'SUPER_ADMIN' : 'ADMIN');
+  const adminEmail = lmsAdmin?.email ?? session?.user?.email ?? '';
+  const adminName = lmsAdmin?.name ?? session?.user?.name ?? undefined;
 
   const threeDaysAgo = new Date();
   threeDaysAgo.setUTCDate(threeDaysAgo.getUTCDate() - 3);
@@ -46,15 +60,48 @@ export default async function AdminPage() {
     }
   });
 
+  const workspace = (
+    <>
+      <WorkspaceActionHub mode="admin" userName={adminName} />
+
+      <AdminClient
+        subjects={subjects}
+        initialRoles={mergedRoles}
+        userEmail={adminEmail}
+        initialLogs={historicalLogs || []}
+        initialSessions={liveSessions || []}
+      />
+
+      <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="mb-5">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
+            Learning overview
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900">
+            Course activity
+          </h2>
+        </div>
+        <AnalyticsPanel />
+      </section>
+    </>
+  );
+
+  // Supabase-authenticated LMS administrators use the LMS shell so navigation
+  // and sign-out operate on the same session that authorized the page. Keep the
+  // legacy shell only for existing NextAuth administrators.
+  if (lmsAdmin) {
+    return <PortalShell user={lmsAdmin}>{workspace}</PortalShell>;
+  }
+
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.15),rgba(0,0,0,0))] text-white">
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
 
       <div className="relative z-10">
         <Navbar
-          userName={session.user?.name ?? undefined}
-          userImage={session.user?.image ?? undefined}
-          isAdmin={session.user?.isAdmin}
+          userName={session?.user?.name ?? undefined}
+          userImage={session?.user?.image ?? undefined}
+          isAdmin={session?.user?.isAdmin}
           roleLabel={adminRole}
         />
 
@@ -62,28 +109,7 @@ export default async function AdminPage() {
           <AppSidebar role={adminRole} />
           <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 md:pb-12">
             <Breadcrumbs role={adminRole} />
-            <WorkspaceActionHub
-              mode="admin"
-              userName={session.user?.name}
-            />
-
-            <AdminClient
-              subjects={subjects}
-              initialRoles={mergedRoles}
-              userEmail={session.user?.email || ''}
-              initialLogs={historicalLogs || []}
-              initialSessions={liveSessions || []}
-            />
-
-            <section className="min-w-0 rounded-3xl border border-white/10 bg-black/40 p-4 sm:p-6">
-              <div className="mb-5">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-300">
-                  Learning overview
-                </p>
-                <h2 className="mt-2 text-2xl font-black">Course activity</h2>
-              </div>
-              <AnalyticsPanel />
-            </section>
+            {workspace}
           </main>
         </div>
         <MobileDock role={adminRole} />

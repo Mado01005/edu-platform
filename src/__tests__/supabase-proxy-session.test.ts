@@ -11,6 +11,7 @@ describe('Supabase SSR session rotation', () => {
   const originalEnvironment = process.env;
 
   beforeEach(() => {
+    mockCreateServerClient.mockReset();
     process.env = {
       ...originalEnvironment,
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'publishable-key',
@@ -41,7 +42,7 @@ describe('Supabase SSR session rotation', () => {
         },
       ) => ({
         auth: {
-          getClaims: async () => {
+          getUser: async () => {
             options.cookies.setAll(
               [
                 {
@@ -53,7 +54,7 @@ describe('Supabase SSR session rotation', () => {
               { 'cache-control': 'private, no-store' },
             );
             return {
-              data: { claims: { sub: 'verified-user' } },
+              data: { user: { id: 'verified-user' } },
               error: null,
             };
           },
@@ -70,6 +71,60 @@ describe('Supabase SSR session rotation', () => {
     expect(context.userId).toBe('verified-user');
     expect(context.response.cookies.getAll()).toEqual([
       { name: 'sb-auth-token', value: 'rotated-token' },
+    ]);
+    expect(context.response.headers.get('cache-control')).toBe(
+      'private, no-store',
+    );
+  });
+
+  it('exposes cookies written by an auth operation after initial verification', async () => {
+    mockCreateServerClient.mockImplementation(
+      (
+        _url: string,
+        _key: string,
+        options: {
+          cookies: {
+            setAll: (
+              cookies: Array<{
+                name: string;
+                options: Record<string, unknown>;
+                value: string;
+              }>,
+              headers: Record<string, string>,
+            ) => void;
+          };
+        },
+      ) => ({
+        auth: {
+          getUser: async () => ({
+            data: { user: { id: 'verified-user' } },
+            error: null,
+          }),
+          signOut: async () => {
+            options.cookies.setAll(
+              [
+                {
+                  name: 'sb-auth-token',
+                  options: { maxAge: 0, path: '/' },
+                  value: '',
+                },
+              ],
+              { 'cache-control': 'private, no-store' },
+            );
+            return { error: null };
+          },
+        },
+      }),
+    );
+
+    const context = await getSupabaseRequestContext(
+      new NextRequest('https://www.edu-platform.me/settings'),
+    );
+
+    await context.supabase!.auth.signOut({ scope: 'local' });
+
+    expect(context.response.cookies.getAll()).toEqual([
+      { name: 'sb-auth-token', value: '' },
     ]);
     expect(context.response.headers.get('cache-control')).toBe(
       'private, no-store',

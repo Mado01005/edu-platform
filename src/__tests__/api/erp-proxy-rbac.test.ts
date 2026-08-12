@@ -7,7 +7,7 @@ jest.mock('@/lib/supabase/proxy', () => ({
   getSupabaseRequestContext: mockGetSupabaseRequestContext,
 }));
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { proxy } from '@/proxy';
 
 function accountingContext(role: string) {
@@ -21,9 +21,7 @@ function accountingContext(role: string) {
   };
 
   return {
-    response: {
-      cookies: { getAll: () => [] },
-    },
+    response: NextResponse.next(),
     supabase: { from: jest.fn(() => profileQuery) },
     userId: 'authenticated-user-id',
   };
@@ -59,7 +57,7 @@ describe('ERP proxy role redirects', () => {
       select: jest.fn().mockReturnThis(),
     };
     mockGetSupabaseRequestContext.mockResolvedValue({
-      response: { cookies: { getAll: () => [] } },
+      response: NextResponse.next(),
       supabase: { from: jest.fn(() => profileQuery) },
       userId: 'authenticated-user-id',
     });
