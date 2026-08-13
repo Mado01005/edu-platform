@@ -43,7 +43,7 @@ export function ParentAccessManager({ links, parents, students }: { links: LinkR
   }
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50">
       <span className="flex size-10 items-center justify-center rounded-2xl bg-rose-50 text-rose-600"><ShieldCheck className="size-5" /></span>
       <h2 className="mt-3 text-xl font-black text-slate-900">MPS+ parent access</h2>
       <p className="mt-1 text-sm leading-6 text-slate-600">Link a parent to a student and issue or reset the parent&apos;s 4-digit PIN.</p>

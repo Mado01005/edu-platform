@@ -61,7 +61,7 @@ export default function AdminSidebar<TabId extends string>({
   };
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50">
       <div className="flex min-w-0 items-center gap-3">
          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-sky-200 bg-sky-50 text-xl">🧭</div>
          <div>
@@ -75,10 +75,10 @@ export default function AdminSidebar<TabId extends string>({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 text-center text-xs font-black transition ${
+            className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border border-l-4 px-2 py-3 text-center text-xs font-black transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md ${
               activeTab === tab.id 
-                ? 'border-sky-600 bg-sky-600 text-white shadow-sm'
-                : 'border-slate-200 bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
+                ? 'border-sky-200/60 border-l-sky-500 bg-sky-50 text-sky-700 shadow-sm'
+                : 'border-slate-200/80 border-l-transparent bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
             }`}
           >
             <span className="text-lg" aria-hidden="true">{tab.icon}</span>
@@ -88,7 +88,7 @@ export default function AdminSidebar<TabId extends string>({
       </div>
 
       {storageStats && (
-        <details className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <details className="rounded-2xl border border-slate-200/80 bg-slate-50 p-4">
           <summary className="cursor-pointer text-xs font-black text-sky-700">File storage details</summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
@@ -97,7 +97,7 @@ export default function AdminSidebar<TabId extends string>({
                   <span className="font-black text-slate-900">{storageStats.r2.estimatedMB}MB</span>
                </div>
                <div className="h-1 overflow-hidden rounded-full bg-slate-200">
-                  <div className="h-full bg-orange-500 transition-all duration-1000" style={{ width: `${storageStats.r2.percentUsed}%` }}></div>
+                  <div className="h-full bg-orange-500 transition-all duration-300 ease-in-out" style={{ width: `${storageStats.r2.percentUsed}%` }}></div>
                </div>
             </div>
             <div className="space-y-1.5">
@@ -106,13 +106,13 @@ export default function AdminSidebar<TabId extends string>({
                   <span className="font-black text-slate-900">{storageStats.supabase.estimatedMB}MB</span>
                </div>
                <div className="h-1 overflow-hidden rounded-full bg-slate-200">
-                  <div className="h-full bg-blue-500 transition-all duration-1000" style={{ width: `${storageStats.supabase.percentUsed}%` }}></div>
+                  <div className="h-full bg-blue-500 transition-all duration-300 ease-in-out" style={{ width: `${storageStats.supabase.percentUsed}%` }}></div>
                </div>
             </div>
           </div>
           <button 
             onClick={handleAuditR2}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 py-3 text-xs font-bold text-orange-300 transition-colors hover:bg-orange-500/20"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200/80 bg-amber-50 py-3 text-xs font-bold text-amber-700 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-amber-100 hover:shadow-md"
           >
             <span className="text-sm">🔍</span> Check for unused files
           </button>

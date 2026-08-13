@@ -61,33 +61,33 @@ export default function AdminActionBar({
   };
 
   return (
-    <div className="mb-10 animate-in slide-in-from-top-4 duration-500 relative z-40">
-      <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-[2.5rem] p-6 backdrop-blur-xl shadow-[0_20px_50px_-15px_rgba(99,102,241,0.15)]">
+    <div className="relative z-40 mb-10 animate-in slide-in-from-top-4 duration-300">
+      <div className="rounded-[2.5rem] border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/50">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
-              <h3 className="text-sm font-black text-indigo-300 uppercase tracking-widest">Contextual Management</h3>
+              <span className="size-2 rounded-full bg-sky-500"></span>
+              <h3 className="text-sm font-black uppercase tracking-widest text-sky-700">Contextual Management</h3>
             </div>
-            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tight">
-              Scope: <span className="text-gray-400">{lesson ? `${subject.slug} / ${lesson.slug}` : subject.slug}</span>
-              {currentPath && <span className="text-indigo-400/60 ml-2">→ {currentPath}</span>}
+            <p className="text-[10px] font-bold uppercase tracking-tight text-slate-500">
+              Scope: <span className="text-slate-600">{lesson ? `${subject.slug} / ${lesson.slug}` : subject.slug}</span>
+              {currentPath && <span className="ml-2 text-sky-700">→ {currentPath}</span>}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setShowUploader(!showUploader)}
-              className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${
+              className={`rounded-2xl border px-6 py-3 text-[10px] font-black uppercase tracking-widest shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md ${
                 showUploader 
-                  ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]' 
-                  : 'bg-indigo-600 text-white border-transparent shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 hover:scale-105 active:scale-95'
+                  ? 'border-sky-200/60 bg-sky-50 text-sky-700'
+                  : 'border-sky-500 bg-sky-500 text-white hover:bg-sky-600 active:translate-y-0'
               }`}
             >
               {showUploader ? 'Close Uploader' : '↑ Upload Content'}
             </button>
             <button 
               onClick={() => setIsCreatingFolder(true)}
-              className="px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 hover:bg-white/5 text-gray-400 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95"
+              className="rounded-2xl border border-slate-200/80 bg-white px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-900 hover:shadow-md active:translate-y-0"
             >
               + New {lesson ? 'Subfolder' : 'Module'}
             </button>
@@ -102,7 +102,7 @@ export default function AdminActionBar({
               exit={{ height: 0, opacity: 0 }} 
               className="overflow-hidden"
             >
-              <div className="pt-6 mt-6 border-t border-white/5">
+              <div className="mt-6 border-t border-slate-200/80 pt-6">
                 <ContentUploader 
                   variant="compact"
                   selectedSubjectId={subject.id}
@@ -129,13 +129,13 @@ export default function AdminActionBar({
               exit={{ height: 0, opacity: 0 }} 
               className="overflow-hidden"
             >
-              <div className="pt-6 mt-6 border-t border-white/5">
-                <div className="flex items-center gap-3 p-4 bg-black/40 border border-white/5 rounded-2xl ring-1 ring-white/5">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-xl shadow-inner">📁</div>
+              <div className="mt-6 border-t border-slate-200/80 pt-6">
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50 p-4">
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-sky-50 text-xl">📁</div>
                   <input 
                     autoFocus
                     placeholder={`Enter ${lesson ? 'folder' : 'lesson'} name...`}
-                    className="flex-1 bg-transparent border-none outline-none text-sm text-white px-2 font-medium placeholder:text-gray-600"
+                    className="flex-1 border-none bg-transparent px-2 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
                     value={newFolderName}
                     onChange={e => setNewFolderName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
@@ -144,13 +144,13 @@ export default function AdminActionBar({
                     <button 
                       onClick={handleCreateFolder}
                       disabled={isSubmitting}
-                      className="bg-white text-black px-5 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-gray-200 transition-colors disabled:opacity-50"
+                      className="rounded-xl bg-sky-500 px-5 py-2.5 text-[10px] font-black uppercase text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md disabled:translate-y-0 disabled:opacity-50"
                     >
                       {isSubmitting ? '...' : 'Create'}
                     </button>
                     <button 
                       onClick={() => setIsCreatingFolder(false)}
-                      className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-white transition-colors"
+                      className="flex size-10 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
                     >
                       ✕
                     </button>

@@ -26,7 +26,7 @@ export default async function TeacherAttendancePage() {
 
   return (
     <>
-      <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <header className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:p-6">
         <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
           <CalendarCheck2 className="size-5" aria-hidden="true" />
         </span>
@@ -47,7 +47,7 @@ export default async function TeacherAttendancePage() {
           { icon: Radio, label: 'Live joins', value: liveCount },
           { icon: MonitorPlay, label: 'All records', value: attendance.length },
         ].map(({ icon: Icon, label, value }) => (
-          <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm" key={label}>
+          <div className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-3 text-center shadow-sm shadow-slate-200/50" key={label}>
             <Icon className="mx-auto size-4 text-sky-700" aria-hidden="true" />
             <p className="mt-2 text-xl font-black">{value}</p>
             <p className="truncate text-[9px] font-bold uppercase tracking-wider text-slate-500">
@@ -57,7 +57,7 @@ export default async function TeacherAttendancePage() {
         ))}
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
         <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
           <h2 className="font-black">Recent attendance</h2>
           <p className="mt-1 text-xs text-slate-500">Latest 200 digital attendance records</p>

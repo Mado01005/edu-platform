@@ -106,7 +106,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
 
   return (
     <AdminProvider refreshPageData={refreshPageData}>
-      <section className="relative flex w-full min-w-0 flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-3 text-slate-900 shadow-sm selection:bg-sky-100 selection:text-slate-900 sm:p-5">
+      <section className="relative flex w-full min-w-0 flex-col gap-4 rounded-3xl border border-slate-200/80 bg-white p-3 text-slate-900 shadow-sm shadow-slate-200/50 selection:bg-sky-100 selection:text-slate-900 sm:p-5">
         <AdminSidebar 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 

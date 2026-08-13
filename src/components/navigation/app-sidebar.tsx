@@ -112,11 +112,11 @@ function NavigationLink({
       aria-current={active ? 'page' : undefined}
       aria-label={collapsed && !mobile ? item.label : undefined}
       className={cn(
-        'group flex min-w-0 items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+        'group flex min-w-0 items-center rounded-xl border-l-4 px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out',
         collapsed && !mobile ? 'justify-center gap-0' : 'gap-3',
         active
-          ? 'bg-sky-100 text-sky-700'
-          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+          ? 'border-sky-500 bg-sky-50 font-semibold text-sky-700'
+          : 'border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900',
       )}
       href={item.href}
       title={collapsed && !mobile ? item.label : item.description}
@@ -224,13 +224,13 @@ export function AppSidebar({ role }: AppSidebarProps) {
     <>
       <aside
         className={cn(
-          'sticky top-20 hidden h-[calc(100vh-6rem)] min-w-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-[width] duration-200 md:flex',
+          'sticky top-20 hidden h-[calc(100vh-6rem)] min-w-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50 transition-[width] duration-200 ease-in-out md:flex',
           collapsed ? 'w-20' : 'w-72',
         )}
       >
         <div
           className={cn(
-            'flex min-w-0 items-center border-b border-slate-200 p-3',
+            'flex min-w-0 items-center border-b border-slate-200/80 p-3',
             collapsed ? 'justify-center' : 'justify-between gap-3',
           )}
         >
@@ -245,7 +245,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
           <button
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-pressed={collapsed}
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-500 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-900 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             onClick={() => setCollapsed((value) => !value)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             type="button"
@@ -272,7 +272,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
 
         <div
           className={cn(
-            'border-t border-slate-200 p-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400',
+            'border-t border-slate-200/80 p-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400',
             collapsed ? 'text-center' : 'truncate px-5',
           )}
           title={role}
@@ -285,7 +285,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
         <SheetTrigger asChild>
           <button
             aria-label="Open portal navigation"
-            className="fixed bottom-24 left-4 z-40 flex h-11 items-center gap-2 rounded-full border border-sky-600 bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 md:hidden"
+            className="fixed bottom-24 left-4 z-40 flex h-11 items-center gap-2 rounded-full border border-sky-500 bg-sky-500 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 md:hidden"
             type="button"
           >
             <Menu aria-hidden="true" className="size-4" />

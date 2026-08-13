@@ -58,7 +58,7 @@ export default function UploadTab({
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
          <div className="xl:col-span-4 space-y-6">
-            <div className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/50 sm:p-8">
                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-700">1. Select Subject and Lesson</label>
                <div className="space-y-4">
                   <select className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100" value={selectedSubjectId} onChange={(e) => { setSelectedSubjectId(e.target.value); setSelectedLessonId(''); }}>
@@ -80,7 +80,7 @@ export default function UploadTab({
          </div>
 
          {selectedLessonId && (
-           <div className="xl:col-span-8 space-y-8 animate-in slide-in-from-right-4 duration-500">
+           <div className="space-y-8 animate-in slide-in-from-right-4 duration-300 xl:col-span-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">2. Save In</label>

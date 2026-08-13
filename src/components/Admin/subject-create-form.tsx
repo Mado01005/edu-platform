@@ -17,7 +17,7 @@ export function SubjectCreateForm() {
   return (
     <form
       action={action}
-      className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
       id="new-subject"
     >
       <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
@@ -63,7 +63,7 @@ export function SubjectCreateForm() {
         </p>
       ) : null}
       <ActionSubmitButton
-        className="flex w-full items-center justify-center rounded-xl bg-sky-600 px-4 py-3 text-sm font-bold text-white hover:bg-sky-700"
+        className="flex w-full items-center justify-center rounded-xl bg-sky-500 px-4 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md"
         pendingLabel="Creating subject…"
       >
         + Create New Subject

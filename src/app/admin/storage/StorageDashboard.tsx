@@ -74,10 +74,10 @@ function formatBytes(bytes: number) {
 }
 
 function categoryTone(category: AssetCategory) {
-  if (category === 'VIDEO') return 'bg-violet-400/10 text-violet-300';
-  if (category === 'PDF') return 'bg-amber-400/10 text-amber-300';
-  if (category === 'IMAGE') return 'bg-cyan-400/10 text-cyan-300';
-  return 'bg-white/5 text-zinc-400';
+  if (category === 'VIDEO') return 'bg-violet-50 text-violet-700';
+  if (category === 'PDF') return 'bg-amber-50 text-amber-700';
+  if (category === 'IMAGE') return 'bg-sky-50 text-sky-700';
+  return 'bg-slate-100 text-slate-600';
 }
 
 function categoryIcon(category: AssetCategory) {
@@ -92,20 +92,20 @@ function storageHealth(percent: number) {
     return {
       bar: 'bg-red-400',
       label: 'Critical — free-tier limit nearly reached',
-      text: 'text-red-300',
+      text: 'text-red-700',
     };
   }
   if (percent >= 70) {
     return {
       bar: 'bg-amber-300',
       label: 'Warning — review large assets',
-      text: 'text-amber-300',
+      text: 'text-amber-700',
     };
   }
   return {
     bar: 'bg-emerald-400',
     label: 'Healthy free-tier usage',
-    text: 'text-emerald-300',
+    text: 'text-emerald-700',
   };
 }
 
@@ -200,7 +200,7 @@ export function StorageDashboard({
     {
       icon: Database,
       label: 'Bucket usage',
-      tone: 'bg-emerald-400/10 text-emerald-300',
+      tone: 'bg-emerald-50 text-emerald-700',
       value: `${formatBytes(snapshot.totalBytes)} / ${formatBytes(
         snapshot.quotaBytes,
       )}`,
@@ -208,19 +208,19 @@ export function StorageDashboard({
     {
       icon: Files,
       label: 'Total uploads',
-      tone: 'bg-white/5 text-white',
+      tone: 'bg-slate-100 text-slate-700',
       value: snapshot.fileCount.toLocaleString(),
     },
     {
       icon: Film,
       label: 'Video storage',
-      tone: 'bg-violet-400/10 text-violet-300',
+      tone: 'bg-violet-50 text-violet-700',
       value: formatBytes(snapshot.videoBytes),
     },
     {
       icon: FileText,
       label: 'Document storage',
-      tone: 'bg-amber-400/10 text-amber-300',
+      tone: 'bg-amber-50 text-amber-700',
       value: formatBytes(snapshot.documentBytes),
     },
   ] as const;
@@ -236,7 +236,7 @@ export function StorageDashboard({
           const Icon = metric.icon;
           return (
             <article
-              className="min-w-0 rounded-2xl border border-white/10 bg-zinc-950 p-4"
+              className="card-hover min-w-0 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
               key={metric.label}
             >
               <span
@@ -247,7 +247,7 @@ export function StorageDashboard({
               <p className="mt-4 break-words text-xl font-black">
                 {metric.value}
               </p>
-              <p className="mt-1 text-xs font-bold text-zinc-500">
+              <p className="mt-1 text-xs font-bold text-slate-500">
                 {metric.label}
               </p>
             </article>
@@ -255,11 +255,11 @@ export function StorageDashboard({
         })}
       </section>
 
-      <section className="rounded-3xl border border-white/10 bg-zinc-950 p-5">
+      <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
         <div className="flex min-w-0 items-end justify-between gap-3">
           <span className="min-w-0">
             <span className="block text-sm font-black">Storage threshold</span>
-            <span className="mt-1 block text-xs text-zinc-500">
+            <span className="mt-1 block text-xs text-slate-500">
               {formatBytes(snapshot.totalBytes)} of{' '}
               {formatBytes(snapshot.quotaBytes)}
             </span>
@@ -275,7 +275,7 @@ export function StorageDashboard({
           aria-valuemax={100}
           aria-valuemin={0}
           aria-valuenow={Math.min(snapshot.usagePercent, 100)}
-          className="mt-4 h-3 overflow-hidden rounded-full bg-white/5"
+          className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"
           role="progressbar"
         >
           <div
@@ -286,25 +286,25 @@ export function StorageDashboard({
         <p className={`mt-3 text-xs font-black ${health.text}`}>
           {health.label}
         </p>
-        <p className="mt-1 text-[11px] leading-5 text-zinc-600">
+        <p className="mt-1 text-[11px] leading-5 text-slate-500">
           Compared with Cloudflare R2 Standard&apos;s 10 GB-month free-tier
           allowance. This gauge shows current object bytes, not monthly billing
           averages.
         </p>
         <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-          <span className="rounded-xl bg-white/[0.03] p-3 text-zinc-400">
-            Images <b className="block text-white">{formatBytes(snapshot.imageBytes)}</b>
+          <span className="rounded-xl border border-slate-200/80 bg-slate-50 p-3 text-slate-600">
+            Images <b className="block text-slate-900">{formatBytes(snapshot.imageBytes)}</b>
           </span>
-          <span className="rounded-xl bg-white/[0.03] p-3 text-zinc-400">
-            Other <b className="block text-white">{formatBytes(snapshot.otherBytes)}</b>
+          <span className="rounded-xl border border-slate-200/80 bg-slate-50 p-3 text-slate-600">
+            Other <b className="block text-slate-900">{formatBytes(snapshot.otherBytes)}</b>
           </span>
         </div>
       </section>
 
-      <section className="flex min-w-0 flex-col gap-3 rounded-3xl border border-white/10 bg-zinc-950 p-4">
+      <section className="flex min-w-0 flex-col gap-3 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50">
         <div>
           <h2 className="text-lg font-black">Recent assets</h2>
-          <p className="mt-1 text-xs leading-5 text-zinc-500">
+          <p className="mt-1 text-xs leading-5 text-slate-500">
             Inspect up to 100 of the latest bucket objects. Deletion also
             clears matching PostgreSQL references.
           </p>
@@ -314,8 +314,8 @@ export function StorageDashboard({
           <div
             className={`rounded-xl border p-3 text-xs font-bold leading-5 ${
               notice.type === 'success'
-                ? 'border-emerald-400/20 bg-emerald-400/5 text-emerald-200'
-                : 'border-red-400/20 bg-red-400/5 text-red-200'
+                ? 'border-emerald-200/80 bg-emerald-50 text-emerald-800'
+                : 'border-red-200/80 bg-red-50 text-red-700'
             }`}
             role={notice.type === 'success' ? 'status' : 'alert'}
           >
@@ -323,7 +323,7 @@ export function StorageDashboard({
           </div>
         ) : null}
 
-        <label className="text-xs font-black text-zinc-400">
+        <label className="text-xs font-black text-slate-600">
           Search object name or key
           <Input
             className="mt-2"
@@ -363,7 +363,7 @@ export function StorageDashboard({
                 const Icon = categoryIcon(asset.category);
                 return (
                   <article
-                    className="min-w-0 rounded-2xl border border-white/10 bg-black/30 p-4"
+                    className="card-hover min-w-0 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
                     key={asset.key}
                     role="row"
                   >
@@ -375,14 +375,14 @@ export function StorageDashboard({
                       </span>
                       <span className="min-w-0 flex-1" role="cell">
                         <a
-                          className="block truncate text-sm font-black hover:text-cyan-300 hover:underline"
+                          className="block truncate text-sm font-black text-slate-900 hover:text-sky-700 hover:underline"
                           href={asset.publicUrl}
                           rel="noopener noreferrer"
                           target="_blank"
                         >
                           {asset.name}
                         </a>
-                        <span className="mt-1 block break-all font-mono text-[10px] leading-4 text-zinc-600">
+                        <span className="mt-1 block break-all font-mono text-[10px] leading-4 text-slate-500">
                           {asset.key}
                         </span>
                       </span>
@@ -396,35 +396,35 @@ export function StorageDashboard({
                         {pendingKey === asset.key ? (
                           <Loader2 className="size-4 animate-spin" />
                         ) : (
-                          <Trash2 className="size-4 text-red-300" />
+                          <Trash2 className="size-4 text-red-600" />
                         )}
                       </Button>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
                       <span
-                        className="rounded-xl bg-white/[0.03] p-3"
+                        className="rounded-xl border border-slate-200/80 bg-slate-50 p-3"
                         role="cell"
                       >
-                        <span className="block text-zinc-600">Type</span>
-                        <span className="mt-1 block truncate font-bold text-zinc-300">
+                        <span className="block text-slate-500">Type</span>
+                        <span className="mt-1 block truncate font-bold text-slate-700">
                           {asset.contentType}
                         </span>
                       </span>
                       <span
-                        className="rounded-xl bg-white/[0.03] p-3"
+                        className="rounded-xl border border-slate-200/80 bg-slate-50 p-3"
                         role="cell"
                       >
-                        <span className="block text-zinc-600">Size</span>
-                        <span className="mt-1 block font-bold text-zinc-300">
+                        <span className="block text-slate-500">Size</span>
+                        <span className="mt-1 block font-bold text-slate-700">
                           {formatBytes(asset.size)}
                         </span>
                       </span>
                       <span
-                        className="col-span-2 rounded-xl bg-white/[0.03] p-3"
+                        className="col-span-2 rounded-xl border border-slate-200/80 bg-slate-50 p-3"
                         role="cell"
                       >
-                        <span className="block text-zinc-600">Uploaded</span>
-                        <span className="mt-1 block font-bold text-zinc-300">
+                        <span className="block text-slate-500">Uploaded</span>
+                        <span className="mt-1 block font-bold text-slate-700">
                           {asset.lastModified
                             ? new Intl.DateTimeFormat('en', {
                                 dateStyle: 'medium',
@@ -438,7 +438,7 @@ export function StorageDashboard({
                 );
               })
             ) : (
-              <p className="rounded-2xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500">
+              <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">
                 No recent assets match this filter.
               </p>
             )}
@@ -461,7 +461,7 @@ export function StorageDashboard({
                 : 'This asset will be permanently removed.'}
             </DialogDescription>
           </DialogHeader>
-          <p className="break-all rounded-xl bg-black p-3 font-mono text-[11px] leading-5 text-zinc-500">
+          <p className="break-all rounded-xl border border-slate-200/80 bg-slate-50 p-3 font-mono text-[11px] leading-5 text-slate-600">
             {deleteTarget?.key}
           </p>
           <DialogFooter>

@@ -14,24 +14,24 @@ export default async function AdminStoragePage() {
   return (
     <PortalShell user={admin}>
         <Link
-          className="flex w-fit items-center gap-2 text-sm font-bold text-zinc-400 transition hover:text-white"
+          className="flex w-fit items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 hover:shadow-md"
           href="/admin/users"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           Back to admin console
         </Link>
 
-        <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.22),transparent_55%)] p-5">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-cyan-300 text-black shadow-lg shadow-cyan-500/20">
+        <header className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700 shadow-sm">
             <Database className="size-5" aria-hidden="true" />
           </span>
-          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-cyan-300">
+          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-sky-700">
             Cloudflare R2 monitor
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight">
             Storage health at a glance.
           </h1>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             Inspect exact bucket usage, understand file-type distribution, and
             remove unwanted objects with synchronized database cleanup.
           </p>

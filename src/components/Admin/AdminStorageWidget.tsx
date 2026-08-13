@@ -42,7 +42,7 @@ export function AdminStorageWidget({
 
   return (
     <Link
-      className="group flex min-w-0 flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 text-slate-900 shadow-sm transition hover:border-sky-300 hover:bg-sky-50"
+      className="group flex min-w-0 flex-col gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 text-slate-900 shadow-sm shadow-slate-200/50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 hover:shadow-md"
       href="/admin/storage"
     >
       <div className="flex min-w-0 items-center gap-3">

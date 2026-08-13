@@ -104,7 +104,7 @@ export async function StudentLmsDashboard({
           </p>
         </header>
         {urgentLiveClass ? (
-          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
+          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:flex-row sm:items-center sm:p-6">
             <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
               <Radio aria-hidden="true" className="size-5" />
             </span>
@@ -120,7 +120,7 @@ export async function StudentLmsDashboard({
               </p>
             </div>
             <a
-              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700"
+              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md"
               href={urgentLiveClass.meetingUrl}
               rel="noopener noreferrer"
               target="_blank"
@@ -130,7 +130,7 @@ export async function StudentLmsDashboard({
             </a>
           </section>
         ) : resumableCourse?.progress.firstIncomplete ? (
-          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
+          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:flex-row sm:items-center sm:p-6">
             <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
               <PlayCircle aria-hidden="true" className="size-5" />
             </span>
@@ -146,7 +146,7 @@ export async function StudentLmsDashboard({
               </p>
             </div>
             <Link
-              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700"
+              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md"
               href={`/courses/${resumableCourse.course.id}/learn/lessons/${resumableCourse.progress.firstIncomplete.id}`}
             >
               <PlayCircle aria-hidden="true" className="size-4" />
@@ -175,7 +175,7 @@ export async function StudentLmsDashboard({
               const nextLesson = firstIncomplete ?? lessons[0];
 
               return (
-                <article className="flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" key={course.id}>
+                <article className="card-hover flex min-w-0 flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50" key={course.id}>
                   <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                     {completed}/{lessons.length} lessons complete
                   </p>
@@ -206,14 +206,14 @@ export async function StudentLmsDashboard({
           {!enrollments.length ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
               <p className="text-sm text-slate-500">You are not enrolled in a course yet.</p>
-              <Link className="mt-4 inline-block rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-sky-700" href="/catalog">
+              <Link className="mt-4 inline-block rounded-xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md" href="/catalog">
                 Explore courses
               </Link>
             </div>
           ) : null}
         </section>
 
-        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:p-6">
           <div className="mb-4 flex items-center gap-2">
             <Radio className="size-5 text-sky-600" />
             <h2 className="text-xl font-semibold text-slate-900">Upcoming live classes</h2>

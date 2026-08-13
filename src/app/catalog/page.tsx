@@ -181,7 +181,7 @@ export default async function CatalogPage({
       <LmsHeader user={user} />
 
       <main className="mx-auto flex w-full max-w-[92rem] min-w-0 flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:gap-10">
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
           <div className="grid min-w-0 lg:min-h-[25rem] lg:grid-cols-2 lg:items-stretch">
             <div className="flex min-w-0 flex-col justify-center p-6 sm:p-10 lg:p-12">
               <h1 className="max-w-2xl text-4xl font-bold leading-[1.08] tracking-[-0.035em] text-slate-900 sm:text-5xl lg:text-6xl">
@@ -225,7 +225,7 @@ export default async function CatalogPage({
           </div>
         </section>
 
-        <section className="grid min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3 sm:p-6">
+        <section className="grid min-w-0 gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:grid-cols-3 sm:p-6">
           {featureMetrics.map(({ icon: Icon, label, value }) => (
             <div className="flex min-w-0 items-center gap-3 sm:border-r sm:border-slate-200 sm:last:border-r-0" key={label}>
               <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
@@ -258,7 +258,7 @@ export default async function CatalogPage({
             </p>
           </div>
 
-          <form className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm sm:flex-row">
+          <form className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-sm shadow-slate-200/50 sm:flex-row">
             <label className="relative min-w-0 flex-1">
               <span className="sr-only">Search courses</span>
               <Search

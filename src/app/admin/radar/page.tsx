@@ -89,7 +89,7 @@ export default async function StudentRadarPage({
 
   return (
     <PortalShell user={admin}>
-      <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <header className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
         <span className="flex size-11 items-center justify-center rounded-2xl bg-red-50 text-red-600">
           <Activity className="size-5" aria-hidden="true" />
         </span>

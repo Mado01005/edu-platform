@@ -62,21 +62,21 @@ export default function FocusAnalyticsTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="size-8 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-400 p-4 border border-red-500/20 rounded-xl bg-red-500/10">Error: {error}</div>;
+    return <div className="rounded-xl border border-red-200/80 bg-red-50 p-4 text-red-700">Error: {error}</div>;
   }
 
   if (!data || (data.totalFocusMinutes === 0 && data.frictionList.length === 0)) {
     return (
-      <div className="text-center py-20 bg-white/5 border border-white/10 rounded-3xl">
+      <div className="rounded-3xl border border-slate-200/80 bg-white py-20 text-center shadow-sm shadow-slate-200/50">
         <div className="text-6xl mb-4">🎧</div>
-        <h3 className="text-xl font-bold text-white uppercase tracking-widest mb-2">Awaiting Student Data</h3>
-        <p className="text-gray-400 text-sm">Focus charts will appear here after students start study sessions.</p>
+        <h3 className="mb-2 text-xl font-bold uppercase tracking-widest text-slate-900">Awaiting Student Data</h3>
+        <p className="text-sm text-slate-600">Focus charts will appear here after students start study sessions.</p>
       </div>
     );
   }
@@ -84,49 +84,49 @@ export default function FocusAnalyticsTab() {
   return (
     <div className="space-y-8 fade-in">
       <div className="space-y-2 max-w-2xl text-center md:text-left mx-auto md:mx-0">
-        <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Productivity Pulse</h2>
-        <p className="text-sm text-indigo-400 font-bold uppercase tracking-widest leading-relaxed">Focus Overview</p>
+        <h2 className="text-5xl font-black uppercase leading-none tracking-tighter text-slate-900">Productivity Pulse</h2>
+        <p className="text-sm font-bold uppercase leading-relaxed tracking-widest text-sky-700">Focus Overview</p>
       </div>
 
       {/* Top Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 p-8 rounded-[2.5rem]">
-          <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Global Focus Time</p>
+        <div className="rounded-[2.5rem] border border-slate-200/80 bg-white p-8 shadow-sm shadow-slate-200/50">
+          <p className="mb-2 text-xs font-black uppercase tracking-widest text-slate-500">Global Focus Time</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-5xl font-black text-white tabular-nums">
+            <span className="text-5xl font-black tabular-nums text-slate-900">
               {Math.floor(data.totalFocusMinutes / 60)}
             </span>
-            <span className="text-lg font-bold text-gray-500">hrs</span>
-            <span className="text-5xl font-black text-white tabular-nums">
+            <span className="text-lg font-bold text-slate-500">hrs</span>
+            <span className="text-5xl font-black tabular-nums text-slate-900">
               {data.totalFocusMinutes % 60}
             </span>
-            <span className="text-lg font-bold text-gray-500">mins</span>
+            <span className="text-lg font-bold text-slate-500">mins</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 p-8 rounded-[2.5rem]">
-          <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Global Completion Rate</p>
+        <div className="rounded-[2.5rem] border border-slate-200/80 bg-white p-8 shadow-sm shadow-slate-200/50">
+          <p className="mb-2 text-xs font-black uppercase tracking-widest text-slate-500">Global Completion Rate</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-5xl font-black text-white tabular-nums">
+            <span className="text-5xl font-black tabular-nums text-slate-900">
               {data.globalCompletionRate.toFixed(1)}
             </span>
-            <span className="text-3xl font-bold text-indigo-400">%</span>
+            <span className="text-3xl font-bold text-sky-700">%</span>
           </div>
         </div>
       </div>
 
       {/* Friction Map */}
-      <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden">
-        <div className="p-8 border-b border-white/10">
-          <h3 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-2">
+      <div className="overflow-hidden rounded-[2.5rem] border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
+        <div className="border-b border-slate-200/80 p-8">
+          <h3 className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-slate-900">
             <span className="text-red-500">🔥</span> Content Friction Heatmap
           </h3>
-          <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Top lessons with highest interruption rates</p>
+          <p className="mt-1 text-xs uppercase tracking-wider text-slate-600">Top lessons with highest interruption rates</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="bg-black/20 border-b border-white/10 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
+              <tr className="border-b border-slate-200/80 bg-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
                 <th className="p-6">Rank</th>
                 <th className="p-6">Lesson Name</th>
                 <th className="p-6 bg-red-950/20 text-red-500">Interrupts</th>
@@ -134,7 +134,7 @@ export default function FocusAnalyticsTab() {
                 <th className="p-6">Fail Rate</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-200/80">
               {(() => {
                 try {
                   return data.frictionList.map((item, idx) => {
@@ -142,21 +142,21 @@ export default function FocusAnalyticsTab() {
                     const failRate = total > 0 ? (item.interrupted / total) * 100 : 0;
                     
                     return (
-                      <tr key={item.lesson_id} className="hover:bg-white/5 transition-colors">
+                      <tr key={item.lesson_id} className="transition-colors hover:bg-slate-50">
                         <td className="p-6 flex items-center gap-2">
-                          <span className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${idx < 3 ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-gray-400'}`}>
+                          <span className={`flex size-8 items-center justify-center rounded-full text-xs font-bold ${idx < 3 ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-600'}`}>
                             {idx + 1}
                           </span>
                         </td>
-                        <td className="p-6 font-bold text-white max-w-xs truncate" title={item.title}>
+                        <td className="max-w-xs truncate p-6 font-bold text-slate-900" title={item.title}>
                           {item.title}
                         </td>
                         <td className="p-6 font-black text-red-400 tabular-nums bg-red-950/20">{item.interrupted}</td>
                         <td className="p-6 font-bold text-emerald-400 tabular-nums">{item.completed}</td>
                         <td className="p-6">
                           <div className="flex items-center gap-3">
-                            <span className="font-bold text-white tabular-nums w-12">{failRate.toFixed(0)}%</span>
-                            <div className="flex-1 h-2 bg-black rounded-full overflow-hidden border border-white/5">
+                            <span className="w-12 font-bold tabular-nums text-slate-900">{failRate.toFixed(0)}%</span>
+                            <div className="h-2 flex-1 overflow-hidden rounded-full border border-slate-200/80 bg-slate-100">
                               <div className="h-full bg-red-500" style={{ width: `${failRate}%` }} />
                             </div>
                           </div>
@@ -171,7 +171,7 @@ export default function FocusAnalyticsTab() {
               })()}
               {data.frictionList.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-10 text-center text-gray-500 italic font-medium">No friction data recorded yet.</td>
+                  <td colSpan={5} className="p-10 text-center font-medium italic text-slate-500">No friction data recorded yet.</td>
                 </tr>
               )}
             </tbody>
@@ -180,7 +180,7 @@ export default function FocusAnalyticsTab() {
       </div>
 
       {/* Early Warning / Intervention Panel */}
-      <div className="bg-white/5 border border-red-500/30 rounded-[2.5rem] overflow-hidden">
+      <div className="overflow-hidden rounded-[2.5rem] border border-red-200/80 bg-white shadow-sm shadow-slate-200/50">
         <div className="p-8 border-b border-red-500/20 flex justify-between items-center bg-red-950/10">
           <div>
              <h3 className="text-lg font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
@@ -193,7 +193,7 @@ export default function FocusAnalyticsTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="bg-black/40 border-b border-red-500/10 text-[10px] font-black text-red-400 uppercase tracking-[0.2em]">
+              <tr className="border-b border-red-200/80 bg-red-50 text-[10px] font-black uppercase tracking-[0.2em] text-red-700">
                 <th className="p-6">Student</th>
                 <th className="p-6">Lesson</th>
                 <th className="p-6">Velocity Score</th>
@@ -206,8 +206,8 @@ export default function FocusAnalyticsTab() {
                 try {
                   return velocityData && velocityData.map((item, idx) => (
                     <tr key={`${item.user_id}_${item.lesson_id}`} className="hover:bg-red-500/5 transition-colors">
-                      <td className="p-6 font-bold text-white max-w-xs truncate">{item.email.split('@')[0] || 'Student'}</td>
-                      <td className="p-6 font-bold text-gray-300 max-w-[200px] truncate" title={item.lesson_name}>{item.lesson_name}</td>
+                      <td className="max-w-xs truncate p-6 font-bold text-slate-900">{item.email.split('@')[0] || 'Student'}</td>
+                      <td className="max-w-[200px] truncate p-6 font-bold text-slate-700" title={item.lesson_name}>{item.lesson_name}</td>
                       <td className="p-6">
                         <span className="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-xs font-black tabular-nums">
                           {item.velocity_score}x
@@ -216,9 +216,9 @@ export default function FocusAnalyticsTab() {
                       <td className="p-6 font-black text-red-400 tabular-nums">{item.interrupt_rate}%</td>
                       <td className="p-6">
                         <div className="flex items-center gap-2 text-xs font-bold tabular-nums">
-                          <span className="text-white">{item.duration}m</span>
-                          <span className="text-gray-600">/</span>
-                          <span className="text-indigo-400">{item.global_average}m</span>
+                          <span className="text-slate-900">{item.duration}m</span>
+                          <span className="text-slate-400">/</span>
+                          <span className="text-sky-700">{item.global_average}m</span>
                         </div>
                       </td>
                     </tr>

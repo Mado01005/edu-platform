@@ -24,7 +24,7 @@ export default async function TeacherCoursesPage() {
 
   return (
     <>
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
           Course workspace
         </p>
@@ -40,7 +40,7 @@ export default async function TeacherCoursesPage() {
         {courses.length ? (
           courses.map((course) => (
             <article
-              className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-sky-300 sm:flex-row sm:items-center"
+              className="card-hover flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-200/50 sm:flex-row sm:items-center"
               key={course.id}
             >
               <Link

@@ -16,10 +16,10 @@
 
 :root {
   color-scheme: light;
-  --background: #ffffff;
+  --background: #f8fafc;
   --surface-subtle: #f8fafc;
   --surface-muted: #f1f5f9;
-  --border: #e2e8f0;
+  --border: rgba(226, 232, 240, 0.8);
   --foreground: #0f172a;
   --muted-foreground: #475569;
   --primary: #0284c7;
@@ -27,11 +27,19 @@
   --primary-bright: #38bdf8;
   --gradient-primary: #0284c7;
   --card-bg: #ffffff;
-  --card-border: #e2e8f0;
+  --card-border: rgba(226, 232, 240, 0.8);
 }
 
-* {
+*,
+::before,
+::after {
   box-sizing: border-box;
+  /* Override Tailwind's 150ms transition default while preserving the
+     reduced-motion rule below. */
+  transition-duration: 200ms !important;
+  transition-property: color, background-color, border-color,
+    text-decoration-color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html {
@@ -43,6 +51,8 @@ body {
   overflow-x: hidden;
   background-color: var(--surface-subtle);
   color: var(--foreground);
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Base Accessibility for reduced motion */
@@ -98,6 +108,7 @@ body {
 .glass-card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
 /* Compatibility text treatment without the retired neon gradient. */
@@ -158,12 +169,12 @@ body {
 
 /* Restrained card lift for the bright interface. */
 .card-hover {
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
   will-change: transform, box-shadow;
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.06);
   border-color: #bae6fd;
 }
 

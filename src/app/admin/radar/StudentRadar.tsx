@@ -175,7 +175,7 @@ export function StudentRadar({
           { badge: 'bg-red-50', icon: ShieldAlert, label: 'At-Risk', tone: 'text-red-700', value: atRiskCount },
         ].map(({ badge, icon: Icon, label, tone, value }) => (
           <article
-            className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm"
+            className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-3 text-center shadow-sm shadow-slate-200/50"
             key={label}
           >
             <span className={`mx-auto flex size-8 items-center justify-center rounded-xl ${badge} ${tone}`}>
@@ -191,7 +191,7 @@ export function StudentRadar({
 
       <form
         action="/admin/radar"
-        className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+        className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
         method="get"
       >
         <label className="relative min-w-0">
@@ -258,10 +258,10 @@ export function StudentRadar({
       <section className="flex min-w-0 flex-col gap-3" aria-label="Student engagement radar">
         {roster.map((student) => (
           <article
-            className={`min-w-0 rounded-2xl border p-4 ${
+            className={`card-hover min-w-0 rounded-2xl border p-4 shadow-sm shadow-slate-200/50 ${
               student.isAtRisk
                 ? 'border-red-200 bg-red-50/50'
-                : 'border-emerald-200 bg-white shadow-sm'
+                : 'border-emerald-200 bg-white'
             }`}
             key={student.id}
           >

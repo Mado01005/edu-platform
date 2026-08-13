@@ -1056,8 +1056,8 @@ export default function ContentUploader({
   if (variant === 'compact') {
     return (
       <div
-        className={`flex items-center gap-4 rounded-3xl border bg-white p-4 text-slate-900 shadow-sm transition-all duration-300 ${
-          isDragOver ? 'border-sky-500 bg-sky-50' : 'border-slate-200'
+        className={`flex items-center gap-4 rounded-3xl border bg-white p-4 text-slate-900 shadow-sm shadow-slate-200/50 transition-all duration-200 ease-in-out ${
+          isDragOver ? 'border-sky-500 bg-sky-50' : 'border-slate-200/80'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -1077,7 +1077,7 @@ export default function ContentUploader({
         <button
           type="button"
           onClick={() => document.getElementById('compact-file-input')?.click()}
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-sky-600 px-6 py-3 text-[10px] font-black uppercase text-white shadow-sm transition hover:bg-sky-700"
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-sky-500 px-6 py-3 text-[10px] font-black uppercase text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md"
           disabled={uploading}
         >
           {uploading ? '...' : isDragOver ? '📥 Drop Here' : '↑ Upload Assets'}
@@ -1087,7 +1087,7 @@ export default function ContentUploader({
           <>
             <button
               onClick={(e) => processUploadOrEmbed(e)}
-              className="bg-white text-black text-[10px] font-black uppercase px-6 py-3 rounded-xl hover:bg-gray-200 transition-all shrink-0"
+              className="shrink-0 rounded-xl border border-sky-200/60 bg-sky-50 px-6 py-3 text-[10px] font-black uppercase text-sky-700 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-100 hover:shadow-md"
             >
               Start ({files.length})
             </button>
@@ -1137,12 +1137,12 @@ export default function ContentUploader({
 
   // ── Full variant ──
   return (
-    <div className="space-y-10 rounded-3xl border border-slate-200 bg-white p-5 text-slate-900 shadow-sm sm:p-8 lg:p-10">
+    <div className="space-y-10 rounded-3xl border border-slate-200/80 bg-white p-5 text-slate-900 shadow-sm shadow-slate-200/50 sm:p-8 lg:p-10">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">File Storage</label>
           <div className="flex gap-3">
-            <button type="button" className="flex-1 rounded-2xl border border-sky-600 bg-sky-600 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-sm">Cloudflare R2</button>
+            <button type="button" className="flex-1 rounded-2xl border border-sky-500 bg-sky-500 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-sm">Cloudflare R2</button>
           </div>
         </div>
         <div className="space-y-4">
@@ -1373,7 +1373,7 @@ export default function ContentUploader({
               </div>
               <div className="h-3 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
                 <div
-                  className="h-full bg-sky-600 transition-all duration-500"
+                  className="h-full bg-sky-600 transition-all duration-300"
                   style={{ width: `${uploadQueue.length > 0 ? (successCount / uploadQueue.length) * 100 : 0}%` }}
                 />
               </div>
@@ -1402,7 +1402,7 @@ export default function ContentUploader({
           uploading ||
           (!selectedLessonId && inputType !== 'snippet' && !(inputType === 'file' && files.some((f: any) => (f.fullPath || f.webkitRelativePath || '').split('/').length >= 3)))
         }
-        className="w-full rounded-3xl bg-sky-600 py-6 text-[10px] font-black uppercase tracking-widest text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-3xl bg-sky-500 py-6 text-[10px] font-black uppercase tracking-widest text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-50"
       >
         {uploading ? `Uploading... (${inFlightCount} active)` : 'Add Content'}
       </button>

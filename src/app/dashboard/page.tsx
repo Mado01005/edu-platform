@@ -161,19 +161,19 @@ export default async function DashboardPage({
 
         {/* Stats bar */}
         <div className="mb-12 grid grid-cols-2 gap-4 fade-in scale-in sm:grid-cols-3" style={{ animationDelay: '0.1s' }}>
-          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-sm shadow-slate-200/50">
             <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-sky-50"></div>
             <p className="relative mb-1 text-3xl font-bold text-slate-900">{subjects.length}</p>
             <p className="relative text-xs font-semibold uppercase tracking-wider text-slate-500">Active Subjects</p>
           </div>
-          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-sm shadow-slate-200/50">
             <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-sky-50"></div>
             <p className="relative mb-1 text-3xl font-bold text-slate-900">
               {subjects.reduce((acc, s) => acc + s.lessons.length, 0)}
             </p>
             <p className="relative text-xs font-semibold uppercase tracking-wider text-slate-500">Total Lessons</p>
           </div>
-          <div className="relative hidden overflow-hidden rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm sm:block">
+          <div className="relative hidden overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-sm shadow-slate-200/50 sm:block">
             <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-sky-50"></div>
             <p className="relative mb-1 text-3xl font-bold text-slate-900">
               {subjects.reduce((acc, s) => acc + s.lessons.filter((l) => l.hasVideo).length, 0)}
@@ -184,7 +184,7 @@ export default async function DashboardPage({
 
         {/* Profile Progress Card */}
         <a href="/profile" className="block mb-10 fade-in scale-in group" style={{ animationDelay: '0.15s' }}>
-          <div className="flex min-w-0 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-300 hover:shadow-md">
+          <div className="card-hover flex min-w-0 items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
             <div className="flex min-w-0 items-center gap-4">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

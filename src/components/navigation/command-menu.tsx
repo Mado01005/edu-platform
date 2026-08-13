@@ -171,7 +171,7 @@ export function CommandMenu({ role }: { role: Role }) {
           >
             {pages.map((item) => (
               <Command.Item
-                className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-slate-600 outline-none data-[selected=true]:bg-sky-600 data-[selected=true]:text-white"
+                className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border-l-4 border-transparent px-3 py-3 text-slate-600 outline-none transition-all duration-200 ease-in-out data-[selected=true]:border-sky-500 data-[selected=true]:bg-sky-50 data-[selected=true]:text-sky-700"
                 key={item.href}
                 onSelect={() => select(item.href)}
                 value={`${item.label} ${item.description} ${item.keywords.join(' ')}`}
@@ -199,7 +199,7 @@ export function CommandMenu({ role }: { role: Role }) {
                 const Icon = resultIcon[result.type];
                 return (
                   <Command.Item
-                    className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-slate-600 outline-none data-[selected=true]:bg-sky-600 data-[selected=true]:text-white"
+                    className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border-l-4 border-transparent px-3 py-3 text-slate-600 outline-none transition-all duration-200 ease-in-out data-[selected=true]:border-sky-500 data-[selected=true]:bg-sky-50 data-[selected=true]:text-sky-700"
                     key={`${result.type}-${result.id}`}
                     onSelect={() => select(result.href)}
                     value={`${result.label} ${result.description} ${result.type}`}

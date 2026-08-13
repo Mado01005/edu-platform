@@ -36,18 +36,17 @@ export default function AnnouncementTab() {
   };
 
   return (
-    <div className="h-[600px] flex items-center justify-center animate-in fade-in duration-700">
-       <div className="w-full max-w-2xl bg-white/5 border border-white/10 p-16 rounded-[4rem] text-center space-y-12 relative overflow-hidden shadow-3xl">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
-          <div className="w-24 h-24 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto text-5xl shadow-inner border border-indigo-500/20">📢</div>
+    <div className="flex min-h-[600px] items-center justify-center animate-in fade-in duration-300">
+       <div className="relative w-full max-w-2xl space-y-12 overflow-hidden rounded-[4rem] border border-slate-200/80 bg-white p-16 text-center shadow-sm shadow-slate-200/50">
+          <div className="mx-auto flex size-24 items-center justify-center rounded-full border border-sky-200/60 bg-sky-50 text-5xl shadow-sm">📢</div>
           <div className="space-y-4">
-            <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Global Announcement</h2>
-            <p className="text-gray-500 text-sm font-medium">Broadcast a real-time notification directly to all active student dashboards.</p>
+            <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">Global Announcement</h2>
+            <p className="text-sm font-medium text-slate-600">Broadcast a real-time notification directly to all active student dashboards.</p>
           </div>
-          <input id="announcement-msg" type="text" placeholder="Draft your global post..." className="w-full bg-black border border-white/10 rounded-[2rem] px-8 py-6 text-sm text-center font-bold text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-gray-800" />
+          <input id="announcement-msg" type="text" placeholder="Draft your global post..." className="w-full rounded-[2rem] border border-slate-200/80 bg-white px-8 py-6 text-center text-sm font-bold text-slate-900 shadow-sm outline-none transition-all duration-200 ease-in-out placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100" />
           <div className="flex gap-4">
-            <button onClick={handlePostAnnouncement} className="flex-1 bg-indigo-600 hover:bg-indigo-500 py-6 rounded-3xl font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-indigo-600/20 transition-all active:scale-95">Post Announcement</button>
-            <button onClick={clearAnnouncement} className="flex-1 bg-white/5 hover:bg-white/10 py-6 rounded-3xl font-black uppercase tracking-[0.2em] text-[10px] text-gray-400 border border-white/5 transition-all">Clear Banner</button>
+            <button onClick={handlePostAnnouncement} className="flex-1 rounded-3xl bg-sky-500 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md active:translate-y-0">Post Announcement</button>
+            <button onClick={clearAnnouncement} className="flex-1 rounded-3xl border border-slate-200/80 bg-white py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-900 hover:shadow-md">Clear Banner</button>
           </div>
        </div>
     </div>

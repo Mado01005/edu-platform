@@ -247,27 +247,27 @@ export function K12Manager({
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
       <section className="flex w-full min-w-0 flex-col gap-4">
-        <header className="rounded-3xl border border-white/10 bg-zinc-950 p-5">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+        <header className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-sky-700">
             <BookOpenCheck className="size-4" aria-hidden="true" />
             Grade and subject manager
           </div>
           <h2 className="mt-3 text-2xl font-black tracking-tight">
             Twelve grades, four core subjects each.
           </h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             Every saved subject is assigned to exactly one active teacher.
           </p>
         </header>
 
         {!teachers.length ? (
-          <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm font-bold text-amber-100">
+          <div className="rounded-2xl border border-amber-200/80 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
             Create or promote an active teacher before assigning subject slots.
           </div>
         ) : null}
         {subjectNotice ? (
           <div
-            className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-100"
+            className="rounded-2xl border border-emerald-200/80 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800"
             role="status"
           >
             {subjectNotice}
@@ -275,7 +275,7 @@ export function K12Manager({
         ) : null}
         {subjectError ? (
           <div
-            className="rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm font-bold text-red-100"
+            className="rounded-2xl border border-red-200/80 bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
             role="alert"
           >
             {subjectError}
@@ -285,19 +285,19 @@ export function K12Manager({
         <div className="grid w-full min-w-0 grid-cols-1 gap-3">
           {grades.map((gradeCard) => (
             <article
-              className="flex w-full min-w-0 flex-col gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-4"
+              className="flex w-full min-w-0 flex-col gap-3 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
               key={gradeCard.grade}
             >
               <div className="flex min-w-0 items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
                     Academic level
                   </p>
                   <h3 className="truncate text-xl font-black">
                     {gradeCard.label}
                   </h3>
                 </div>
-                <span className="shrink-0 rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1 text-[10px] font-black text-violet-200">
+                <span className="shrink-0 rounded-full border border-sky-200/60 bg-sky-50/80 px-3 py-1 text-[10px] font-black text-sky-700">
                   4 subjects
                 </span>
               </div>
@@ -309,7 +309,7 @@ export function K12Manager({
 
                   return (
                     <label
-                      className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-white/5 bg-black p-3"
+                      className="card-hover flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-200/50"
                       key={subject.name}
                     >
                       <span className="flex min-w-0 items-center justify-between gap-3">
@@ -318,7 +318,7 @@ export function K12Manager({
                         </span>
                         {subject.teacherId ? (
                           <CheckCircle2
-                            className="size-4 shrink-0 text-emerald-300"
+                            className="size-4 shrink-0 text-emerald-600"
                             aria-label="Teacher assigned"
                           />
                         ) : null}
@@ -326,7 +326,7 @@ export function K12Manager({
                       <span className="relative block w-full min-w-0">
                         <select
                           aria-label={`Primary teacher for ${subject.name} in ${gradeCard.label}`}
-                          className="h-11 w-full min-w-0 appearance-none rounded-xl border border-white/10 bg-zinc-950 px-3 pr-10 text-sm font-bold text-white outline-none transition focus:border-violet-400/50 focus:ring-4 focus:ring-violet-400/10 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="h-11 w-full min-w-0 appearance-none rounded-xl border border-slate-200/80 bg-white px-3 pr-10 text-sm font-bold text-slate-900 outline-none transition-all duration-200 ease-in-out focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60"
                           disabled={isPending || !teachers.length}
                           onChange={(event) =>
                             void assignTeacher(
@@ -346,7 +346,7 @@ export function K12Manager({
                         </select>
                         {isPending ? (
                           <Loader2
-                            className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-violet-300"
+                            className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-sky-600"
                             aria-hidden="true"
                           />
                         ) : null}
@@ -360,16 +360,16 @@ export function K12Manager({
         </div>
       </section>
 
-      <section className="flex w-full min-w-0 flex-col gap-4 rounded-3xl border border-white/10 bg-zinc-950 p-4">
+      <section className="flex w-full min-w-0 flex-col gap-4 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50">
         <header className="min-w-0">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-cyan-300">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-sky-700">
             <Users className="size-4" aria-hidden="true" />
             Student grade enrollment
           </div>
           <h2 className="mt-3 text-2xl font-black tracking-tight">
             Bulk assign students.
           </h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             Select student accounts, choose one grade, and save the group in a
             single update.
           </p>
@@ -377,7 +377,7 @@ export function K12Manager({
 
         {studentNotice ? (
           <div
-            className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-100"
+            className="rounded-2xl border border-emerald-200/80 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800"
             role="status"
           >
             {studentNotice}
@@ -385,7 +385,7 @@ export function K12Manager({
         ) : null}
         {studentError ? (
           <div
-            className="rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm font-bold text-red-100"
+            className="rounded-2xl border border-red-200/80 bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
             role="alert"
           >
             {studentError}
@@ -395,11 +395,11 @@ export function K12Manager({
         <label className="relative min-w-0">
           <span className="sr-only">Search student accounts</span>
           <Search
-            className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-500"
             aria-hidden="true"
           />
           <input
-            className="h-12 w-full min-w-0 rounded-xl border border-white/10 bg-black pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-cyan-400/50 focus:ring-4 focus:ring-cyan-400/10"
+            className="h-12 w-full min-w-0 rounded-xl border border-slate-200/80 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition-all duration-200 ease-in-out placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
             onChange={(event) => setStudentQuery(event.target.value)}
             placeholder="Search name or phone"
             type="search"
@@ -411,7 +411,7 @@ export function K12Manager({
           <label className="min-w-0">
             <span className="sr-only">Target grade</span>
             <select
-              className="h-12 w-full min-w-0 rounded-xl border border-white/10 bg-black px-3 text-sm font-bold text-white outline-none transition focus:border-cyan-400/50 focus:ring-4 focus:ring-cyan-400/10"
+              className="h-12 w-full min-w-0 rounded-xl border border-slate-200/80 bg-white px-3 text-sm font-bold text-slate-900 outline-none transition-all duration-200 ease-in-out focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
               onChange={(event) =>
                 setTargetGrade(event.target.value as GradeLevel | '')
               }
@@ -426,7 +426,7 @@ export function K12Manager({
             </select>
           </label>
           <button
-            className="h-12 w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-black text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-12 w-full min-w-0 rounded-xl border border-slate-200/80 bg-white px-3 text-sm font-black text-slate-700 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 hover:shadow-md disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-50"
             disabled={!filteredStudents.length}
             onClick={toggleVisibleStudents}
             type="button"
@@ -440,12 +440,12 @@ export function K12Manager({
         <div className="flex max-h-96 w-full min-w-0 flex-col gap-2 overflow-y-auto overscroll-contain pr-1">
           {filteredStudents.map((student) => (
             <label
-              className="flex w-full min-w-0 cursor-pointer items-start gap-3 rounded-2xl border border-white/5 bg-black p-3 transition hover:border-cyan-400/20"
+              className="card-hover flex w-full min-w-0 cursor-pointer items-start gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-200/50"
               key={student.id}
             >
               <input
                 checked={selectedStudentIds.includes(student.id)}
-                className="mt-1 size-4 shrink-0 accent-cyan-300"
+                className="mt-1 size-4 shrink-0 accent-sky-500"
                 onChange={() => toggleStudent(student.id)}
                 type="checkbox"
               />
@@ -453,16 +453,16 @@ export function K12Manager({
                 <span className="block truncate text-sm font-black">
                   {accountLabel(student)}
                 </span>
-                <span className="mt-0.5 block truncate text-xs text-zinc-500">
+                <span className="mt-0.5 block truncate text-xs text-slate-500">
                   {student.phoneNumber || 'No phone provided'}
                 </span>
-                <span className="mt-2 flex min-w-0 flex-wrap gap-2 text-[10px] font-bold text-zinc-400">
-                  <span className="rounded-full bg-white/5 px-2 py-1">
+                <span className="mt-2 flex min-w-0 flex-wrap gap-2 text-[10px] font-bold text-slate-600">
+                  <span className="rounded-full border border-sky-200/60 bg-sky-50/80 px-2 py-1 text-sky-700">
                     {student.gradeLevel
                       ? gradeLabels.get(student.gradeLevel)
                       : 'Grade unassigned'}
                   </span>
-                  <span className="rounded-full bg-white/5 px-2 py-1">
+                  <span className="rounded-full border border-slate-200/80 bg-slate-50 px-2 py-1">
                     {student.enrolledCourses}{' '}
                     {student.enrolledCourses === 1 ? 'course' : 'courses'}
                   </span>
@@ -472,14 +472,14 @@ export function K12Manager({
           ))}
 
           {!filteredStudents.length ? (
-            <div className="rounded-2xl border border-dashed border-white/10 px-4 py-10 text-center text-sm text-zinc-500">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
               No student accounts match this search.
             </div>
           ) : null}
         </div>
 
         <button
-          className="flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-cyan-300 px-4 py-3 text-sm font-black text-black transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
+          className="flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-black text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md disabled:cursor-not-allowed disabled:translate-y-0 disabled:bg-slate-200 disabled:text-slate-500"
           disabled={
             bulkPending || !targetGrade || selectedStudentIds.length === 0
           }

@@ -26,7 +26,7 @@ const navigation = [
 
 export function LmsHeader({ user }: LmsHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 h-16 w-full border-b border-slate-200 bg-white px-4 shadow-sm">
+    <header className="sticky top-0 z-50 h-16 w-full border-b border-slate-200/80 bg-white px-4 shadow-sm shadow-slate-200/50">
         <div className="mx-auto flex h-full w-full max-w-7xl min-w-0 items-center justify-between gap-4">
           {/* Left zone: brand */}
           <Link
@@ -34,7 +34,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
             className="group flex min-w-max shrink-0 items-center gap-3 font-bold"
             href="/catalog"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-600 text-white transition-colors group-hover:bg-sky-700">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-white shadow-sm transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:bg-sky-600 group-hover:shadow-md">
               <GraduationCap className="size-5" aria-hidden="true" />
             </span>
             <span className="hidden min-w-0 sm:block">

@@ -285,7 +285,7 @@ export function UserManagementConsole({
     <>
       <div className="grid w-full min-w-0 grid-cols-2 gap-3">
         {metricCards.map(({ icon: Icon, label, value }) => (
-          <Card className="rounded-2xl border-slate-200 bg-white shadow-sm" key={label}>
+          <Card className="rounded-2xl border-slate-200/80 bg-white shadow-sm shadow-slate-200/50" key={label}>
             <CardContent className="flex min-w-0 items-center gap-3 px-4 py-4">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
                 <Icon className="size-4" aria-hidden="true" />
@@ -328,7 +328,7 @@ export function UserManagementConsole({
         </div>
       ) : null}
 
-      <Card className="rounded-2xl border-slate-200 bg-white shadow-sm">
+      <Card className="rounded-2xl border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
         <CardContent className="flex min-w-0 flex-col gap-3 px-4 py-4">
           <label className="relative min-w-0">
             <span className="sr-only">Search by name or phone number</span>
@@ -389,7 +389,7 @@ export function UserManagementConsole({
 
           return (
             <Card
-              className="rounded-2xl border-slate-200 bg-white shadow-sm"
+              className="card-hover rounded-2xl border-slate-200/80 bg-white shadow-sm shadow-slate-200/50"
               key={user.id}
               role="row"
             >

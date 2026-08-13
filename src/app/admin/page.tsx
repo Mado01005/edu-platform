@@ -72,7 +72,7 @@ export default async function AdminPage() {
         initialSessions={liveSessions || []}
       />
 
-      <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <section className="min-w-0 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50 sm:p-6">
         <div className="mb-5">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
             Learning overview
@@ -94,10 +94,8 @@ export default async function AdminPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#05050A] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.15),rgba(0,0,0,0))] text-white">
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
-
-      <div className="relative z-10">
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 transition-colors duration-200 ease-in-out">
+      <div>
         <Navbar
           userName={session?.user?.name ?? undefined}
           userImage={session?.user?.image ?? undefined}

@@ -44,7 +44,7 @@ export function WorkspaceActionHub({
   ] as const;
 
   return (
-    <section className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+    <section className="w-full min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:p-7">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">
         {mode === 'admin' ? 'Admin home' : 'Teacher home'}
       </p>
@@ -58,7 +58,7 @@ export function WorkspaceActionHub({
       <div className="mt-6 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-3">
         {actions.map(({ accent, description, href, icon: Icon, label }) => (
           <Link
-            className="group flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            className="group flex min-w-0 flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             href={href}
             key={label}
           >

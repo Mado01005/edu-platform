@@ -33,7 +33,7 @@ export default async function CurriculumPage() {
 
   return (
     <PortalShell user={admin}>
-      <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <header className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">
           Academic content
         </p>
@@ -52,7 +52,7 @@ export default async function CurriculumPage() {
       </section>
 
       <section className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
           <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
             <BookOpenCheck className="size-5 text-sky-700" aria-hidden="true" />
             Subjects
@@ -61,7 +61,7 @@ export default async function CurriculumPage() {
             <ul className="mt-4 flex flex-col gap-2">
               {subjects.map((subject) => (
                 <li
-                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-3 text-sm"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white px-3 py-3 text-sm"
                   key={subject.id}
                 >
                   <span className="font-semibold text-slate-900">
@@ -81,14 +81,14 @@ export default async function CurriculumPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
           <h2 className="text-lg font-bold text-slate-900">Courses</h2>
           {courses.length ? (
             <ul className="mt-4 flex flex-col gap-2">
               {courses.map((course) => (
                 <li key={course.id}>
                   <Link
-                    className="group flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-3 text-sm transition hover:border-sky-300 hover:bg-sky-50"
+                    className="card-hover group flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white px-3 py-3 text-sm shadow-sm shadow-slate-200/50"
                     href={`/teacher/courses/${course.id}`}
                   >
                     <span className="min-w-0">
