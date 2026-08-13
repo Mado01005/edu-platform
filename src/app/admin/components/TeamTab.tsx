@@ -6,6 +6,10 @@ import { ADMIN_EMAILS } from '@/lib/constants';
 import ManageUserModal from './ManageUserModal';
 import { useAdmin } from '../context/AdminContext';
 
+function accountLabel(email: string) {
+  return email.split('@')[0]?.trim() || 'User account';
+}
+
 interface TeamTabProps {
   allRoles: UserRole[];
   activeLogins: string[];
@@ -28,7 +32,7 @@ export default function TeamTab({
       'POST',
       { email, overrideRole: role },
       refreshPageData,
-      `${email} updated to ${role}`
+      `${accountLabel(email)} updated to ${role}`
     );
   };
 
@@ -93,10 +97,10 @@ export default function TeamTab({
                 <div key={r.email} className="px-14 py-10 flex items-center justify-between hover:bg-white/[0.03] transition-all duration-700 group border-l-4 border-transparent hover:border-indigo-500">
                    <div className="flex items-center gap-8">
                       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-xl border transition-all duration-500 ${r.role === 'superadmin' ? 'bg-indigo-600 border-indigo-400 text-white shadow-2xl shadow-indigo-600/40' : 'bg-white/5 border-white/10 text-gray-500'}`}>
-                        {r.email.charAt(0).toUpperCase()}
+                        {accountLabel(r.email).charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-black text-white text-xl tracking-tighter group-hover:text-indigo-400 transition-colors">{r.email}</p>
+                        <p className="font-black text-white text-xl tracking-tighter group-hover:text-indigo-400 transition-colors">{accountLabel(r.email)}</p>
                         <p className={`text-[10px] font-black uppercase tracking-[0.3em] mt-2 flex items-center gap-3 ${r.role === 'superadmin' ? 'text-indigo-400' : 'text-gray-600'}`}>
                           <span className={`w-2 h-2 rounded-full ${r.role === 'superadmin' ? 'bg-indigo-400' : 'bg-gray-800'}`}></span>
                           {r.role === 'superadmin' ? 'ADMINISTRATOR' : 'TEACHER'}
@@ -131,10 +135,10 @@ export default function TeamTab({
                  {allRoles.filter(r => r.role === 'student' || r.role === 'banned').map(r => (
                    <div key={r.email} className={`bg-[#0A0A0F] border rounded-[3rem] overflow-hidden transition-all duration-700 group/student p-8 flex flex-col md:flex-row items-center justify-between gap-8 ${r.role === 'banned' ? 'border-red-500/20 grayscale' : 'border-white/5 hover:border-indigo-500/30'}`}>
                       <div className="flex items-center gap-8 w-full md:w-auto">
-                         <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-xl font-black transition-all duration-500 ${r.role === 'banned' ? 'bg-red-500/10 text-red-500' : 'bg-indigo-500/10 text-indigo-400 group-hover/student:bg-indigo-500 group-hover/student:text-white'}`}>{r.email.charAt(0).toUpperCase()}</div>
+                         <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-xl font-black transition-all duration-500 ${r.role === 'banned' ? 'bg-red-500/10 text-red-500' : 'bg-indigo-500/10 text-indigo-400 group-hover/student:bg-indigo-500 group-hover/student:text-white'}`}>{accountLabel(r.email).charAt(0).toUpperCase()}</div>
                          <div>
                             <div className="flex items-center gap-3">
-                              <p className="text-xl font-black text-gray-100 tracking-tight">{r.email}</p>
+                              <p className="text-xl font-black text-gray-100 tracking-tight">{accountLabel(r.email)}</p>
                               {activeLogins.includes(r.email) && <span className="px-3 py-1 bg-green-500/10 text-green-400 text-[8px] font-black uppercase tracking-widest rounded-lg border border-green-500/20 animate-pulse">Online</span>}
                             </div>
                             <p className={`text-[9px] font-black uppercase tracking-[0.3em] mt-2 ${r.role === 'banned' ? 'text-red-600' : 'text-gray-700'}`}>{r.role === 'banned' ? '✘ Access disabled' : '✓ Active account'}</p>

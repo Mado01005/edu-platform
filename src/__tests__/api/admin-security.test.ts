@@ -10,8 +10,18 @@
 
 // ── Mock: NextAuth session ──────────────────────────────────────────────
 const mockAuth = jest.fn();
+const mockRequireLmsRole = jest.fn();
+class MockLmsAuthError extends Error {
+  constructor(message: string, public readonly status = 401) {
+    super(message);
+  }
+}
 jest.mock('@/auth', () => ({
   auth: mockAuth,
+}));
+jest.mock('@/lib/lms/auth', () => ({
+  LmsAuthError: MockLmsAuthError,
+  requireLmsRole: mockRequireLmsRole,
 }));
 
 // ── Mock: Supabase Admin Client ─────────────────────────────────────────
@@ -142,6 +152,7 @@ describe('🔒 Admin API Security Gate — Non-admin user blocked from all route
 
   beforeEach(() => {
     mockAuth.mockResolvedValue(NON_ADMIN_SESSION);
+    mockRequireLmsRole.mockRejectedValue(new MockLmsAuthError('Unauthorized'));
   });
 
   it('POST /api/admin/announcement → 401', async () => {
@@ -306,6 +317,7 @@ describe('🔒 Unauthenticated (null session) user blocked', () => {
 
   beforeEach(() => {
     mockAuth.mockResolvedValue(null);
+    mockRequireLmsRole.mockRejectedValue(new MockLmsAuthError('Unauthorized'));
   });
 
   it('GET /api/admin/velocity → 401', async () => {
@@ -357,6 +369,18 @@ describe('🔒 Unauthenticated (null session) user blocked', () => {
       makeRequest({ subject: 'Help', body: 'Question' }),
     );
     expect(res.status).toBe(401);
+  });
+});
+
+describe('Admin telemetry LMS session compatibility', () => {
+  it('accepts a verified Supabase LMS administrator session', async () => {
+    mockAuth.mockResolvedValue(null);
+    mockRequireLmsRole.mockResolvedValue({ id: 'admin_1', role: 'ADMIN' });
+
+    const response = await telemetryGet();
+
+    expect(response.status).toBe(200);
+    expect(mockRequireLmsRole).toHaveBeenCalled();
   });
 });
 

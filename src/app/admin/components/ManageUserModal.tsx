@@ -56,7 +56,9 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
             >
               Manage User Account
             </h3>
-            <p className="mt-1 truncate text-sm text-slate-500">{user.email}</p>
+            <p className="mt-1 truncate text-sm text-slate-500">
+              {user.email.split('@')[0] || 'User account'}
+            </p>
           </div>
           <button
             aria-label="Close user account settings"

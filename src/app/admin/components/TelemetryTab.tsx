@@ -15,12 +15,12 @@ export default function TelemetryTab({
   allRoles
 }: TelemetryTabProps) {
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
+    <div className="space-y-6 animate-in fade-in duration-700">
       <div className="space-y-4 px-2">
-         <h2 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">Recent Admin Activity</h2>
-         <p className="text-sm text-gray-500 font-medium">Review recent sign-ins, page activity, and active sessions.</p>
+         <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">Recent Admin Activity</h2>
+         <p className="text-sm text-slate-600 font-medium">Review recent sign-ins, page activity, and active sessions.</p>
       </div>
-      <div className="bg-white/[0.02] border border-white/5 rounded-[3.5rem] p-4 shadow-3xl">
+      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
          <LiveActivityFeed 
             initialLogs={initialLogs} 
             initialSessions={initialSessions} 

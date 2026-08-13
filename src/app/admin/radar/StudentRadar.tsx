@@ -2,27 +2,39 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import type { AccountStatus, GradeLevel, Role } from '@prisma/client';
 import {
   Activity,
   BellRing,
   CheckCircle2,
   Loader2,
+  PencilLine,
   Search,
   ShieldAlert,
 } from 'lucide-react';
 import { Badge } from '@/components/UI/badge';
 import { Button, buttonVariants } from '@/components/UI/button';
 import { Input } from '@/components/UI/input';
+import {
+  EditStudentModal,
+  type AdminCourseOption,
+  type EditableAdminUser,
+} from '@/components/Admin/edit-student-modal';
+import { LMS_ROLES } from '@/lib/lms/roles';
 
 export type RadarStudent = {
   assignmentScore: number;
-  email: string;
-  gradeLevel: string | null;
+  enrolledCourseIds: string[];
+  gradeLevel: GradeLevel | null;
   healthPercentage: number;
   id: string;
   isAtRisk: boolean;
   lastLoginAt: string;
   name: string | null;
+  phoneNumber: string | null;
+  role: Role;
+  status: AccountStatus;
+  subscriptions: EditableAdminUser['subscriptions'];
   videoCompletion: number;
 };
 
@@ -51,6 +63,8 @@ function radarPageHref(filters: RadarFilters, page: number) {
 
 export function StudentRadar({
   atRiskCount,
+  availableCourses,
+  currentAdminRole,
   filteredCount,
   filters,
   healthyCount,
@@ -60,6 +74,8 @@ export function StudentRadar({
   totalStudents,
 }: {
   atRiskCount: number;
+  availableCourses: AdminCourseOption[];
+  currentAdminRole: Role;
   filteredCount: number;
   filters: RadarFilters;
   healthyCount: number;
@@ -68,11 +84,42 @@ export function StudentRadar({
   students: RadarStudent[];
   totalStudents: number;
 }) {
+  const [roster, setRoster] = useState(students);
+  const [editingStudent, setEditingStudent] = useState<RadarStudent | null>(null);
   const [pendingStudentIds, setPendingStudentIds] = useState<Set<string>>(
     () => new Set(),
   );
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const assignableRoles = currentAdminRole === 'SUPER_ADMIN'
+    ? LMS_ROLES
+    : LMS_ROLES.filter((role) => role !== 'SUPER_ADMIN');
+
+  async function toggleStatus(student: RadarStudent) {
+    setPendingStudentIds((current) => new Set(current).add(student.id));
+    setError('');
+    setNotice('');
+    try {
+      const nextStatus: AccountStatus = student.status === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
+      const response = await fetch('/api/admin/users/update-status', {
+        body: JSON.stringify({ status: nextStatus, targetId: student.id }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      });
+      const body = (await response.json()) as { error?: string };
+      if (!response.ok) throw new Error(body.error || 'Unable to update this account.');
+      setRoster((current) => current.filter((entry) => entry.id !== student.id));
+      setNotice(`${student.name?.trim() || 'The student'} is now disabled.`);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Unable to update this account.');
+    } finally {
+      setPendingStudentIds((current) => {
+        const next = new Set(current);
+        next.delete(student.id);
+        return next;
+      });
+    }
+  }
 
   async function notifyStudent(student: RadarStudent) {
     setPendingStudentIds((current) => new Set(current).add(student.id));
@@ -158,7 +205,7 @@ export function StudentRadar({
             defaultValue={filters.query}
             maxLength={160}
             name="q"
-            placeholder="Search name or email"
+            placeholder="Search name or phone"
           />
         </label>
         <div className="grid min-w-0 grid-cols-2 gap-2">
@@ -209,7 +256,7 @@ export function StudentRadar({
       )}
 
       <section className="flex min-w-0 flex-col gap-3" aria-label="Student engagement radar">
-        {students.map((student) => (
+        {roster.map((student) => (
           <article
             className={`min-w-0 rounded-2xl border p-4 ${
               student.isAtRisk
@@ -229,10 +276,14 @@ export function StudentRadar({
                 {Math.round(student.healthPercentage)}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-black text-slate-900">
+                <button
+                  className="block max-w-full truncate text-left font-black text-slate-900 transition hover:text-sky-700 focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                  onClick={() => setEditingStudent(student)}
+                  type="button"
+                >
                   {student.name ?? 'Unnamed student'}
-                </p>
-                <p className="truncate text-xs text-slate-600">{student.email}</p>
+                </button>
+                <p className="truncate text-xs text-slate-600">{student.phoneNumber || 'No phone provided'}</p>
                 <div className="mt-2 flex min-w-0 flex-wrap gap-2">
                   <Badge variant="secondary">{gradeLabel(student.gradeLevel)}</Badge>
                   <Badge
@@ -286,6 +337,27 @@ export function StudentRadar({
                 Notify student &amp; parent
               </Button>
             ) : null}
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button
+                className="border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                onClick={() => setEditingStudent(student)}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                <PencilLine className="size-4" aria-hidden="true" /> Edit
+              </Button>
+              <Button
+                disabled={pendingStudentIds.has(student.id)}
+                onClick={() => void toggleStatus(student)}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                {pendingStudentIds.has(student.id) ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
+                Disable
+              </Button>
+            </div>
           </article>
         ))}
 
@@ -330,6 +402,24 @@ export function StudentRadar({
           </nav>
         ) : null}
       </section>
+
+      {editingStudent ? (
+        <EditStudentModal
+          assignableRoles={assignableRoles}
+          availableCourses={availableCourses}
+          key={editingStudent.id}
+          onOpenChange={(open) => {
+            if (!open) setEditingStudent(null);
+          }}
+          onSaved={(updated) => {
+            setRoster((current) => current
+              .filter((entry) => entry.id !== updated.id || updated.status === 'ACTIVE')
+              .map((entry) => entry.id === updated.id ? { ...entry, ...updated } : entry));
+            setNotice(`Saved ${updated.name?.trim() || 'the student'}.`);
+          }}
+          user={editingStudent}
+        />
+      ) : null}
     </div>
   );
 }

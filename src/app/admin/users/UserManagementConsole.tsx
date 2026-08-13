@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Loader2,
   MoreHorizontal,
+  PencilLine,
   RotateCcw,
   Search,
   ShieldCheck,
@@ -32,22 +33,31 @@ import {
 } from '@/components/UI/dropdown-menu';
 import { Input } from '@/components/UI/input';
 import { LMS_ROLES } from '@/lib/lms/roles';
+import {
+  EditStudentModal,
+  type AdminCourseOption,
+  type EditableAdminUser,
+} from '@/components/Admin/edit-student-modal';
 
 export interface AdminUserRecord {
   authPresent: boolean;
   avatarUrl: string | null;
   createdAt: string;
-  email: string;
   emailConfirmed: boolean;
+  enrolledCourseIds: string[];
   enrolledCourses: number;
+  gradeLevel: EditableAdminUser['gradeLevel'];
   id: string;
   name: string | null;
+  phoneNumber: string | null;
   role: Role;
   status: AccountStatus;
+  subscriptions: EditableAdminUser['subscriptions'];
 }
 
 interface UserManagementConsoleProps {
   authStatusAvailable: boolean;
+  availableCourses: AdminCourseOption[];
   currentAdminId: string;
   currentAdminRole: Role;
   initialUsers: AdminUserRecord[];
@@ -55,9 +65,9 @@ interface UserManagementConsoleProps {
 
 type RoleFilter = 'ALL' | Role;
 
-function initials(name: string | null, email: string) {
-  return (name?.trim() || email)
-    .split(/[\s@._-]+/)
+function initials(name: string | null) {
+  return (name?.trim() || 'User')
+    .split(/[\s._-]+/)
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
@@ -145,6 +155,7 @@ async function readResponse<T>(response: Response): Promise<T> {
 
 export function UserManagementConsole({
   authStatusAvailable,
+  availableCourses,
   currentAdminId,
   currentAdminRole,
   initialUsers,
@@ -155,6 +166,7 @@ export function UserManagementConsole({
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [editingUser, setEditingUser] = useState<AdminUserRecord | null>(null);
 
   const metrics = useMemo(
     () => ({
@@ -176,8 +188,8 @@ export function UserManagementConsole({
         roleFilter === 'ALL' || user.role === roleFilter;
       const matchesQuery =
         !normalizedQuery ||
-        user.email.toLowerCase().includes(normalizedQuery) ||
-        user.name?.toLowerCase().includes(normalizedQuery);
+        user.name?.toLowerCase().includes(normalizedQuery) ||
+        user.phoneNumber?.toLowerCase().includes(normalizedQuery);
 
       return matchesRole && Boolean(matchesQuery);
     });
@@ -209,7 +221,7 @@ export function UserManagementConsole({
             : entry,
         ),
       );
-      setNotice(`Updated ${user.email} to ${role}.`);
+      setNotice(`Updated ${user.name?.trim() || 'this account'} to ${role}.`);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -247,7 +259,7 @@ export function UserManagementConsole({
         ),
       );
       setNotice(
-        `${user.email} is now ${
+        `${user.name?.trim() || 'This account'} is now ${
           status === 'DISABLED' ? 'disabled' : 'active'
         }.`,
       );
@@ -319,7 +331,7 @@ export function UserManagementConsole({
       <Card className="rounded-2xl border-slate-200 bg-white shadow-sm">
         <CardContent className="flex min-w-0 flex-col gap-3 px-4 py-4">
           <label className="relative min-w-0">
-            <span className="sr-only">Search by name or email</span>
+            <span className="sr-only">Search by name or phone number</span>
             <Search
               className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-500"
               aria-hidden="true"
@@ -327,7 +339,7 @@ export function UserManagementConsole({
             <Input
               className="pl-10"
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search name or email"
+              placeholder="Search name or phone"
               type="search"
               value={query}
             />
@@ -359,7 +371,7 @@ export function UserManagementConsole({
       >
         <div className="sr-only" role="row">
           <span role="columnheader">User</span>
-          <span role="columnheader">Email</span>
+          <span role="columnheader">Phone</span>
           <span role="columnheader">Enrolled courses</span>
           <span role="columnheader">Role</span>
           <span role="columnheader">Joined</span>
@@ -388,15 +400,19 @@ export function UserManagementConsole({
                       <AvatarImage alt="" src={user.avatarUrl} />
                     ) : null}
                     <AvatarFallback>
-                      {initials(user.name, user.email)}
+                      {initials(user.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-black text-slate-900">
+                    <button
+                      className="block max-w-full truncate text-left font-black text-slate-900 transition hover:text-sky-700 focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                      onClick={() => setEditingUser(user)}
+                      type="button"
+                    >
                       {user.name?.trim() || 'Unnamed user'}
-                    </p>
+                    </button>
                     <p className="mt-0.5 truncate text-xs text-slate-600">
-                      {user.email}
+                      {user.phoneNumber || 'No phone provided'}
                     </p>
                     <div className="mt-2 flex min-w-0 flex-wrap gap-2">
                       <Badge className={roleBadgeClass(user.role)}>
@@ -415,7 +431,7 @@ export function UserManagementConsole({
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
-                        aria-label={`Manage ${user.email}`}
+                        aria-label={`Manage ${user.name?.trim() || 'user account'}`}
                         disabled={
                           isPending ||
                           !authStatusAvailable ||
@@ -503,6 +519,31 @@ export function UserManagementConsole({
                     </p>
                   </div>
                 </div>
+                <div className="flex min-w-0 gap-2">
+                  <Button
+                    className="flex-1 border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                    disabled={isProtectedSuperAdmin}
+                    onClick={() => setEditingUser(user)}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <PencilLine className="size-4" aria-hidden="true" /> Edit
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    disabled={isPending || isSelf || isProtectedSuperAdmin}
+                    onClick={() => void changeStatus(
+                      user,
+                      user.status === 'DISABLED' ? 'ACTIVE' : 'DISABLED',
+                    )}
+                    size="sm"
+                    type="button"
+                    variant={user.status === 'DISABLED' ? 'default' : 'outline'}
+                  >
+                    {user.status === 'DISABLED' ? 'Enable' : 'Disable'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );
@@ -520,6 +561,31 @@ export function UserManagementConsole({
           </Card>
         ) : null}
       </div>
+
+      {editingUser ? (
+        <EditStudentModal
+          assignableRoles={assignableRoles}
+          availableCourses={availableCourses}
+          isSelf={editingUser.id === currentAdminId}
+          key={editingUser.id}
+          onOpenChange={(open) => {
+            if (!open) setEditingUser(null);
+          }}
+          onSaved={(updated) => {
+            setUsers((current) => current.map((entry) =>
+              entry.id === updated.id
+                ? {
+                    ...entry,
+                    ...updated,
+                    enrolledCourses: updated.enrolledCourseIds.length,
+                  }
+                : entry,
+            ));
+            setNotice(`Saved ${updated.name?.trim() || 'the account'}.`);
+          }}
+          user={editingUser}
+        />
+      ) : null}
 
     </>
   );

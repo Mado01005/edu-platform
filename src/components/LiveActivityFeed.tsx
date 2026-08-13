@@ -1,49 +1,148 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Activity,
+  CircleUserRound,
+  Download,
+  MonitorCheck,
+  Search,
+  Users,
+  X,
+} from 'lucide-react';
 
-interface LiveActivityFeedProps {
-  initialLogs: any[];
-  initialSessions: any[];
-  initialUsers: any[];
+type ActivityEntry = {
+  action: string;
+  created_at: string;
+  details?: Record<string, unknown> | null;
+  geo_city?: string | null;
+  geo_country?: string | null;
+  id?: string;
+  url?: string | null;
+  user_email: string;
+  user_name?: string | null;
+};
+
+type SessionEntry = {
+  current_page?: string | null;
+  geo_city?: string | null;
+  geo_country?: string | null;
+  id?: string;
+  is_idle?: boolean;
+  last_active_at: string;
+  user_agent?: string | null;
+  user_email: string;
+};
+
+type RosterEntry = {
+  created_at?: string | null;
+  email: string;
+  name?: string | null;
+  role?: string | null;
+};
+
+type StudentSummary = {
+  actionCount: number;
+  city: string;
+  completions: number;
+  country: string;
+  displayName: string;
+  key: string;
+  lastAction: string;
+  lastSeen: string;
+  logins: number;
+  pdfReads: number;
+  videoWatches: number;
+};
+
+type ActivityTab = 'feed' | 'sessions' | 'grid' | 'audit';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object';
 }
 
-type HudTab = 'feed' | 'live' | 'grid' | 'audit' | 'shadow';
+function activityEntries(values: unknown[]): ActivityEntry[] {
+  return values.filter((value): value is ActivityEntry =>
+    isRecord(value) &&
+    typeof value.action === 'string' &&
+    typeof value.created_at === 'string' &&
+    typeof value.user_email === 'string',
+  );
+}
 
-export default function LiveActivityFeed({ initialLogs, initialSessions, initialUsers }: LiveActivityFeedProps) {
-  const [logs, setLogs] = useState(initialLogs);
-  const [sessions, setSessions] = useState(initialSessions);
-  const [hudTab, setHudTab] = useState<HudTab>('feed');
+function sessionEntries(values: unknown[]): SessionEntry[] {
+  return values.filter((value): value is SessionEntry =>
+    isRecord(value) &&
+    typeof value.last_active_at === 'string' &&
+    typeof value.user_email === 'string',
+  );
+}
+
+function rosterEntries(values: unknown[]): RosterEntry[] {
+  return values.filter((value): value is RosterEntry =>
+    isRecord(value) && typeof value.email === 'string',
+  );
+}
+
+function username(email: string) {
+  const local = email.split('@')[0]?.trim();
+  return local || 'Student';
+}
+
+function displayName(name: unknown, email: string) {
+  return typeof name === 'string' && name.trim() ? name.trim() : username(email);
+}
+
+function timeAgo(value: string) {
+  const seconds = Math.max(0, (Date.now() - new Date(value).getTime()) / 1000);
+  if (seconds < 60) return `${Math.floor(seconds)}s ago`;
+  if (seconds < 3_600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86_400) return `${Math.floor(seconds / 3_600)}h ago`;
+  return `${Math.floor(seconds / 86_400)}d ago`;
+}
+
+function actionClass(action: string) {
+  if (action.includes('LOGIN')) return 'border-sky-200 bg-sky-50 text-sky-700';
+  if (action.includes('Completed')) return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+  if (action.includes('PDF')) return 'border-amber-200 bg-amber-50 text-amber-700';
+  if (action.includes('VIDEO')) return 'border-violet-200 bg-violet-50 text-violet-700';
+  return 'border-slate-200 bg-slate-100 text-slate-700';
+}
+
+function actionLabel(action: string) {
+  return action.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+export default function LiveActivityFeed({
+  initialLogs,
+  initialSessions,
+  initialUsers,
+}: {
+  initialLogs: unknown[];
+  initialSessions: unknown[];
+  initialUsers: unknown[];
+}) {
+  const [logs, setLogs] = useState(() => activityEntries(initialLogs));
+  const [sessions, setSessions] = useState(() => sessionEntries(initialSessions));
+  const [tab, setTab] = useState<ActivityTab>('feed');
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
-  const [shadowTarget, setShadowTarget] = useState<string | null>(null);
   const [auditSearch, setAuditSearch] = useState('');
   const [auditAction, setAuditAction] = useState('');
+  const [showStream, setShowStream] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
-  const [eventCount, setEventCount] = useState(0);
-  const [showRawStream, setShowRawStream] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
-
-    const refreshTelemetry = async () => {
+    const refresh = async () => {
       try {
         const response = await fetch('/api/admin/telemetry', {
           cache: 'no-store',
           signal: controller.signal,
         });
         if (!response.ok) throw new Error(`Telemetry HTTP ${response.status}`);
-        const payload = (await response.json()) as {
-          logs?: typeof initialLogs;
-          sessions?: typeof initialSessions;
-        };
-        setLogs((current) => {
-          const next = payload.logs ?? [];
-          if (next[0]?.id && next[0].id !== current[0]?.id) {
-            setEventCount((count) => count + 1);
-          }
-          return next;
-        });
-        setSessions(payload.sessions ?? []);
+        const payload = (await response.json()) as { logs?: unknown[]; sessions?: unknown[] };
+        setLogs(activityEntries(payload.logs ?? []));
+        setSessions(sessionEntries(payload.sessions ?? []));
         setConnectionStatus('connected');
       } catch (error) {
         if (!(error instanceof DOMException && error.name === 'AbortError')) {
@@ -51,495 +150,258 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
         }
       }
     };
-
-    void refreshTelemetry();
-    const poll = window.setInterval(() => void refreshTelemetry(), 5_000);
-
+    void refresh();
+    const poll = window.setInterval(() => void refresh(), 5_000);
     return () => {
       controller.abort();
       window.clearInterval(poll);
     };
   }, []);
 
-  // Derived data
-  const uniqueStudents = useMemo(() => {
-    const map = new Map();
-
-    // 1. Initialize with ALL registered users from the global roster
-    initialUsers.forEach((u: any) => {
-      map.set(u.email, {
-        name: u.name || u.email.split('@')[0],
-        email: u.email,
+  const students = useMemo(() => {
+    const map = new Map<string, StudentSummary>();
+    for (const user of rosterEntries(initialUsers)) {
+      map.set(user.email, {
+        actionCount: 0,
+        city: 'Unknown',
         completions: 0,
+        country: 'Unknown',
+        displayName: displayName(user.name, user.email),
+        key: user.email,
+        lastAction: 'Registered',
+        lastSeen: user.created_at || new Date(0).toISOString(),
         logins: 0,
         pdfReads: 0,
         videoWatches: 0,
+      });
+    }
+    for (const log of [...logs].reverse()) {
+      const current = map.get(log.user_email) ?? {
         actionCount: 0,
-        lastSeen: u.created_at || new Date(0).toISOString(), // Fallback for very old users
-        lastAction: 'Registered',
         city: 'Unknown',
+        completions: 0,
         country: 'Unknown',
-        currentScroll: 0,
-        role: u.role
-      });
-    });
-
-    // 2. Overlay with ACTUAL activity logs (most recent state wins)
-    // We process from oldest to newest so that the absolute latest state correctly overwrites previous ones
-    const sortedLogs = [...logs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-    
-    sortedLogs.forEach((l: any) => {
-      if (!map.has(l.user_email)) {
-        map.set(l.user_email, {
-          name: l.user_name || l.user_email.split('@')[0],
-          email: l.user_email,
-          completions: 0,
-          logins: 0,
-          pdfReads: 0,
-          videoWatches: 0,
-          actionCount: 0,
-          lastSeen: l.created_at,
-          lastAction: l.action,
-          city: l.geo_city || 'Unknown',
-          country: l.geo_country || 'Unknown',
-          currentScroll: 0,
-          role: 'student'
-        });
+        displayName: displayName(log.user_name, log.user_email),
+        key: log.user_email,
+        lastAction: log.action,
+        lastSeen: log.created_at,
+        logins: 0,
+        pdfReads: 0,
+        videoWatches: 0,
+      };
+      current.actionCount += 1;
+      if (new Date(log.created_at).getTime() >= new Date(current.lastSeen).getTime()) {
+        current.lastSeen = log.created_at;
+        current.lastAction = log.action;
+        current.city = log.geo_city || current.city;
+        current.country = log.geo_country || current.country;
+        current.displayName = displayName(log.user_name, log.user_email);
       }
-      
-      const student = map.get(l.user_email);
-      student.actionCount++;
-      
-      // Update with most recent log info
-      const logTime = new Date(l.created_at).getTime();
-      const studentTime = new Date(student.lastSeen).getTime();
-      
-      if (logTime >= studentTime) {
-        student.lastSeen = l.created_at;
-        student.lastAction = l.action;
-        if (l.geo_city) student.city = l.geo_city;
-        if (l.geo_country) student.country = l.geo_country;
+      if (log.action === 'Completed Lesson') current.completions += 1;
+      if (log.action === 'USER_LOGIN') current.logins += 1;
+      if (log.action === 'Open PDF' || log.action === 'READ_PDF') current.pdfReads += 1;
+      if (log.action === 'Watched Video' || log.action === 'WATCH_VIDEO') current.videoWatches += 1;
+      map.set(log.user_email, current);
+    }
+    for (const session of sessions) {
+      const current = map.get(session.user_email);
+      if (current && new Date(session.last_active_at) > new Date(current.lastSeen)) {
+        current.lastSeen = session.last_active_at;
+        current.lastAction = session.is_idle ? 'IDLE' : 'ACTIVE_BROWSING';
       }
-      
-      // Process internal events if it's a batch
-      const events = l.action === 'USER_INTERACTIONS_BATCH' ? (l.details?.events || []) : [l];
-      
-      events.forEach((ev: any) => {
-        const action = ev.action || l.action;
-        if (action === 'Completed Lesson') student.completions++;
-        if (action === 'USER_LOGIN') student.logins++;
-        if (action === 'Open PDF' || action === 'READ_PDF') student.pdfReads++;
-        if (action === 'Watched Video' || action === 'WATCH_VIDEO') student.videoWatches++;
-        
-        if (action === 'USER_SCROLL' && ev.details?.percent !== undefined) {
-           student.currentScroll = Number(ev.details.percent);
-        }
+    }
+    return [...map.values()].sort(
+      (first, second) => new Date(second.lastSeen).getTime() - new Date(first.lastSeen).getTime(),
+    );
+  }, [initialUsers, logs, sessions]);
 
-        // Extract a better "lastAction" from the batch if available
-        if (l.action === 'USER_INTERACTIONS_BATCH' && logTime >= studentTime) {
-           if (action === 'USER_CLICK') student.lastAction = `Click: ${ev.details?.text || 'Element'}`;
-           else if (action === 'USER_SCROLL') student.lastAction = 'Browsing';
-           else student.lastAction = action;
-        }
-      });
-    });
+  const namesByKey = useMemo(
+    () => new Map(students.map((student) => [student.key, student.displayName])),
+    [students],
+  );
+  const activeCount = sessions.filter(
+    (session) => new Date(session.last_active_at).getTime() > Date.now() - 5 * 60 * 1000,
+  ).length;
+  const selected = students.find((student) => student.key === selectedStudent) ?? null;
+  const actions = [...new Set(logs.map((log) => log.action))];
+  const filteredLogs = logs.filter((log) => {
+    const query = auditSearch.trim().toLowerCase();
+    const name = displayName(log.user_name, log.user_email).toLowerCase();
+    return (!query || name.includes(query) || log.action.toLowerCase().includes(query)) &&
+      (!auditAction || log.action === auditAction);
+  });
 
-    // 3. Check sessions (these represent users currently active or who were active recently)
-    sessions.forEach(s => {
-      const student = map.get(s.user_email);
-      if (student) {
-        student.isOnline = true;
-        
-        const sessionTime = new Date(s.last_active_at).getTime();
-        const currentLastSeenTime = new Date(student.lastSeen).getTime();
-        
-        if (sessionTime > currentLastSeenTime) {
-          student.lastSeen = s.last_active_at;
-          student.lastPage = s.current_page || 'dashboard';
-          student.lastAction = s.is_idle ? 'IDLE' : 'ACTIVE_BROWSING';
-          if (s.geo_city && s.geo_city !== 'Unknown') student.city = s.geo_city;
-          if (s.geo_country && s.geo_country !== 'Unknown') student.country = s.geo_country;
-        }
-      }
-    });
-
-    return Array.from(map.values()).sort((a,b) => new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime());
-  }, [logs, sessions, initialUsers]);
-
-  const totalInteractions = logs.length;
-  const uniqueCount = uniqueStudents.length;
-
-  // Active students = seen in last 5 minutes (Synchronized with "Active Now" header)
-  const activeStudents = useMemo(() => {
-    const cutoff = Date.now() - 5 * 60 * 1000;
-    return uniqueStudents.filter(s => new Date(s.lastSeen).getTime() > cutoff);
-  }, [uniqueStudents]);
-
-  // Shadow mode logs
-  const shadowLogs = useMemo(() => {
-    if (!shadowTarget) return [];
-    return logs.filter((l: any) => l.user_email === shadowTarget);
-  }, [logs, shadowTarget]);
-
-  // Audit log with filters
-  const filteredAuditLogs = useMemo(() => {
-    return logs.filter((l: any) => {
-      if (auditSearch && !l.user_email?.toLowerCase().includes(auditSearch.toLowerCase()) && !l.user_name?.toLowerCase().includes(auditSearch.toLowerCase())) return false;
-      if (auditAction && l.action !== auditAction) return false;
-      return true;
-    });
-  }, [logs, auditSearch, auditAction]);
-
-  const allActions = useMemo(() => [...new Set(logs.map((l: any) => l.action))], [logs]);
-
-  const exportCSV = () => {
-    const header = 'Timestamp,Student,Email,Action,Details,URL\n';
-    const rows = filteredAuditLogs.map((l: any) =>
-      `"${new Date(l.created_at).toISOString()}","${l.user_name || ''}","${l.user_email}","${l.action}","${JSON.stringify(l.details || {}).replace(/"/g, '""')}","${l.url || ''}"`
+  function exportCsv() {
+    const header = 'Timestamp,Student,Action,Summary,Page\n';
+    const rows = filteredLogs.map((log) =>
+      [
+        new Date(log.created_at).toISOString(),
+        displayName(log.user_name, log.user_email),
+        actionLabel(log.action),
+        JSON.stringify(log.details ?? {}),
+        log.url ?? '',
+      ].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(','),
     ).join('\n');
     const blob = new Blob([header + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `audit_log_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click(); URL.revokeObjectURL(url);
-  };
-
-  const timeAgo = (date: string) => {
-    const diff = (Date.now() - new Date(date).getTime()) / 1000;
-    if (diff < 60) return `${Math.floor(diff)}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
-
-  const actionColor = (action: string) => {
-    if (action === 'USER_LOGIN') return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-    if (action === 'Completed Lesson') return 'bg-green-500/10 text-green-400 border-green-500/20';
-    if (action === 'READ_PDF') return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
-    if (action === 'WATCH_VIDEO') return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-    if (action === 'ACTIVE_BROWSING') return 'bg-green-500/10 text-green-400 border-green-500/20 animate-pulse';
-    if (action === 'PAGE_VIEW') return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
-    if (action === 'IDLE') return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
-    return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
-  };
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `admin_activity_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
-    <div className="fade-in">
-      {/* HUD Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <h2 className="text-xl font-black text-white flex items-center gap-3">
-          <div className="relative">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
-          </div>
-          ADMIN ACTIVITY
-          <button onClick={() => setShowRawStream(!showRawStream)} className={`text-[8px] font-black px-2 py-0.5 rounded-full border transition ${
-            connectionStatus === 'connected' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-            connectionStatus === 'connecting' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 animate-pulse' :
-            'bg-red-500/10 text-red-400 border-red-500/20'
-          }`}>
-            {connectionStatus === 'connected' ? `LIVE SYNC ACTIVE (${eventCount} EVENTS)` : connectionStatus === 'connecting' ? 'ESTABLISHING LINK...' : 'SYNC OFFLINE'}
-            {connectionStatus === 'connected' && <span className="ml-2 opacity-50">CLICK TO {showRawStream ? 'HIDE' : 'VIEW'} STREAM</span>}
+    <div className="min-w-0 space-y-5 text-slate-900">
+      <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <h2 className="flex flex-wrap items-center gap-2 text-xl font-black text-slate-900">
+            <Activity className="size-5 text-sky-600" aria-hidden="true" />
+            Admin activity
+          </h2>
+          <button
+            className={`mt-2 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${connectionStatus === 'connected' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : connectionStatus === 'connecting' ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-red-200 bg-red-50 text-red-700'}`}
+            onClick={() => setShowStream((current) => !current)}
+            type="button"
+          >
+            {connectionStatus === 'connected' ? 'Live sync active' : connectionStatus === 'connecting' ? 'Connecting' : 'Sync unavailable'}
           </button>
-        </h2>
-        <div className="flex gap-1 bg-black/40 rounded-xl p-1 border border-white/10">
-          {([['feed', '📡 Feed'], ['live', '🛰️ Sessions'], ['grid', '🖥️ Grid'], ['audit', '📋 Audit'], ['shadow', '🎯 Shadow']] as const).map(([key, label]) => (
-            <button key={key} onClick={() => setHudTab(key)} className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${hudTab === key ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
+        </div>
+        <div className="grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1">
+          {([
+            ['feed', 'Feed'],
+            ['sessions', 'Sessions'],
+            ['grid', 'Grid'],
+            ['audit', 'Audit'],
+          ] as const).map(([value, label]) => (
+            <button
+              className={`rounded-lg px-3 py-2 text-xs font-bold transition ${tab === value ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-700 hover:bg-white'}`}
+              key={value}
+              onClick={() => setTab(value)}
+              type="button"
+            >
               {label}
             </button>
           ))}
         </div>
-      
-      {showRawStream && (
-        <div className="mb-6 bg-black/80 border border-indigo-500/30 rounded-xl p-4 font-mono text-[9px] text-green-400 max-h-[150px] overflow-y-auto animate-in slide-in-from-top-2">
-           <p className="border-b border-indigo-500/20 pb-2 mb-2 text-indigo-400 font-black">--- RAW PACKET STREAM (MOST RECENT FIRST) ---</p>
-           {logs.slice(0, 5).map((l, i) => (
-             <div key={i} className="mb-1 opacity-80 border-b border-white/5 pb-1">
-               [{new Date(l.created_at).toLocaleTimeString()}] {l.user_email}: {l.action} ({JSON.stringify(l.details)})
-             </div>
-           ))}
-        </div>
-      )}
       </div>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-[#1A1A1E]/80 border border-white/5 rounded-xl p-4 text-center">
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Active Now</p>
-          <p className="text-2xl font-black text-green-400">
-            {sessions.filter(s => new Date(s.last_active_at).getTime() > Date.now() - 5 * 60 * 1000).length}
-          </p>
+      {showStream ? (
+        <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-700">
+          <p className="mb-2 font-black uppercase tracking-wider text-slate-500">Recent event stream</p>
+          {logs.slice(0, 5).map((log, index) => (
+            <p className="border-t border-slate-200 py-2" key={log.id ?? index}>
+              {displayName(log.user_name, log.user_email)} · {actionLabel(log.action)} · {new Date(log.created_at).toLocaleTimeString()}
+            </p>
+          ))}
         </div>
-        <div className="bg-[#1A1A1E]/80 border border-white/5 rounded-xl p-4 text-center">
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Total Students</p>
-          <p className="text-2xl font-black text-white">{uniqueCount}</p>
-        </div>
-        <div className="bg-[#1A1A1E]/80 border border-white/5 rounded-xl p-4 text-center">
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Interactions</p>
-          <p className="text-2xl font-black text-indigo-400">{totalInteractions}</p>
-        </div>
-      </div>
+      ) : null}
 
-      {/* Student Dossier Side Panel */}
-      {selectedStudent && (() => {
-        const s = uniqueStudents.find(st => st.email === selectedStudent);
-        if (!s) return null;
-        return (
-          <div className="fixed inset-0 z-[200] flex justify-end" onClick={() => setSelectedStudent(null)}>
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-            <div className="relative w-full max-w-md bg-[#0A0A0F] border-l border-white/10 h-full overflow-y-auto p-6 animate-slide-in-right" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-black text-white flex items-center gap-2">🔍 STUDENT DOSSIER</h3>
-                <button onClick={() => setSelectedStudent(null)} className="text-gray-500 hover:text-white p-2"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
-              </div>
+      <section className="grid grid-cols-3 gap-2" aria-label="Activity metrics">
+        {[
+          { icon: MonitorCheck, label: 'Active now', value: activeCount },
+          { icon: Users, label: 'Total students', value: students.length },
+          { icon: Activity, label: 'Interactions', value: logs.length },
+        ].map(({ icon: Icon, label, value }) => (
+          <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4" key={label}>
+            <Icon className="size-4 text-sky-600" aria-hidden="true" />
+            <p className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">{value}</p>
+            <p className="truncate text-[9px] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs">{label}</p>
+          </article>
+        ))}
+      </section>
 
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-3 text-2xl font-black text-white shadow-lg">{s.name.charAt(0).toUpperCase()}</div>
-                <h4 className="text-lg font-bold text-white">{s.name}</h4>
-                <p className="text-xs text-gray-500 font-mono">{s.email}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-white/5 rounded-xl p-3 text-center border border-white/5">
-                  <p className="text-2xl font-black text-green-400">{s.completions}</p>
-                  <p className="text-[9px] text-gray-500 font-bold uppercase">Completions</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-3 text-center border border-white/5">
-                  <p className="text-2xl font-black text-blue-400">{s.logins}</p>
-                  <p className="text-[9px] text-gray-500 font-bold uppercase">Logins</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-3 text-center border border-white/5">
-                  <p className="text-2xl font-black text-yellow-400">{s.pdfReads}</p>
-                  <p className="text-[9px] text-gray-500 font-bold uppercase">PDFs Read</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-3 text-center border border-white/5">
-                  <p className="text-2xl font-black text-purple-400">{s.videoWatches}</p>
-                  <p className="text-[9px] text-gray-500 font-bold uppercase">Videos</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                   <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">City Intelligence</p>
-                   <p className="text-sm text-white font-black truncate">{s.city}</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                   <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Region Sector</p>
-                   <p className="text-sm text-white font-black truncate">{s.country}</p>
-                </div>
-              </div>
-
-              <div className="bg-white/5 rounded-xl p-3 border border-white/5 mb-6">
-                <div className="flex justify-between items-center mb-1">
-                   <p className="text-[10px] text-gray-500 font-bold uppercase">Current Viewport</p>
-                   <p className="text-[10px] text-indigo-400 font-black">{s.currentScroll}% SCROLLED</p>
-                </div>
-                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                   <div className="h-full bg-indigo-500 transition-all duration-1000 shadow-[0_0_8px_rgba(99,102,241,0.6)]" style={{ width: `${s.currentScroll}%` }}></div>
-                </div>
-              </div>
-
-              <div className="bg-white/10 rounded-xl p-3 border border-indigo-500/20 mb-6">
-                <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Last Activity</p>
-                <p className="text-sm text-white font-mono">{new Date(s.lastSeen).toLocaleString()}</p>
-                <p className="text-[10px] text-indigo-400/60 mt-1">Status: Active Trace Locked ({timeAgo(s.lastSeen)})</p>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-xs text-gray-400 font-bold uppercase mb-3">Recent Activity Stream</p>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                  {logs.filter((l: any) => l.user_email === s.email).slice(0, 20).map((l: any, i: number) => (
-                    <div key={l.id || i} className="flex items-center gap-3 text-xs bg-black/30 rounded-lg p-2 border border-white/5">
-                      <span className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-black uppercase border ${actionColor(l.action)}`}>{l.action.replace(/_/g, ' ')}</span>
-                      <span className="text-gray-500 truncate">{l.details?.lessonSlug || l.details?.pdf_title || ''}</span>
-                      <span className="text-gray-600 ml-auto shrink-0 font-mono">{timeAgo(l.created_at)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button onClick={() => { setShadowTarget(s.email); setSelectedStudent(null); setHudTab('shadow'); }} className="w-full py-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm font-bold hover:bg-red-500/20 transition">
-                🎯 Activate Shadow Mode
-              </button>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* ===== TAB: LIVE FEED ===== */}
-      {hudTab === 'feed' && (
-        <div className="bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none"></div>
-          <div className="overflow-x-auto min-h-[300px]">
-            <table className="w-full text-left text-sm text-gray-300 relative z-10">
-              <thead className="bg-[#1A1A1E]/90 text-gray-400 border-b border-white/10">
-                <tr>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Subscriber</th>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Network Action</th>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Activity Details</th>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest text-right">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 font-medium">
-                {logs.length === 0 && (
-                  <tr><td colSpan={4} className="px-6 py-12 text-center text-gray-500 italic">Standby... No activity recorded.</td></tr>
-                )}
-                {logs.slice(0, 50).map((log: any) => (
-                  <tr key={log.id} className="hover:bg-indigo-500/5 transition-all group cursor-pointer" onClick={() => setSelectedStudent(log.user_email)}>
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-white group-hover:text-indigo-300 transition">{log.user_name || log.user_email.split('@')[0]}</div>
-                      <div className="text-[10px] text-gray-500 font-mono">{log.user_email}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-md text-[10px] font-black tracking-widest uppercase border ${actionColor(log.action)}`}>{log.action}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {log.details ? (
-                        <div className="flex flex-wrap gap-2">
-                          {Object.entries(log.details).slice(0, 3).map(([k, v]) => (
-                            <div key={k} className="text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/5">
-                              <span className="text-gray-500">{k}:</span> <span className="text-indigo-200">{String(v).substring(0, 30)}</span>
-                            </div>
-                          ))}
-                          {log.geo_city && (
-                            <div className="text-[10px] bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 text-indigo-300">
-                               📍 {log.geo_city}, {log.geo_country}
-                            </div>
-                          )}
-                        </div>
-                      ) : <span className="text-gray-600 italic text-[10px]">—</span>}
-                    </td>
-                    <td className="px-6 py-4 text-right text-[10px] text-gray-500 font-mono">{timeAgo(log.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ===== TAB: LIVE SESSIONS ===== */}
-      {hudTab === 'live' && (
-        <div className="bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 to-transparent pointer-events-none"></div>
-          <div className="overflow-x-auto min-h-[300px]">
-            <table className="w-full text-left text-sm text-gray-300 relative z-10">
-              <thead className="bg-[#1A1A1E]/90 text-gray-400 border-b border-white/10">
-                <tr>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Active Identity</th>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest text-center">Status</th>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest">Sector (Page)</th>
-                  <th className="px-6 py-4 font-bold uppercase text-[10px] tracking-widest text-right">Heartbeat</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 font-medium">
-                {sessions.length === 0 && (
-                  <tr><td colSpan={4} className="px-6 py-12 text-center text-gray-500 italic">Scanning grid... No active student heartbeats detected.</td></tr>
-                )}
-                {sessions.map((session: any, i: number) => {
-                  const isActive = new Date(session.last_active_at).getTime() > Date.now() - 5 * 60 * 1000;
-                  return (
-                    <tr key={session.id || i} className={`hover:bg-white/5 transition-all group ${isActive ? 'opacity-100' : 'opacity-40'}`}>
-                      <td className="px-6 py-4">
-                        <div className="font-bold text-white group-hover:text-green-300 transition">{session.user_email.split('@')[0]}</div>
-                        <div className="text-[10px] text-gray-600 font-mono truncate max-w-[150px]">{session.user_email}</div>
-                        {session.ip_address && <div className="text-[9px] text-indigo-400/50 mt-1 font-mono">{session.ip_address}</div>}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex flex-col items-center gap-1">
-                          <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${isActive ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-gray-500/10 text-gray-500 border-gray-500/20'}`}>
-                            {isActive ? 'ONLINE' : 'OFFLINE'}
-                          </span>
-                          {session.is_idle && <span className="text-[7px] text-yellow-500 uppercase font-black tracking-widest">IDLE</span>}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-[10px] bg-white/5 px-3 py-1.5 rounded-xl border border-white/5 inline-block font-mono text-gray-300">
-                           {session.current_page || 'dashboard'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                         <div className="text-[10px] text-gray-500 font-mono italic">{timeAgo(session.last_active_at)}</div>
-                         <div className="text-[8px] text-gray-700 mt-1 uppercase font-bold tracking-tighter truncate max-w-[100px]">{session.user_agent?.split(' ')[0]}</div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ===== TAB: SURVEILLANCE GRID ===== */}
-      {hudTab === 'grid' && (
-        <div>
-          <p className="text-xs text-gray-500 mb-4">{activeStudents.length} active in last 15 minutes • {uniqueCount} total unique students</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {uniqueStudents.map(student => {
-              const isOnline = new Date(student.lastSeen).getTime() > Date.now() - 15 * 60 * 1000;
-              return (
-                <div key={student.email} onClick={() => setSelectedStudent(student.email)} className={`bg-[#1A1A1E]/80 border rounded-xl p-4 cursor-pointer hover:scale-[1.02] transition-all duration-300 ${isOnline ? 'border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.1)]' : 'border-white/5'}`}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center font-bold text-white text-sm">{student.name.charAt(0).toUpperCase()}</div>
-                      <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#1A1A1E] ${isOnline ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)]' : 'bg-gray-600'}`}></span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{student.name}</p>
-                      <p className="text-[10px] text-gray-500 font-mono truncate">{student.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-[10px] mb-2">
-                    <span className={`px-1.5 py-0.5 rounded border font-bold uppercase ${actionColor(student.lastAction)}`}>{student.lastAction.replace(/_/g, ' ')}</span>
-                    <span className="text-gray-600 ml-auto">{timeAgo(student.lastSeen)}</span>
-                  </div>
-                  <div className="flex gap-3 text-[10px] text-gray-500">
-                    <span>📚 {student.completions}</span>
-                    <span>📄 {student.pdfReads}</span>
-                    <span>🎬 {student.videoWatches}</span>
-                    <span>🔗 {student.actionCount} total</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ===== TAB: AUDIT LOG ===== */}
-      {hudTab === 'audit' && (
-        <div>
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <input type="text" placeholder="🔍 Search by student name or email..." value={auditSearch} onChange={e => setAuditSearch(e.target.value)} className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
-            <select value={auditAction} onChange={e => setAuditAction(e.target.value)} className="bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-              <option value="">All Actions</option>
-              {allActions.map(a => <option key={a} value={a}>{a}</option>)}
-            </select>
-            <button onClick={exportCSV} className="px-4 py-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl text-sm font-bold hover:bg-green-500/20 transition shrink-0">
-              📥 Export CSV
+      {tab === 'feed' ? (
+        <div className="space-y-2">
+          {logs.slice(0, 50).map((log, index) => (
+            <button
+              className="flex w-full min-w-0 items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:shadow-md"
+              key={log.id ?? index}
+              onClick={() => setSelectedStudent(log.user_email)}
+              type="button"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-sky-50 font-black text-sky-700">
+                {displayName(log.user_name, log.user_email).charAt(0).toUpperCase()}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-bold text-slate-900">{displayName(log.user_name, log.user_email)}</span>
+                <span className="mt-1 block truncate text-xs text-slate-600">{actionLabel(log.action)}</span>
+              </span>
+              <span className="shrink-0 text-[10px] text-slate-500">{timeAgo(log.created_at)}</span>
             </button>
+          ))}
+          {!logs.length ? <EmptyState label="No recent activity yet." /> : null}
+        </div>
+      ) : null}
+
+      {tab === 'sessions' ? (
+        <div className="grid gap-3 md:grid-cols-2">
+          {sessions.map((session, index) => (
+            <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" key={session.id ?? index}>
+              <div className="flex items-center justify-between gap-3">
+                <p className="min-w-0 truncate font-bold text-slate-900">{namesByKey.get(session.user_email) ?? username(session.user_email)}</p>
+                <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${session.is_idle ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>{session.is_idle ? 'Idle' : 'Active'}</span>
+              </div>
+              <p className="mt-2 truncate text-xs text-slate-600">{session.current_page || '/dashboard'}</p>
+              <p className="mt-1 text-[10px] text-slate-500">Last seen {timeAgo(session.last_active_at)}</p>
+            </article>
+          ))}
+          {!sessions.length ? <EmptyState label="No active sessions." /> : null}
+        </div>
+      ) : null}
+
+      {tab === 'grid' ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {students.map((student) => (
+            <button
+              className="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:shadow-md"
+              key={student.key}
+              onClick={() => setSelectedStudent(student.key)}
+              type="button"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 items-center justify-center rounded-xl bg-sky-50 font-black text-sky-700">{student.displayName.charAt(0).toUpperCase()}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-bold text-slate-900">{student.displayName}</span>
+                  <span className="block text-xs text-slate-500">{timeAgo(student.lastSeen)}</span>
+                </span>
+              </div>
+              <span className={`mt-3 inline-flex rounded-full border px-2 py-1 text-[10px] font-bold ${actionClass(student.lastAction)}`}>{actionLabel(student.lastAction)}</span>
+              <span className="mt-3 grid grid-cols-3 gap-2 text-center text-xs text-slate-600">
+                <span>{student.completions} lessons</span>
+                <span>{student.pdfReads} PDFs</span>
+                <span>{student.videoWatches} videos</span>
+              </span>
+            </button>
+          ))}
+          {!students.length ? <EmptyState label="No students in the activity grid." /> : null}
+        </div>
+      ) : null}
+
+      {tab === 'audit' ? (
+        <div className="space-y-3">
+          <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row">
+            <label className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100" onChange={(event) => setAuditSearch(event.target.value)} placeholder="Search student or action" value={auditSearch} />
+            </label>
+            <select className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900" onChange={(event) => setAuditAction(event.target.value)} value={auditAction}>
+              <option value="">All actions</option>
+              {actions.map((action) => <option key={action} value={action}>{actionLabel(action)}</option>)}
+            </select>
+            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 text-sm font-bold text-sky-700 hover:bg-sky-100" onClick={exportCsv} type="button"><Download className="size-4" /> Export</button>
           </div>
-          <p className="text-xs text-gray-500 mb-3">{filteredAuditLogs.length} records found</p>
-          <div className="bg-black/40 rounded-2xl border border-white/10 overflow-hidden">
-            <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
-              <table className="w-full text-left text-xs text-gray-300">
-                <thead className="bg-[#1A1A1E] sticky top-0 z-10">
-                  <tr>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-widest text-gray-400">Timestamp</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-widest text-gray-400">Student</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-widest text-gray-400">Action</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-widest text-gray-400">Details</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-widest text-gray-400">Page</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {filteredAuditLogs.slice(0, 100).map((log: any, i: number) => (
-                    <tr key={log.id || i} className="hover:bg-white/5 transition cursor-pointer" onClick={() => setSelectedStudent(log.user_email)}>
-                      <td className="px-4 py-3 font-mono text-gray-500 whitespace-nowrap">{new Date(log.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
-                      <td className="px-4 py-3"><span className="text-white font-medium">{log.user_name || log.user_email.split('@')[0]}</span></td>
-                      <td className="px-4 py-3"><span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border ${actionColor(log.action)}`}>{log.action}</span></td>
-                      <td className="px-4 py-3 text-gray-500 max-w-[200px] truncate">{log.details ? JSON.stringify(log.details).substring(0, 50) : '—'}</td>
-                      <td className="px-4 py-3 text-gray-600 max-w-[150px] truncate font-mono">{log.url?.split('/').pop() || '—'}</td>
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500"><tr><th className="p-3">Time</th><th className="p-3">Student name</th><th className="p-3">Action summary</th><th className="p-3">Page</th></tr></thead>
+                <tbody className="divide-y divide-slate-200">
+                  {filteredLogs.slice(0, 100).map((log, index) => (
+                    <tr className="hover:bg-slate-50" key={log.id ?? index}>
+                      <td className="whitespace-nowrap p-3 text-slate-500">{new Date(log.created_at).toLocaleString()}</td>
+                      <td className="p-3 font-bold text-slate-900">{displayName(log.user_name, log.user_email)}</td>
+                      <td className="p-3">{actionLabel(log.action)}</td>
+                      <td className="max-w-40 truncate p-3 text-slate-500">{log.url || '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -547,115 +409,42 @@ export default function LiveActivityFeed({ initialLogs, initialSessions, initial
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* ===== TAB: SHADOW MODE ===== */}
-      {hudTab === 'shadow' && (
-        <div>
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
-            <select value={shadowTarget || ''} onChange={e => setShadowTarget(e.target.value || null)} className="flex-1 bg-[#1A1A1E] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-red-500 outline-none">
-              <option value="">— Select target to shadow —</option>
-              {uniqueStudents.map(s => <option key={s.email} value={s.email}>{s.name} ({s.email})</option>)}
-            </select>
-            {shadowTarget && (
-              <button onClick={() => setShadowTarget(null)} className="px-4 py-3 bg-white/5 border border-white/10 text-gray-400 rounded-xl text-sm font-bold hover:bg-white/10 transition">
-                ✕ End Shadow
-              </button>
-            )}
-          </div>
-
-          {!shadowTarget ? (
-            <div className="text-center py-16 text-gray-500">
-              <div className="text-5xl mb-4">🎯</div>
-              <p className="text-lg font-bold text-gray-400">Shadow Mode</p>
-              <p className="text-sm mt-1">Select a student above to watch their every move in real-time.</p>
+      {selected ? (
+        <div className="fixed inset-0 z-[200] flex justify-end bg-slate-950/30" onClick={() => setSelectedStudent(null)}>
+          <aside className="h-full w-full max-w-md overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="flex items-center gap-2 text-lg font-black text-slate-900"><CircleUserRound className="size-5 text-sky-600" /> Student activity</h3>
+              <button aria-label="Close student activity" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" onClick={() => setSelectedStudent(null)} type="button"><X className="size-5" /></button>
             </div>
-          ) : (
-            <div>
-              <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-4 flex items-center gap-3">
-                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
-                <p className="text-sm text-red-300 font-bold">SHADOWING: {shadowTarget}</p>
-                <p className="text-xs text-red-400/60 ml-auto">{shadowLogs.length} events captured</p>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-250px)] overflow-hidden">
-                 {/* SURVEILLANCE DATA */}
-                 <div className="lg:col-span-8 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
-                    {shadowLogs.length === 0 && <p className="text-center py-12 text-gray-500 italic">Waiting for target activity...</p>}
-                    {shadowLogs.map((log: any, i: number) => (
-                      <div key={log.id || i} className="bg-[#1A1A1E]/80 border border-white/5 rounded-xl p-4 flex items-start gap-4 hover:bg-white/5 transition relative overflow-hidden group">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-red-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="shrink-0 mt-1">
-                          <div className={`w-2 h-2 rounded-full ${log.action.includes('CLICK') ? 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]' : log.action.includes('SCROLL') ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'}`}></div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${actionColor(log.action)}`}>{log.action.replace(/_/g, ' ')}</span>
-                            <span className="text-[10px] text-gray-600 font-mono ml-auto">{new Date(log.created_at).toLocaleTimeString()}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2 mt-1">
-                             {log.details && Object.entries(log.details).map(([k, v]) => (
-                               <span key={k} className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-gray-400 border border-white/5">
-                                 <span className="text-gray-600">{k}:</span> <span className="text-white">{String(v).substring(0, 80)}</span>
-                               </span>
-                             ))}
-                             {log.geo_city && <span className="text-[10px] bg-indigo-500/10 px-2 py-0.5 rounded text-indigo-400 border border-indigo-500/10">📍 {log.geo_city}</span>}
-                          </div>
-                          {log.url && <p className="text-[10px] text-gray-700 mt-2 font-mono truncate hover:text-indigo-400 transition-colors cursor-help" title={log.url}>🔗 {log.url}</p>}
-                        </div>
-                      </div>
-                    ))}
-                 </div>
-
-                 {/* LIVE ANALYTICS HUD */}
-                 <div className="lg:col-span-4 flex flex-col gap-6">
-                    <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6 relative overflow-hidden">
-                       <div className="absolute top-0 right-0 w-16 h-16 bg-red-500/10 blur-xl rounded-full"></div>
-                       <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-red-400 mb-4 opacity-60">Session Viewport</h5>
-                       <div className="mb-6">
-                          <div className="flex justify-between items-end mb-2">
-                             <div className="text-3xl font-black text-white">{shadowLogs.find(l => l.action === 'USER_SCROLL')?.details?.percent || 0}<span className="text-sm text-gray-500 ml-1">%</span></div>
-                             <div className="text-[9px] font-bold text-red-500/60 uppercase">Position Trace</div>
-                          </div>
-                          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                             <div className="h-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] transition-all duration-1000" style={{ width: `${shadowLogs.find(l => l.action === 'USER_SCROLL')?.details?.percent || 0}%` }}></div>
-                          </div>
-                       </div>
-                       <div className="space-y-4">
-                          <div className="flex justify-between items-center text-[10px] font-bold">
-                             <span className="text-gray-600 uppercase tracking-widest">Target Intel</span>
-                             <span className="text-white truncate max-w-[150px]">{shadowTarget}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-[10px] font-bold">
-                             <span className="text-gray-600 uppercase tracking-widest">Active Path</span>
-                             <span className="text-red-400 truncate max-w-[150px]">{shadowLogs[0]?.url?.split('/').pop() || '/dashboard'}</span>
-                          </div>
-                       </div>
-                    </div>
-
-                    <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-2xl p-6 overflow-hidden flex flex-col">
-                       <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-4 opacity-60">Interaction Breadcrumbs</h5>
-                       <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-                          {shadowLogs.filter(l => l.action === 'USER_CLICK').slice(0, 10).map((l, i) => (
-                            <div key={i} className="bg-black/40 border border-white/5 rounded-xl p-3 animate-in slide-in-from-right-2">
-                               <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Click Trace</p>
-                               <p className="text-[11px] text-white font-bold leading-tight line-clamp-2">&ldquo;{l.details?.text}&rdquo;</p>
-                               <p className="text-[8px] text-gray-600 mt-2 uppercase font-black">{l.details?.tag} • {timeAgo(l.created_at)}</p>
-                            </div>
-                          ))}
-                          {shadowLogs.filter(l => l.action === 'USER_CLICK').length === 0 && (
-                            <div className="h-full flex flex-col items-center justify-center opacity-10">
-                               <div className="text-4xl mb-2">🖱️</div>
-                               <p className="text-[9px] font-black uppercase tracking-widest text-center">No detailed interaction data yet.</p>
-                            </div>
-                          )}
-                       </div>
-                    </div>
-                 </div>
-              </div>
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
+              <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-sky-100 text-xl font-black text-sky-700">{selected.displayName.charAt(0).toUpperCase()}</span>
+              <h4 className="mt-3 font-black text-slate-900">{selected.displayName}</h4>
+              <p className="mt-1 text-xs text-slate-600">{selected.city}, {selected.country}</p>
             </div>
-          )}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {[['Completions', selected.completions], ['Logins', selected.logins], ['PDFs read', selected.pdfReads], ['Videos', selected.videoWatches]].map(([label, value]) => (
+                <div className="rounded-xl border border-slate-200 bg-white p-3 text-center shadow-sm" key={label}><p className="text-xl font-black text-slate-900">{value}</p><p className="text-[10px] uppercase tracking-wider text-slate-500">{label}</p></div>
+              ))}
+            </div>
+            <h5 className="mt-6 text-xs font-black uppercase tracking-wider text-slate-500">Recent actions</h5>
+            <div className="mt-2 space-y-2">
+              {logs.filter((log) => log.user_email === selected.key).slice(0, 20).map((log, index) => (
+                <div className="rounded-xl border border-slate-200 bg-white p-3" key={log.id ?? index}><p className="font-bold text-slate-900">{actionLabel(log.action)}</p><p className="mt-1 text-xs text-slate-500">{timeAgo(log.created_at)}</p></div>
+              ))}
+            </div>
+          </aside>
         </div>
-      )}
+      ) : null}
+    </div>
+  );
+}
+
+function EmptyState({ label }: { label: string }) {
+  return (
+    <div className="col-span-full rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
+      {label}
     </div>
   );
 }

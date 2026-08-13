@@ -126,18 +126,18 @@ export async function getK12ManagerData() {
     }),
     prisma.user.findMany({
       where: { role: 'TEACHER', status: 'ACTIVE' },
-      orderBy: [{ name: 'asc' }, { email: 'asc' }],
-      select: { email: true, id: true, name: true },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+      select: { id: true, name: true },
     }),
     prisma.user.findMany({
       where: { role: 'STUDENT', status: 'ACTIVE' },
-      orderBy: [{ name: 'asc' }, { email: 'asc' }],
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
       select: {
         _count: { select: { enrollments: true } },
-        email: true,
         gradeLevel: true,
         id: true,
         name: true,
+        phoneNumber: true,
       },
     }),
   ]);
@@ -164,11 +164,11 @@ export async function getK12ManagerData() {
       }),
     })),
     students: students.map((student) => ({
-      email: student.email,
       enrolledCourses: student._count.enrollments,
       gradeLevel: student.gradeLevel,
       id: student.id,
       name: student.name,
+      phoneNumber: student.phoneNumber,
     })),
     teachers,
   };

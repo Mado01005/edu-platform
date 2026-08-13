@@ -54,14 +54,14 @@ export default function ActiveSessionsFeed() {
     <div className="space-y-6 fade-in">
       <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-4">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>
             Active Sessions
           </h2>
           <p className="text-sm text-gray-400 mt-1">Real-time tracker of all connected network users and their location.</p>
         </div>
         <div className="text-right">
-           <p className="text-3xl font-black text-white">{activeSessions.length}</p>
+           <p className="text-3xl font-black text-slate-900">{activeSessions.length}</p>
            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Online Now</p>
         </div>
       </div>
@@ -69,15 +69,15 @@ export default function ActiveSessionsFeed() {
       {/* Modern Connected Clients Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {sessions.length === 0 && (
-          <div className="col-span-full py-10 text-center text-gray-400 italic bg-white/5 rounded-xl border border-white/10">No users connected.</div>
+          <div className="col-span-full py-10 text-center text-slate-600 italic bg-slate-50 rounded-xl border border-slate-200">No users connected.</div>
         )}
         {sessions.map(session => (
-          <div key={session.id} className="relative bg-[#1A1A1E] border border-white/5 rounded-2xl p-5 shadow-xl hover:bg-white/5 transition duration-300 overflow-hidden group">
+          <div key={session.id} className="relative bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-sky-300 transition duration-300 overflow-hidden group">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
             
             <div className="flex justify-between items-start mb-4">
                <div>
-                 <p className="font-bold text-white text-sm break-all">{session.user_email}</p>
+                 <p className="font-bold text-slate-900 text-sm break-all">{session.user_email.split('@')[0] || 'User'}</p>
                  <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1 max-w-[200px] truncate" title={session.user_agent}>{session.user_agent.split(' ')[0]}</p>
                </div>
                {session.is_idle ? (

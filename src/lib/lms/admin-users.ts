@@ -1,8 +1,16 @@
 import 'server-only';
 
-import type { AccountStatus, Prisma, Role } from '@prisma/client';
+import type {
+  AccountStatus,
+  GradeLevel,
+  Prisma,
+  Role,
+  SubscriptionStatus,
+} from '@prisma/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { getPrisma } from '@/lib/prisma';
+import { isGradeLevel } from '@/lib/lms/k12';
+import { normalizePhoneNumber } from '@/lib/phone';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export { isLmsRole } from '@/lib/lms/roles';
@@ -27,6 +35,116 @@ export function isLmsAccountStatus(value: unknown): value is AccountStatus {
     typeof value === 'string' &&
     LMS_ACCOUNT_STATUSES.includes(value as AccountStatus)
   );
+}
+
+const EDITABLE_SUBSCRIPTION_STATUSES = [
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+  'EXPIRED',
+] as const satisfies readonly SubscriptionStatus[];
+
+function readName(value: unknown) {
+  if (typeof value !== 'string') {
+    throw new AdminUserError('Student name is required.');
+  }
+  const name = value.trim();
+  if (name.length < 2 || name.length > 100) {
+    throw new AdminUserError('Student name must be between 2 and 100 characters.');
+  }
+  return name;
+}
+
+function readPhoneNumber(value: unknown) {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value !== 'string') {
+    throw new AdminUserError('Phone number must be text.');
+  }
+  const phoneNumber = normalizePhoneNumber(value);
+  if (!phoneNumber) {
+    throw new AdminUserError('Enter a valid international phone number.');
+  }
+  return phoneNumber;
+}
+
+export function readAdminProfileUpdate(value: unknown) {
+  if (!value || typeof value !== 'object') {
+    throw new AdminUserError('A valid profile update is required.');
+  }
+  const targetId = Reflect.get(value, 'targetId');
+  const gradeLevel = Reflect.get(value, 'gradeLevel');
+  if (
+    typeof targetId !== 'string' ||
+    targetId.length < 1 ||
+    targetId.length > 128
+  ) {
+    throw new AdminUserError('A valid target account is required.');
+  }
+  if (gradeLevel !== null && !isGradeLevel(gradeLevel)) {
+    throw new AdminUserError('Choose a valid grade level.');
+  }
+  return {
+    gradeLevel: gradeLevel as GradeLevel | null,
+    name: readName(Reflect.get(value, 'name')),
+    phoneNumber: readPhoneNumber(Reflect.get(value, 'phoneNumber')),
+    targetId,
+  };
+}
+
+export type AdminCourseAccessUpdate = {
+  courseId: string;
+  hasAccess: boolean;
+  paymentStatus: SubscriptionStatus | null;
+};
+
+export function readAdminCourseAccessUpdate(value: unknown) {
+  if (!value || typeof value !== 'object') {
+    throw new AdminUserError('A valid course access update is required.');
+  }
+  const targetId = Reflect.get(value, 'targetId');
+  const courses = Reflect.get(value, 'courses');
+  if (
+    typeof targetId !== 'string' ||
+    targetId.length < 1 ||
+    targetId.length > 128
+  ) {
+    throw new AdminUserError('A valid target account is required.');
+  }
+  if (!Array.isArray(courses) || courses.length > 250) {
+    throw new AdminUserError('Choose a valid course access list.');
+  }
+  const parsed: AdminCourseAccessUpdate[] = courses.map((course) => {
+    const courseId = course && typeof course === 'object'
+      ? Reflect.get(course, 'courseId')
+      : null;
+    const hasAccess = course && typeof course === 'object'
+      ? Reflect.get(course, 'hasAccess')
+      : null;
+    const paymentStatus = course && typeof course === 'object'
+      ? Reflect.get(course, 'paymentStatus')
+      : null;
+    if (
+      typeof courseId !== 'string' ||
+      courseId.length < 1 ||
+      courseId.length > 128 ||
+      typeof hasAccess !== 'boolean' ||
+      (paymentStatus !== null &&
+        !EDITABLE_SUBSCRIPTION_STATUSES.includes(
+          paymentStatus as SubscriptionStatus,
+        ))
+    ) {
+      throw new AdminUserError('Choose valid course access and payment values.');
+    }
+    return {
+      courseId,
+      hasAccess,
+      paymentStatus: paymentStatus as SubscriptionStatus | null,
+    };
+  });
+  if (new Set(parsed.map(({ courseId }) => courseId)).size !== parsed.length) {
+    throw new AdminUserError('Each course can only be updated once.');
+  }
+  return { courses: parsed, targetId };
 }
 
 async function requireExactAuthUser(
@@ -480,4 +598,186 @@ export async function updateLmsUserStatus({
   }
 
   return updated;
+}
+
+export async function updateLmsUserProfile({
+  actorRole,
+  gradeLevel,
+  name,
+  phoneNumber,
+  targetId,
+}: {
+  actorRole: Role;
+  gradeLevel: GradeLevel | null;
+  name: string;
+  phoneNumber: string | null;
+  targetId: string;
+}) {
+  const prisma = getPrisma();
+  const target = await prisma.user.findUnique({
+    where: { id: targetId },
+    select: {
+      email: true,
+      gradeLevel: true,
+      id: true,
+      name: true,
+      phoneNumber: true,
+      phoneVerified: true,
+      role: true,
+      supabaseId: true,
+    },
+  });
+  if (!target) throw new AdminUserError('User not found.', 404);
+  assertActorCanManageRole(actorRole, target.role);
+  const authUser = await requireExactAuthUser(target.supabaseId, target.email);
+  const nextGradeLevel = target.role === 'STUDENT' ? gradeLevel : null;
+
+  let updated;
+  try {
+    updated = await prisma.user.update({
+      where: { id: target.id },
+      data: {
+        gradeLevel: nextGradeLevel,
+        name,
+        phoneNumber,
+        phoneVerified:
+          phoneNumber === target.phoneNumber ? target.phoneVerified : false,
+      },
+      select: {
+        gradeLevel: true,
+        id: true,
+        name: true,
+        phoneNumber: true,
+        phoneVerified: true,
+      },
+    });
+  } catch (error) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      Reflect.get(error, 'code') === 'P2002'
+    ) {
+      throw new AdminUserError(
+        'That phone number is already linked to another account.',
+        409,
+      );
+    }
+    throw error;
+  }
+
+  const { error: authError } =
+    await getSupabaseAdminClient().auth.admin.updateUserById(
+      target.supabaseId,
+      {
+        user_metadata: {
+          ...(authUser.user_metadata ?? {}),
+          full_name: name,
+          name,
+          phone_number: phoneNumber,
+        },
+      },
+    );
+  if (authError) {
+    await prisma.user.update({
+      where: { id: target.id },
+      data: {
+        gradeLevel: target.gradeLevel,
+        name: target.name,
+        phoneNumber: target.phoneNumber,
+        phoneVerified: target.phoneVerified,
+      },
+    });
+    throw new AdminUserError(
+      `Unable to synchronize the account profile: ${authError.message}`,
+      502,
+    );
+  }
+  return updated;
+}
+
+export async function updateStudentCourseAccess({
+  actorId,
+  actorRole,
+  courses,
+  targetId,
+}: {
+  actorId: string;
+  actorRole: Role;
+  courses: AdminCourseAccessUpdate[];
+  targetId: string;
+}) {
+  const prisma = getPrisma();
+  const target = await prisma.user.findUnique({
+    where: { id: targetId },
+    select: { id: true, role: true },
+  });
+  if (!target) throw new AdminUserError('User not found.', 404);
+  assertActorCanManageRole(actorRole, target.role);
+  if (target.role !== 'STUDENT') {
+    throw new AdminUserError('Course access is available for students only.');
+  }
+
+  const existingCourses = courses.length
+    ? await prisma.course.findMany({
+        where: { id: { in: courses.map(({ courseId }) => courseId) } },
+        select: { id: true },
+      })
+    : [];
+  if (existingCourses.length !== courses.length) {
+    throw new AdminUserError('One or more selected courses no longer exist.', 409);
+  }
+
+  await prisma.$transaction(async (transaction) => {
+    for (const course of courses) {
+      if (course.hasAccess) {
+        await transaction.enrollment.upsert({
+          where: {
+            studentId_courseId: { courseId: course.courseId, studentId: target.id },
+          },
+          create: { courseId: course.courseId, studentId: target.id },
+          update: {},
+        });
+      } else {
+        await transaction.enrollment.deleteMany({
+          where: { courseId: course.courseId, studentId: target.id },
+        });
+      }
+
+      if (course.paymentStatus) {
+        const approved = course.paymentStatus === 'APPROVED';
+        await transaction.studentSubscription.upsert({
+          where: {
+            studentId_courseId: { courseId: course.courseId, studentId: target.id },
+          },
+          create: {
+            approvedAt: approved ? new Date() : null,
+            approvedById: approved ? actorId : null,
+            courseId: course.courseId,
+            status: course.paymentStatus,
+            studentId: target.id,
+          },
+          update: {
+            approvedAt: approved ? new Date() : null,
+            approvedById: approved ? actorId : null,
+            status: course.paymentStatus,
+          },
+        });
+      }
+    }
+  });
+
+  const [enrollments, subscriptions] = await Promise.all([
+    prisma.enrollment.findMany({
+      where: { studentId: target.id },
+      select: { courseId: true },
+    }),
+    prisma.studentSubscription.findMany({
+      where: { studentId: target.id },
+      select: { courseId: true, status: true },
+    }),
+  ]);
+  return {
+    enrolledCourseIds: enrollments.map(({ courseId }) => courseId),
+    subscriptions,
+  };
 }

@@ -206,7 +206,7 @@ export default function FocusAnalyticsTab() {
                 try {
                   return velocityData && velocityData.map((item, idx) => (
                     <tr key={`${item.user_id}_${item.lesson_id}`} className="hover:bg-red-500/5 transition-colors">
-                      <td className="p-6 font-bold text-white max-w-xs truncate">{item.email}</td>
+                      <td className="p-6 font-bold text-white max-w-xs truncate">{item.email.split('@')[0] || 'Student'}</td>
                       <td className="p-6 font-bold text-gray-300 max-w-[200px] truncate" title={item.lesson_name}>{item.lesson_name}</td>
                       <td className="p-6">
                         <span className="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-xs font-black tabular-nums">

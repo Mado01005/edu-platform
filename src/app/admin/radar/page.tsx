@@ -11,6 +11,7 @@ import {
 } from '@/lib/lms/health';
 import { isGradeLevel } from '@/lib/lms/k12';
 import { ADMIN_ROLES } from '@/lib/lms/roles';
+import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,21 +47,43 @@ export default async function StudentRadarPage({
       ? rawStatus
       : 'ALL';
   const query = firstValue(params.q).trim().slice(0, 160);
-  const radar = await getStudentHealthRadarPage({
-    gradeLevel,
-    page: Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1,
-    query,
-    status,
+  const prisma = getPrisma();
+  const [radar, availableCourses] = await Promise.all([
+    getStudentHealthRadarPage({
+      gradeLevel,
+      page: Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1,
+      query,
+      status,
+    }),
+    prisma.course.findMany({
+      orderBy: { title: 'asc' },
+      select: { id: true, title: true },
+    }),
+  ]);
+  const accessRows = await prisma.user.findMany({
+    where: { id: { in: radar.students.map(({ id }) => id) } },
+    select: {
+      enrollments: { select: { courseId: true } },
+      id: true,
+      studentSubscriptions: { select: { courseId: true, status: true } },
+    },
   });
+  const accessByStudentId = new Map(accessRows.map((row) => [row.id, row]));
   const students: RadarStudent[] = radar.students.map((score) => ({
     assignmentScore: score.assignmentScore,
-    email: score.email,
+    enrolledCourseIds:
+      accessByStudentId.get(score.id)?.enrollments.map(({ courseId }) => courseId) ?? [],
     gradeLevel: score.gradeLevel,
     healthPercentage: score.healthPercentage,
     id: score.id,
     isAtRisk: score.isAtRisk,
     lastLoginAt: score.lastLoginAt.toISOString(),
     name: score.name,
+    phoneNumber: score.phoneNumber,
+    role: 'STUDENT',
+    status: 'ACTIVE',
+    subscriptions:
+      accessByStudentId.get(score.id)?.studentSubscriptions ?? [],
     videoCompletion: score.videoCompletion,
   }));
 
@@ -84,6 +107,8 @@ export default async function StudentRadarPage({
       </header>
       <StudentRadar
         atRiskCount={radar.atRiskCount}
+        availableCourses={availableCourses}
+        currentAdminRole={admin.role}
         filteredCount={radar.filteredCount}
         filters={{
           grade: gradeLevel ?? 'ALL',

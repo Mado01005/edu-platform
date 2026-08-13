@@ -67,13 +67,13 @@ export function calculateStudentHealth({
 
 export type StudentHealthRadarRecord = {
   assignmentScore: number;
-  email: string;
   gradeLevel: GradeLevel | null;
   healthPercentage: number;
   id: string;
   isAtRisk: boolean;
   lastLoginAt: Date;
   name: string | null;
+  phoneNumber: string | null;
   videoCompletion: number;
 };
 
@@ -170,8 +170,8 @@ export async function getStudentHealthRadarPage({
   if (normalizedQuery) {
     filters.push({
       OR: [
-        { email: { contains: normalizedQuery, mode: 'insensitive' } },
         { name: { contains: normalizedQuery, mode: 'insensitive' } },
+        { phoneNumber: { contains: normalizedQuery, mode: 'insensitive' } },
       ],
     });
   }
@@ -204,10 +204,9 @@ export async function getStudentHealthRadarPage({
   const safePage = Math.min(pageCount, Math.max(1, Math.floor(page)));
   const students = await prisma.user.findMany({
     where,
-    orderBy: [{ gradeLevel: 'asc' }, { name: 'asc' }, { email: 'asc' }],
+    orderBy: [{ gradeLevel: 'asc' }, { name: 'asc' }, { id: 'asc' }],
     select: {
       createdAt: true,
-      email: true,
       gradeLevel: true,
       healthScore: {
         select: {
@@ -218,6 +217,7 @@ export async function getStudentHealthRadarPage({
       },
       id: true,
       name: true,
+      phoneNumber: true,
     },
     skip: (safePage - 1) * safePageSize,
     take: safePageSize,
@@ -241,13 +241,13 @@ export async function getStudentHealthRadarPage({
 
       return {
         assignmentScore: score.assignmentScore,
-        email: student.email,
         gradeLevel: student.gradeLevel,
         healthPercentage: score.healthPercentage,
         id: student.id,
         isAtRisk: score.isAtRisk,
         lastLoginAt,
         name: student.name,
+        phoneNumber: student.phoneNumber,
         videoCompletion: score.videoCompletion,
       };
     }),
@@ -268,15 +268,15 @@ export async function recalculateStudentHealthScores(
     },
     select: {
       createdAt: true,
-      email: true,
       gradeLevel: true,
       healthScore: {
         select: { lastLoginAt: true },
       },
       id: true,
       name: true,
+      phoneNumber: true,
     },
-    orderBy: [{ gradeLevel: 'asc' }, { name: 'asc' }, { email: 'asc' }],
+    orderBy: [{ gradeLevel: 'asc' }, { name: 'asc' }, { id: 'asc' }],
   });
 
   if (!students.length) return [];
@@ -406,13 +406,13 @@ export async function recalculateStudentHealthScores(
 
     return {
       assignmentScore: score.assignmentScore,
-      email: student.email,
       gradeLevel: student.gradeLevel,
       healthPercentage: score.healthPercentage,
       id: student.id,
       isAtRisk: score.isAtRisk,
       lastLoginAt,
       name: student.name,
+      phoneNumber: student.phoneNumber,
       videoCompletion: score.videoCompletion,
     };
   });

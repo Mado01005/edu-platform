@@ -17,33 +17,39 @@ export const dynamic = 'force-dynamic';
 export default async function AdminUsersPage() {
   const admin = await requireAdminPage();
   const prisma = getPrisma();
-  const [usersResult, parentLinksResult, authUsersResult, storageResult] =
+  const [usersResult, coursesResult, parentLinksResult, authUsersResult, storageResult] =
     await Promise.allSettled([
       prisma.user.findMany({
         orderBy: { createdAt: 'desc' },
         select: {
-          _count: { select: { enrollments: true } },
           createdAt: true,
-          email: true,
+          enrollments: { select: { courseId: true } },
+          gradeLevel: true,
           id: true,
           name: true,
           phoneNumber: true,
           role: true,
           status: true,
           supabaseId: true,
+          studentSubscriptions: {
+            select: { courseId: true, status: true },
+          },
         },
+      }),
+      prisma.course.findMany({
+        orderBy: { title: 'asc' },
+        select: { id: true, title: true },
       }),
       prisma.parentStudent.findMany({
         include: {
           parent: {
             select: {
-              email: true,
               id: true,
               name: true,
               phoneNumber: true,
             },
           },
-          student: { select: { email: true, id: true, name: true } },
+          student: { select: { id: true, name: true } },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -52,6 +58,7 @@ export default async function AdminUsersPage() {
     ]);
 
   if (usersResult.status === 'rejected') throw usersResult.reason;
+  if (coursesResult.status === 'rejected') throw coursesResult.reason;
   if (parentLinksResult.status === 'rejected') throw parentLinksResult.reason;
 
   const users = usersResult.value;
@@ -84,13 +91,16 @@ export default async function AdminUsersPage() {
       avatarUrl:
         typeof avatarCandidate === 'string' ? avatarCandidate : null,
       createdAt: user.createdAt.toISOString(),
-      email: user.email,
       emailConfirmed: Boolean(authUser?.email_confirmed_at),
-      enrolledCourses: user._count.enrollments,
+      enrolledCourseIds: user.enrollments.map(({ courseId }) => courseId),
+      enrolledCourses: user.enrollments.length,
+      gradeLevel: user.gradeLevel,
       id: user.id,
       name: user.name,
+      phoneNumber: user.phoneNumber,
       role: user.role,
       status: user.status,
+      subscriptions: user.studentSubscriptions,
     };
   });
 
@@ -130,6 +140,7 @@ export default async function AdminUsersPage() {
 
         <UserManagementConsole
           authStatusAvailable={authStatusAvailable}
+          availableCourses={coursesResult.value}
           currentAdminId={admin.id}
           currentAdminRole={admin.role}
           initialUsers={records}
@@ -137,12 +148,12 @@ export default async function AdminUsersPage() {
         <ParentAccessManager
           links={parentLinks.map((link) => ({
             parentId: link.parentId,
-            parentName: link.parent.name ?? link.parent.phoneNumber ?? link.parent.email,
+            parentName: link.parent.name ?? link.parent.phoneNumber ?? `Parent ${link.parent.id.slice(-6)}`,
             studentId: link.studentId,
-            studentName: link.student.name ?? link.student.email,
+            studentName: link.student.name ?? `Student ${link.student.id.slice(-6)}`,
           }))}
-          parents={users.filter((user) => user.role === 'PARENT' && user.status === 'ACTIVE').map((user) => ({ id: user.id, label: `${user.name ?? 'Parent'} · ${user.phoneNumber ?? user.email}` }))}
-          students={users.filter((user) => user.role === 'STUDENT' && user.status === 'ACTIVE').map((user) => ({ id: user.id, label: `${user.name ?? 'Student'} · ${user.email}` }))}
+          parents={users.filter((user) => user.role === 'PARENT' && user.status === 'ACTIVE').map((user) => ({ id: user.id, label: `${user.name ?? `Parent ${user.id.slice(-6)}`} · ${user.phoneNumber ?? 'No phone provided'}` }))}
+          students={users.filter((user) => user.role === 'STUDENT' && user.status === 'ACTIVE').map((user) => ({ id: user.id, label: `${user.name ?? `Student ${user.id.slice(-6)}`} · ${user.phoneNumber ?? 'No phone provided'}` }))}
         />
     </PortalShell>
   );

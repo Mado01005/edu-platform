@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 
 type TeacherOption = {
-  email: string;
   id: string;
   name: string | null;
 };
@@ -29,11 +28,11 @@ type GradeCard = {
 };
 
 type StudentRecord = {
-  email: string;
   enrolledCourses: number;
   gradeLevel: GradeLevel | null;
   id: string;
   name: string | null;
+  phoneNumber: string | null;
 };
 
 interface K12ManagerProps {
@@ -55,7 +54,7 @@ async function readResponse<T>(response: Response): Promise<T> {
 }
 
 function accountLabel(student: StudentRecord) {
-  return student.name?.trim() || student.email;
+  return student.name?.trim() || `Student ${student.id.slice(-6)}`;
 }
 
 export function K12Manager({
@@ -87,8 +86,8 @@ export function K12Manager({
       students.filter(
         (student) =>
           !normalizedQuery ||
-          student.email.toLowerCase().includes(normalizedQuery) ||
-          student.name?.toLowerCase().includes(normalizedQuery),
+          student.name?.toLowerCase().includes(normalizedQuery) ||
+          student.phoneNumber?.toLowerCase().includes(normalizedQuery),
       ),
     [normalizedQuery, students],
   );
@@ -148,7 +147,7 @@ export function K12Manager({
 
       const teacher = teachers.find(({ id }) => id === subject.teacherId);
       setSubjectNotice(
-        `${subjectName} in ${gradeLabels.get(grade)} is assigned to ${teacher?.name?.trim() || teacher?.email || 'the selected teacher'}.`,
+        `${subjectName} in ${gradeLabels.get(grade)} is assigned to ${teacher?.name?.trim() || 'the selected teacher'}.`,
       );
     } catch (error) {
       setSubjectError(
@@ -341,7 +340,7 @@ export function K12Manager({
                           <option value="">Assign primary teacher</option>
                           {teachers.map((teacher) => (
                             <option key={teacher.id} value={teacher.id}>
-                              {teacher.name?.trim() || teacher.email}
+                              {teacher.name?.trim() || `Teacher ${teacher.id.slice(-6)}`}
                             </option>
                           ))}
                         </select>
@@ -402,7 +401,7 @@ export function K12Manager({
           <input
             className="h-12 w-full min-w-0 rounded-xl border border-white/10 bg-black pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-cyan-400/50 focus:ring-4 focus:ring-cyan-400/10"
             onChange={(event) => setStudentQuery(event.target.value)}
-            placeholder="Search name or email"
+            placeholder="Search name or phone"
             type="search"
             value={studentQuery}
           />
@@ -455,7 +454,7 @@ export function K12Manager({
                   {accountLabel(student)}
                 </span>
                 <span className="mt-0.5 block truncate text-xs text-zinc-500">
-                  {student.email}
+                  {student.phoneNumber || 'No phone provided'}
                 </span>
                 <span className="mt-2 flex min-w-0 flex-wrap gap-2 text-[10px] font-bold text-zinc-400">
                   <span className="rounded-full bg-white/5 px-2 py-1">

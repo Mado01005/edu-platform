@@ -1,10 +1,23 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
+import { ADMIN_ROLES } from '@/lib/lms/roles';
+
+async function hasAdminSession() {
+  try {
+    await requireLmsRole(ADMIN_ROLES);
+    return true;
+  } catch (error) {
+    if (!(error instanceof LmsAuthError)) throw error;
+  }
+
+  const legacySession = await auth();
+  return Boolean(legacySession?.user?.isAdmin);
+}
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.isAdmin) {
+  if (!(await hasAdminSession())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
