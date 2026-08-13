@@ -35,6 +35,7 @@ import {
   normalizePhoneNumber,
 } from '@/lib/phone';
 import { createSupabaseBrowserClient } from '@/lib/supabase/ssr-client';
+import { getApplicationOAuthCallbackUrl } from '@/lib/supabase/config';
 import { cn } from '@/lib/utils';
 
 type AuthMode =
@@ -212,11 +213,7 @@ export function LmsAuthExperience({
     if (!origin) {
       throw new Error('The authentication callback origin is not configured.');
     }
-
-    const callback = new URL('/auth/callback', origin);
-    if (!next) return callback.toString();
-    callback.searchParams.set('next', next);
-    return callback.toString();
+    return getApplicationOAuthCallbackUrl(origin, next);
   }
 
   async function handleSignIn(event: FormEvent<HTMLFormElement>) {
