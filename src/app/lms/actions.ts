@@ -14,6 +14,7 @@ import {
 } from '@/lib/lms/auth';
 import { TEACHING_ROLES, isAdminRole } from '@/lib/lms/roles';
 import { recalculateStudentHealthScores } from '@/lib/lms/health';
+import { resolvePlayableLessonVideo } from '@/lib/lms/course-player';
 import { getVideoEmbedUrl } from '@/lib/lms/video';
 import { cairoDateTimeLocalToUtc } from '@/lib/lms/timezone';
 import { resolveCurriculumTeacherId } from '@/lib/lms/curriculum-owner';
@@ -698,11 +699,27 @@ export async function updateLessonProgressAction(
     select: {
       contentType: true,
       module: { select: { courseId: true } },
+      videoUrl: true,
+      videoUrl1080: true,
+      videoUrl360: true,
+      videoUrl480: true,
+      videoUrl720: true,
     },
   });
 
   if (!lesson) throw new Error('Lesson not found.');
-  if (['R2_VIDEO', 'VIMEO', 'YOUTUBE'].includes(lesson.contentType)) {
+  if (
+    resolvePlayableLessonVideo({
+      contentType: lesson.contentType,
+      qualitySources: {
+        '1080p': lesson.videoUrl1080,
+        '360p': lesson.videoUrl360,
+        '480p': lesson.videoUrl480,
+        '720p': lesson.videoUrl720,
+      },
+      videoUrl: lesson.videoUrl,
+    })
+  ) {
     throw new LmsAuthError(
       'Video progress must be recorded by the video player.',
       409,

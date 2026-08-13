@@ -1,7 +1,7 @@
 'use client';
 
 import type { ContentType } from '@prisma/client';
-import { Film, Settings2 } from 'lucide-react';
+import { FileText, Settings2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getVideoEmbedUrl } from '@/lib/lms/video';
@@ -571,11 +571,9 @@ export function UniversalVideoPlayer({
 
   if (!url) {
     return (
-      <div className="flex aspect-video w-full items-center justify-center rounded-2xl border border-white/10 bg-zinc-950 text-zinc-500">
-        <div className="flex flex-col items-center gap-3 text-sm">
-          <Film className="size-8" />
-          This lesson has no video.
-        </div>
+      <div className="flex min-h-28 items-center gap-3 rounded-xl border border-sky-200 bg-sky-50 px-5 py-4 text-sm font-semibold text-sky-900">
+        <FileText aria-hidden="true" className="size-5 shrink-0 text-sky-600" />
+        <span>Text Lesson / Notes</span>
       </div>
     );
   }

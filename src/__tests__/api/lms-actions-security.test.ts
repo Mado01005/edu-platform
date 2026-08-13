@@ -70,6 +70,11 @@ describe('LMS Server Action role boundaries', () => {
     mockLessonFindUnique.mockResolvedValue({
       contentType: 'YOUTUBE',
       module: { courseId: 'course-1' },
+      videoUrl: 'https://youtu.be/abc123def45',
+      videoUrl1080: null,
+      videoUrl360: null,
+      videoUrl480: null,
+      videoUrl720: null,
     });
 
     await expect(

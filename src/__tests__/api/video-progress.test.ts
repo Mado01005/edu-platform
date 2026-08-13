@@ -66,8 +66,14 @@ describe('video progress checkpoints', () => {
   beforeEach(() => {
     mockRequireLmsRole.mockResolvedValue({ id: 'student-1', role: 'STUDENT' });
     mockLessonFindFirst.mockResolvedValue({
+      contentType: 'R2_VIDEO',
       id: 'lesson-1',
       module: { courseId: 'course-1' },
+      videoUrl: 'https://media.example.com/lesson.mp4',
+      videoUrl1080: null,
+      videoUrl360: null,
+      videoUrl480: null,
+      videoUrl720: null,
     });
     mockProgressFindUnique.mockResolvedValue(null);
     mockProgressUpsert.mockResolvedValue({ id: 'progress-1' });
@@ -84,11 +90,28 @@ describe('video progress checkpoints', () => {
     expect(mockLessonFindFirst).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          contentType: { in: ['VIMEO', 'YOUTUBE', 'R2_VIDEO'] },
           id: 'lesson-1',
         }),
       }),
     );
+  });
+
+  it('rejects progress when the lesson has no playable video source', async () => {
+    mockLessonFindFirst.mockResolvedValue({
+      contentType: 'R2_VIDEO',
+      id: 'lesson-1',
+      module: { courseId: 'course-1' },
+      videoUrl: null,
+      videoUrl1080: null,
+      videoUrl360: null,
+      videoUrl480: null,
+      videoUrl720: null,
+    });
+
+    const response = await saveVideoProgress(progressRequest(10));
+
+    expect(response.status).toBe(404);
+    expect(mockProgressUpsert).not.toHaveBeenCalled();
   });
 
   it('rejects a progress jump larger than ten percentage points', async () => {

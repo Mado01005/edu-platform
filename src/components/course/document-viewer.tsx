@@ -20,7 +20,16 @@ export function DocumentViewer({ fileType, title, url }: { fileType: string; tit
   const normalizedType = fileType.toUpperCase();
   const viewerUrl = normalizedType === 'PDF'
     ? `${documentUrl}#toolbar=0&navpanes=0&scrollbar=1`
-    : ['DOC', 'DOCX', 'PPT', 'PPTX'].includes(normalizedType)
+    : [
+        'DOC',
+        'DOCX',
+        'PPT',
+        'PPTX',
+        'SLIDES',
+        'WORKSHEET',
+        'XLS',
+        'XLSX',
+      ].includes(normalizedType)
       ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(documentUrl)}`
       : null;
 
@@ -31,10 +40,11 @@ export function DocumentViewer({ fileType, title, url }: { fileType: string; tit
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <iframe
-        className="h-[70dvh] min-h-[28rem] w-full border-0 bg-white"
+        className="w-full border-0 bg-white"
         loading="lazy"
         referrerPolicy="no-referrer"
         src={viewerUrl}
+        style={{ height: '70dvh', minHeight: '28rem' }}
         title={`Document viewer: ${title}`}
       />
       <p className="border-t border-slate-200 bg-slate-50 px-3 py-2 text-center text-xs text-slate-500">Protected in-app reading view · sharing and downloads are disabled in the course interface</p>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { isSameOriginRequest } from '@/lib/http/same-origin';
 import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
 import { recalculateStudentHealthScores } from '@/lib/lms/health';
+import { resolvePlayableLessonVideo } from '@/lib/lms/course-player';
 import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -47,16 +48,36 @@ export async function POST(request: Request) {
     const lesson = await prisma.lesson.findFirst({
       where: {
         id: body.lessonId,
-        contentType: { in: ['VIMEO', 'YOUTUBE', 'R2_VIDEO'] },
         module: {
           course: {
             enrollments: { some: { studentId: student.id } },
           },
         },
       },
-      select: { id: true, module: { select: { courseId: true } } },
+      select: {
+        contentType: true,
+        id: true,
+        module: { select: { courseId: true } },
+        videoUrl: true,
+        videoUrl1080: true,
+        videoUrl360: true,
+        videoUrl480: true,
+        videoUrl720: true,
+      },
     });
-    if (!lesson) {
+    const playableVideo = lesson
+      ? resolvePlayableLessonVideo({
+          contentType: lesson.contentType,
+          qualitySources: {
+            '1080p': lesson.videoUrl1080,
+            '360p': lesson.videoUrl360,
+            '480p': lesson.videoUrl480,
+            '720p': lesson.videoUrl720,
+          },
+          videoUrl: lesson.videoUrl,
+        })
+      : null;
+    if (!lesson || !playableVideo) {
       return NextResponse.json(
         { error: 'Enrolled video lesson not found.' },
         { status: 404 },

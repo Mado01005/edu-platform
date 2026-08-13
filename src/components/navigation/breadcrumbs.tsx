@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { getRoleHome } from '@/lib/lms/navigation';
+import type { CoursePlayerBreadcrumb } from '@/lib/lms/course-player';
 
 const segmentLabels: Record<string, string> = {
   accounting: 'Accounting',
@@ -57,10 +58,55 @@ function segmentLabel(segment: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export function Breadcrumbs({ role }: { role: Role }) {
+export function Breadcrumbs({
+  items,
+  role,
+}: {
+  items?: CoursePlayerBreadcrumb[];
+  role: Role;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const home = getRoleHome(role);
+  if (items?.length) {
+    return (
+      <nav
+        aria-label="Breadcrumbs"
+        className="custom-scrollbar flex min-w-0 items-center gap-2 overflow-x-auto border-b border-slate-200 pb-3 text-sm font-medium text-slate-500"
+      >
+        {items.map((item, index) => {
+          const current = index === items.length - 1;
+          return (
+            <span
+              className="flex min-w-0 shrink-0 items-center gap-2"
+              key={`${item.label}-${index}`}
+            >
+              {index > 0 ? (
+                <span aria-hidden="true" className="text-slate-300">
+                  /
+                </span>
+              ) : null}
+              {item.href && !current ? (
+                <Link
+                  className="max-w-52 truncate rounded-md transition hover:text-sky-700"
+                  href={item.href}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span
+                  aria-current={current ? 'page' : undefined}
+                  className="max-w-52 truncate text-slate-900"
+                >
+                  {item.label}
+                </span>
+              )}
+            </span>
+          );
+        })}
+      </nav>
+    );
+  }
   if (pathname === home) return null;
 
   const segments = pathname.split('/').filter(Boolean);
