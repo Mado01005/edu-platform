@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import { requireApiAuth } from '@/lib/auth-guard';
 import { getPresignedUploadUrl, getPublicUrl } from '@/lib/r2';
-import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
 import { getMaterialFileType } from '@/lib/lms/material-types';
 import { TEACHING_ROLES, isAdminRole } from '@/lib/lms/roles';
 import {
@@ -59,7 +59,18 @@ function readUploadInput(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const teacher = await requireLmsRole(TEACHING_ROLES);
+    const auth = await requireApiAuth(request, {
+      allowedRoles: TEACHING_ROLES,
+      allowCookieAuth: true,
+    });
+    if (!auth.ok) return auth.response;
+    const teacher = auth.profile;
+    if (!teacher) {
+      return NextResponse.json(
+        { error: 'Forbidden: LMS profile missing.' },
+        { status: 403 },
+      );
+    }
     let requestBody: unknown;
     try {
       requestBody = JSON.parse(await request.text());
@@ -225,13 +236,6 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    if (error instanceof LmsAuthError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-
     console.error('[LMS R2 presign]', error);
     return NextResponse.json(
       { error: 'Unable to prepare this upload.' },

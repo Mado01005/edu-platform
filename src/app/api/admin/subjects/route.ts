@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { requireAdminApiAuth } from '@/lib/admin-api-auth';
+import { TEACHING_ROLES } from '@/lib/lms/roles';
 
 function generateSlug(title: string) {
   return title.toLowerCase().trim().replace(/[\s\W-]+/g, '-');
@@ -8,12 +9,10 @@ function generateSlug(title: string) {
 
 import { getAllSubjects } from '@/lib/content';
 
-export async function GET() {
+export async function GET(request: Request = new Request('http://localhost')) {
   try {
-    const session = await auth();
-    if (!session || !session.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const actor = await requireAdminApiAuth(request, TEACHING_ROLES);
+    if (!actor.ok) return actor.response;
 
     const subjects = await getAllSubjects();
     return NextResponse.json(subjects, {
@@ -28,10 +27,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session || !session.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const actor = await requireAdminApiAuth(req, TEACHING_ROLES);
+    if (!actor.ok) return actor.response;
 
     const { title, icon, color } = await req.json();
 

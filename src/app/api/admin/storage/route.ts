@@ -4,6 +4,7 @@ import { LmsAuthError, requireLmsRole } from '@/lib/lms/auth';
 import { ADMIN_ROLES } from '@/lib/lms/roles';
 import {
   deleteR2AssetAndReferences,
+  deleteR2AssetsAndReferences,
   getR2StorageSnapshot,
 } from '@/lib/r2-storage';
 
@@ -55,14 +56,24 @@ export async function DELETE(request: Request) {
 
     const key =
       body && typeof body === 'object' ? Reflect.get(body, 'key') : null;
-    if (typeof key !== 'string') {
+    const keys =
+      body && typeof body === 'object' ? Reflect.get(body, 'keys') : null;
+    if (typeof key !== 'string' && !Array.isArray(keys)) {
       return NextResponse.json(
-        { error: 'A valid object key is required.' },
+        { error: 'A valid object key or keys array is required.' },
         { status: 400 },
       );
     }
 
-    const result = await deleteR2AssetAndReferences(key);
+    if (Array.isArray(keys) && !keys.every((entry) => typeof entry === 'string')) {
+      return NextResponse.json(
+        { error: 'Every R2 object key must be a string.' },
+        { status: 400 },
+      );
+    }
+    const result = Array.isArray(keys)
+      ? await deleteR2AssetsAndReferences(keys as string[])
+      : await deleteR2AssetAndReferences(key as string);
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof LmsAuthError) {

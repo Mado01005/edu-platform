@@ -16,6 +16,7 @@ import { TEACHING_ROLES, isAdminRole } from '@/lib/lms/roles';
 import { recalculateStudentHealthScores } from '@/lib/lms/health';
 import { getVideoEmbedUrl } from '@/lib/lms/video';
 import { cairoDateTimeLocalToUtc } from '@/lib/lms/timezone';
+import { resolveCurriculumTeacherId } from '@/lib/lms/curriculum-owner';
 
 const CONTENT_TYPES = new Set<ContentType>([
   'VIMEO',
@@ -231,6 +232,7 @@ export async function createCourseAction(
     });
     const teacher = await requireTeacher();
     let gradeLevel = input.gradeLevel;
+    let subjectTeacherId: string | null = null;
 
     if (input.subjectId) {
       const subject = await getPrisma().subject.findUnique({
@@ -248,12 +250,18 @@ export async function createCourseAction(
         throw new Error('The selected subject does not belong to that grade.');
       }
       gradeLevel = subject.grade;
+      subjectTeacherId = subject.teacherId;
     }
+
+    const ownerTeacherId = await resolveCurriculumTeacherId(
+      teacher,
+      subjectTeacherId,
+    );
 
     const course = await createCourseWithUniqueSlug({
       ...input,
       gradeLevel,
-      teacherId: teacher.id,
+      teacherId: ownerTeacherId,
     });
 
     redirect(`/teacher/courses/${course.id}`);

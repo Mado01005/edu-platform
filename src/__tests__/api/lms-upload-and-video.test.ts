@@ -1,19 +1,13 @@
-const mockRequireLmsRole = jest.fn();
+const mockRequireApiAuth = jest.fn();
 const mockGetPresignedUploadUrl = jest.fn();
 const mockGetPublicUrl = jest.fn();
 const mockLessonFindFirst = jest.fn();
 const mockCourseFindFirst = jest.fn();
 const mockModuleFindFirst = jest.fn();
 
-class MockLmsAuthError extends Error {
-  constructor(message: string, public readonly status = 401) {
-    super(message);
-  }
-}
-
-jest.mock('@/lib/lms/auth', () => ({
-  LmsAuthError: MockLmsAuthError,
-  requireLmsRole: mockRequireLmsRole,
+jest.mock('server-only', () => ({}));
+jest.mock('@/lib/auth-guard', () => ({
+  requireApiAuth: mockRequireApiAuth,
 }));
 
 jest.mock('@/lib/r2', () => ({
@@ -42,9 +36,9 @@ function uploadRequest(body: Record<string, unknown>) {
 
 describe('LMS R2 presigned upload', () => {
   beforeEach(() => {
-    mockRequireLmsRole.mockResolvedValue({
-      id: 'teacher_1',
-      role: 'TEACHER',
+    mockRequireApiAuth.mockResolvedValue({
+      ok: true,
+      profile: { id: 'teacher_1', role: 'TEACHER' },
     });
     mockLessonFindFirst.mockResolvedValue({ id: 'lesson_1' });
     mockCourseFindFirst.mockResolvedValue({ id: 'course_1' });
@@ -56,9 +50,10 @@ describe('LMS R2 presigned upload', () => {
   });
 
   it('rejects unauthenticated requests', async () => {
-    mockRequireLmsRole.mockRejectedValue(
-      new MockLmsAuthError('Authentication required.', 401),
-    );
+    mockRequireApiAuth.mockResolvedValue({
+      ok: false,
+      response: Response.json({ error: 'Unauthorized' }, { status: 401 }),
+    });
     const response = await createPresignedUpload(
       uploadRequest({
         fileName: 'lecture.mp4',
@@ -95,11 +90,13 @@ describe('LMS R2 presigned upload', () => {
     );
 
     expect(response.status).toBe(200);
-    expect(mockRequireLmsRole).toHaveBeenCalledWith([
-      'SUPER_ADMIN',
-      'ADMIN',
-      'TEACHER',
-    ]);
+    expect(mockRequireApiAuth).toHaveBeenCalledWith(
+      expect.any(Request),
+      {
+        allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'],
+        allowCookieAuth: true,
+      },
+    );
   });
 
   it('rejects missing or malformed upload metadata', async () => {

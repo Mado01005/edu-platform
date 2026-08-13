@@ -15,7 +15,15 @@ import { WorkspaceActionHub } from '@/components/navigation/workspace-action-hub
 import AdminClient from './AdminClient';
 import AnalyticsPanel from './AnalyticsPanel';
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tab?: string }>;
+}) {
+  return renderAdminPage((await searchParams)?.tab);
+}
+
+export async function renderAdminPage(requestedTab?: string) {
   const [session, lmsUser] = await Promise.all([
     auth(),
     getLmsUserWithoutActiveSessionCheck(),
@@ -70,6 +78,7 @@ export default async function AdminPage() {
         userEmail={adminEmail}
         initialLogs={historicalLogs || []}
         initialSessions={liveSessions || []}
+        initialTab={requestedTab === 'team' ? 'team' : undefined}
       />
 
       <section className="min-w-0 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50 sm:p-6">

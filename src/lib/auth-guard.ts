@@ -1,7 +1,9 @@
 import 'server-only';
 
+import type { Role, User as LmsUser } from '@prisma/client';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { getPrisma } from '@/lib/prisma';
 import { createSupabaseServerClient } from '@/lib/supabase/ssr-server';
 
 const BEARER_TOKEN_PATTERN = /^Bearer[\t ]+([^\s,]+)$/i;
@@ -11,6 +13,8 @@ export type ApiAuthSource = 'bearer' | 'cookie';
 export type ApiAuthSuccess = {
   accessToken: string | null;
   ok: true;
+  profile: LmsUser | null;
+  role: Role | null;
   source: ApiAuthSource;
   user: User;
 };
@@ -31,6 +35,13 @@ export type RequireApiAuthOptions = {
    */
   allowCookieAuth?: boolean;
   /**
+   * Resolves the validated Supabase identity against the authoritative Prisma
+   * profile and enforces its current role. SUPER_ADMIN is always allowed.
+   * Omitting this option keeps the lightweight identity-only behavior used by
+   * Proxy.
+   */
+  allowedRoles?: readonly Role[];
+  /**
    * Proxy has its own request/cookie lifecycle, so callers there must provide
    * a stateless client for explicit Bearer validation instead of constructing
    * the regular `next/headers` SSR client.
@@ -42,13 +53,23 @@ export type RequireApiAuthOptions = {
 
 export function apiUnauthorized(): NextResponse {
   return NextResponse.json(
-    { error: 'Unauthorized' },
+    { error: 'Unauthorized: Session missing or invalid.' },
     {
       status: 401,
       headers: {
         'Cache-Control': 'private, no-store',
         'WWW-Authenticate': 'Bearer',
       },
+    },
+  );
+}
+
+export function apiForbidden(): NextResponse {
+  return NextResponse.json(
+    { error: 'Forbidden: Insufficient permissions.' },
+    {
+      status: 403,
+      headers: { 'Cache-Control': 'private, no-store' },
     },
   );
 }
@@ -70,6 +91,47 @@ export async function requireApiAuth(
   request: Request,
   options: RequireApiAuthOptions = {},
 ): Promise<ApiAuthResult> {
+  async function authorizeUser(
+    user: User,
+    accessToken: string | null,
+    source: ApiAuthSource,
+  ): Promise<ApiAuthResult> {
+    if (!options.allowedRoles?.length) {
+      return {
+        accessToken,
+        ok: true,
+        profile: null,
+        role: null,
+        source,
+        user,
+      };
+    }
+
+    const profile = await getPrisma().user.findUnique({
+      where: { supabaseId: user.id },
+    });
+
+    if (!profile || profile.status !== 'ACTIVE') {
+      return { ok: false, response: apiForbidden() };
+    }
+
+    if (
+      profile.role !== 'SUPER_ADMIN' &&
+      !options.allowedRoles.includes(profile.role)
+    ) {
+      return { ok: false, response: apiForbidden() };
+    }
+
+    return {
+      accessToken,
+      ok: true,
+      profile,
+      role: profile.role,
+      source,
+      user,
+    };
+  }
+
   const authorization = request.headers.get('authorization');
 
   if (authorization !== null) {
@@ -91,12 +153,7 @@ export async function requireApiAuth(
         return { ok: false, response: apiUnauthorized() };
       }
 
-      return {
-        accessToken,
-        ok: true,
-        source: 'bearer',
-        user,
-      };
+      return authorizeUser(user, accessToken, 'bearer');
     } catch {
       return { ok: false, response: apiUnauthorized() };
     }
@@ -117,12 +174,7 @@ export async function requireApiAuth(
       return { ok: false, response: apiUnauthorized() };
     }
 
-    return {
-      accessToken: null,
-      ok: true,
-      source: 'cookie',
-      user,
-    };
+    return authorizeUser(user, null, 'cookie');
   } catch {
     return { ok: false, response: apiUnauthorized() };
   }

@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { isMasterAdmin } from '@/lib/constants';
+import { requireAdminApiAuth } from '@/lib/admin-api-auth';
 
 const ELEVATED_ROLES = ['superadmin', 'admin', 'teacher'];
 
-export async function GET() {
+export async function GET(request: Request = new Request('http://localhost')) {
   try {
-    const session = await auth();
-    if (!session || !session.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const actor = await requireAdminApiAuth(request);
+    if (!actor.ok) return actor.response;
 
     const { data: roles, error } = await supabaseAdmin
       .from('user_roles')
@@ -31,10 +29,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session || !session.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const actor = await requireAdminApiAuth(req);
+    if (!actor.ok) return actor.response;
 
     const { email, overrideRole } = await req.json();
 
@@ -64,7 +60,7 @@ export async function POST(req: Request) {
 
     // Only superadmins can assign or MODIFY elevated roles (admin, superadmin, teacher)
     // If a standard admin tries to modify an ALREADY elevated user, block it.
-    if (!session.user.isSuperAdmin) {
+    if (!actor.isSuperAdmin) {
       if (ELEVATED_ROLES.includes(overrideRole)) {
         return NextResponse.json({ error: 'Only superadmins can assign elevated roles' }, { status: 403 });
       }
@@ -88,8 +84,8 @@ export async function POST(req: Request) {
 
     // Log the change
     Promise.resolve(supabaseAdmin.from('activity_logs').insert({
-      user_email: session.user?.email || 'admin',
-      user_name: session.user?.name || 'Admin',
+      user_email: actor.email || 'admin',
+      user_name: actor.name || 'Admin',
       action: 'ROLE_UPDATED',
       details: { target_email: email, new_role: overrideRole },
     })).catch(() => {});
@@ -104,10 +100,8 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const session = await auth();
-    if (!session || !session.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const actor = await requireAdminApiAuth(req);
+    if (!actor.ok) return actor.response;
 
     const { email } = await req.json();
 
@@ -119,7 +113,7 @@ export async function DELETE(req: Request) {
       .eq('email', email)
       .maybeSingle();
 
-    if (targetData && ELEVATED_ROLES.includes(targetData.role) && !session.user.isSuperAdmin) {
+    if (targetData && ELEVATED_ROLES.includes(targetData.role) && !actor.isSuperAdmin) {
       return NextResponse.json({ error: 'Only superadmins can delete existing administrators' }, { status: 403 });
     }
 

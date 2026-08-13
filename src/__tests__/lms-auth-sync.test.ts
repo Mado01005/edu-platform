@@ -35,16 +35,24 @@ import { getLmsUser } from '@/lib/lms/auth';
 
 describe('Supabase to Prisma LMS user synchronization', () => {
   beforeEach(() => {
+    mockGetClaims.mockReset();
+    mockGetUser.mockReset();
+    mockUserFindUnique.mockReset();
+    mockUserFindFirst.mockReset();
+    mockUserCreate.mockReset();
+    mockUserUpdate.mockReset();
+    mockRecordStudentActivity.mockReset();
     mockHeaders.mockResolvedValue(new Headers());
   });
 
-  it('creates a missing Prisma profile from verified Supabase claims', async () => {
-    mockGetClaims.mockResolvedValue({
+  it('creates a missing Prisma profile from a verified Supabase user', async () => {
+    mockGetUser.mockResolvedValue({
       data: {
-        claims: {
+        user: {
           app_metadata: { role: 'TEACHER' },
           email: 'teacher@example.com',
-          sub: 'supabase-teacher-1',
+          id: 'supabase-teacher-1',
+          phone: null,
           user_metadata: { full_name: 'Teacher Example' },
         },
       },
@@ -80,6 +88,8 @@ describe('Supabase to Prisma LMS user synchronization', () => {
       },
     });
     expect(mockRecordStudentActivity).not.toHaveBeenCalled();
+    expect(mockGetUser).toHaveBeenCalledWith();
+    expect(mockGetClaims).not.toHaveBeenCalled();
   });
 
   it('resolves a verified Bearer identity for API route role checks', async () => {

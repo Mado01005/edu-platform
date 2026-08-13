@@ -5,7 +5,8 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getPrisma } from '@/lib/prisma';
 import { requireLmsRole } from '@/lib/lms/auth';
-import { ADMIN_ROLES } from '@/lib/lms/roles';
+import { TEACHING_ROLES } from '@/lib/lms/roles';
+import { resolveCurriculumTeacherId } from '@/lib/lms/curriculum-owner';
 
 const subjectSchema = z.object({
   grade: z.nativeEnum(GradeLevel),
@@ -37,12 +38,13 @@ export async function createSubjectAction(
       };
     }
 
-    const admin = await requireLmsRole(ADMIN_ROLES);
+    const admin = await requireLmsRole(TEACHING_ROLES);
+    const teacherId = await resolveCurriculumTeacherId(admin);
     await getPrisma().subject.create({
       data: {
         grade: parsed.data.grade,
         name: parsed.data.name,
-        teacherId: admin.id,
+        teacherId,
       },
     });
     revalidatePath('/admin/curriculum');

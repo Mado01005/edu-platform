@@ -1,12 +1,11 @@
 import 'server-only';
 
 import {
-  DeleteObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
 } from '@aws-sdk/client-s3';
 import { getPrisma } from '@/lib/prisma';
-import { getPublicUrl, getR2Client } from '@/lib/r2';
+import { batchDeleteR2Objects, getPublicUrl, getR2Client } from '@/lib/r2';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export const R2_FREE_TIER_CAP_BYTES = 10_737_418_240;
@@ -222,8 +221,6 @@ export async function getR2StorageSnapshot(
 
 export async function deleteR2AssetAndReferences(key: string) {
   assertSafeR2Key(key);
-  const publicUrl = getPublicUrl(key);
-
   await getR2Client().send(
     new HeadObjectCommand({
       Bucket: getBucketName(),
@@ -231,43 +228,61 @@ export async function deleteR2AssetAndReferences(key: string) {
     }),
   );
 
-  await getR2Client().send(
-    new DeleteObjectCommand({
-      Bucket: getBucketName(),
-      Key: key,
-    }),
-  );
+  return deleteR2AssetsAndReferences([key]);
+}
+
+export async function deleteR2AssetsAndReferences(keys: string[]) {
+  const uniqueKeys = Array.from(new Set(keys));
+  if (!uniqueKeys.length || uniqueKeys.length > 100) {
+    throw new Error('Choose between 1 and 100 R2 object keys.');
+  }
+  uniqueKeys.forEach(assertSafeR2Key);
+  const publicUrls = uniqueKeys.map(getPublicUrl);
+
+  await batchDeleteR2Objects(uniqueKeys);
 
   const prisma = getPrisma();
-  const [
-    videoReferences,
-    pdfReferences,
-    courseImages,
-    profileAvatars,
-    legacyResult,
-  ] = await Promise.all([
-    prisma.lesson.updateMany({
-      where: { videoUrl: publicUrl },
-      data: { videoUrl: null },
-    }),
-    prisma.lesson.updateMany({
-      where: { pdfUrl: publicUrl },
-      data: { pdfUrl: null },
-    }),
-    prisma.course.updateMany({
-      where: { imageUrl: publicUrl },
-      data: { imageUrl: null },
-    }),
-    prisma.user.updateMany({
-      where: { avatarUrl: publicUrl },
-      data: { avatarUrl: null },
-    }),
-    supabaseAdmin
-      .from('content_items')
-      .delete()
-      .eq('url', publicUrl)
-      .select('id'),
-  ]);
+  const prismaRemovedReferences = await prisma.$transaction(async (transaction) => {
+    let count = 0;
+    for (const publicUrl of publicUrls) {
+      for (const field of [
+        'videoUrl',
+        'videoUrl360',
+        'videoUrl480',
+        'videoUrl720',
+        'videoUrl1080',
+        'pdfUrl',
+      ] as const) {
+        const result = await transaction.lesson.updateMany({
+          where: { [field]: publicUrl },
+          data: { [field]: null },
+        });
+        count += result.count;
+      }
+    }
+    const [courseImages, profileAvatars, materials, submissions] = await Promise.all([
+      transaction.course.updateMany({
+        where: { imageUrl: { in: publicUrls } },
+        data: { imageUrl: null },
+      }),
+      transaction.user.updateMany({
+        where: { avatarUrl: { in: publicUrls } },
+        data: { avatarUrl: null },
+      }),
+      transaction.courseMaterial.deleteMany({
+        where: { objectKey: { in: uniqueKeys } },
+      }),
+      transaction.assignmentSubmission.deleteMany({
+        where: { objectKey: { in: uniqueKeys } },
+      }),
+    ]);
+    return count + courseImages.count + profileAvatars.count + materials.count + submissions.count;
+  });
+  const legacyResult = await supabaseAdmin
+    .from('content_items')
+    .delete()
+    .in('url', publicUrls)
+    .select('id');
 
   if (legacyResult.error) {
     throw new Error(
@@ -276,12 +291,9 @@ export async function deleteR2AssetAndReferences(key: string) {
   }
 
   return {
-    deletedKey: key,
+    deletedKey: uniqueKeys.length === 1 ? uniqueKeys[0] : null,
+    deletedKeys: uniqueKeys,
     removedReferences:
-      videoReferences.count +
-      pdfReferences.count +
-      courseImages.count +
-      profileAvatars.count +
-      (legacyResult.data?.length ?? 0),
+      prismaRemovedReferences + (legacyResult.data?.length ?? 0),
   };
 }

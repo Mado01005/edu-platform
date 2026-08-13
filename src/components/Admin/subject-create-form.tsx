@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { BookPlus } from 'lucide-react';
 import {
   createSubjectAction,
@@ -13,6 +14,11 @@ const grades = Array.from({ length: 12 }, (_, index) => `GRADE_${index + 1}`);
 
 export function SubjectCreateForm() {
   const [state, action] = useActionState(createSubjectAction, initialState);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.success) router.refresh();
+  }, [router, state.success]);
 
   return (
     <form

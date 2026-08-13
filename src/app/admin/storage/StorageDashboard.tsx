@@ -119,6 +119,10 @@ export function StorageDashboard({
   const [query, setQuery] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<StorageAsset | null>(null);
   const [pendingKey, setPendingKey] = useState('');
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
   const [notice, setNotice] = useState<{
     message: string;
     type: 'error' | 'success';
@@ -134,6 +138,50 @@ export function StorageDashboard({
           asset.key.toLowerCase().includes(normalizedQuery)),
     );
   }, [filter, query, snapshot.recentAssets]);
+  const allVisibleSelected =
+    visibleAssets.length > 0 &&
+    visibleAssets.every((asset) => selectedKeys.has(asset.key));
+
+  function removeAssets(keys: Set<string>) {
+    setSnapshot((current) => {
+      const removed = current.recentAssets.filter((asset) => keys.has(asset.key));
+      const removedBytes = removed.reduce((total, asset) => total + asset.size, 0);
+      const removedCategoryBytes = (category: AssetCategory) =>
+        removed
+          .filter((asset) => asset.category === category)
+          .reduce((total, asset) => total + asset.size, 0);
+      const next = {
+        ...current,
+        documentBytes: Math.max(0, current.documentBytes - removedCategoryBytes('PDF')),
+        fileCount: Math.max(0, current.fileCount - removed.length),
+        imageBytes: Math.max(0, current.imageBytes - removedCategoryBytes('IMAGE')),
+        otherBytes: Math.max(0, current.otherBytes - removedCategoryBytes('OTHER')),
+        recentAssets: current.recentAssets.filter((asset) => !keys.has(asset.key)),
+        totalBytes: Math.max(0, current.totalBytes - removedBytes),
+        videoBytes: Math.max(0, current.videoBytes - removedCategoryBytes('VIDEO')),
+      };
+      next.usagePercent = (next.totalBytes / next.quotaBytes) * 100;
+      return next;
+    });
+  }
+
+  function toggleAsset(key: string) {
+    setSelectedKeys((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  function toggleAllVisible() {
+    setSelectedKeys((current) => {
+      const next = new Set(current);
+      if (allVisibleSelected) visibleAssets.forEach((asset) => next.delete(asset.key));
+      else visibleAssets.forEach((asset) => next.add(asset.key));
+      return next;
+    });
+  }
 
   async function deleteAsset() {
     if (!deleteTarget) return;
@@ -155,27 +203,10 @@ export function StorageDashboard({
         throw new Error(result.error ?? 'Unable to delete this asset.');
       }
 
-      setSnapshot((current) => {
-        const size = deleteTarget.size;
-        const next = {
-          ...current,
-          fileCount: Math.max(0, current.fileCount - 1),
-          recentAssets: current.recentAssets.filter(
-            (asset) => asset.key !== deleteTarget.key,
-          ),
-          totalBytes: Math.max(0, current.totalBytes - size),
-        };
-
-        if (deleteTarget.category === 'VIDEO') {
-          next.videoBytes = Math.max(0, current.videoBytes - size);
-        } else if (deleteTarget.category === 'PDF') {
-          next.documentBytes = Math.max(0, current.documentBytes - size);
-        } else if (deleteTarget.category === 'IMAGE') {
-          next.imageBytes = Math.max(0, current.imageBytes - size);
-        } else {
-          next.otherBytes = Math.max(0, current.otherBytes - size);
-        }
-        next.usagePercent = (next.totalBytes / next.quotaBytes) * 100;
+      removeAssets(new Set([deleteTarget.key]));
+      setSelectedKeys((current) => {
+        const next = new Set(current);
+        next.delete(deleteTarget.key);
         return next;
       });
       setNotice({
@@ -189,6 +220,41 @@ export function StorageDashboard({
           error instanceof Error
             ? error.message
             : 'Unable to delete this asset.',
+        type: 'error',
+      });
+    } finally {
+      setPendingKey('');
+    }
+  }
+
+  async function deleteSelectedAssets() {
+    const keys = Array.from(selectedKeys);
+    if (!keys.length) return;
+    setPendingKey('__bulk__');
+    setNotice(null);
+    try {
+      const response = await fetch('/api/admin/storage', {
+        body: JSON.stringify({ keys }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE',
+      });
+      const result = (await response.json()) as {
+        error?: string;
+        removedReferences?: number;
+      };
+      if (!response.ok) {
+        throw new Error(result.error ?? 'Unable to delete the selected assets.');
+      }
+      removeAssets(new Set(keys));
+      setSelectedKeys(new Set());
+      setBulkConfirmOpen(false);
+      setNotice({
+        message: `Deleted ${keys.length} asset(s) and removed ${result.removedReferences ?? 0} database reference(s).`,
+        type: 'success',
+      });
+    } catch (error) {
+      setNotice({
+        message: error instanceof Error ? error.message : 'Unable to delete the selected assets.',
         type: 'error',
       });
     } finally {
@@ -348,6 +414,19 @@ export function StorageDashboard({
           ))}
         </div>
 
+        <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-black text-slate-700">
+          <input
+            aria-label="Select all visible R2 assets"
+            checked={allVisibleSelected}
+            className="size-5 accent-sky-600"
+            disabled={!visibleAssets.length || Boolean(pendingKey)}
+            onChange={toggleAllVisible}
+            type="checkbox"
+          />
+          Select all visible assets
+          <span className="ml-auto text-slate-500">{selectedKeys.size} selected</span>
+        </label>
+
         <div aria-label="R2 uploads inspection table" role="table">
           <div className="sr-only" role="row">
             <span role="columnheader">Asset</span>
@@ -368,6 +447,14 @@ export function StorageDashboard({
                     role="row"
                   >
                     <div className="flex min-w-0 items-start gap-3">
+                      <input
+                        aria-label={`Select ${asset.name}`}
+                        checked={selectedKeys.has(asset.key)}
+                        className="mt-2.5 size-5 shrink-0 accent-sky-600"
+                        disabled={Boolean(pendingKey)}
+                        onChange={() => toggleAsset(asset.key)}
+                        type="checkbox"
+                      />
                       <span
                         className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${categoryTone(asset.category)}`}
                       >
@@ -446,6 +533,20 @@ export function StorageDashboard({
         </div>
       </section>
 
+      {selectedKeys.size ? (
+        <div className="sticky bottom-4 z-30 flex justify-center px-2">
+          <Button
+            className="w-full max-w-md shadow-xl"
+            disabled={Boolean(pendingKey)}
+            onClick={() => setBulkConfirmOpen(true)}
+            size="lg"
+            variant="destructive"
+          >
+            <Trash2 className="size-4" /> Delete Selected Assets ({selectedKeys.size})
+          </Button>
+        </div>
+      ) : null}
+
       <Dialog
         onOpenChange={(open) => {
           if (!open && !pendingKey) setDeleteTarget(null);
@@ -481,6 +582,36 @@ export function StorageDashboard({
                 <Trash2 className="size-4" />
               )}
               {pendingKey ? 'Deleting…' : 'Delete permanently'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        onOpenChange={(open) => {
+          if (pendingKey !== '__bulk__') setBulkConfirmOpen(open);
+        }}
+        open={bulkConfirmOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete {selectedKeys.size} R2 assets?</DialogTitle>
+            <DialogDescription>
+              These files will be permanently purged from Cloudflare R2 and
+              matching PostgreSQL and legacy content references will be removed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button disabled={pendingKey === '__bulk__'} variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button
+              disabled={pendingKey === '__bulk__'}
+              onClick={() => void deleteSelectedAssets()}
+              variant="destructive"
+            >
+              {pendingKey === '__bulk__' ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+              {pendingKey === '__bulk__' ? 'Deleting…' : 'Delete selected permanently'}
             </Button>
           </DialogFooter>
         </DialogContent>

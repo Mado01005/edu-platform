@@ -43,6 +43,7 @@ export default async function SettingsPage() {
           </header>
 
           <SettingsCenter
+            canManuallyVerifyPhone={user.role === 'SUPER_ADMIN'}
             initialUser={{
               avatarUrl: user.avatarUrl,
               autoPlayNext: user.autoPlayNext,

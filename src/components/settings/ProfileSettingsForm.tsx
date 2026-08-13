@@ -53,10 +53,12 @@ function initials(name: string, email: string) {
 }
 
 interface ProfileSettingsFormProps {
+  canManuallyVerifyPhone?: boolean;
   initialUser: SettingsUserData;
 }
 
 export function ProfileSettingsForm({
+  canManuallyVerifyPhone = false,
   initialUser,
 }: ProfileSettingsFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,12 +69,16 @@ export function ProfileSettingsForm({
   const [phoneNumber, setPhoneNumber] = useState(
     initialUser.phoneNumber ?? '',
   );
+  const [savedPhoneNumber, setSavedPhoneNumber] = useState(
+    initialUser.phoneNumber ?? '',
+  );
   const [phoneVerified, setPhoneVerified] = useState(
     initialUser.phoneVerified,
   );
   const [timezone, setTimezone] = useState(initialUser.timezone);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [manualVerifyPending, setManualVerifyPending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [notice, setNotice] = useState<SettingsNotice | null>(null);
 
@@ -93,6 +99,9 @@ export function ProfileSettingsForm({
     });
     if (typeof result.user?.phoneVerified === 'boolean') {
       setPhoneVerified(result.user.phoneVerified);
+    }
+    if (result.user?.phoneNumber !== undefined) {
+      setSavedPhoneNumber(result.user.phoneNumber ?? '');
     }
     return result;
   }
@@ -177,6 +186,27 @@ export function ProfileSettingsForm({
       setNotice(errorNotice(error, 'Unable to update the profile.'));
     } finally {
       setPending(false);
+    }
+  }
+
+  async function manuallyVerifyPhone() {
+    setManualVerifyPending(true);
+    setNotice(null);
+    try {
+      const response = await fetch('/api/auth/phone', { method: 'PATCH' });
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(result.error ?? 'Unable to verify the phone number.');
+      }
+      setPhoneVerified(true);
+      setNotice({
+        message: 'Phone number manually verified in Supabase and PostgreSQL.',
+        type: 'success',
+      });
+    } catch (error) {
+      setNotice(errorNotice(error, 'Unable to verify the phone number.'));
+    } finally {
+      setManualVerifyPending(false);
     }
   }
 
@@ -296,6 +326,26 @@ export function ProfileSettingsForm({
                     : 'Verification pending — use Phone OTP sign-in to verify'
                   : 'Optional — add a number for SMS or WhatsApp access'}
               </span>
+              {canManuallyVerifyPhone &&
+              phoneNumber &&
+              phoneNumber === savedPhoneNumber &&
+              !phoneVerified ? (
+                <Button
+                  className="mt-3 w-full sm:w-fit"
+                  disabled={manualVerifyPending || pending || uploading}
+                  onClick={() => void manuallyVerifyPhone()}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  {manualVerifyPending ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <ShieldAlert className="size-4" />
+                  )}
+                  {manualVerifyPending ? 'Verifying…' : 'Admin: Mark phone verified'}
+                </Button>
+              ) : null}
             </label>
 
             <label className="min-w-0 text-sm font-bold">

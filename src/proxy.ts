@@ -90,6 +90,7 @@ const LEGACY_NEXTAUTH_API_PATHS = new Set([
   '/api/admin/upload-initiate',
   '/api/admin/upload-multipart',
   '/api/admin/users/manage',
+  '/api/admin/users',
   '/api/admin/velocity',
   '/api/analytics/heartbeat',
   '/api/chat',

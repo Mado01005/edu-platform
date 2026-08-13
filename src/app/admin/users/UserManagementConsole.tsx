@@ -14,6 +14,7 @@ import {
   RotateCcw,
   Search,
   ShieldCheck,
+  Trash2,
   UserRoundCog,
   Users,
   UserX,
@@ -32,6 +33,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/UI/dropdown-menu';
 import { Input } from '@/components/UI/input';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/UI/dialog';
 import { LMS_ROLES } from '@/lib/lms/roles';
 import {
   EditStudentModal,
@@ -167,6 +177,10 @@ export function UserManagementConsole({
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [editingUser, setEditingUser] = useState<AdminUserRecord | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [deleteUserIds, setDeleteUserIds] = useState<string[]>([]);
 
   const metrics = useMemo(
     () => ({
@@ -198,6 +212,67 @@ export function UserManagementConsole({
     currentAdminRole === 'SUPER_ADMIN'
       ? LMS_ROLES
       : LMS_ROLES.filter((role) => role !== 'SUPER_ADMIN');
+  const selectableUsers = filteredUsers.filter(
+    (user) =>
+      user.id !== currentAdminId &&
+      (currentAdminRole === 'SUPER_ADMIN' || user.role !== 'SUPER_ADMIN'),
+  );
+  const allVisibleSelected =
+    selectableUsers.length > 0 &&
+    selectableUsers.every((user) => selectedUserIds.has(user.id));
+
+  function toggleUser(userId: string) {
+    setSelectedUserIds((current) => {
+      const next = new Set(current);
+      if (next.has(userId)) next.delete(userId);
+      else next.add(userId);
+      return next;
+    });
+  }
+
+  function toggleAllVisible() {
+    setSelectedUserIds((current) => {
+      const next = new Set(current);
+      if (allVisibleSelected) {
+        selectableUsers.forEach((user) => next.delete(user.id));
+      } else {
+        selectableUsers.forEach((user) => next.add(user.id));
+      }
+      return next;
+    });
+  }
+
+  async function deleteUsers() {
+    if (!deleteUserIds.length) return;
+    setPendingAction('delete:users');
+    setError('');
+    setNotice('');
+    try {
+      const response = await fetch('/api/admin/users', {
+        body: JSON.stringify({ userIds: deleteUserIds }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE',
+      });
+      const body = await readResponse<{ count: number }>(response);
+      const deleted = new Set(deleteUserIds);
+      setUsers((current) => current.filter((user) => !deleted.has(user.id)));
+      setSelectedUserIds((current) => {
+        const next = new Set(current);
+        deleteUserIds.forEach((id) => next.delete(id));
+        return next;
+      });
+      setDeleteUserIds([]);
+      setNotice(`Permanently deleted ${body.count} account${body.count === 1 ? '' : 's'}.`);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : 'Unable to delete the selected accounts.',
+      );
+    } finally {
+      setPendingAction(null);
+    }
+  }
 
   async function changeRole(user: AdminUserRecord, role: Role) {
     setPendingAction(`role:${user.id}`);
@@ -369,6 +444,25 @@ export function UserManagementConsole({
         className="flex w-full min-w-0 flex-col gap-3"
         role="table"
       >
+        <Card className="rounded-2xl border-slate-200/80 bg-slate-50 shadow-sm">
+          <CardContent className="flex items-center justify-between gap-3 px-4 py-3">
+            <label className="flex min-w-0 items-center gap-3 text-sm font-black text-slate-800">
+              <input
+                aria-label="Select all visible users"
+                checked={allVisibleSelected}
+                className="size-5 shrink-0 accent-sky-600"
+                disabled={!selectableUsers.length || !authStatusAvailable}
+                onChange={toggleAllVisible}
+                type="checkbox"
+              />
+              Select all visible users
+            </label>
+            <span className="shrink-0 text-xs font-bold text-slate-500">
+              {selectedUserIds.size} selected
+            </span>
+          </CardContent>
+        </Card>
+
         <div className="sr-only" role="row">
           <span role="columnheader">User</span>
           <span role="columnheader">Phone</span>
@@ -395,6 +489,16 @@ export function UserManagementConsole({
             >
               <CardContent className="flex min-w-0 flex-col gap-4 px-4 py-4">
                 <div className="flex min-w-0 items-start gap-3" role="cell">
+                  <input
+                    aria-label={`Select ${user.name?.trim() || 'user account'}`}
+                    checked={selectedUserIds.has(user.id)}
+                    className="mt-3 size-5 shrink-0 accent-sky-600"
+                    disabled={
+                      !authStatusAvailable || isSelf || isProtectedSuperAdmin
+                    }
+                    onChange={() => toggleUser(user.id)}
+                    type="checkbox"
+                  />
                   <Avatar className="size-11">
                     {user.avatarUrl ? (
                       <AvatarImage alt="" src={user.avatarUrl} />
@@ -543,6 +647,23 @@ export function UserManagementConsole({
                   >
                     {user.status === 'DISABLED' ? 'Enable' : 'Disable'}
                   </Button>
+                  <Button
+                    aria-label={`Delete ${user.name?.trim() || 'user account'}`}
+                    className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                    disabled={
+                      isPending ||
+                      isSelf ||
+                      isProtectedSuperAdmin ||
+                      !authStatusAvailable
+                    }
+                    onClick={() => setDeleteUserIds([user.id])}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                    Delete
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -586,6 +707,59 @@ export function UserManagementConsole({
           user={editingUser}
         />
       ) : null}
+
+      {selectedUserIds.size ? (
+        <div className="sticky bottom-4 z-30 flex w-full justify-center px-2">
+          <Button
+            className="w-full max-w-md shadow-xl"
+            disabled={pendingAction === 'delete:users' || !authStatusAvailable}
+            onClick={() => setDeleteUserIds(Array.from(selectedUserIds))}
+            size="lg"
+            type="button"
+            variant="destructive"
+          >
+            <Trash2 className="size-4" aria-hidden="true" />
+            Delete Selected Users ({selectedUserIds.size})
+          </Button>
+        </div>
+      ) : null}
+
+      <Dialog
+        onOpenChange={(open) => {
+          if (!open && pendingAction !== 'delete:users') setDeleteUserIds([]);
+        }}
+        open={deleteUserIds.length > 0}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete {deleteUserIds.length} account{deleteUserIds.length === 1 ? '' : 's'}?</DialogTitle>
+            <DialogDescription>
+              This permanently removes the selected PostgreSQL profiles,
+              Supabase Auth accounts, and legacy staff-role records. Accounts
+              with assigned courses or financial audit history will be blocked.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button disabled={pendingAction === 'delete:users'} variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              disabled={pendingAction === 'delete:users'}
+              onClick={() => void deleteUsers()}
+              variant="destructive"
+            >
+              {pendingAction === 'delete:users' ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Trash2 className="size-4" />
+              )}
+              {pendingAction === 'delete:users' ? 'Deleting…' : 'Delete permanently'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </>
   );

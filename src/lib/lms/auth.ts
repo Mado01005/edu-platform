@@ -114,14 +114,22 @@ export async function getVerifiedLmsIdentity() {
     });
   }
 
-  const { data, error } = await supabase.auth.getClaims();
-  const claims = data?.claims as Record<string, unknown> | undefined;
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!claims || error) {
+  if (!user || error) {
     return null;
   }
 
-  return readIdentity(claims);
+  return readIdentity({
+    app_metadata: user.app_metadata,
+    email: user.email,
+    phone: user.phone,
+    sub: user.id,
+    user_metadata: user.user_metadata,
+  });
 }
 
 async function synchronizeLmsUser(

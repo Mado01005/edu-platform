@@ -1,9 +1,13 @@
 const mockGetUser = jest.fn();
 const mockCreateSupabaseServerClient = jest.fn();
+const mockFindUnique = jest.fn();
 
 jest.mock('server-only', () => ({}));
 jest.mock('@/lib/supabase/ssr-server', () => ({
   createSupabaseServerClient: mockCreateSupabaseServerClient,
+}));
+jest.mock('@/lib/prisma', () => ({
+  getPrisma: () => ({ user: { findUnique: mockFindUnique } }),
 }));
 
 import { requireApiAuth } from '@/lib/auth-guard';
@@ -32,7 +36,7 @@ describe('requireApiAuth', () => {
     if (result.ok) throw new Error('Expected authentication to fail.');
     expect(result.response.status).toBe(401);
     await expect(result.response.json()).resolves.toEqual({
-      error: 'Unauthorized',
+      error: 'Unauthorized: Session missing or invalid.',
     });
     expect(result.response.headers.get('www-authenticate')).toBe('Bearer');
     expect(mockGetUser).not.toHaveBeenCalled();
@@ -97,7 +101,7 @@ describe('requireApiAuth', () => {
     if (result.ok) throw new Error('Expected authentication to fail.');
     expect(result.response.status).toBe(401);
     await expect(result.response.json()).resolves.toEqual({
-      error: 'Unauthorized',
+      error: 'Unauthorized: Session missing or invalid.',
     });
   });
 
@@ -131,6 +135,65 @@ describe('requireApiAuth', () => {
       ok: true,
       source: 'cookie',
       user: { id: 'user-1' },
+    });
+  });
+
+  it('authorizes roles from the authoritative Prisma profile', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: verifiedUser }, error: null });
+    mockFindUnique.mockResolvedValue({
+      id: 'profile-1',
+      role: 'ADMIN',
+      status: 'ACTIVE',
+      supabaseId: 'user-1',
+    });
+
+    const result = await requireApiAuth(
+      new Request('https://www.edu-platform.me/api/courses'),
+      { allowCookieAuth: true, allowedRoles: ['ADMIN', 'TEACHER'] },
+    );
+
+    expect(result).toMatchObject({ ok: true, role: 'ADMIN' });
+    expect(mockFindUnique).toHaveBeenCalledWith({
+      where: { supabaseId: 'user-1' },
+    });
+  });
+
+  it('always grants an active SUPER_ADMIN profile', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: verifiedUser }, error: null });
+    mockFindUnique.mockResolvedValue({
+      id: 'profile-1',
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
+      supabaseId: 'user-1',
+    });
+
+    const result = await requireApiAuth(
+      new Request('https://www.edu-platform.me/api/courses'),
+      { allowCookieAuth: true, allowedRoles: ['TEACHER'] },
+    );
+
+    expect(result).toMatchObject({ ok: true, role: 'SUPER_ADMIN' });
+  });
+
+  it('returns a clear 403 for an insufficient Prisma role', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: verifiedUser }, error: null });
+    mockFindUnique.mockResolvedValue({
+      id: 'profile-1',
+      role: 'STUDENT',
+      status: 'ACTIVE',
+      supabaseId: 'user-1',
+    });
+
+    const result = await requireApiAuth(
+      new Request('https://www.edu-platform.me/api/courses'),
+      { allowCookieAuth: true, allowedRoles: ['ADMIN', 'TEACHER'] },
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error('Expected authorization to fail.');
+    expect(result.response.status).toBe(403);
+    await expect(result.response.json()).resolves.toEqual({
+      error: 'Forbidden: Insufficient permissions.',
     });
   });
 });

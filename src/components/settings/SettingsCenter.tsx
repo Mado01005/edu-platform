@@ -19,11 +19,13 @@ import { SecuritySettingsForm } from '@/components/settings/SecuritySettingsForm
 import type { SettingsUserData } from '@/components/settings/types';
 
 interface SettingsCenterProps {
+  canManuallyVerifyPhone?: boolean;
   initialUser: SettingsUserData;
   providers: string[];
 }
 
 export function SettingsCenter({
+  canManuallyVerifyPhone = false,
   initialUser,
   providers,
 }: SettingsCenterProps) {
@@ -49,7 +51,10 @@ export function SettingsCenter({
       </TabsList>
 
       <TabsContent className="w-full" value="profile">
-        <ProfileSettingsForm initialUser={initialUser} />
+        <ProfileSettingsForm
+          canManuallyVerifyPhone={canManuallyVerifyPhone}
+          initialUser={initialUser}
+        />
       </TabsContent>
       <TabsContent className="w-full" value="learning">
         <LearningPreferencesForm initialUser={initialUser} />

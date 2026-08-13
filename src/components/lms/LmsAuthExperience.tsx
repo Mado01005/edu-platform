@@ -383,17 +383,19 @@ export function LmsAuthExperience({
     setPending(true);
     setError('');
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        phone: otpPhone,
-        token: otpCode,
-        type: 'sms',
+      const response = await fetch('/api/auth/phone', {
+        body: JSON.stringify({ phone: otpPhone, token: otpCode }),
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
       });
-      if (verifyError) {
-        showPhoneAuthError(verifyError);
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        showPhoneAuthError({ message: result.error ?? 'Unable to verify that code.' });
         return;
       }
 
+      const supabase = createSupabaseBrowserClient();
       await activateAppSession(supabase);
       router.push(nextPath);
       router.refresh();

@@ -9,6 +9,7 @@ import { ADMIN_EMAILS } from '@/lib/constants';
 import AdminSidebar from './components/AdminSidebar';
 import UploadTab from './components/UploadTab';
 import ManageTab from './components/ManageTab';
+import TeamTab from './components/TeamTab';
 import { AdminErrorBoundary } from '@/components/ErrorBoundary';
 import { AdminProvider, useAdmin } from './context/AdminContext';
 
@@ -29,7 +30,6 @@ const AdminGlobalOverlay = () => {
 const TabLoader = () => <div className="flex items-center justify-center py-20"><div className="size-8 animate-spin rounded-full border-2 border-sky-600 border-t-transparent" /></div>;
 const TelemetryTab = dynamic(() => import('./components/TelemetryTab'), { loading: TabLoader, ssr: false });
 const AnnouncementTab = dynamic(() => import('./components/AnnouncementTab'), { loading: TabLoader, ssr: false });
-const TeamTab = dynamic(() => import('./components/TeamTab'), { loading: TabLoader, ssr: false });
 
 
 interface AdminClientProps {
@@ -38,12 +38,13 @@ interface AdminClientProps {
   userEmail: string;
   initialLogs: ActivityLog[];
   initialSessions: unknown[];
+  initialTab?: TabId;
 }
 
 type TabId = 'upload' | 'manage' | 'Announcement' | 'team' | 'telemetry';
 
-export default function AdminClient({ subjects, initialRoles, userEmail, initialLogs, initialSessions }: AdminClientProps) {
-  const [activeTab, setActiveTab] = useState<TabId>('upload');
+export default function AdminClient({ subjects, initialRoles, userEmail, initialLogs, initialSessions, initialTab = 'upload' }: AdminClientProps) {
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
   const [localSubjects, setLocalSubjects] = useState<SubjectMeta[]>(subjects as SubjectMeta[]);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedLessonId, setSelectedLessonId] = useState('');
