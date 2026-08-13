@@ -56,7 +56,7 @@ type PaymentChannelRecord = {
 };
 
 const fieldClass =
-  'h-12 w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none transition focus:border-violet-400';
+  'h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 disabled:text-slate-500';
 
 async function readResponse(response: Response) {
   const body = (await response.json()) as { error?: string };
@@ -262,8 +262,8 @@ export function AccountingPortal({
         <div
           className={`rounded-2xl border px-4 py-3 text-sm font-bold ${
             error
-              ? 'border-red-400/20 bg-red-400/10 text-red-200'
-              : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+              ? 'border-red-200 bg-red-50 text-red-700'
+              : 'border-emerald-200 bg-emerald-50 text-emerald-700'
           }`}
           role={error ? 'alert' : 'status'}
         >
@@ -273,18 +273,18 @@ export function AccountingPortal({
 
       <Card className="scroll-mt-28" id="invoice-generator">
         <CardHeader>
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
             <BadgeDollarSign className="size-5" aria-hidden="true" />
           </span>
           <CardTitle className="mt-2 text-xl">Manual payment entry</CardTitle>
-          <p className="text-sm leading-6 text-zinc-400">
+          <p className="text-sm leading-6 text-slate-600">
             Record legacy USD or EGP wire and card payments with an auditable
             receipt number.
           </p>
         </CardHeader>
         <CardContent className="pt-5">
           <form className="flex min-w-0 flex-col gap-3" onSubmit={createPayment}>
-            <label className="text-xs font-bold text-zinc-400">
+            <label className="text-xs font-bold text-slate-700">
               Student
               <select
                 className={`${fieldClass} mt-2`}
@@ -304,7 +304,7 @@ export function AccountingPortal({
             </label>
 
             <div className="grid min-w-0 grid-cols-2 gap-3">
-              <label className="min-w-0 text-xs font-bold text-zinc-400">
+              <label className="min-w-0 text-xs font-bold text-slate-700">
                 Currency
                 <select
                   className={`${fieldClass} mt-2`}
@@ -318,7 +318,7 @@ export function AccountingPortal({
                   <option value="EGP">EGP</option>
                 </select>
               </label>
-              <label className="min-w-0 text-xs font-bold text-zinc-400">
+              <label className="min-w-0 text-xs font-bold text-slate-700">
                 Amount
                 <Input
                   className="mt-2"
@@ -331,7 +331,7 @@ export function AccountingPortal({
             </div>
 
             {currency === 'EGP' ? (
-              <label className="text-xs font-bold text-zinc-400">
+              <label className="text-xs font-bold text-slate-700">
                 EGP per USD exchange rate
                 <Input
                   className="mt-2"
@@ -343,7 +343,7 @@ export function AccountingPortal({
               </label>
             ) : null}
 
-            <label className="text-xs font-bold text-zinc-400">
+            <label className="text-xs font-bold text-slate-700">
               Payment method
               <select className={`${fieldClass} mt-2`} name="paymentType" required>
                 <option value="WIRE_TRANSFER">Wire transfer</option>
@@ -378,16 +378,16 @@ export function AccountingPortal({
             </select>
             <textarea
               aria-label="Internal payment notes"
-              className="min-h-24 w-full min-w-0 resize-y rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-violet-400"
+              className="min-h-24 w-full min-w-0 resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
               maxLength={1000}
               name="notes"
               placeholder="Internal notes (optional)"
             />
-            <label className="flex min-w-0 items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm">
+            <label className="flex min-w-0 items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900">
               <input className="mt-1" name="approveNow" type="checkbox" />
               <span className="min-w-0">
                 <span className="block font-black">Approve immediately</span>
-                <span className="mt-1 block text-xs leading-5 text-zinc-500">
+                <span className="mt-1 block text-xs leading-5 text-slate-600">
                   Issue the digital receipt and notify the student now.
                 </span>
               </span>
@@ -411,35 +411,35 @@ export function AccountingPortal({
       <Card className="scroll-mt-28" id="payment-approvals">
         <CardHeader>
           <CardTitle className="text-xl">Online receipt approval desk</CardTitle>
-          <p className="text-sm leading-6 text-zinc-400">Private screenshot uploads remain inaccessible until an authorized reviewer opens a short-lived preview.</p>
+          <p className="text-sm leading-6 text-slate-600">Private screenshot uploads remain inaccessible until an authorized reviewer opens a short-lived preview.</p>
         </CardHeader>
         <CardContent className="flex min-w-0 flex-col gap-3 pt-5">
           {onlinePayments.map((payment) => (
-            <article className="rounded-2xl border border-amber-400/15 bg-amber-400/5 p-4" key={payment.id}>
+            <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4" key={payment.id}>
               <div className="flex min-w-0 items-start gap-3">
-                <Upload className="size-5 shrink-0 text-amber-300" />
-                <span className="min-w-0 flex-1"><span className="block truncate font-black">{payment.studentName}</span><span className="block truncate text-xs text-zinc-500">{payment.courseTitle} · {payment.method.replaceAll('_', ' ')}</span></span>
+                <Upload className="size-5 shrink-0 text-amber-600" />
+                <span className="min-w-0 flex-1"><span className="block truncate font-black text-slate-900">{payment.studentName}</span><span className="block truncate text-xs text-slate-600">{payment.courseTitle} · {payment.method.replaceAll('_', ' ')}</span></span>
                 <span className="shrink-0 text-sm font-black">{payment.amount} {payment.currency}</span>
               </div>
               <div className="mt-3 grid min-w-0 grid-cols-3 gap-2">
-                <a className="flex min-w-0 items-center justify-center rounded-xl border border-white/10 px-2 py-2 text-xs font-black" href={`/api/accounting/online-payments/${payment.id}/receipt`} rel="noopener noreferrer" target="_blank">View</a>
+                <a className="flex min-w-0 items-center justify-center rounded-xl border border-slate-300 bg-white px-2 py-2 text-xs font-black text-slate-700 hover:bg-slate-50" href={`/api/accounting/online-payments/${payment.id}/receipt`} rel="noopener noreferrer" target="_blank">View</a>
                 <button className="rounded-xl bg-emerald-300 px-2 py-2 text-xs font-black text-black disabled:opacity-50" disabled={isBusy} onClick={() => void reviewOnlinePayment(payment.id, 'approve')} type="button">Approve</button>
-                <button className="rounded-xl border border-red-400/20 px-2 py-2 text-xs font-black text-red-300 disabled:opacity-50" disabled={isBusy} onClick={() => void reviewOnlinePayment(payment.id, 'reject')} type="button">Reject</button>
+                <button className="rounded-xl border border-red-200 bg-white px-2 py-2 text-xs font-black text-red-700 disabled:opacity-50" disabled={isBusy} onClick={() => void reviewOnlinePayment(payment.id, 'reject')} type="button">Reject</button>
               </div>
             </article>
           ))}
-          {!onlinePayments.length ? <p className="rounded-2xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500">No pending online receipts.</p> : null}
+          {!onlinePayments.length ? <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">No pending online receipts.</p> : null}
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300"><Settings2 className="size-5" /></span><CardTitle className="mt-2 text-xl">Digital payment channels</CardTitle></CardHeader>
+        <CardHeader><span className="flex size-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-700"><Settings2 className="size-5" /></span><CardTitle className="mt-2 text-xl">Digital payment channels</CardTitle></CardHeader>
         <CardContent className="flex min-w-0 flex-col gap-3 pt-5">
           {paymentChannels.map((channel) => (
-            <form className="flex min-w-0 flex-col gap-2 rounded-2xl border border-white/10 bg-black p-3" key={channel.method} onSubmit={(event) => void saveChannel(event, channel.method)}>
+            <form className="flex min-w-0 flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3" key={channel.method} onSubmit={(event) => void saveChannel(event, channel.method)}>
               <input className={fieldClass} defaultValue={channel.displayName} name="displayName" placeholder="Display name" required />
               <input className={fieldClass} defaultValue={channel.accountValue} name="accountValue" placeholder="Wallet, handle, or account" required />
-              <textarea className="min-h-20 w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm" defaultValue={channel.instructions ?? ''} name="instructions" placeholder="Student instructions" />
+              <textarea className="min-h-20 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100" defaultValue={channel.instructions ?? ''} name="instructions" placeholder="Student instructions" />
               <div className="flex items-center justify-between gap-2"><label className="flex items-center gap-2 text-xs font-bold"><input defaultChecked={channel.isActive} name="isActive" type="checkbox" /> Active</label><Button disabled={isBusy} size="sm" type="submit">Save {channel.method.replaceAll('_', ' ')}</Button></div>
             </form>
           ))}
@@ -496,15 +496,15 @@ export function AccountingPortal({
 
           {pendingSubscriptions.map((subscription) => (
             <article
-              className="flex min-w-0 items-center gap-3 rounded-2xl border border-amber-400/15 bg-amber-400/5 p-4"
+              className="flex min-w-0 items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4"
               key={subscription.id}
             >
-              <Clock3 className="size-5 shrink-0 text-amber-300" />
+              <Clock3 className="size-5 shrink-0 text-amber-600" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-black">
                   {subscription.studentName}
                 </span>
-                <span className="block truncate text-xs text-zinc-500">
+                <span className="block truncate text-xs text-slate-600">
                   {subscription.courseTitle}
                 </span>
               </span>
@@ -523,7 +523,7 @@ export function AccountingPortal({
             </article>
           ))}
           {!pendingSubscriptions.length ? (
-            <p className="rounded-2xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500">
+            <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
               No pending subscriptions.
             </p>
           ) : null}
@@ -537,16 +537,16 @@ export function AccountingPortal({
         </div>
         {ledger.map((payment) => (
           <article
-            className="flex min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4"
+            className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
             key={payment.id}
           >
             <div className="flex min-w-0 items-start gap-3">
-              <FileText className="mt-0.5 size-5 shrink-0 text-violet-300" />
+              <FileText className="mt-0.5 size-5 shrink-0 text-sky-700" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-black">
                   {payment.studentName}
                 </span>
-                <span className="block truncate text-xs text-zinc-500">
+                <span className="block truncate text-xs text-slate-600">
                   {payment.receiptNumber} · {payment.paymentType.replaceAll('_', ' ')}
                 </span>
               </span>
@@ -557,8 +557,8 @@ export function AccountingPortal({
                 <Badge
                   className={
                     payment.status === 'APPROVED'
-                      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
-                      : 'border-amber-400/20 bg-amber-400/10 text-amber-200'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : 'border-amber-200 bg-amber-50 text-amber-700'
                   }
                 >
                   {payment.status}
@@ -582,14 +582,14 @@ export function AccountingPortal({
                 </Button>
               ) : payment.status === 'APPROVED' ? (
                 <Link
-                  className="flex h-9 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-3 text-sm font-black hover:bg-white/5"
+                  className="flex h-9 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-sm font-black text-slate-700 hover:bg-slate-50"
                   href={`/accounting/receipts/${payment.id}`}
                 >
                   <ReceiptText className="size-4" />
                   Digital receipt
                 </Link>
               ) : (
-                <p className="flex-1 rounded-xl border border-red-400/10 px-3 py-2 text-center text-xs font-bold text-red-300">
+                <p className="flex-1 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-bold text-red-700">
                   No receipt issued
                 </p>
               )}

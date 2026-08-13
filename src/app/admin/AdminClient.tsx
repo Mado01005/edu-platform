@@ -16,17 +16,17 @@ const AdminGlobalOverlay = () => {
   const { isPending } = useAdmin();
   if (!isPending) return null;
   return (
-    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-center justify-center">
-      <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl shadow-2xl flex items-center gap-3">
-        <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm font-medium text-white">Processing...</span>
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]">
+      <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-xl">
+        <div className="size-5 animate-spin rounded-full border-2 border-sky-600 border-t-transparent" />
+        <span className="text-sm font-medium text-slate-900">Processing...</span>
       </div>
     </div>
   );
 };
 
 // Lazy loaded — only fetched when the admin clicks the tab
-const TabLoader = () => <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
+const TabLoader = () => <div className="flex items-center justify-center py-20"><div className="size-8 animate-spin rounded-full border-2 border-sky-600 border-t-transparent" /></div>;
 const TelemetryTab = dynamic(() => import('./components/TelemetryTab'), { loading: TabLoader, ssr: false });
 const AnnouncementTab = dynamic(() => import('./components/AnnouncementTab'), { loading: TabLoader, ssr: false });
 const TeamTab = dynamic(() => import('./components/TeamTab'), { loading: TabLoader, ssr: false });
@@ -106,7 +106,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
 
   return (
     <AdminProvider refreshPageData={refreshPageData}>
-      <section className="relative flex w-full min-w-0 flex-col gap-4 rounded-3xl border border-white/10 bg-black/45 p-3 text-white selection:bg-indigo-500 selection:text-white sm:p-5">
+      <section className="relative flex w-full min-w-0 flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-3 text-slate-900 shadow-sm selection:bg-sky-100 selection:text-slate-900 sm:p-5">
         <AdminSidebar 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
@@ -114,7 +114,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
           storageStats={storageStats} 
         />
         <AdminGlobalOverlay />
-        <div className="relative min-w-0 rounded-2xl bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.06),transparent)] p-1 sm:p-3">
+        <div className="relative min-w-0 rounded-2xl bg-slate-50 p-1 sm:p-3">
           <AdminErrorBoundary>
             {activeTab === 'upload' && (
               <UploadTab

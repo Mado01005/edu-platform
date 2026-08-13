@@ -123,17 +123,19 @@ export function StudentRadar({
     <div className="flex w-full min-w-0 flex-col gap-4">
       <section className="grid min-w-0 grid-cols-3 gap-2" aria-label="Radar metrics">
         {[
-          { icon: Activity, label: 'Active', tone: 'text-violet-300', value: totalStudents },
-          { icon: CheckCircle2, label: 'Healthy', tone: 'text-emerald-300', value: healthyCount },
-          { icon: ShieldAlert, label: 'At-Risk', tone: 'text-red-300', value: atRiskCount },
-        ].map(({ icon: Icon, label, tone, value }) => (
+          { badge: 'bg-sky-50', icon: Activity, label: 'Active', tone: 'text-sky-700', value: totalStudents },
+          { badge: 'bg-emerald-50', icon: CheckCircle2, label: 'Healthy', tone: 'text-emerald-700', value: healthyCount },
+          { badge: 'bg-red-50', icon: ShieldAlert, label: 'At-Risk', tone: 'text-red-700', value: atRiskCount },
+        ].map(({ badge, icon: Icon, label, tone, value }) => (
           <article
-            className="min-w-0 rounded-2xl border border-white/10 bg-zinc-950 p-3 text-center"
+            className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm"
             key={label}
           >
-            <Icon className={`mx-auto size-4 ${tone}`} aria-hidden="true" />
-            <p className="mt-2 text-2xl font-black">{value}</p>
-            <p className="truncate text-[9px] font-black uppercase tracking-wider text-zinc-500">
+            <span className={`mx-auto flex size-8 items-center justify-center rounded-xl ${badge} ${tone}`}>
+              <Icon className="size-4" aria-hidden="true" />
+            </span>
+            <p className="mt-2 text-2xl font-black text-slate-900">{value}</p>
+            <p className="truncate text-[9px] font-black uppercase tracking-wider text-slate-600">
               {label}
             </p>
           </article>
@@ -142,12 +144,12 @@ export function StudentRadar({
 
       <form
         action="/admin/radar"
-        className="flex min-w-0 flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-4"
+        className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
         method="get"
       >
         <label className="relative min-w-0">
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500"
             aria-hidden="true"
           />
           <Input
@@ -162,7 +164,7 @@ export function StudentRadar({
         <div className="grid min-w-0 grid-cols-2 gap-2">
           <select
             aria-label="Filter by grade level"
-            className="h-11 min-w-0 rounded-xl border border-white/10 bg-black px-3 text-sm font-bold outline-none focus:border-violet-400"
+            className="h-11 min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
             defaultValue={filters.grade}
             name="grade"
           >
@@ -176,7 +178,7 @@ export function StudentRadar({
           </select>
           <select
             aria-label="Filter by engagement status"
-            className="h-11 min-w-0 rounded-xl border border-white/10 bg-black px-3 text-sm font-bold outline-none focus:border-violet-400"
+            className="h-11 min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
             defaultValue={filters.status}
             name="status"
           >
@@ -188,7 +190,7 @@ export function StudentRadar({
         <Button className="w-full" type="submit" variant="outline">
           Apply radar filters
         </Button>
-        <p className="text-center text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+        <p className="text-center text-[10px] font-bold uppercase tracking-wider text-slate-600">
           {filteredCount} matching {filteredCount === 1 ? 'student' : 'students'}
         </p>
       </form>
@@ -197,8 +199,8 @@ export function StudentRadar({
         <div
           className={`rounded-2xl border px-4 py-3 text-sm font-bold ${
             error
-              ? 'border-red-400/20 bg-red-400/10 text-red-200'
-              : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+              ? 'border-red-200 bg-red-50 text-red-700'
+              : 'border-emerald-200 bg-emerald-50 text-emerald-700'
           }`}
           role={error ? 'alert' : 'status'}
         >
@@ -211,8 +213,8 @@ export function StudentRadar({
           <article
             className={`min-w-0 rounded-2xl border p-4 ${
               student.isAtRisk
-                ? 'border-red-400/20 bg-red-400/5'
-                : 'border-emerald-400/15 bg-zinc-950'
+                ? 'border-red-200 bg-red-50/50'
+                : 'border-emerald-200 bg-white shadow-sm'
             }`}
             key={student.id}
           >
@@ -220,24 +222,24 @@ export function StudentRadar({
               <span
                 className={`flex size-12 shrink-0 items-center justify-center rounded-2xl text-lg font-black ${
                   student.isAtRisk
-                    ? 'bg-red-400/10 text-red-200'
-                    : 'bg-emerald-400/10 text-emerald-200'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-emerald-100 text-emerald-700'
                 }`}
               >
                 {Math.round(student.healthPercentage)}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-black">
+                <p className="truncate font-black text-slate-900">
                   {student.name ?? 'Unnamed student'}
                 </p>
-                <p className="truncate text-xs text-zinc-500">{student.email}</p>
+                <p className="truncate text-xs text-slate-600">{student.email}</p>
                 <div className="mt-2 flex min-w-0 flex-wrap gap-2">
                   <Badge variant="secondary">{gradeLabel(student.gradeLevel)}</Badge>
                   <Badge
                     className={
                       student.isAtRisk
-                        ? 'border-red-400/20 bg-red-400/10 text-red-200'
-                        : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+                        ? 'border-red-200 bg-red-50 text-red-700'
+                        : 'border-emerald-200 bg-emerald-50 text-emerald-700'
                     }
                   >
                     {student.isAtRisk ? 'At-Risk' : 'Healthy'}
@@ -252,16 +254,16 @@ export function StudentRadar({
                 ['Video', student.videoCompletion],
                 ['Work', student.assignmentScore],
               ].map(([label, value]) => (
-                <div className="min-w-0 rounded-xl bg-black/60 p-2" key={label}>
-                  <p className="text-sm font-black">{Math.round(Number(value))}%</p>
-                  <p className="truncate text-[9px] font-bold uppercase text-zinc-600">
+                <div className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 p-2" key={label}>
+                  <p className="text-sm font-black text-slate-900">{Math.round(Number(value))}%</p>
+                  <p className="truncate text-[9px] font-bold uppercase text-slate-600">
                     {label}
                   </p>
                 </div>
               ))}
             </div>
 
-            <p className="mt-3 text-xs text-zinc-500">
+            <p className="mt-3 text-xs text-slate-600">
               Last active{' '}
               {new Intl.DateTimeFormat('en-US', {
                 dateStyle: 'medium',
@@ -288,7 +290,7 @@ export function StudentRadar({
         ))}
 
         {!filteredCount ? (
-          <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
             No students match these filters.
           </div>
         ) : null}
@@ -310,7 +312,7 @@ export function StudentRadar({
                 Previous
               </span>
             )}
-            <span className="text-xs font-bold text-zinc-500">
+            <span className="text-xs font-bold text-slate-600">
               {page} / {pageCount}
             </span>
             {page < pageCount ? (

@@ -35,32 +35,32 @@ export function AdminStorageWidget({
         : 'bg-emerald-400';
   const statusTone =
     percent >= 90
-      ? 'text-red-300'
+      ? 'text-red-700'
       : percent >= 70
-        ? 'text-amber-300'
-        : 'text-emerald-300';
+        ? 'text-amber-700'
+        : 'text-emerald-700';
 
   return (
     <Link
-      className="group flex min-w-0 flex-col gap-4 rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.14),transparent_52%)] p-5 transition hover:border-cyan-400/30 hover:bg-cyan-400/[0.05]"
+      className="group flex min-w-0 flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 text-slate-900 shadow-sm transition hover:border-sky-300 hover:bg-sky-50"
       href="/admin/storage"
     >
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
           <Database className="size-5" aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-xs font-black uppercase tracking-[0.18em] text-cyan-300">
+          <span className="block text-xs font-black uppercase tracking-[0.18em] text-sky-700">
             R2 storage
           </span>
           <span className="mt-1 block truncate text-lg font-black">
             {formatBytes(totalBytes)} used
           </span>
         </span>
-        <ArrowRight className="size-5 shrink-0 text-zinc-600 transition group-hover:translate-x-1 group-hover:text-cyan-300" />
+        <ArrowRight className="size-5 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-sky-700" />
       </div>
       <div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/5">
+        <div className="h-2 overflow-hidden rounded-full bg-slate-100">
           <div
             className={`h-full rounded-full ${barTone}`}
             style={{ width: `${Math.min(percent, 100)}%` }}

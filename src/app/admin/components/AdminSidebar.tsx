@@ -61,12 +61,12 @@ export default function AdminSidebar<TabId extends string>({
   };
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-white/5 bg-[#0A0A0F] p-4">
+    <div className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex min-w-0 items-center gap-3">
-         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-xl">🧭</div>
+         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-sky-200 bg-sky-50 text-xl">🧭</div>
          <div>
            <h2 className="text-lg font-black tracking-tight">Course content tools</h2>
-           <p className="text-xs font-bold text-zinc-500">Choose the task you want to open.</p>
+           <p className="text-xs font-bold text-slate-600">Choose the task you want to open.</p>
          </div>
       </div>
 
@@ -77,8 +77,8 @@ export default function AdminSidebar<TabId extends string>({
             onClick={() => setActiveTab(tab.id)}
             className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 text-center text-xs font-black transition ${
               activeTab === tab.id 
-                ? 'border-white bg-white text-black shadow-xl'
-                : 'text-gray-500 border-transparent hover:bg-white/5 hover:text-white'
+                ? 'border-sky-600 bg-sky-600 text-white shadow-sm'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
             }`}
           >
             <span className="text-lg" aria-hidden="true">{tab.icon}</span>
@@ -88,24 +88,24 @@ export default function AdminSidebar<TabId extends string>({
       </div>
 
       {storageStats && (
-        <details className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 shadow-inner">
-          <summary className="cursor-pointer text-xs font-black text-indigo-300">File storage details</summary>
+        <details className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <summary className="cursor-pointer text-xs font-black text-sky-700">File storage details</summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
                <div className="flex justify-between items-center text-[10px]">
-                  <span className="font-bold uppercase tracking-widest text-gray-500">Uploaded files</span>
-                  <span className="text-white font-black">{storageStats.r2.estimatedMB}MB</span>
+                  <span className="font-bold uppercase tracking-widest text-slate-600">Uploaded files</span>
+                  <span className="font-black text-slate-900">{storageStats.r2.estimatedMB}MB</span>
                </div>
-               <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+               <div className="h-1 overflow-hidden rounded-full bg-slate-200">
                   <div className="h-full bg-orange-500 transition-all duration-1000" style={{ width: `${storageStats.r2.percentUsed}%` }}></div>
                </div>
             </div>
             <div className="space-y-1.5">
                <div className="flex justify-between items-center text-[10px]">
-                  <span className="font-bold uppercase tracking-widest text-gray-500">Database</span>
-                  <span className="text-white font-black">{storageStats.supabase.estimatedMB}MB</span>
+                  <span className="font-bold uppercase tracking-widest text-slate-600">Database</span>
+                  <span className="font-black text-slate-900">{storageStats.supabase.estimatedMB}MB</span>
                </div>
-               <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+               <div className="h-1 overflow-hidden rounded-full bg-slate-200">
                   <div className="h-full bg-blue-500 transition-all duration-1000" style={{ width: `${storageStats.supabase.percentUsed}%` }}></div>
                </div>
             </div>

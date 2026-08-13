@@ -56,17 +56,17 @@ export default async function AccountingPage() {
 
   return (
     <PortalShell user={accountingUser}>
-      <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,.2),transparent_55%)] p-5">
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-300 text-black">
+      <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
           <Banknote className="size-5" aria-hidden="true" />
         </span>
-        <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
+        <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-emerald-700">
           Restricted finance workspace
         </p>
-        <h1 className="mt-2 text-3xl font-black tracking-tight">
+        <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">
           Accounting ledger
         </h1>
-        <p className="mt-2 text-sm leading-6 text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-slate-600">
           Approve subscriptions and keep immutable USD/EGP receipt records.
         </p>
       </header>
@@ -86,12 +86,14 @@ export default async function AccountingPage() {
           { icon: Banknote, label: 'Students', value: students.length },
         ].map(({ icon: Icon, label, value }) => (
           <div
-            className="min-w-0 rounded-2xl border border-white/10 bg-zinc-950 p-3 text-center"
+            className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm"
             key={label}
           >
-            <Icon className="mx-auto size-4 text-emerald-300" aria-hidden="true" />
-            <p className="mt-2 text-xl font-black">{value}</p>
-            <p className="truncate text-[9px] font-bold uppercase tracking-wider text-zinc-500">
+            <span className="mx-auto flex size-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <Icon className="size-4" aria-hidden="true" />
+            </span>
+            <p className="mt-2 text-xl font-black text-slate-900">{value}</p>
+            <p className="truncate text-[9px] font-bold uppercase tracking-wider text-slate-600">
               {label}
             </p>
           </div>

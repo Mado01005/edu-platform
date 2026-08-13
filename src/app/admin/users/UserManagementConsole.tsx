@@ -75,36 +75,36 @@ function formatJoinedDate(value: string) {
 
 function roleBadgeClass(role: Role) {
   if (role === 'SUPER_ADMIN') {
-    return 'border-amber-400/20 bg-amber-400/10 text-amber-200';
+    return 'border-amber-200 bg-amber-50 text-amber-700';
   }
 
   if (role === 'ADMIN') {
-    return 'border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-200';
+    return 'border-blue-200 bg-blue-50 text-blue-700';
   }
 
   if (role === 'TEACHER') {
-    return 'border-sky-400/20 bg-sky-400/10 text-sky-200';
+    return 'border-sky-200 bg-sky-50 text-sky-700';
   }
 
   if (role === 'SUPPORT') {
-    return 'border-cyan-400/20 bg-cyan-400/10 text-cyan-200';
+    return 'border-cyan-200 bg-cyan-50 text-cyan-700';
   }
 
   if (role === 'ACCOUNTING') {
-    return 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200';
+    return 'border-emerald-200 bg-emerald-50 text-emerald-700';
   }
 
   if (role === 'PARENT') {
-    return 'border-pink-400/20 bg-pink-400/10 text-pink-200';
+    return 'border-rose-200 bg-rose-50 text-rose-700';
   }
 
-  return 'border-violet-400/20 bg-violet-400/10 text-violet-200';
+  return 'border-slate-200 bg-slate-100 text-slate-700';
 }
 
 function accountState(user: AdminUserRecord) {
   if (user.status === 'DISABLED') {
     return {
-      className: 'border-red-400/20 bg-red-400/10 text-red-200',
+      className: 'border-red-200 bg-red-50 text-red-700',
       icon: UserX,
       label: 'Disabled',
     };
@@ -112,7 +112,7 @@ function accountState(user: AdminUserRecord) {
 
   if (!user.authPresent) {
     return {
-      className: 'border-amber-400/20 bg-amber-400/10 text-amber-200',
+      className: 'border-amber-200 bg-amber-50 text-amber-700',
       icon: AlertTriangle,
       label: 'Auth missing',
     };
@@ -120,14 +120,14 @@ function accountState(user: AdminUserRecord) {
 
   if (!user.emailConfirmed) {
     return {
-      className: 'border-amber-400/20 bg-amber-400/10 text-amber-200',
+      className: 'border-amber-200 bg-amber-50 text-amber-700',
       icon: AlertTriangle,
       label: 'Pending',
     };
   }
 
   return {
-    className: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-700',
     icon: CheckCircle2,
     label: 'Active',
   };
@@ -273,16 +273,16 @@ export function UserManagementConsole({
     <>
       <div className="grid w-full min-w-0 grid-cols-2 gap-3">
         {metricCards.map(({ icon: Icon, label, value }) => (
-          <Card className="rounded-2xl bg-white/[0.03]" key={label}>
+          <Card className="rounded-2xl border-slate-200 bg-white shadow-sm" key={label}>
             <CardContent className="flex min-w-0 items-center gap-3 px-4 py-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-violet-200">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
                 <Icon className="size-4" aria-hidden="true" />
               </span>
               <span className="min-w-0">
-                <span className="block text-2xl font-black text-white">
+                <span className="block text-2xl font-black text-slate-900">
                   {value}
                 </span>
-                <span className="block truncate text-[10px] font-bold uppercase tracking-[0.13em] text-zinc-500">
+                <span className="block truncate text-[10px] font-bold uppercase tracking-[0.13em] text-slate-600">
                   {label}
                 </span>
               </span>
@@ -292,7 +292,7 @@ export function UserManagementConsole({
       </div>
 
       {!authStatusAvailable ? (
-        <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100">
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
           Supabase account statuses are temporarily unavailable. Prisma role
           management remains visible, but mutations are paused until Auth can
           be reached.
@@ -301,7 +301,7 @@ export function UserManagementConsole({
 
       {notice ? (
         <div
-          className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-100"
+          className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700"
           role="status"
         >
           {notice}
@@ -309,19 +309,19 @@ export function UserManagementConsole({
       ) : null}
       {error ? (
         <div
-          className="rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm font-bold text-red-100"
+          className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
           role="alert"
         >
           {error}
         </div>
       ) : null}
 
-      <Card className="rounded-2xl bg-white/[0.03]">
+      <Card className="rounded-2xl border-slate-200 bg-white shadow-sm">
         <CardContent className="flex min-w-0 flex-col gap-3 px-4 py-4">
           <label className="relative min-w-0">
             <span className="sr-only">Search by name or email</span>
             <Search
-              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-500"
               aria-hidden="true"
             />
             <Input
@@ -335,7 +335,7 @@ export function UserManagementConsole({
           <label className="min-w-0">
             <span className="sr-only">Filter by role</span>
             <select
-              className="h-12 w-full min-w-0 rounded-xl border border-white/10 bg-zinc-950 px-4 text-sm font-bold text-white outline-none transition focus:border-violet-400/50 focus:ring-4 focus:ring-violet-400/10"
+              className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
               onChange={(event) =>
                 setRoleFilter(event.target.value as RoleFilter)
               }
@@ -377,7 +377,7 @@ export function UserManagementConsole({
 
           return (
             <Card
-              className="rounded-2xl bg-white/[0.03]"
+              className="rounded-2xl border-slate-200 bg-white shadow-sm"
               key={user.id}
               role="row"
             >
@@ -392,10 +392,10 @@ export function UserManagementConsole({
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-black text-white">
+                    <p className="truncate font-black text-slate-900">
                       {user.name?.trim() || 'Unnamed user'}
                     </p>
-                    <p className="mt-0.5 truncate text-xs text-zinc-500">
+                    <p className="mt-0.5 truncate text-xs text-slate-600">
                       {user.email}
                     </p>
                     <div className="mt-2 flex min-w-0 flex-wrap gap-2">
@@ -479,26 +479,26 @@ export function UserManagementConsole({
 
                 <div className="grid min-w-0 grid-cols-2 gap-3 text-xs">
                   <div
-                    className="min-w-0 rounded-xl bg-black/50 px-3 py-3"
+                    className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
                     role="cell"
                   >
-                    <p className="flex items-center gap-1.5 font-bold text-zinc-500">
+                    <p className="flex items-center gap-1.5 font-bold text-slate-600">
                       <BookOpenCheck className="size-3.5" aria-hidden="true" />
                       Enrolled
                     </p>
-                    <p className="mt-1 font-black text-white">
+                    <p className="mt-1 font-black text-slate-900">
                       {user.enrolledCourses} courses
                     </p>
                   </div>
                   <div
-                    className="min-w-0 rounded-xl bg-black/50 px-3 py-3"
+                    className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
                     role="cell"
                   >
-                    <p className="flex items-center gap-1.5 font-bold text-zinc-500">
+                    <p className="flex items-center gap-1.5 font-bold text-slate-600">
                       <CalendarDays className="size-3.5" aria-hidden="true" />
                       Joined
                     </p>
-                    <p className="mt-1 truncate font-black text-white">
+                    <p className="mt-1 truncate font-black text-slate-900">
                       {formatJoinedDate(user.createdAt)}
                     </p>
                   </div>
@@ -509,11 +509,11 @@ export function UserManagementConsole({
         })}
 
         {!filteredUsers.length ? (
-          <Card className="rounded-2xl border-dashed bg-transparent">
+          <Card className="rounded-2xl border-dashed border-slate-300 bg-slate-50">
             <CardContent className="px-5 py-10 text-center">
-              <Users className="mx-auto size-8 text-zinc-700" />
-              <p className="mt-3 font-black text-white">No users found</p>
-              <p className="mt-1 text-sm text-zinc-500">
+              <Users className="mx-auto size-8 text-slate-400" />
+              <p className="mt-3 font-black text-slate-900">No users found</p>
+              <p className="mt-1 text-sm text-slate-600">
                 Adjust the search or role filter.
               </p>
             </CardContent>

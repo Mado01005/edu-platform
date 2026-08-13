@@ -97,24 +97,24 @@ export default async function AdminUsersPage() {
   return (
     <PortalShell user={admin}>
         <Link
-          className="flex w-fit items-center gap-2 text-sm font-bold text-zinc-400 transition hover:text-white"
+          className="flex w-fit items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-sky-700"
           href="/dashboard"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           Back to dashboard
         </Link>
 
-        <header className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.25),transparent_55%)] p-5">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-violet-400 text-black shadow-lg shadow-violet-500/20">
+        <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-700">
             <ShieldCheck className="size-5" aria-hidden="true" />
           </span>
-          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-sky-700">
             Administrator console
           </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight">
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">
             User management
           </h1>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             Search accounts, review access, and manage LMS roles without
             leaving the learning workspace.
           </p>
