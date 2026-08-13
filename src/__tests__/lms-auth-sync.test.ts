@@ -4,6 +4,8 @@ const mockUserCreate = jest.fn();
 const mockUserUpdate = jest.fn();
 const mockRecordStudentActivity = jest.fn();
 const mockGetClaims = jest.fn();
+const mockGetUser = jest.fn();
+const mockHeaders = jest.fn();
 
 jest.mock('server-only', () => ({}));
 jest.mock('@/lib/prisma', () => ({
@@ -19,15 +21,23 @@ jest.mock('@/lib/prisma', () => ({
 jest.mock('@/lib/lms/health', () => ({
   recordStudentActivity: mockRecordStudentActivity,
 }));
+jest.mock('next/headers', () => ({
+  cookies: async () => ({ get: () => null, set: () => {} }),
+  headers: mockHeaders,
+}));
 jest.mock('@/lib/supabase/ssr-server', () => ({
   createSupabaseServerClient: async () => ({
-    auth: { getClaims: mockGetClaims },
+    auth: { getClaims: mockGetClaims, getUser: mockGetUser },
   }),
 }));
 
 import { getLmsUser } from '@/lib/lms/auth';
 
 describe('Supabase to Prisma LMS user synchronization', () => {
+  beforeEach(() => {
+    mockHeaders.mockResolvedValue(new Headers());
+  });
+
   it('creates a missing Prisma profile from verified Supabase claims', async () => {
     mockGetClaims.mockResolvedValue({
       data: {
@@ -70,5 +80,54 @@ describe('Supabase to Prisma LMS user synchronization', () => {
       },
     });
     expect(mockRecordStudentActivity).not.toHaveBeenCalled();
+  });
+
+  it('resolves a verified Bearer identity for API route role checks', async () => {
+    mockHeaders.mockResolvedValue(
+      new Headers({ authorization: 'Bearer verified.jwt.token' }),
+    );
+    mockGetUser.mockResolvedValue({
+      data: {
+        user: {
+          app_metadata: { role: 'ADMIN' },
+          email: 'admin@example.com',
+          id: 'supabase-admin-1',
+          phone: null,
+          user_metadata: { full_name: 'Admin Example' },
+        },
+      },
+      error: null,
+    });
+    mockUserFindUnique.mockResolvedValue({
+      email: 'admin@example.com',
+      id: 'lms-admin-1',
+      name: 'Admin Example',
+      phoneNumber: null,
+      role: 'ADMIN',
+      status: 'ACTIVE',
+      supabaseId: 'supabase-admin-1',
+    });
+
+    const user = await getLmsUser();
+
+    expect(mockGetUser).toHaveBeenCalledWith('verified.jwt.token');
+    expect(mockGetClaims).not.toHaveBeenCalled();
+    expect(user).toMatchObject({
+      email: 'admin@example.com',
+      role: 'ADMIN',
+      supabaseId: 'supabase-admin-1',
+    });
+  });
+
+  it('does not fall back to cookie claims for a malformed Authorization header', async () => {
+    mockHeaders.mockResolvedValue(
+      new Headers({ authorization: 'Basic credentials' }),
+    );
+
+    const user = await getLmsUser();
+
+    expect(user).toBeNull();
+    expect(mockGetUser).not.toHaveBeenCalled();
+    expect(mockGetClaims).not.toHaveBeenCalled();
   });
 });

@@ -2,7 +2,7 @@ import 'server-only';
 
 import { Prisma, type Role, type User } from '@prisma/client';
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { cache } from 'react';
 import {
   ACTIVE_SESSION_COOKIE,
@@ -18,6 +18,8 @@ import {
   isLmsRole,
 } from '@/lib/lms/roles';
 import { createSupabaseServerClient } from '@/lib/supabase/ssr-server';
+
+const BEARER_TOKEN_PATTERN = /^Bearer[\t ]+([^\s,]+)$/i;
 
 export class LmsAuthError extends Error {
   constructor(message: string, public readonly status = 401) {
@@ -52,13 +54,10 @@ function readAppRole(claims: Record<string, unknown>): Role {
   return isLmsRole(role) ? role : 'STUDENT';
 }
 
-export async function getVerifiedLmsIdentity() {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.auth.getClaims();
-  const claims = data?.claims as Record<string, unknown> | undefined;
-  const supabaseId = claims?.sub;
-  const claimEmail = claims?.email;
-  const claimPhone = claims?.phone;
+function readIdentity(claims: Record<string, unknown>) {
+  const supabaseId = claims.sub;
+  const claimEmail = claims.email;
+  const claimPhone = claims.phone;
   const phoneNumber =
     typeof claimPhone === 'string'
       ? normalizePhoneNumber(claimPhone)
@@ -70,12 +69,7 @@ export async function getVerifiedLmsIdentity() {
         ? `${supabaseId}@invalid.local`
         : null;
 
-  if (
-    !claims ||
-    error ||
-    typeof supabaseId !== 'string' ||
-    !email
-  ) {
+  if (typeof supabaseId !== 'string' || !email) {
     return null;
   }
 
@@ -86,6 +80,48 @@ export async function getVerifiedLmsIdentity() {
     phoneNumber,
     role: readAppRole(claims),
   };
+}
+
+export async function getVerifiedLmsIdentity() {
+  const supabase = await createSupabaseServerClient();
+  const requestHeaders = await headers();
+  const authorization = requestHeaders.get('authorization');
+
+  // API middleware validates Bearer tokens at the network boundary, but route
+  // handlers must independently resolve that same identity for role checks.
+  // A present malformed/invalid header must never fall back to cookie auth.
+  if (authorization !== null) {
+    const accessToken = BEARER_TOKEN_PATTERN.exec(authorization)?.[1];
+    if (!accessToken) {
+      return null;
+    }
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(accessToken);
+
+    if (error || !user) {
+      return null;
+    }
+
+    return readIdentity({
+      app_metadata: user.app_metadata,
+      email: user.email,
+      phone: user.phone,
+      sub: user.id,
+      user_metadata: user.user_metadata,
+    });
+  }
+
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims as Record<string, unknown> | undefined;
+
+  if (!claims || error) {
+    return null;
+  }
+
+  return readIdentity(claims);
 }
 
 async function synchronizeLmsUser(
