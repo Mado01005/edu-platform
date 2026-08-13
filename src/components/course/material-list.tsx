@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import {
-  Download,
-  ExternalLink,
+  Eye,
   FileArchive,
   FileText,
   Paperclip,
 } from 'lucide-react';
+import { DocumentViewer } from '@/components/course/document-viewer';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/UI/dialog';
 import { formatMaterialFileSize } from '@/lib/lms/material-types';
 import { cn } from '@/lib/utils';
 
@@ -21,10 +22,10 @@ export type CourseMaterialItem = {
 
 type MaterialTab = 'course' | 'lesson';
 
-function MaterialRows({ materials }: { materials: CourseMaterialItem[] }) {
+function MaterialRows({ materials, onPreview }: { materials: CourseMaterialItem[]; onPreview: (material: CourseMaterialItem) => void }) {
   if (!materials.length) {
     return (
-      <p className="rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-zinc-600">
+      <p className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">
         No attachments in this section yet.
       </p>
     );
@@ -34,10 +35,10 @@ function MaterialRows({ materials }: { materials: CourseMaterialItem[] }) {
     <ul className="flex min-w-0 flex-col gap-2">
       {materials.map((material) => (
         <li
-          className="flex min-w-0 flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-3 sm:flex-row sm:items-center"
+          className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center"
           key={material.id}
         >
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-violet-300">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
             {material.fileType === 'ZIP' ? (
               <FileArchive className="size-5" aria-hidden="true" />
             ) : (
@@ -45,30 +46,21 @@ function MaterialRows({ materials }: { materials: CourseMaterialItem[] }) {
             )}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-black text-zinc-200">
+            <span className="block truncate text-sm font-black text-slate-800">
               {material.title}
             </span>
-            <span className="mt-1 block text-[10px] font-black uppercase tracking-wider text-zinc-600">
+            <span className="mt-1 block text-[10px] font-black uppercase tracking-wider text-slate-500">
               {material.fileType} · {formatMaterialFileSize(material.fileSize)}
             </span>
           </span>
-          <span className="grid shrink-0 grid-cols-2 gap-2">
-            <a
-              className="flex items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-black text-zinc-300 hover:bg-white/5 hover:text-white"
-              href={material.fileUrl}
-              rel="noopener noreferrer"
-              target="_blank"
+          <span className="grid shrink-0 grid-cols-1 gap-2">
+            <button
+              className="flex min-h-10 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-black text-sky-700 hover:bg-sky-100"
+              onClick={() => onPreview(material)}
+              type="button"
             >
-              <ExternalLink className="size-3.5" aria-hidden="true" />
-              Preview
-            </a>
-            <a
-              className="flex items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-black text-black hover:bg-zinc-200"
-              href={`/api/lms/materials/${material.id}/download`}
-            >
-              <Download className="size-3.5" aria-hidden="true" />
-              Download
-            </a>
+              <Eye className="size-3.5" aria-hidden="true" /> Read in app
+            </button>
           </span>
         </li>
       ))}
@@ -86,26 +78,27 @@ export function MaterialList({
   const [activeTab, setActiveTab] = useState<MaterialTab>(
     lessonMaterials.length ? 'lesson' : 'course',
   );
+  const [previewing, setPreviewing] = useState<CourseMaterialItem | null>(null);
   const materials =
     activeTab === 'lesson' ? lessonMaterials : courseMaterials;
 
   return (
-    <section className="min-w-0 rounded-2xl border border-white/10 bg-zinc-950 p-4 sm:p-5">
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex min-w-0 items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-violet-300">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
           <Paperclip className="size-5" aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
           <h2 className="font-black">Course Resources &amp; Attachments</h2>
-          <p className="mt-1 text-xs leading-5 text-zinc-500">
-            Preview lesson files or download them for offline study.
+          <p className="mt-1 text-xs leading-5 text-slate-500">
+            Read course documents directly without leaving the lesson.
           </p>
         </span>
       </div>
 
       <div
         aria-label="Material sections"
-        className="mt-4 grid grid-cols-2 gap-1 rounded-xl bg-black p-1"
+        className="mt-4 grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1"
         role="tablist"
       >
         {(
@@ -119,8 +112,8 @@ export function MaterialList({
             className={cn(
               'min-w-0 truncate rounded-lg px-3 py-2 text-xs font-black transition',
               activeTab === tab
-                ? 'bg-violet-400 text-black'
-                : 'text-zinc-500 hover:text-white',
+                ? 'bg-white text-sky-700 shadow-sm'
+                : 'text-slate-500 hover:text-sky-700',
             )}
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -133,8 +126,11 @@ export function MaterialList({
       </div>
 
       <div className="mt-3" role="tabpanel">
-        <MaterialRows materials={materials} />
+        <MaterialRows materials={materials} onPreview={setPreviewing} />
       </div>
+      <Dialog open={Boolean(previewing)} onOpenChange={(open) => { if (!open) setPreviewing(null); }}>
+        {previewing ? <DialogContent className="max-w-5xl"><DialogHeader><DialogTitle className="truncate">{previewing.title}</DialogTitle><DialogDescription>Protected course document viewer</DialogDescription></DialogHeader><DocumentViewer fileType={previewing.fileType} title={previewing.title} url={previewing.fileUrl} /></DialogContent> : null}
+      </Dialog>
     </section>
   );
 }

@@ -14,12 +14,7 @@ import {
 import { Button, buttonVariants } from '@/components/UI/button';
 import { Card } from '@/components/UI/card';
 import { Input } from '@/components/UI/input';
-import {
-  COURSE_CATEGORIES,
-  CourseCard,
-  getCourseCategories,
-  type CourseCategory,
-} from '@/components/lms/CourseCard';
+import { CourseCard } from '@/components/lms/CourseCard';
 import { LmsHeader } from '@/components/lms/LmsHeader';
 import { getLmsUser } from '@/lib/lms/auth';
 import { serializeCoursePrice } from '@/lib/lms/catalog-serialization';
@@ -41,6 +36,8 @@ const getCachedPublishedCourses = unstable_cache(
           imageUrl: true,
           priceEGP: true,
           priceUSD: true,
+          gradeLevel: true,
+          subject: { select: { grade: true, id: true, name: true } },
           teacher: { select: { name: true } },
           modules: {
             orderBy: { position: 'asc' },
@@ -67,7 +64,7 @@ const getCachedPublishedCourses = unstable_cache(
       priceUSD: serializeCoursePrice(course.priceUSD),
     }));
   },
-  ['published-course-catalog-v2'],
+  ['published-course-catalog-v3'],
   { revalidate: 60, tags: ['catalog'] },
 );
 
@@ -90,17 +87,11 @@ const getCachedPaymentChannels = unstable_cache(
   { revalidate: 60, tags: ['catalog'] },
 );
 
-function selectedCategory(value: string | undefined): CourseCategory {
-  return COURSE_CATEGORIES.includes(value as CourseCategory)
-    ? (value as CourseCategory)
-    : 'All Courses';
-}
-
-function categoryHref(category: CourseCategory, query: string) {
+function categoryHref(category: string, query: string) {
   const params = new URLSearchParams();
 
   if (query) params.set('q', query);
-  if (category !== 'All Courses') params.set('category', category);
+  if (category !== 'all') params.set('category', category);
 
   const search = params.toString();
   return search ? `/catalog?${search}` : '/catalog';
@@ -155,25 +146,57 @@ export default async function CatalogPage({
       enrollmentRowsPromise,
     ]);
   const query = q?.trim().slice(0, 100) ?? '';
-  const activeCategory = selectedCategory(category);
+  const gradeOptions = Array.from(
+    new Set(cachedCatalog.map((course) => course.gradeLevel).filter(Boolean)),
+  )
+    .sort()
+    .map((grade) => ({
+      id: `grade:${grade}`,
+      label: `Grade ${String(grade).replace('GRADE_', '')}`,
+    }));
+  const subjectOptions = Array.from(
+    new Map(
+      cachedCatalog
+        .filter((course) => course.subject)
+        .map((course) => [course.subject!.id, course.subject!]),
+    ).values(),
+  )
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .map((subject) => ({
+      id: `subject:${subject.id}`,
+      label: subject.name,
+    }));
+  const categoryOptions = [
+    { id: 'all', label: 'All Courses' },
+    ...gradeOptions,
+    ...subjectOptions,
+  ];
+  const activeCategory = categoryOptions.some(
+    (option) => option.id === category,
+  )
+    ? category!
+    : 'all';
   const enrolledCourseIds = new Set(
     enrollmentRows.map(({ courseId }) => courseId),
   );
   const normalizedQuery = query.toLocaleLowerCase();
   const catalog = normalizedQuery
     ? cachedCatalog.filter((course) =>
-        [course.title, course.description ?? ''].some((value) =>
-          value.toLocaleLowerCase().includes(normalizedQuery),
+        [course.title, course.description ?? '', course.subject?.name ?? ''].some(
+          (value) => value.toLocaleLowerCase().includes(normalizedQuery),
         ),
       )
     : cachedCatalog;
   const paymentChannels =
     user?.role === 'STUDENT' ? cachedPaymentChannels : [];
   const courses =
-    activeCategory === 'All Courses'
+    activeCategory === 'all'
       ? catalog
       : catalog.filter((course) =>
-          getCourseCategories(course).includes(activeCategory),
+          activeCategory.startsWith('grade:')
+            ? course.gradeLevel === activeCategory.slice(6)
+            : activeCategory.startsWith('subject:') &&
+              course.subject?.id === activeCategory.slice(8),
         );
 
   return (
@@ -188,9 +211,9 @@ export default async function CatalogPage({
                 Courses built for real progress.
               </h1>
               <p className="mt-5 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-                Learn through structured paths, expert-led video, downloadable
-                resources, and live classes—all inside one thoughtfully designed
-                workspace.
+                Learn through structured paths, expert-led video, protected
+                in-app resources, and live classes—all inside one thoughtfully
+                designed workspace.
               </p>
               <div className="mt-7 flex min-w-0 flex-col gap-3 sm:flex-row">
                 <Link
@@ -273,7 +296,7 @@ export default async function CatalogPage({
                 type="search"
               />
             </label>
-            {activeCategory !== 'All Courses' ? (
+            {activeCategory !== 'all' ? (
               <input name="category" type="hidden" value={activeCategory} />
             ) : null}
             <Button className="h-12 shrink-0 px-6" type="submit">
@@ -286,8 +309,8 @@ export default async function CatalogPage({
             className="mt-4 flex min-w-0 flex-wrap gap-2"
             role="navigation"
           >
-            {COURSE_CATEGORIES.map((courseCategory) => {
-              const active = courseCategory === activeCategory;
+            {categoryOptions.map((courseCategory) => {
+              const active = courseCategory.id === activeCategory;
 
               return (
                 <Link
@@ -298,13 +321,13 @@ export default async function CatalogPage({
                       ? 'border-sky-200 bg-sky-100 text-sky-700'
                       : 'border-slate-200 bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700',
                   )}
-                  href={categoryHref(courseCategory, query)}
-                  key={courseCategory}
+                  href={categoryHref(courseCategory.id, query)}
+                  key={courseCategory.id}
                 >
-                  {courseCategory === 'All Courses' ? (
+                  {courseCategory.id === 'all' ? (
                     <SlidersHorizontal className="size-3.5" aria-hidden="true" />
                   ) : null}
-                  {courseCategory}
+                  {courseCategory.label}
                 </Link>
               );
             })}

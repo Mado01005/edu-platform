@@ -155,7 +155,7 @@ describe('Supabase page auth proxy', () => {
     expect(response.headers.get('cache-control')).toBe('private, no-store');
   });
 
-  it('redirects a non-admin Supabase user without discarding rotation state', async () => {
+  it('redirects a teacher who tampers with the admin storage URL', async () => {
     mockGetSupabaseRequestContext.mockResolvedValue(
       supabasePageContext(
         {
@@ -168,7 +168,7 @@ describe('Supabase page auth proxy', () => {
     );
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/admin'),
+      new NextRequest('https://www.edu-platform.me/admin/storage'),
     );
     const location = new URL(response.headers.get('location')!);
 

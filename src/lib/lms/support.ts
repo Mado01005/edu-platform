@@ -103,8 +103,20 @@ export async function searchStudentsForSupport(rawQuery: string) {
   const phoneDigits = query.replace(/\D/g, '');
   const matches: Prisma.UserWhereInput[] = [
     {
+      name: {
+        contains: query,
+        mode: 'insensitive',
+      },
+    },
+    {
       email: {
-        contains: query.toLowerCase(),
+        contains: query,
+        mode: 'insensitive',
+      },
+    },
+    {
+      phoneNumber: {
+        contains: query,
         mode: 'insensitive',
       },
     },
@@ -114,6 +126,7 @@ export async function searchStudentsForSupport(rawQuery: string) {
     matches.push({
       phoneNumber: {
         contains: phoneDigits,
+        mode: 'insensitive',
       },
     });
   }

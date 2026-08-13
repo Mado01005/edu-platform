@@ -6,10 +6,10 @@ function safeNextPath(value: string | undefined) {
     : '/dashboard';
 }
 
-type LoginMode = 'signin' | 'signup' | 'forgot' | 'recovery';
+type LoginMode = 'signin' | 'signup' | 'forgot' | 'recovery' | 'phone';
 
 function safeMode(value: string | undefined): LoginMode {
-  return value === 'signup' || value === 'forgot' || value === 'recovery'
+  return value === 'signup' || value === 'forgot' || value === 'recovery' || value === 'phone'
     ? value
     : 'signin';
 }
@@ -25,6 +25,9 @@ export default async function LmsLoginPage({
   }>;
 }) {
   const { error, mode, next, reason } = await searchParams;
+  const phoneAuthEnabled =
+    process.env.SUPABASE_PHONE_AUTH_CONFIGURED === 'true';
+  const requestedMode = safeMode(mode);
   const initialError =
     reason === 'concurrent_login'
       ? '⚠️ Session Terminated — Your account was accessed from another device.'
@@ -33,8 +36,9 @@ export default async function LmsLoginPage({
   return (
     <LmsAuthExperience
       initialError={initialError}
-      initialMode={safeMode(mode)}
+      initialMode={requestedMode}
       nextPath={safeNextPath(next)}
+      phoneAuthEnabled={phoneAuthEnabled}
     />
   );
 }

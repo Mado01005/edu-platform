@@ -233,7 +233,7 @@ export function StorageDashboard({
     setPendingKey('__bulk__');
     setNotice(null);
     try {
-      const response = await fetch('/api/admin/storage', {
+      const response = await fetch('/api/admin/storage/bulk-delete', {
         body: JSON.stringify({ keys }),
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE',

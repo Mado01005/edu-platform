@@ -43,8 +43,6 @@ export type TeacherCourse = {
   isPublished: boolean;
   materials: TeacherMaterial[];
   modules: TeacherModule[];
-  priceEGP: string;
-  priceUSD: string;
   slug: string;
   title: string;
   zoomSessions: {

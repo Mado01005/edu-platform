@@ -62,6 +62,8 @@ const updateCourseSchema = createCourseSchema.omit({ subjectId: true }).extend({
     .transform((value) => value || null),
   isPublished: z.boolean(),
   gradeLevel: z.nativeEnum(GradeLevel).nullable(),
+});
+const updateCoursePriceSchema = z.object({
   priceEGP: moneyString,
   priceUSD: moneyString,
 });
@@ -281,8 +283,6 @@ export async function updateCourseAction(
       imageUrl: formData.get('imageUrl') ?? '',
       gradeLevel: formData.get('gradeLevel') || null,
       isPublished: formData.get('isPublished') === 'on',
-      priceEGP: formData.get('priceEGP'),
-      priceUSD: formData.get('priceUSD'),
       title: formData.get('title'),
     });
     await teacherCourse(courseId);
@@ -303,13 +303,38 @@ export async function updateCourseAction(
         gradeLevel: input.gradeLevel,
         imageUrl: assertR2PublicUrl(input.imageUrl),
         isPublished: input.isPublished,
-        priceEGP: new Prisma.Decimal(input.priceEGP),
-        priceUSD: new Prisma.Decimal(input.priceUSD),
         title: input.title,
       },
     });
     revalidatePath(`/teacher/courses/${courseId}`);
     revalidatePath('/teacher/courses');
+    revalidatePath('/catalog');
+    revalidateTag('catalog', 'max');
+    return { error: null, success: true };
+  } catch (error) {
+    return courseActionFailure(error);
+  }
+}
+
+export async function updateCoursePriceAction(
+  courseId: string,
+  _previousState: CourseActionState,
+  formData: FormData,
+): Promise<CourseActionState> {
+  try {
+    await requireLmsRole(['SUPER_ADMIN']);
+    const input = parseCourseInput(updateCoursePriceSchema, {
+      priceEGP: formData.get('priceEGP'),
+      priceUSD: formData.get('priceUSD'),
+    });
+    await getPrisma().course.update({
+      where: { id: courseId },
+      data: {
+        priceEGP: new Prisma.Decimal(input.priceEGP),
+        priceUSD: new Prisma.Decimal(input.priceUSD),
+      },
+    });
+    revalidatePath('/admin/courses');
     revalidatePath('/catalog');
     revalidateTag('catalog', 'max');
     return { error: null, success: true };

@@ -55,11 +55,11 @@ function authErrorMessage(error: string | null, errorCode: string | null) {
 }
 
 function loginErrorRedirect(
-  request: NextRequest,
+  origin: string,
   message: string,
   next: string,
 ) {
-  const errorUrl = new URL('/lms/login', request.url);
+  const errorUrl = new URL('/lms/login', origin);
   errorUrl.searchParams.set('error', message);
   errorUrl.searchParams.set('next', next);
 
@@ -108,7 +108,8 @@ function readGradeLevel(value: unknown): GradeLevel | null {
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
+  const requestUrl = new URL(request.url);
+  const { origin, searchParams } = requestUrl;
   const code = searchParams.get('code');
   const next = safeNextPath(searchParams.get('next'));
   const oauthError = searchParams.get('error');
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest) {
 
   if (oauthError || oauthErrorCode || searchParams.has('error_description')) {
     return loginErrorRedirect(
-      request,
+      origin,
       authErrorMessage(oauthError, oauthErrorCode),
       next,
     );
@@ -124,7 +125,7 @@ export async function GET(request: NextRequest) {
 
   if (!code) {
     return loginErrorRedirect(
-      request,
+      origin,
       'The sign-in link is missing or has expired. Please try again.',
       next,
     );
@@ -134,7 +135,7 @@ export async function GET(request: NextRequest) {
     // Bind Supabase's PKCE verifier cleanup and new session cookies directly
     // to the redirect that reaches the browser. A separate cookies() store can
     // lose those mutations when a new NextResponse is constructed afterward.
-    const response = NextResponse.redirect(new URL(next, request.url));
+    const response = NextResponse.redirect(new URL(next, origin));
     const supabase = createOAuthCallbackClient(request, response);
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     const user = data.session?.user;
@@ -234,7 +235,7 @@ export async function GET(request: NextRequest) {
   }
 
   return loginErrorRedirect(
-    request,
+    origin,
     'Unable to complete sign in. Please try again.',
     next,
   );

@@ -6,8 +6,10 @@ import {
   ExternalLink,
   FileText,
   Loader2,
+  Pencil,
   Trash2,
   UploadCloud,
+  X,
 } from 'lucide-react';
 import {
   formatMaterialFileSize,
@@ -16,6 +18,7 @@ import {
   type MaterialFileType,
 } from '@/lib/lms/material-types';
 import { cn } from '@/lib/utils';
+import { uploadWithProgress } from '@/lib/upload-handler';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/UI/dialog';
 
 export type TeacherMaterial = {
@@ -55,16 +58,24 @@ export function MaterialUploader({
   title,
 }: MaterialUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const uploadControllerRef = useRef<AbortController | null>(null);
   const [materials, setMaterials] = useState(initialMaterials);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState('');
   const [pendingFile, setPendingFile] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [previewing, setPreviewing] = useState<TeacherMaterial | null>(null);
+  const [renaming, setRenaming] = useState<TeacherMaterial | null>(null);
+  const [renameTitle, setRenameTitle] = useState('');
+  const [renamingPending, setRenamingPending] = useState(false);
 
   async function upload(file: File) {
     setError('');
     setPendingFile(file.name);
+    setUploadProgress(0);
+    const controller = new AbortController();
+    uploadControllerRef.current = controller;
 
     try {
       if (file.size <= 0 || file.size > MAX_MATERIAL_UPLOAD_BYTES) {
@@ -96,16 +107,13 @@ export function MaterialUploader({
         throw new Error(presign.error ?? 'Unable to prepare the upload.');
       }
 
-      const uploadRequest = await fetch(presign.uploadUrl, {
-        body: file,
+      await uploadWithProgress({
+        file,
         headers: presign.requiredHeaders,
-        method: 'PUT',
+        onProgress: setUploadProgress,
+        signal: controller.signal,
+        url: presign.uploadUrl,
       });
-      if (!uploadRequest.ok) {
-        throw new Error(
-          'R2 rejected the upload. Check the bucket CORS configuration.',
-        );
-      }
 
       const saveRequest = await fetch('/api/lms/materials', {
         body: JSON.stringify({
@@ -130,15 +138,42 @@ export function MaterialUploader({
 
       setMaterials((current) => [saved.material!, ...current]);
     } catch (uploadError) {
+      if (uploadError instanceof DOMException && uploadError.name === 'AbortError') {
+        setError('Upload cancelled. No material was saved.');
+        return;
+      }
       setError(
         uploadError instanceof Error
           ? uploadError.message
           : 'The material upload failed.',
       );
     } finally {
+      uploadControllerRef.current = null;
       setPendingFile('');
+      setUploadProgress(0);
       setDragging(false);
       if (inputRef.current) inputRef.current.value = '';
+    }
+  }
+
+  async function rename() {
+    if (!renaming || !renameTitle.trim()) return;
+    setRenamingPending(true);
+    setError('');
+    try {
+      const response = await fetch(`/api/lms/materials/${renaming.id}`, {
+        body: JSON.stringify({ title: renameTitle.trim() }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'PATCH',
+      });
+      const result = (await response.json().catch(() => ({}))) as { error?: string; material?: TeacherMaterial };
+      if (!response.ok || !result.material) throw new Error(result.error ?? 'Unable to rename this material.');
+      setMaterials((current) => current.map((item) => item.id === result.material!.id ? result.material! : item));
+      setRenaming(null);
+    } catch (renameError) {
+      setError(renameError instanceof Error ? renameError.message : 'Unable to rename this material.');
+    } finally {
+      setRenamingPending(false);
     }
   }
 
@@ -211,8 +246,9 @@ export function MaterialUploader({
             {pendingFile ? `Uploading ${pendingFile}…` : 'Drop a file or choose one'}
           </span>
           <span className="mt-1 block text-xs text-slate-500">
-            Secure direct upload to Cloudflare R2
+            {pendingFile ? `${uploadProgress}% uploaded` : 'Secure direct upload to Cloudflare R2'}
           </span>
+          {pendingFile ? <span className="mt-2 block h-2 overflow-hidden rounded-full bg-slate-200"><span className="block h-full rounded-full bg-sky-600 transition-[width]" style={{ width: `${uploadProgress}%` }} /></span> : null}
         </span>
         <input
           ref={inputRef}
@@ -226,6 +262,12 @@ export function MaterialUploader({
           type="file"
         />
       </label>
+
+      {pendingFile ? (
+        <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700" onClick={() => uploadControllerRef.current?.abort()} type="button">
+          <X className="size-4" /> Cancel Upload
+        </button>
+      ) : null}
 
       {materials.length ? (
         <ul className="flex min-w-0 flex-col gap-2">
@@ -245,7 +287,7 @@ export function MaterialUploader({
                   {material.fileType} · {formatMaterialFileSize(material.fileSize)}
                 </span>
               </span>
-              <span className="grid shrink-0 grid-cols-3 gap-1">
+              <span className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
                 <button
                   aria-label={`Preview ${material.title}`}
                   className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-sky-700"
@@ -262,8 +304,15 @@ export function MaterialUploader({
                   <Download className="size-4" aria-hidden="true" />
                 </a>
                 <button
+                  className="flex min-h-9 items-center justify-center gap-1 rounded-lg border border-slate-200 px-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                  onClick={() => { setRenaming(material); setRenameTitle(material.title); }}
+                  type="button"
+                >
+                  <Pencil className="size-3.5" /> Rename
+                </button>
+                <button
                   aria-label={`Delete ${material.title}`}
-                  className="flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  className="flex min-h-9 items-center justify-center gap-1 rounded-lg border border-red-200 px-2 text-xs font-bold text-red-600 hover:bg-red-50 disabled:opacity-50"
                   disabled={deletingId === material.id}
                   onClick={() => void remove(material)}
                   type="button"
@@ -271,7 +320,7 @@ export function MaterialUploader({
                   {deletingId === material.id ? (
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                   ) : (
-                    <Trash2 className="size-4" aria-hidden="true" />
+                    <><Trash2 className="size-3.5" aria-hidden="true" /> Delete</>
                   )}
                 </button>
               </span>
@@ -303,6 +352,16 @@ export function MaterialUploader({
               <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">This file type opens in its native viewer.</div>
             )}
             <a className="flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-3 text-sm font-bold text-white hover:bg-sky-700" href={previewing.fileUrl} rel="noopener noreferrer" target="_blank"><ExternalLink className="size-4" /> Open in new tab</a>
+          </DialogContent>
+        ) : null}
+      </Dialog>
+
+      <Dialog open={Boolean(renaming)} onOpenChange={(open) => { if (!open) setRenaming(null); }}>
+        {renaming ? (
+          <DialogContent className="max-w-md">
+            <DialogHeader><DialogTitle>Rename file</DialogTitle><DialogDescription>Change the title shown to students. The R2 object key stays protected.</DialogDescription></DialogHeader>
+            <label className="text-sm font-bold text-slate-700">File title<input autoFocus className="mt-2 w-full rounded-xl border border-slate-300 px-3 py-3" maxLength={200} onChange={(event) => setRenameTitle(event.target.value)} value={renameTitle} /></label>
+            <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 font-bold text-white disabled:opacity-50" disabled={renamingPending || !renameTitle.trim()} onClick={() => void rename()} type="button">{renamingPending ? <Loader2 className="size-4 animate-spin" /> : <Pencil className="size-4" />} Save name</button>
           </DialogContent>
         ) : null}
       </Dialog>

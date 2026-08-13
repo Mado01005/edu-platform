@@ -50,6 +50,7 @@ interface LmsAuthExperienceProps {
   initialError?: string;
   initialMode: AuthMode;
   nextPath: string;
+  phoneAuthEnabled?: boolean;
 }
 
 interface AuthFieldProps
@@ -64,6 +65,22 @@ const PASSWORD_MIN_LENGTH = 8;
 const RESEND_COOLDOWN_SECONDS = 60;
 const PHONE_AUTH_PENDING_MESSAGE =
   'Phone sign-in is temporarily unavailable while SMS and WhatsApp delivery is being configured. Please use Email / Password or Google instead.';
+
+function friendlyAuthError(error: unknown, fallback: string) {
+  const message =
+    error && typeof error === 'object' && 'message' in error
+      ? String((error as { message?: unknown }).message ?? '').trim()
+      : typeof error === 'string'
+        ? error.trim()
+        : '';
+
+  return !message ||
+    message === '{}' ||
+    message === '[object Object]' ||
+    /^\{.*\}$/.test(message)
+    ? fallback
+    : message;
+}
 
 async function activateAppSession(
   supabase: ReturnType<typeof createSupabaseBrowserClient>,
@@ -133,6 +150,7 @@ export function LmsAuthExperience({
   initialError = '',
   initialMode,
   nextPath,
+  phoneAuthEnabled = false,
 }: LmsAuthExperienceProps) {
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -150,9 +168,21 @@ export function LmsAuthExperience({
   const [verificationEmail, setVerificationEmail] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState(initialError);
+  const [error, setError] = useState(
+    friendlyAuthError(
+      initialError,
+      initialError ? 'Authentication failed. Please try again.' : '',
+    ),
+  );
   const [notice, setNotice] = useState('');
   const [phoneWarning, setPhoneWarning] = useState('');
+
+  useEffect(() => {
+    if (initialMode === 'phone' && !phoneAuthEnabled) {
+      setMode('signin');
+      setPhoneWarning(PHONE_AUTH_PENDING_MESSAGE);
+    }
+  }, [initialMode, phoneAuthEnabled]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -203,15 +233,25 @@ export function LmsAuthExperience({
       });
 
       if (signInError) {
-        setError(signInError.message);
+        setError(
+          friendlyAuthError(
+            signInError,
+            'Invalid credentials. Please check your email and password.',
+          ),
+        );
         return;
       }
 
       await activateAppSession(supabase);
       router.push(nextPath);
       router.refresh();
-    } catch {
-      setError('We could not sign you in. Please try again.');
+    } catch (caughtError) {
+      setError(
+        friendlyAuthError(
+          caughtError,
+          'Invalid credentials. Please check your email and password.',
+        ),
+      );
     } finally {
       setPending(false);
     }
@@ -265,7 +305,12 @@ export function LmsAuthExperience({
       });
 
       if (signUpError) {
-        setError(signUpError.message);
+        setError(
+          friendlyAuthError(
+            signUpError,
+            'We could not create your account. Please check the form and try again.',
+          ),
+        );
         return;
       }
 
@@ -306,6 +351,7 @@ export function LmsAuthExperience({
     if (isPhoneProviderUnavailable(authError)) {
       setError('');
       setPhoneWarning(PHONE_AUTH_PENDING_MESSAGE);
+      setMode('signin');
       return;
     }
 
@@ -318,7 +364,7 @@ export function LmsAuthExperience({
       setError('No verified account is linked to that phone number.');
       return;
     }
-    setError(authError.message);
+    setError(friendlyAuthError(authError, 'Unable to verify that code.'));
   }
 
   async function requestPhoneOtp(
@@ -447,7 +493,12 @@ export function LmsAuthExperience({
       });
 
       if (signInError) {
-        setError(signInError.message);
+        setError(
+          friendlyAuthError(
+            signInError,
+            'Google sign-in could not be started. Please try again.',
+          ),
+        );
         setPending(false);
       }
     } catch {
@@ -471,7 +522,12 @@ export function LmsAuthExperience({
       });
 
       if (resendError) {
-        setError(resendError.message);
+        setError(
+          friendlyAuthError(
+            resendError,
+            'We could not resend the confirmation email.',
+          ),
+        );
         return;
       }
 
@@ -505,7 +561,9 @@ export function LmsAuthExperience({
       );
 
       if (resetError) {
-        setError(resetError.message);
+        setError(
+          friendlyAuthError(resetError, 'We could not send the reset email.'),
+        );
         return;
       }
 
@@ -537,7 +595,12 @@ export function LmsAuthExperience({
       const { error: updateError } = await supabase.auth.updateUser({ password });
 
       if (updateError) {
-        setError(updateError.message);
+        setError(
+          friendlyAuthError(
+            updateError,
+            'We could not update your password. Please request a new link.',
+          ),
+        );
         return;
       }
 
@@ -1059,7 +1122,7 @@ export function LmsAuthExperience({
                 </button>
               </form>
 
-              {mode === 'signin' ? (
+              {mode === 'signin' && phoneAuthEnabled ? (
                 <button
                   className="mt-3 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-4 text-sm font-black text-sky-700 transition hover:border-sky-300 hover:bg-sky-100"
                   onClick={() => switchMode('phone')}

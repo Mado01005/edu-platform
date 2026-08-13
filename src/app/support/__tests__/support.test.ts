@@ -53,7 +53,7 @@ describe('support portal service', () => {
     jest.resetAllMocks();
   });
 
-  it('limits account searches to students and phone/email criteria', async () => {
+  it('limits account searches to students and name/email/phone criteria', async () => {
     mockUserFindMany.mockResolvedValue([]);
 
     await searchStudentsForSupport('010 2527 2693');
@@ -65,12 +65,29 @@ describe('support portal service', () => {
           role: 'STUDENT',
           OR: [
             {
+              name: {
+                contains: '010 2527 2693',
+                mode: 'insensitive',
+              },
+            },
+            {
               email: {
                 contains: '010 2527 2693',
                 mode: 'insensitive',
               },
             },
-            { phoneNumber: { contains: '01025272693' } },
+            {
+              phoneNumber: {
+                contains: '010 2527 2693',
+                mode: 'insensitive',
+              },
+            },
+            {
+              phoneNumber: {
+                contains: '01025272693',
+                mode: 'insensitive',
+              },
+            },
           ],
         },
       }),

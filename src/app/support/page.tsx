@@ -53,7 +53,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   'identity-mismatch': 'The LMS and Supabase identities did not match. No password was changed.',
   'invalid-notice': 'Enter a valid notice title and message.',
   'invalid-password': 'Use a temporary password between 12 and 128 characters.',
-  'invalid-search': 'Enter at least 3 characters from an email address or phone number.',
+  'invalid-search': 'Enter at least 3 characters from a name, email address, or phone number.',
   'invalid-student': 'Choose a valid student account.',
   'notification-not-found': 'Choose an available non-payment notification.',
   'operation-failed': 'The operation could not be completed. Try again.',

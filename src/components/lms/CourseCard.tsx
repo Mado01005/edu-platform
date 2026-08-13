@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { ContentType, User } from '@prisma/client';
+import type { ContentType, GradeLevel, User } from '@prisma/client';
 import {
   ArrowRight,
   BookOpen,
@@ -26,16 +26,6 @@ import {
 import { cn } from '@/lib/utils';
 import { isTeachingRole } from '@/lib/lms/roles';
 
-export const COURSE_CATEGORIES = [
-  'All Courses',
-  'Web Development',
-  'Cloud & DevOps',
-  'Computer Science',
-  'Live Sessions',
-] as const;
-
-export type CourseCategory = (typeof COURSE_CATEGORIES)[number];
-
 export interface CatalogCourse {
   id: string;
   title: string;
@@ -43,6 +33,8 @@ export interface CatalogCourse {
   imageUrl: string | null;
   priceEGP: string;
   priceUSD: string;
+  gradeLevel: GradeLevel | null;
+  subject: { id: string; name: string; grade: GradeLevel } | null;
   teacher: { name: string | null };
   modules: Array<{
     lessons: Array<{ contentType: ContentType }>;
@@ -60,24 +52,8 @@ interface CourseCardProps {
   user: Pick<User, 'role'> | null;
 }
 
-export function getCourseCategories(course: CatalogCourse): CourseCategory[] {
-  const searchable = `${course.title} ${course.description ?? ''}`.toLowerCase();
-  const categories: CourseCategory[] = [];
-
-  if (/(web|next|react|full[ -]?stack|javascript|typescript)/.test(searchable)) {
-    categories.push('Web Development');
-  }
-  if (/(cloud|devops|r2|aws|docker|kubernetes|architecture)/.test(searchable)) {
-    categories.push('Cloud & DevOps');
-  }
-  if (/(computer|algorithm|database|postgres|prisma|data structure)/.test(searchable)) {
-    categories.push('Computer Science');
-  }
-  if (course._count.zoomSessions > 0) {
-    categories.push('Live Sessions');
-  }
-
-  return categories.length ? categories : ['Computer Science'];
+function gradeLabel(grade: GradeLevel | null) {
+  return grade ? `Grade ${grade.replace('GRADE_', '')}` : 'All grades';
 }
 
 function instructorInitials(name: string | null) {
@@ -111,7 +87,6 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
     (total, module) => total + module.lessons.length,
     0,
   );
-  const categories = getCourseCategories(course);
   const instructorName = course.teacher.name ?? 'Dr. Abdallah Saad';
 
   return (
@@ -134,7 +109,7 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
           </div>
         )}
         <Badge className="absolute right-3 top-3 border-slate-200 bg-white text-slate-700 shadow-sm">
-          {categories[0]}
+          {course.subject?.name ?? gradeLabel(course.gradeLevel)}
         </Badge>
         <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-medium text-slate-600 shadow-sm">
           <Users className="size-3" aria-hidden="true" />

@@ -60,8 +60,6 @@ export default async function TeacherCourseEditorPage({
   return (
     <CourseEditor initialTab={editorTab(query.tab)} course={{
         ...course,
-        priceEGP: course.priceEGP.toFixed(2),
-        priceUSD: course.priceUSD.toFixed(2),
         modules: course.modules.map((module) => ({
           ...module,
           lessons: module.lessons.map((lesson) => ({

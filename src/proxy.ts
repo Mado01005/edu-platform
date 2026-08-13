@@ -30,6 +30,7 @@ import { getSupabaseRequestContext } from '@/lib/supabase/proxy';
 
 const PUBLIC_PATHS = [
   '/login',
+  '/signup',
   '/lms/login',
   '/auth/callback',
   '/auth/sync',

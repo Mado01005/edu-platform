@@ -1,10 +1,11 @@
 'use client';
 
 import type { ContentType } from '@prisma/client';
-import { Download, Film, Settings2 } from 'lucide-react';
+import { Film, Settings2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getVideoEmbedUrl } from '@/lib/lms/video';
+import { DocumentViewer } from '@/components/course/document-viewer';
 
 type YouTubePlayer = {
   getCurrentTime: () => number;
@@ -609,7 +610,8 @@ export function UniversalVideoPlayer({
         <video
           className="aspect-video w-full bg-black"
           controls
-          controlsList="nodownload"
+          controlsList="nodownload noremoteplayback"
+          disablePictureInPicture
           data-preferred-quality={currentQuality}
           playsInline
           preload="metadata"
@@ -663,19 +665,7 @@ export function UniversalVideoPlayer({
   }
 
   if (type === 'PDF') {
-    return (
-      <div className="flex min-h-56 w-full items-center justify-center rounded-2xl border border-white/10 bg-zinc-950 p-6">
-        <a
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
-          href={safeUrl.toString()}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <Download className="size-4" />
-          Open PDF resource
-        </a>
-      </div>
-    );
+    return <DocumentViewer fileType="PDF" title={title} url={safeUrl.toString()} />;
   }
 
   if (type === 'TEXT') {
