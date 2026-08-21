@@ -249,7 +249,7 @@ async function main() {
     `  NEXT_PUBLIC_SUPABASE_URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ? 'configured' : 'missing'}`,
   );
   console.log(
-    `  NEXT_PUBLIC_SITE_URL: ${configuredSiteUrl || `${PRODUCTION_SITE_URL} (production fallback)`}`,
+    `  NEXT_PUBLIC_SITE_URL: ${configuredSiteUrl || `missing (using ${PRODUCTION_SITE_URL} fallback)`}`,
   );
 
   console.log(heading('\nGoogle Cloud authorized redirect URI'));
