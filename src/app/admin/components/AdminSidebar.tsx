@@ -61,9 +61,9 @@ export default function AdminSidebar<TabId extends string>({
   };
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50">
+    <div className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5">
       <div className="flex min-w-0 items-center gap-3">
-         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-sky-200 bg-sky-50 text-xl">🧭</div>
+         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-xl">🧭</div>
          <div>
            <h2 className="text-lg font-black tracking-tight">Course content tools</h2>
            <p className="text-xs font-bold text-slate-600">Choose the task you want to open.</p>
@@ -77,8 +77,8 @@ export default function AdminSidebar<TabId extends string>({
             onClick={() => setActiveTab(tab.id)}
             className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border border-l-4 px-2 py-3 text-center text-xs font-black transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md ${
               activeTab === tab.id 
-                ? 'border-sky-200/60 border-l-sky-500 bg-sky-50 text-sky-700 shadow-sm'
-                : 'border-slate-200/80 border-l-transparent bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
+                ? 'border-emerald-200/60 border-l-emerald-500 bg-emerald-50 text-[#084B2B] shadow-sm'
+                : 'border-emerald-950/10 border-l-transparent bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#084B2B]'
             }`}
           >
             <span className="text-lg" aria-hidden="true">{tab.icon}</span>
@@ -88,8 +88,8 @@ export default function AdminSidebar<TabId extends string>({
       </div>
 
       {storageStats && (
-        <details className="rounded-2xl border border-slate-200/80 bg-slate-50 p-4">
-          <summary className="cursor-pointer text-xs font-black text-sky-700">File storage details</summary>
+        <details className="rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4">
+          <summary className="cursor-pointer text-xs font-black text-[#084B2B]">File storage details</summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
                <div className="flex justify-between items-center text-[10px]">
@@ -106,7 +106,7 @@ export default function AdminSidebar<TabId extends string>({
                   <span className="font-black text-slate-900">{storageStats.supabase.estimatedMB}MB</span>
                </div>
                <div className="h-1 overflow-hidden rounded-full bg-slate-200">
-                  <div className="h-full bg-blue-500 transition-all duration-300 ease-in-out" style={{ width: `${storageStats.supabase.percentUsed}%` }}></div>
+                  <div className="h-full bg-[#084B2B] transition-all duration-300 ease-in-out" style={{ width: `${storageStats.supabase.percentUsed}%` }}></div>
                </div>
             </div>
           </div>

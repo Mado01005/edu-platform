@@ -67,7 +67,7 @@ export function InputOTP({
         <input
           aria-label={`Verification digit ${index + 1}`}
           autoComplete={index === 0 ? 'one-time-code' : 'off'}
-          className="h-12 min-w-0 rounded-xl border border-slate-300 bg-white text-center font-mono text-lg font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 disabled:opacity-70"
+          className="h-12 min-w-0 rounded-xl border border-slate-300 bg-white text-center font-mono text-lg font-semibold text-slate-900 outline-none transition focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100 disabled:opacity-70"
           disabled={disabled}
           inputMode="numeric"
           key={index}

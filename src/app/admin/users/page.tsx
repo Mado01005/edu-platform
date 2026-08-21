@@ -107,18 +107,18 @@ export default async function AdminUsersPage() {
   return (
     <PortalShell user={admin}>
         <Link
-          className="flex w-fit items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-sky-700"
+          className="flex w-fit items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-[#084B2B]"
           href="/dashboard"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           Back to dashboard
         </Link>
 
-        <header className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-700">
+        <header className="rounded-3xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-[#084B2B]">
             <ShieldCheck className="size-5" aria-hidden="true" />
           </span>
-          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-sky-700">
+          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#084B2B]">
             Administrator console
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">

@@ -200,11 +200,11 @@ export default async function CatalogPage({
         );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+    <div className="min-h-screen overflow-x-hidden bg-[#F8FAF7] text-slate-900">
       <LmsHeader user={user} />
 
       <main className="mx-auto flex w-full max-w-[92rem] min-w-0 flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:gap-10">
-        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
+        <section className="overflow-hidden rounded-2xl border border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5">
           <div className="grid min-w-0 lg:min-h-[25rem] lg:grid-cols-2 lg:items-stretch">
             <div className="flex min-w-0 flex-col justify-center p-6 sm:p-10 lg:p-12">
               <h1 className="max-w-2xl text-4xl font-bold leading-[1.08] tracking-[-0.035em] text-slate-900 sm:text-5xl lg:text-6xl">
@@ -248,10 +248,10 @@ export default async function CatalogPage({
           </div>
         </section>
 
-        <section className="grid min-w-0 gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:grid-cols-3 sm:p-6">
+        <section className="grid min-w-0 gap-4 rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5 sm:grid-cols-3 sm:p-6">
           {featureMetrics.map(({ icon: Icon, label, value }) => (
-            <div className="flex min-w-0 items-center gap-3 sm:border-r sm:border-slate-200 sm:last:border-r-0" key={label}>
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+            <div className="flex min-w-0 items-center gap-3 sm:border-r sm:border-emerald-950/10 sm:last:border-r-0" key={label}>
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
                 <Icon className="size-5" aria-hidden="true" />
               </span>
               <span className="min-w-0">
@@ -268,7 +268,7 @@ export default async function CatalogPage({
         >
           <div className="mb-6 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
-              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-sky-700">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#084B2B]">
                 <BookOpen className="size-4" aria-hidden="true" />
                 Course catalog
               </p>
@@ -281,7 +281,7 @@ export default async function CatalogPage({
             </p>
           </div>
 
-          <form className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-sm shadow-slate-200/50 sm:flex-row">
+          <form className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-emerald-950/10 bg-white p-2 shadow-sm shadow-emerald-950/5 sm:flex-row">
             <label className="relative min-w-0 flex-1">
               <span className="sr-only">Search courses</span>
               <Search
@@ -289,7 +289,7 @@ export default async function CatalogPage({
                 aria-hidden="true"
               />
               <Input
-                className="h-12 border-transparent bg-transparent pl-11 focus:border-sky-500"
+                className="h-12 border-transparent bg-transparent pl-11 focus:border-[#084B2B]"
                 defaultValue={query}
                 name="q"
                 placeholder="Search courses, skills, or instructors"
@@ -318,8 +318,8 @@ export default async function CatalogPage({
                   className={cn(
                     'inline-flex min-w-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-medium transition-colors',
                     active
-                      ? 'border-sky-200 bg-sky-100 text-sky-700'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700',
+                      ? 'border-emerald-200 bg-emerald-100 text-[#084B2B]'
+                      : 'border-emerald-950/10 bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#084B2B]',
                   )}
                   href={categoryHref(courseCategory.id, query)}
                   key={courseCategory.id}
@@ -347,7 +347,7 @@ export default async function CatalogPage({
             </div>
           ) : (
             <Card className="mt-7 items-center border-dashed p-10 text-center sm:p-14">
-              <span className="flex size-12 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+              <span className="flex size-12 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
                 <Search className="size-5" aria-hidden="true" />
               </span>
               <h3 className="mt-4 text-lg font-semibold">No matching courses</h3>

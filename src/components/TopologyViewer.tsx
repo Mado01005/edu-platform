@@ -28,8 +28,8 @@ export default function TopologyViewer() {
          let borderColor = '#333';
          
          if (n.data.type === 'subject') {
-           bg = '#4f46e5'; // indigo
-           borderColor = '#6366f1';
+           bg = '#084B2B'; // indigo
+           borderColor = '#084B2B';
          } else if (n.data.type === 'folder') {
            bg = '#1f2937'; // gray
            borderColor = '#374151';
@@ -110,7 +110,7 @@ export default function TopologyViewer() {
   };
 
   if (loading) {
-     return <div className="h-[400px] w-full flex items-center justify-center border border-white/10 rounded-[2rem] bg-black/50 animate-pulse"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Loading Topology Map...</p></div>;
+     return <div className="h-[400px] w-full flex items-center justify-center border border-white/10 rounded-[2rem] bg-black/50 animate-pulse"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Loading Topology Map...</p></div>;
   }
 
   return (
@@ -142,7 +142,7 @@ export default function TopologyViewer() {
          <Controls className="bg-black border border-white/10 fill-white" />
          <MiniMap 
            nodeStrokeColor={(n) => {
-             if (n.data.type === 'subject') return '#4f46e5';
+             if (n.data.type === 'subject') return '#084B2B';
              if (n.data.type === 'folder') return '#374151';
              return '#111';
            }}

@@ -190,14 +190,14 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
     <div className="w-full">
       {/* Dynamic Breadcrumbs */}
       <nav className="flex items-center gap-3 text-xs md:text-sm text-gray-500 mb-10 fade-in flex-wrap font-mono tracking-widest uppercase bg-white/5 border border-white/10 px-4 py-2 rounded-lg inline-flex" aria-label="Breadcrumb">
-        <Link href="/dashboard" className="hover:text-indigo-400 transition-colors flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/50"></span>
+        <Link href="/dashboard" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/50"></span>
           SYS
         </Link>
         <svg className="w-4 h-4 flex-shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
-        <Link href={`/subjects/${encodeURIComponent(subject.slug)}`} className="hover:text-indigo-400 transition-colors">
+        <Link href={`/subjects/${encodeURIComponent(subject.slug)}`} className="hover:text-emerald-400 transition-colors">
           {subject.title}
         </Link>
         <svg className="w-4 h-4 flex-shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -209,7 +209,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
         ) : (
           <button
             onClick={() => handleCrumbClick(-1)}
-            className="hover:text-indigo-400 transition-colors hover:underline underline-offset-4"
+            className="hover:text-emerald-400 transition-colors hover:underline underline-offset-4"
           >
             {lesson.title}
           </button>
@@ -227,7 +227,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
               ) : (
                 <button
                   onClick={() => handleCrumbClick(idx)}
-                  className="hover:text-indigo-400 transition-colors hover:underline underline-offset-4"
+                  className="hover:text-emerald-400 transition-colors hover:underline underline-offset-4"
                 >
                   {folder.name}
                 </button>
@@ -265,15 +265,15 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     variants={itemVariants}
                     key={folder.name || `folder-${idx}`}
                     onClick={() => handleFolderClick(folder)}
-                    className="group flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-500/30 rounded-2xl p-4 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(99,102,241,0.2)] text-left"
+                    className="group flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/30 rounded-2xl p-4 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(8,75,43,0.2)] text-left"
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-2xl shrink-0 group-hover:bg-indigo-500/20 transition-all duration-300">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl shrink-0 group-hover:bg-emerald-500/20 transition-all duration-300">
                       📁
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white truncate text-base group-hover:text-indigo-300 transition-colors">{folder.name}</h4>
+                      <h4 className="font-bold text-white truncate text-base group-hover:text-emerald-300 transition-colors">{folder.name}</h4>
                       <div className="flex items-center gap-2 mt-1">
                         <p className="text-xs text-gray-500 whitespace-nowrap">{folder.children?.length || 0} items</p>
                         <div className="flex items-center gap-1 overflow-hidden">
@@ -314,7 +314,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                             e.stopPropagation();
                             handleMoveItem(folder.id!);
                           }}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-indigo-500/20 text-gray-500 hover:text-indigo-400 transition-all"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-emerald-500/20 text-gray-500 hover:text-emerald-400 transition-all"
                         >
                           📦
                         </button>
@@ -383,7 +383,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                             <button
                               onClick={() => handleMoveItem(node.id!)}
-                              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-indigo-500/20 text-indigo-400 border border-white/10 transition-all shadow-lg"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-emerald-500/20 text-emerald-400 border border-white/10 transition-all shadow-lg"
                             >
                               📦
                             </button>
@@ -427,10 +427,10 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     <motion.div variants={itemVariants} key={`docview-${uniqueKey}`} className="flex flex-col gap-4 relative group">
                       <div className="flex items-center justify-between ml-1">
                         <div className="flex items-center gap-3">
-                          <span className={`w-8 h-8 rounded-lg ${isPPT ? 'bg-orange-500/20 border-orange-500/30' : 'bg-blue-500/20 border-blue-500/30'} border flex items-center justify-center text-sm shadow-inner`}>
+                          <span className={`w-8 h-8 rounded-lg ${isPPT ? 'bg-orange-500/20 border-orange-500/30' : 'bg-[#084B2B]/20 border-[#084B2B]/30'} border flex items-center justify-center text-sm shadow-inner`}>
                             {isPPT ? '📊' : '📝'}
                           </span>
-                          <span className={`text-sm font-bold ${isPPT ? 'text-orange-400' : 'text-blue-400'} tracking-wide uppercase truncate max-w-[200px] md:max-w-md`}>{node.name}</span>
+                          <span className={`text-sm font-bold ${isPPT ? 'text-orange-400' : 'text-emerald-400'} tracking-wide uppercase truncate max-w-[200px] md:max-w-md`}>{node.name}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           {isAdmin && (
@@ -460,17 +460,17 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                 const lowerName = node.name.toLowerCase();
                 if (node.url && (lowerName.endsWith('.stl') || lowerName.endsWith('.bin') || lowerName.endsWith('.step') || lowerName.endsWith('.zip'))) {
                   return (
-                    <motion.div variants={itemVariants} key={`vault-${uniqueKey}`} className="flex flex-col bg-white/5 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl p-6 md:p-8 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
-                      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
-                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 blur-[40px] pointer-events-none rounded-full"></div>
+                    <motion.div variants={itemVariants} key={`vault-${uniqueKey}`} className="flex flex-col bg-white/5 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 md:p-8 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/10 blur-[40px] pointer-events-none rounded-full"></div>
 
                       <div className="flex items-center justify-between mb-8 relative z-10">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
                             📦
                           </div>
                           <div>
-                            <span className="text-xs font-black text-indigo-400 tracking-[0.2em] uppercase block mb-1">Project Vault / Blueprint</span>
+                            <span className="text-xs font-black text-emerald-400 tracking-[0.2em] uppercase block mb-1">Project Vault / Blueprint</span>
                             <span className="text-lg font-bold text-white tracking-wide">{node.name}</span>
                           </div>
                         </div>
@@ -495,7 +495,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                           download
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] transition-all cursor-pointer"
+                          className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] transition-all cursor-pointer"
                         >
                           Download Asset
                         </a>

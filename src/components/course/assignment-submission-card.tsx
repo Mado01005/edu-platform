@@ -30,13 +30,13 @@ export function AssignmentSubmissionCard({ assignmentId, dueAt, initialSubmissio
   }
 
   return (
-    <section className="min-w-0 rounded-2xl border border-amber-300/20 bg-amber-300/5 p-4">
+    <section className="min-w-0 rounded-2xl border border-[#D4AF37]/40 bg-[#FDF8E8] p-4 text-slate-900">
       <h2 className="font-black">Assignment submission</h2>
-      {instructions ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300">{instructions}</p> : null}
-      {dueAt ? <p className="mt-2 text-xs text-amber-200">Due {new Intl.DateTimeFormat('en-EG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Cairo' }).format(new Date(dueAt))} Cairo time</p> : null}
-      {submission ? <div className="mt-3 rounded-xl bg-black p-3 text-sm"><p className="flex items-center gap-2 font-bold text-emerald-300"><CheckCircle2 className="size-4" /> {submission.status === 'GRADED' ? `Graded: ${submission.grade ?? '—'}%` : 'Submitted for grading'}</p>{submission.feedback ? <p className="mt-2 text-zinc-300">Teacher feedback: {submission.feedback}</p> : null}<a className="mt-2 inline-block text-xs font-bold text-violet-300" href={submission.fileUrl} rel="noopener noreferrer" target="_blank">View submitted file</a></div> : null}
-      <label className="mt-3 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 px-4 py-4 text-sm font-black hover:bg-white/5">{pending ? <Loader2 className="size-4 animate-spin" /> : <UploadCloud className="size-4" />}{pending ? 'Uploading…' : submission ? 'Replace submission' : 'Upload solution'}<input ref={inputRef} accept={ASSIGNMENT_SUBMISSION_ACCEPT} className="sr-only" disabled={pending} onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file); }} type="file" /></label>
-      {error ? <p aria-live="polite" className="mt-2 text-xs text-red-300">{error}</p> : null}
+      {instructions ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{instructions}</p> : null}
+      {dueAt ? <p className="mt-2 text-xs text-[#8C6B1B]">Due {new Intl.DateTimeFormat('en-EG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Cairo' }).format(new Date(dueAt))} Cairo time</p> : null}
+      {submission ? <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm"><p className="flex items-center gap-2 font-bold text-emerald-800"><CheckCircle2 className="size-4" /> {submission.status === 'GRADED' ? `Graded: ${submission.grade ?? '—'}%` : 'Submitted for grading'}</p>{submission.feedback ? <p className="mt-2 text-slate-700">Teacher feedback: {submission.feedback}</p> : null}<a className="mt-2 inline-block text-xs font-bold text-[#084B2B]" href={submission.fileUrl} rel="noopener noreferrer" target="_blank">View submitted file</a></div> : null}
+      <label className="mt-3 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-300 bg-white px-4 py-4 text-sm font-black text-[#084B2B] transition hover:border-[#084B2B] hover:bg-emerald-50">{pending ? <Loader2 className="size-4 animate-spin" /> : <UploadCloud className="size-4" />}{pending ? 'Uploading…' : submission ? 'Replace submission' : 'Upload solution'}<input ref={inputRef} accept={ASSIGNMENT_SUBMISSION_ACCEPT} className="sr-only" disabled={pending} onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file); }} type="file" /></label>
+      {error ? <p aria-live="polite" className="mt-2 text-xs text-red-700">{error}</p> : null}
     </section>
   );
 }

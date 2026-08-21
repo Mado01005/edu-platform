@@ -22,7 +22,7 @@ export function CourseAccessActions({
   if (enrolled || !paid) {
     return (
       <form action={enroll} className="w-full">
-        <ActionSubmitButton className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-sky-700" pendingLabel={enrolled ? 'Opening…' : 'Enrolling…'}>
+        <ActionSubmitButton className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#063B22]" pendingLabel={enrolled ? 'Opening…' : 'Enrolling…'}>
           {enrolled ? 'Continue course' : 'Start free course'}
           <ArrowRight className="size-4" aria-hidden="true" />
         </ActionSubmitButton>
@@ -32,7 +32,7 @@ export function CourseAccessActions({
 
   return (
     <>
-      <button className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-sky-700" onClick={() => setCheckoutOpen(true)} type="button">
+      <button className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#063B22]" onClick={() => setCheckoutOpen(true)} type="button">
         Buy online
         <ArrowRight className="size-4" aria-hidden="true" />
       </button>

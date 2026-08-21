@@ -27,7 +27,7 @@ export default function ProgressRing({ percentage, size = 52, strokeWidth = 4 }:
           cy={size / 2}
           r={radius}
           fill="transparent"
-          stroke="#0284c7"
+          stroke="#084B2B"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}

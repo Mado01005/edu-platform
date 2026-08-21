@@ -72,7 +72,7 @@ export function Breadcrumbs({
     return (
       <nav
         aria-label="Breadcrumbs"
-        className="custom-scrollbar flex min-w-0 items-center gap-2 overflow-x-auto border-b border-slate-200 pb-3 text-sm font-medium text-slate-500"
+        className="custom-scrollbar flex min-w-0 items-center gap-2 overflow-x-auto border-b border-emerald-950/10 pb-3 text-sm font-medium text-slate-500"
       >
         {items.map((item, index) => {
           const current = index === items.length - 1;
@@ -88,7 +88,7 @@ export function Breadcrumbs({
               ) : null}
               {item.href && !current ? (
                 <Link
-                  className="max-w-52 truncate rounded-md transition hover:text-sky-700"
+                  className="max-w-52 truncate rounded-md transition hover:text-[#084B2B]"
                   href={item.href}
                 >
                   {item.label}
@@ -113,14 +113,14 @@ export function Breadcrumbs({
   if (!segments.length) return null;
 
   return (
-    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-0 pb-3">
+    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-emerald-950/10 px-0 pb-3">
       <nav
         aria-label="Breadcrumbs"
         className="custom-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-xs font-medium text-slate-500"
       >
         <Link
           aria-label="Home"
-          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 transition hover:bg-sky-50 hover:text-sky-700"
+          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 transition hover:bg-emerald-50 hover:text-[#084B2B]"
           href={home}
         >
           <Home aria-hidden="true" className="size-3.5" />
@@ -138,7 +138,7 @@ export function Breadcrumbs({
                 </span>
               ) : (
                 <Link
-                  className="max-w-44 truncate rounded-lg px-2 py-1.5 transition hover:bg-sky-50 hover:text-sky-700"
+                  className="max-w-44 truncate rounded-lg px-2 py-1.5 transition hover:bg-emerald-50 hover:text-[#084B2B]"
                   href={href}
                 >
                   {segmentLabel(segment)}

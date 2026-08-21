@@ -64,10 +64,10 @@ export default async function ProfilePage() {
   function getHeatColor(count: number) {
     if (count === 0) return 'bg-white/5';
     const intensity = count / maxCount;
-    if (intensity < 0.25) return 'bg-indigo-900/60';
-    if (intensity < 0.5) return 'bg-indigo-700/70';
-    if (intensity < 0.75) return 'bg-indigo-500/80';
-    return 'bg-indigo-400 shadow-[0_0_6px_rgba(99,102,241,0.5)]';
+    if (intensity < 0.25) return 'bg-emerald-900/60';
+    if (intensity < 0.5) return 'bg-emerald-700/70';
+    if (intensity < 0.75) return 'bg-emerald-500/80';
+    return 'bg-emerald-400 shadow-[0_0_6px_rgba(8,75,43,0.5)]';
   }
 
   // Recent activity (last 10)
@@ -88,7 +88,7 @@ export default async function ProfilePage() {
           
           {/* Profile Header */}
           <div className="text-center mb-12 fade-in">
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-black text-white shadow-[0_0_40px_rgba(99,102,241,0.3)] border-2 border-white/20 mb-5">
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-3xl font-black text-white shadow-[0_0_40px_rgba(8,75,43,0.3)] border-2 border-white/20 mb-5">
               {userName.charAt(0).toUpperCase()}
             </div>
             <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-2">
@@ -100,22 +100,22 @@ export default async function ProfilePage() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 fade-in" style={{ animationDelay: '0.1s' }}>
             <div className="bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl px-5 py-5 text-center relative overflow-hidden group">
-              <div className="absolute -top-4 -right-4 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition"></div>
+              <div className="absolute -top-4 -right-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition"></div>
               <p className="text-3xl font-black text-white mb-1">{completedCount}</p>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Lessons Done</p>
             </div>
             <div className="bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl px-5 py-5 text-center relative overflow-hidden group">
-              <div className="absolute -top-4 -right-4 w-16 h-16 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition"></div>
+              <div className="absolute -top-4 -right-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition"></div>
               <p className="text-3xl font-black text-white mb-1">{completionRate}%</p>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Completion</p>
             </div>
             <div className="bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl px-5 py-5 text-center relative overflow-hidden group">
-              <div className="absolute -top-4 -right-4 w-16 h-16 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition"></div>
+              <div className="absolute -top-4 -right-4 w-16 h-16 bg-[#084B2B]/10 rounded-full blur-xl group-hover:bg-[#063B22]/20 transition"></div>
               <p className="text-3xl font-black text-white mb-1">{totalHoursWatched}h</p>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Video Time</p>
             </div>
             <div className="bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl px-5 py-5 text-center relative overflow-hidden group">
-              <div className="absolute -top-4 -right-4 w-16 h-16 bg-pink-500/10 rounded-full blur-xl group-hover:bg-pink-500/20 transition"></div>
+              <div className="absolute -top-4 -right-4 w-16 h-16 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition"></div>
               <p className="text-3xl font-black text-white mb-1">{totalPdfMinutes}m</p>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Reading Time</p>
             </div>
@@ -125,7 +125,7 @@ export default async function ProfilePage() {
           <div className="bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl p-6 mb-12 fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(8,75,43,0.8)]"></span>
                 Activity Heatmap
               </h2>
               <p className="text-xs text-gray-500 font-medium">Last 12 weeks</p>
@@ -142,10 +142,10 @@ export default async function ProfilePage() {
             <div className="flex items-center gap-2 mt-4 justify-end">
               <span className="text-[10px] text-gray-500">Less</span>
               <div className="w-3 h-3 rounded-sm bg-white/5"></div>
-              <div className="w-3 h-3 rounded-sm bg-indigo-900/60"></div>
-              <div className="w-3 h-3 rounded-sm bg-indigo-700/70"></div>
-              <div className="w-3 h-3 rounded-sm bg-indigo-500/80"></div>
-              <div className="w-3 h-3 rounded-sm bg-indigo-400"></div>
+              <div className="w-3 h-3 rounded-sm bg-emerald-900/60"></div>
+              <div className="w-3 h-3 rounded-sm bg-emerald-700/70"></div>
+              <div className="w-3 h-3 rounded-sm bg-emerald-500/80"></div>
+              <div className="w-3 h-3 rounded-sm bg-emerald-400"></div>
               <span className="text-[10px] text-gray-500">More</span>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default async function ProfilePage() {
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Your captured insights and PDF annotations.</p>
                 </div>
                 <div className="h-px flex-1 bg-white/5 mx-8"></div>
-                <span className="px-5 py-2 bg-indigo-500/10 text-indigo-400 text-[9px] font-black uppercase tracking-widest rounded-xl border border-indigo-500/20">Synced</span>
+                <span className="px-5 py-2 bg-emerald-500/10 text-emerald-400 text-[9px] font-black uppercase tracking-widest rounded-xl border border-emerald-500/20">Synced</span>
              </div>
              <Notebook />
           </div>
@@ -166,7 +166,7 @@ export default async function ProfilePage() {
           {/* Recent Activity Feed */}
           <div className="bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl p-6 fade-in" style={{ animationDelay: '0.3s' }}>
             <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-5">
-              <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>
               Recent Activity
             </h2>
             {recentActivity.length === 0 ? (
@@ -176,9 +176,9 @@ export default async function ProfilePage() {
                 {recentActivity.map((log, i) => (
                   <div key={i} className="flex items-start gap-4 p-3 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.05] transition-colors">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0 ${
-                      log.action === 'WATCHED_VIDEO' ? 'bg-blue-500/20 text-blue-400' :
-                      log.action === 'READ_PDF' ? 'bg-pink-500/20 text-pink-400' :
-                      log.action === 'Completed Lesson' ? 'bg-green-500/20 text-green-400' :
+                      log.action === 'WATCHED_VIDEO' ? 'bg-[#084B2B]/20 text-emerald-400' :
+                      log.action === 'READ_PDF' ? 'bg-amber-500/20 text-amber-400' :
+                      log.action === 'Completed Lesson' ? 'bg-emerald-500/20 text-emerald-400' :
                       'bg-white/10 text-gray-400'
                     }`}>
                       {log.action === 'WATCHED_VIDEO' ? '▶' :

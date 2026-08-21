@@ -34,7 +34,7 @@ export default function GlobalError({
               </p>
             ) : null}
             <button
-              className="mt-2 rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+              className="mt-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
               onClick={reset}
               type="button"
             >

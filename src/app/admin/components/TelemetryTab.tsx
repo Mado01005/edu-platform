@@ -20,7 +20,7 @@ export default function TelemetryTab({
          <h2 className="text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">Recent Admin Activity</h2>
          <p className="text-sm text-slate-600 font-medium">Review recent sign-ins, page activity, and active sessions.</p>
       </div>
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50 sm:p-6">
+      <div className="rounded-3xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5 sm:p-6">
          <LiveActivityFeed 
             initialLogs={initialLogs} 
             initialSessions={initialSessions} 

@@ -30,9 +30,9 @@ export function CourseSidebar({
   );
 
   return (
-    <aside className="min-w-0 border-t border-slate-200 bg-white lg:min-h-[calc(100vh-73px)] lg:border-l lg:border-t-0">
-      <div className="flex items-center gap-2 border-b border-slate-200 p-4 font-bold text-slate-900">
-        <ListTree aria-hidden="true" className="size-4 text-sky-700" />
+    <aside className="min-w-0 border-t border-emerald-950/10 bg-white lg:min-h-[calc(100vh-73px)] lg:border-l lg:border-t-0">
+      <div className="flex items-center gap-2 border-b border-emerald-950/10 p-4 font-bold text-slate-900">
+        <ListTree aria-hidden="true" className="size-4 text-[#084B2B]" />
         Course content
         <span className="ml-auto text-xs font-medium text-slate-500">
           {lessonCount} lessons
@@ -47,11 +47,11 @@ export function CourseSidebar({
 
           return (
             <details
-              className="group min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white"
+              className="group min-w-0 overflow-hidden rounded-xl border border-emerald-950/10 bg-white open:border-emerald-500"
               key={courseModule.id}
               open={containsActiveLesson}
             >
-              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-100">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 bg-[#F8FAF7] px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-emerald-50 group-open:text-[#084B2B]">
                 <span className="min-w-0 flex-1 break-words">
                   {courseModule.title}
                 </span>
@@ -60,7 +60,7 @@ export function CourseSidebar({
                   className="size-4 shrink-0 text-slate-400 transition group-open:rotate-180"
                 />
               </summary>
-              <div className="border-t border-slate-200 py-1">
+              <div className="border-t border-emerald-950/10 py-1">
                 {courseModule.lessons.map((lesson) => {
                   const active = lesson.id === activeLessonId;
                   return (
@@ -68,8 +68,8 @@ export function CourseSidebar({
                       aria-current={active ? 'page' : undefined}
                       className={`flex min-w-0 items-start gap-3 border-l-4 px-3 py-3 text-sm transition ${
                         active
-                          ? 'border-sky-500 bg-sky-50 font-medium text-sky-800'
-                          : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                          ? 'border-[#084B2B] bg-emerald-50 font-medium text-[#084B2B]'
+                          : 'border-transparent text-slate-600 hover:bg-[#F8FAF7] hover:text-slate-900'
                       }`}
                       href={`/courses/${courseId}/learn/lessons/${lesson.id}${previewSuffix}`}
                       key={lesson.id}

@@ -24,8 +24,8 @@ export default async function TeacherCoursesPage() {
 
   return (
     <>
-      <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
+      <section className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#084B2B]">
           Course workspace
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">Your courses</h1>
@@ -40,15 +40,15 @@ export default async function TeacherCoursesPage() {
         {courses.length ? (
           courses.map((course) => (
             <article
-              className="card-hover flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-200/50 sm:flex-row sm:items-center"
+              className="card-hover flex min-w-0 flex-col gap-3 rounded-2xl border border-emerald-950/10 bg-white p-3 shadow-sm shadow-emerald-950/5 sm:flex-row sm:items-center"
               key={course.id}
             >
               <Link
                 className="group flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1"
                 href={`/teacher/courses/${course.id}`}
               >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-100">
-                  <Layers3 className="size-5 text-sky-700" />
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+                  <Layers3 className="size-5 text-[#084B2B]" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-black">{course.title}</span>
@@ -58,10 +58,10 @@ export default async function TeacherCoursesPage() {
                     students
                   </span>
                 </span>
-                <ArrowRight className="size-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-sky-700" />
+                <ArrowRight className="size-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#084B2B]" />
               </Link>
               <Link
-                className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-sky-200 px-3 text-xs font-bold text-sky-700 transition hover:bg-sky-50"
+                className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-emerald-200 px-3 text-xs font-bold text-[#084B2B] transition hover:bg-emerald-50"
                 href={`/teacher/courses/${course.id}?tab=zoom`}
               >
                 <CalendarPlus aria-hidden="true" className="size-4" />

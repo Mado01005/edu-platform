@@ -4,10 +4,10 @@ import {
   ArrowRight,
   BookOpen,
   CalendarDays,
-  GraduationCap,
   LayoutDashboard,
   UserPlus,
 } from 'lucide-react';
+import { OqoolEmblem, OqoolWordmark } from '@/components/branding/OqoolBrand';
 import { buttonVariants } from '@/components/UI/button';
 import { NotificationBell } from '@/components/navbar/notification-bell';
 import { UserNav } from '@/components/navbar/user-nav';
@@ -26,22 +26,19 @@ const navigation = [
 
 export function LmsHeader({ user }: LmsHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 h-16 w-full border-b border-slate-200/80 bg-white px-4 shadow-sm shadow-slate-200/50">
+    <header className="sticky top-0 z-50 h-16 w-full border-b border-emerald-950/10 bg-white px-4 shadow-sm shadow-emerald-950/5">
         <div className="mx-auto flex h-full w-full max-w-7xl min-w-0 items-center justify-between gap-4">
           {/* Left zone: brand */}
           <Link
-            aria-label="Way Ground LMS catalog"
+            aria-label="Oqool Academy catalog"
             className="group flex min-w-max shrink-0 items-center gap-3 font-bold"
             href="/catalog"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-white shadow-sm transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:bg-sky-600 group-hover:shadow-md">
-              <GraduationCap className="size-5" aria-hidden="true" />
-            </span>
-            <span className="hidden min-w-0 sm:block">
-              <span className="block max-w-32 truncate whitespace-nowrap text-base tracking-tight text-slate-900">
-                Way Ground
-              </span>
-            </span>
+            <OqoolEmblem
+              className="shadow-sm transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:shadow-md"
+              decorative
+            />
+            <OqoolWordmark className="hidden max-w-40 sm:block" />
           </Link>
 
           {/* Center zone: global command search for signed-in users. */}
@@ -56,7 +53,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
             >
               {navigation.map(({ href, icon: Icon, label }) => (
                 <Link
-                  className="flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-sky-50 hover:text-sky-700"
+                  className="flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-[#084B2B]"
                   href={href}
                   key={href}
                 >

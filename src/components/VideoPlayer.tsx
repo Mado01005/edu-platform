@@ -23,7 +23,7 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
           <source src={src} type="video/mp4" />
           <p className="text-gray-400 text-sm">
             Your browser does not support HTML5 video.{' '}
-            <a href={src} className="text-indigo-400 underline">Download the video</a>
+            <a href={src} className="text-emerald-400 underline">Download the video</a>
           </p>
         </video>
       </div>

@@ -69,7 +69,7 @@ export function LearningPreferencesForm({
     <>
       <Card>
         <CardHeader>
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#084B2B]">
             <Play className="size-5" aria-hidden="true" />
           </span>
           <CardTitle className="mt-2 text-xl">
@@ -84,7 +84,7 @@ export function LearningPreferencesForm({
           <form className="flex min-w-0 flex-col gap-6" onSubmit={handleSubmit}>
             <fieldset className="min-w-0">
               <legend className="flex items-center gap-2 text-sm font-black">
-                <Gauge className="size-4 text-sky-700" aria-hidden="true" />
+                <Gauge className="size-4 text-[#084B2B]" aria-hidden="true" />
                 Default playback speed
               </legend>
               <div className="mt-3 grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">
@@ -92,8 +92,8 @@ export function LearningPreferencesForm({
                   <label
                     className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border text-sm font-black transition ${
                       defaultPlaybackSpeed === speed
-                        ? 'border-sky-600 bg-sky-600 text-white'
-                        : 'border-slate-300 bg-white text-slate-600 hover:border-sky-300 hover:text-sky-700'
+                        ? 'border-[#084B2B] bg-[#084B2B] text-white'
+                        : 'border-slate-300 bg-white text-slate-600 hover:border-emerald-300 hover:text-[#084B2B]'
                     }`}
                     key={speed}
                   >
@@ -114,7 +114,7 @@ export function LearningPreferencesForm({
             <label className="min-w-0 text-sm font-black">
               Default video quality
               <select
-                className="mt-2 h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                className="mt-2 h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
                 onChange={(event) =>
                   setDefaultVideoQuality(event.target.value)
                 }
@@ -128,8 +128,8 @@ export function LearningPreferencesForm({
               </select>
             </label>
 
-            <div className="flex min-w-0 items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+            <div className="flex min-w-0 items-start gap-4 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
                 <WandSparkles className="size-5" aria-hidden="true" />
               </span>
               <label className="min-w-0 flex-1" htmlFor="autoplay-next">

@@ -103,16 +103,16 @@ export default function VimeoPlayer({ vimeoId, title }: VimeoPlayerProps) {
         
         {/* Netflix-style Cinematic Resume Overlay */}
         <div className={`absolute top-4 left-1/2 -translate-x-1/2 z-10 transition-all duration-700 pointer-events-none ${resumeMessage ? 'opacity-100 transform translate-y-0 scale-100' : 'opacity-0 transform -translate-y-4 scale-95'}`}>
-          <div className="bg-black/80 backdrop-blur-md border border-indigo-500/30 px-5 py-2.5 rounded-full shadow-[0_0_30px_rgba(99,102,241,0.4)] flex items-center gap-2">
-             <div className="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></div>
-             <p className="text-indigo-100 text-sm font-bold tracking-wide whitespace-nowrap">{resumeMessage}</p>
+          <div className="bg-black/80 backdrop-blur-md border border-emerald-500/30 px-5 py-2.5 rounded-full shadow-[0_0_30px_rgba(8,75,43,0.4)] flex items-center gap-2">
+             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></div>
+             <p className="text-emerald-100 text-sm font-bold tracking-wide whitespace-nowrap">{resumeMessage}</p>
           </div>
         </div>
 
       </div>
       <div className="mt-4 flex items-center justify-between">
         <span className="text-base font-bold text-gray-300 truncate tracking-wide">{title}</span>
-        <span className="text-[10px] font-black tracking-widest uppercase bg-indigo-500/20 text-indigo-300 px-3 py-1.5 rounded-lg border border-indigo-500/30 shadow-[inset_0_0_8px_rgba(99,102,241,0.1)]">Vimeo</span>
+        <span className="text-[10px] font-black tracking-widest uppercase bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-500/30 shadow-[inset_0_0_8px_rgba(8,75,43,0.1)]">Vimeo</span>
       </div>
     </div>
   );

@@ -79,26 +79,26 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
       <div className="absolute inset-0 bg-slate-950/40"></div>
       
       {/* Main Holographic Container */}
-      <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl custom-scrollbar scale-in sm:p-12">
-        <div className="absolute inset-x-0 top-0 z-20 h-1 bg-sky-600"></div>
+      <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-emerald-950/10 bg-white p-6 shadow-xl custom-scrollbar scale-in sm:p-12">
+        <div className="absolute inset-x-0 top-0 z-20 h-1 bg-[#084B2B]"></div>
 
         <div className="relative z-10">
           <div className="text-center mb-6 sm:mb-10">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-sky-200 bg-sky-600 sm:mb-6 sm:h-20 sm:w-20">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-200 bg-[#084B2B] sm:mb-6 sm:h-20 sm:w-20">
               <svg className="w-10 h-10 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             
             <h2 className="mb-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Welcome to Way Ground, {userName.split(' ')[0]}!
+              Welcome to Oqool Academy, {userName.split(' ')[0]}!
             </h2>
-            <p className="text-lg font-medium text-slate-600">Your account <strong className="text-sky-700">{userEmail}</strong> has been successfully registered.</p>
+            <p className="text-lg font-medium text-slate-600">Your account <strong className="text-[#084B2B]">{userEmail}</strong> has been successfully registered.</p>
           </div>
           
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 mb-8">
              {/* Feature 1 */}
-             <div className="flex flex-row items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-colors hover:border-sky-200 hover:bg-sky-50 sm:flex-col sm:gap-2 sm:p-5 sm:text-center">
+             <div className="flex flex-row items-center gap-4 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-left transition-colors hover:border-emerald-200 hover:bg-emerald-50 sm:flex-col sm:gap-2 sm:p-5 sm:text-center">
                <span className="text-2xl sm:text-3xl shrink-0">📚</span>
                <div>
                  <h4 className="text-sm font-semibold text-slate-900 sm:mb-1 sm:text-base">Explore Modules</h4>
@@ -107,7 +107,7 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
              </div>
              
              {/* Feature 2 */}
-             <div className="flex flex-row items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-colors hover:border-sky-200 hover:bg-sky-50 sm:flex-col sm:gap-2 sm:p-5 sm:text-center">
+             <div className="flex flex-row items-center gap-4 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-left transition-colors hover:border-emerald-200 hover:bg-emerald-50 sm:flex-col sm:gap-2 sm:p-5 sm:text-center">
                <span className="text-2xl sm:text-3xl shrink-0">📈</span>
                <div>
                  <h4 className="text-sm font-semibold text-slate-900 sm:mb-1 sm:text-base">Track Progress</h4>
@@ -116,7 +116,7 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
              </div>
 
              {/* Feature 3 */}
-             <div className="flex flex-row items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-colors hover:border-sky-200 hover:bg-sky-50 sm:flex-col sm:gap-2 sm:p-5 sm:text-center">
+             <div className="flex flex-row items-center gap-4 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-left transition-colors hover:border-emerald-200 hover:bg-emerald-50 sm:flex-col sm:gap-2 sm:p-5 sm:text-center">
                <span className="text-2xl sm:text-3xl shrink-0">💬</span>
                <div>
                  <h4 className="text-sm font-semibold text-slate-900 sm:mb-1 sm:text-base">Secure Inbox</h4>
@@ -129,7 +129,7 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
             <button
               onClick={handleAcknowledge}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-3 rounded-xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:opacity-50 sm:w-auto sm:px-12 sm:py-4 sm:text-base"
+              className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#084B2B] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#063B22] disabled:opacity-50 sm:w-auto sm:px-12 sm:py-4 sm:text-base"
             >
               {loading ? 'Initializing...' : 'Initialize Dashboard'}
               {!loading && (

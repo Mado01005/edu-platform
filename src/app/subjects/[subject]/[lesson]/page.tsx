@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!lesson) return { title: 'Lesson Not Found' };
   
   return {
-    title: `${lesson.title} - Way Ground LMS`,
-    description: `Study ${lesson.title} on Way Ground LMS. Includes video lessons, PDF materials, and interactive content.`,
+    title: `${lesson.title} - Oqool Academy`,
+    description: `Study ${lesson.title} on Oqool Academy. Includes video lessons, PDF materials, and interactive content.`,
     openGraph: {
       title: `${lesson.title} — Learning Module`,
       description: `Study ${lesson.title} and master the curriculum.`,
@@ -95,7 +95,7 @@ export default async function LessonPage({ params }: Props) {
             <span className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${subject.color} text-2xl shadow-[0_0_20px_rgba(255,255,255,0.1)]`}>
               {subject.icon}
             </span>
-            <span className="text-sm font-bold tracking-widest uppercase text-indigo-400 border border-indigo-400/30 bg-indigo-400/10 px-3 py-1 rounded-md">{subject.title}</span>
+            <span className="text-sm font-bold tracking-widest uppercase text-emerald-400 border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 rounded-md">{subject.title}</span>
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight select-none">
             {lesson.title}
@@ -104,7 +104,7 @@ export default async function LessonPage({ params }: Props) {
 
         {/* Content sections */}
         <div className="space-y-6">
-          <div className="absolute top-0 right-10 w-32 h-32 bg-indigo-500/10 blur-[50px] pointer-events-none rounded-full"></div>
+          <div className="absolute top-0 right-10 w-32 h-32 bg-emerald-500/10 blur-[50px] pointer-events-none rounded-full"></div>
           
           <div className="mb-8">
             <TopologyViewer />

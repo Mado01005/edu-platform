@@ -62,7 +62,7 @@ export default function FocusAnalyticsTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="size-8 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
+        <div className="size-8 animate-spin rounded-full border-2 border-[#084B2B] border-t-transparent" />
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function FocusAnalyticsTab() {
 
   if (!data || (data.totalFocusMinutes === 0 && data.frictionList.length === 0)) {
     return (
-      <div className="rounded-3xl border border-slate-200/80 bg-white py-20 text-center shadow-sm shadow-slate-200/50">
+      <div className="rounded-3xl border border-emerald-950/10 bg-white py-20 text-center shadow-sm shadow-emerald-950/5">
         <div className="text-6xl mb-4">🎧</div>
         <h3 className="mb-2 text-xl font-bold uppercase tracking-widest text-slate-900">Awaiting Student Data</h3>
         <p className="text-sm text-slate-600">Focus charts will appear here after students start study sessions.</p>
@@ -85,12 +85,12 @@ export default function FocusAnalyticsTab() {
     <div className="space-y-8 fade-in">
       <div className="space-y-2 max-w-2xl text-center md:text-left mx-auto md:mx-0">
         <h2 className="text-5xl font-black uppercase leading-none tracking-tighter text-slate-900">Productivity Pulse</h2>
-        <p className="text-sm font-bold uppercase leading-relaxed tracking-widest text-sky-700">Focus Overview</p>
+        <p className="text-sm font-bold uppercase leading-relaxed tracking-widest text-[#084B2B]">Focus Overview</p>
       </div>
 
       {/* Top Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="rounded-[2.5rem] border border-slate-200/80 bg-white p-8 shadow-sm shadow-slate-200/50">
+        <div className="rounded-[2.5rem] border border-emerald-950/10 bg-white p-8 shadow-sm shadow-emerald-950/5">
           <p className="mb-2 text-xs font-black uppercase tracking-widest text-slate-500">Global Focus Time</p>
           <div className="flex items-baseline gap-2">
             <span className="text-5xl font-black tabular-nums text-slate-900">
@@ -104,20 +104,20 @@ export default function FocusAnalyticsTab() {
           </div>
         </div>
 
-        <div className="rounded-[2.5rem] border border-slate-200/80 bg-white p-8 shadow-sm shadow-slate-200/50">
+        <div className="rounded-[2.5rem] border border-emerald-950/10 bg-white p-8 shadow-sm shadow-emerald-950/5">
           <p className="mb-2 text-xs font-black uppercase tracking-widest text-slate-500">Global Completion Rate</p>
           <div className="flex items-baseline gap-2">
             <span className="text-5xl font-black tabular-nums text-slate-900">
               {data.globalCompletionRate.toFixed(1)}
             </span>
-            <span className="text-3xl font-bold text-sky-700">%</span>
+            <span className="text-3xl font-bold text-[#084B2B]">%</span>
           </div>
         </div>
       </div>
 
       {/* Friction Map */}
-      <div className="overflow-hidden rounded-[2.5rem] border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
-        <div className="border-b border-slate-200/80 p-8">
+      <div className="overflow-hidden rounded-[2.5rem] border border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5">
+        <div className="border-b border-emerald-950/10 p-8">
           <h3 className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-slate-900">
             <span className="text-red-500">🔥</span> Content Friction Heatmap
           </h3>
@@ -126,7 +126,7 @@ export default function FocusAnalyticsTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-slate-200/80 bg-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+              <tr className="border-b border-emerald-950/10 bg-[#F8FAF7] text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
                 <th className="p-6">Rank</th>
                 <th className="p-6">Lesson Name</th>
                 <th className="p-6 bg-red-950/20 text-red-500">Interrupts</th>
@@ -134,7 +134,7 @@ export default function FocusAnalyticsTab() {
                 <th className="p-6">Fail Rate</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200/80">
+            <tbody className="divide-y divide-emerald-950/10">
               {(() => {
                 try {
                   return data.frictionList.map((item, idx) => {
@@ -142,7 +142,7 @@ export default function FocusAnalyticsTab() {
                     const failRate = total > 0 ? (item.interrupted / total) * 100 : 0;
                     
                     return (
-                      <tr key={item.lesson_id} className="transition-colors hover:bg-slate-50">
+                      <tr key={item.lesson_id} className="transition-colors hover:bg-[#F8FAF7]">
                         <td className="p-6 flex items-center gap-2">
                           <span className={`flex size-8 items-center justify-center rounded-full text-xs font-bold ${idx < 3 ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-600'}`}>
                             {idx + 1}
@@ -156,7 +156,7 @@ export default function FocusAnalyticsTab() {
                         <td className="p-6">
                           <div className="flex items-center gap-3">
                             <span className="w-12 font-bold tabular-nums text-slate-900">{failRate.toFixed(0)}%</span>
-                            <div className="h-2 flex-1 overflow-hidden rounded-full border border-slate-200/80 bg-slate-100">
+                            <div className="h-2 flex-1 overflow-hidden rounded-full border border-emerald-950/10 bg-slate-100">
                               <div className="h-full bg-red-500" style={{ width: `${failRate}%` }} />
                             </div>
                           </div>
@@ -180,7 +180,7 @@ export default function FocusAnalyticsTab() {
       </div>
 
       {/* Early Warning / Intervention Panel */}
-      <div className="overflow-hidden rounded-[2.5rem] border border-red-200/80 bg-white shadow-sm shadow-slate-200/50">
+      <div className="overflow-hidden rounded-[2.5rem] border border-red-200/80 bg-white shadow-sm shadow-emerald-950/5">
         <div className="p-8 border-b border-red-500/20 flex justify-between items-center bg-red-950/10">
           <div>
              <h3 className="text-lg font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
@@ -218,7 +218,7 @@ export default function FocusAnalyticsTab() {
                         <div className="flex items-center gap-2 text-xs font-bold tabular-nums">
                           <span className="text-slate-900">{item.duration}m</span>
                           <span className="text-slate-400">/</span>
-                          <span className="text-sky-700">{item.global_average}m</span>
+                          <span className="text-[#084B2B]">{item.global_average}m</span>
                         </div>
                       </td>
                     </tr>

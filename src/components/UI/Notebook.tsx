@@ -62,12 +62,12 @@ export default function Notebook() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {snippets.map((snippet) => (
-            <div key={snippet.id} className="group relative bg-[#0A0A0F] border border-white/10 rounded-[2.5rem] p-8 hover:border-indigo-500/30 transition-all duration-700">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[60px] pointer-events-none group-hover:bg-indigo-500/10 transition"></div>
+            <div key={snippet.id} className="group relative bg-[#0A0A0F] border border-white/10 rounded-[2.5rem] p-8 hover:border-emerald-500/30 transition-all duration-700">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[60px] pointer-events-none group-hover:bg-emerald-500/10 transition"></div>
                
                <div className="flex justify-between items-start mb-6">
                  <div>
-                   <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">{snippet.source_title}</p>
+                   <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">{snippet.source_title}</p>
                    <p className="text-[8px] text-gray-700 font-bold uppercase tracking-tight">{new Date(snippet.created_at).toLocaleDateString()}</p>
                  </div>
                  <button onClick={() => deleteSnippet(snippet.id)} className="p-3 bg-red-500/5 hover:bg-red-500/20 text-red-500/40 hover:text-red-500 border border-white/5 rounded-xl transition-all opacity-0 group-hover:opacity-100">
@@ -75,7 +75,7 @@ export default function Notebook() {
                  </button>
                </div>
 
-               <p className="text-gray-300 text-sm leading-relaxed font-medium italic border-l-2 border-indigo-500/20 pl-4">
+               <p className="text-gray-300 text-sm leading-relaxed font-medium italic border-l-2 border-emerald-500/20 pl-4">
                  “{snippet.content}”
                </p>
             </div>

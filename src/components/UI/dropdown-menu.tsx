@@ -31,7 +31,7 @@ function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         align="end"
         className={cn(
-          'z-50 max-h-[min(80vh,32rem)] min-w-56 origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-1.5 text-slate-900 shadow-sm data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'z-50 max-h-[min(80vh,32rem)] min-w-56 origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-y-auto overscroll-contain rounded-2xl border border-emerald-950/10 bg-white p-1.5 text-slate-900 shadow-sm data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           className,
         )}
         data-slot="dropdown-menu-content"
@@ -62,7 +62,7 @@ function DropdownMenuItem({
   return (
     <DropdownMenuPrimitive.Item
       className={cn(
-        'relative flex cursor-default select-none items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 outline-none transition focus:bg-sky-50 focus:text-sky-700 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+        'relative flex cursor-default select-none items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 outline-none transition focus:bg-emerald-50 focus:text-[#084B2B] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
         className,
       )}
       data-slot="dropdown-menu-item"

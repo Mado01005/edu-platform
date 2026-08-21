@@ -123,10 +123,10 @@ export function CurriculumBulkManager({
           {error}
         </p>
       ) : null}
-      <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-black text-slate-800">
+      <label className="flex items-center gap-3 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4 text-sm font-black text-slate-800">
         <input
           checked={allSelected}
-          className="size-5 accent-sky-600"
+          className="size-5 accent-emerald-600"
           disabled={!allItems.length}
           onChange={toggleAll}
           type="checkbox"
@@ -138,9 +138,9 @@ export function CurriculumBulkManager({
       </label>
 
       <section className="flex min-w-0 flex-col gap-4">
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm">
           <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
-            <BookOpenCheck className="size-5 text-sky-700" aria-hidden="true" />
+            <BookOpenCheck className="size-5 text-[#084B2B]" aria-hidden="true" />
             Subjects
           </h2>
           <ul className="mt-4 flex flex-col gap-2">
@@ -148,13 +148,13 @@ export function CurriculumBulkManager({
               const item = { id: subject.id, type: 'subject' as const };
               return (
                 <li
-                  className="flex min-w-0 items-center gap-3 rounded-xl border border-slate-200 bg-white p-3"
+                  className="flex min-w-0 items-center gap-3 rounded-xl border border-emerald-950/10 bg-white p-3"
                   key={subject.id}
                 >
                   <input
                     aria-label={`Select subject ${subject.name}`}
                     checked={selected.has(keyFor(item))}
-                    className="size-5 shrink-0 accent-sky-600"
+                    className="size-5 shrink-0 accent-emerald-600"
                     onChange={() => toggle(item)}
                     type="checkbox"
                   />
@@ -168,14 +168,14 @@ export function CurriculumBulkManager({
               );
             })}
             {!subjects.length ? (
-              <li className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-sm text-slate-600">
+              <li className="rounded-xl border border-dashed border-slate-300 bg-[#F8FAF7] p-5 text-center text-sm text-slate-600">
                 No subjects created yet.
               </li>
             ) : null}
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900">
             Courses &amp; modules
           </h2>
@@ -184,19 +184,19 @@ export function CurriculumBulkManager({
               const courseItem = { id: course.id, type: 'course' as const };
               return (
                 <li
-                  className="rounded-xl border border-slate-200 bg-white p-3"
+                  className="rounded-xl border border-emerald-950/10 bg-white p-3"
                   key={course.id}
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <input
                       aria-label={`Select course ${course.title}`}
                       checked={selected.has(keyFor(courseItem))}
-                      className="size-5 shrink-0 accent-sky-600"
+                      className="size-5 shrink-0 accent-emerald-600"
                       onChange={() => toggle(courseItem)}
                       type="checkbox"
                     />
                     <Link
-                      className="min-w-0 flex-1 truncate text-sm font-black text-slate-900 hover:text-sky-700"
+                      className="min-w-0 flex-1 truncate text-sm font-black text-slate-900 hover:text-[#084B2B]"
                       href={`/teacher/courses/${course.id}`}
                     >
                       {course.title}
@@ -217,13 +217,13 @@ export function CurriculumBulkManager({
                         };
                         return (
                           <li
-                            className="flex min-w-0 items-center gap-3 rounded-lg bg-slate-50 p-2.5"
+                            className="flex min-w-0 items-center gap-3 rounded-lg bg-[#F8FAF7] p-2.5"
                             key={courseModule.id}
                           >
                             <input
                               aria-label={`Select module ${courseModule.title}`}
                               checked={selected.has(keyFor(moduleItem))}
-                              className="size-4 shrink-0 accent-sky-600"
+                              className="size-4 shrink-0 accent-emerald-600"
                               onChange={() => toggle(moduleItem)}
                               type="checkbox"
                             />
@@ -242,7 +242,7 @@ export function CurriculumBulkManager({
               );
             })}
             {!courses.length ? (
-              <li className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-sm text-slate-600">
+              <li className="rounded-xl border border-dashed border-slate-300 bg-[#F8FAF7] p-5 text-center text-sm text-slate-600">
                 No courses created yet.
               </li>
             ) : null}

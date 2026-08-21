@@ -33,7 +33,7 @@ function SheetContent({
       <SheetPrimitive.Overlay className="fixed inset-0 z-[70] bg-slate-950/40 data-[state=closed]:animate-[sheet-overlay-out_150ms_ease-in] data-[state=open]:animate-[sheet-overlay-in_200ms_ease-out]" />
       <SheetPrimitive.Content
         className={cn(
-          'fixed inset-y-0 left-0 z-[71] flex h-dvh w-[min(20rem,calc(100vw-2rem))] min-w-0 flex-col overflow-hidden border-r border-slate-200/80 bg-white text-slate-900 shadow-sm shadow-slate-200/50 outline-none data-[state=closed]:animate-[sheet-out_150ms_ease-in] data-[state=open]:animate-[sheet-in_200ms_ease-out]',
+          'fixed inset-y-0 left-0 z-[71] flex h-dvh w-[min(20rem,calc(100vw-2rem))] min-w-0 flex-col overflow-hidden border-r border-emerald-950/10 bg-white text-slate-900 shadow-sm shadow-emerald-950/5 outline-none data-[state=closed]:animate-[sheet-out_150ms_ease-in] data-[state=open]:animate-[sheet-in_200ms_ease-out]',
           className,
         )}
         data-slot="sheet-content"
@@ -42,7 +42,7 @@ function SheetContent({
         {children}
         <SheetPrimitive.Close
           aria-label="Close navigation menu"
-          className="absolute right-3 top-3 rounded-xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+          className="absolute right-3 top-3 rounded-xl border border-emerald-950/10 bg-white p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
         >
           <X className="size-4" aria-hidden="true" />
         </SheetPrimitive.Close>

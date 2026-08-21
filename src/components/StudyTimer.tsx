@@ -78,14 +78,14 @@ export default function StudyTimer() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 left-4 md:left-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.4)] flex items-center justify-center hover:scale-110 transition-transform border border-white/20"
+        className="fixed bottom-6 left-4 md:left-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-[0_0_20px_rgba(8,75,43,0.4)] flex items-center justify-center hover:scale-110 transition-transform border border-white/20"
         title="Study Timer"
       >
         <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         {isRunning && (
-          <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-green-400 animate-ping"></span>
+          <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
         )}
       </button>
     );
@@ -134,7 +134,7 @@ export default function StudyTimer() {
             className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition ${
               isRunning
                 ? 'bg-white/10 text-white hover:bg-white/15'
-                : 'bg-indigo-500 text-white hover:bg-indigo-600 shadow-lg'
+                : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg'
             }`}
           >
             {isRunning ? 'Pause' : 'Start'}
@@ -149,7 +149,7 @@ export default function StudyTimer() {
 
         {/* Session Counter */}
         <div className="text-center text-xs text-gray-500">
-          <span className="text-indigo-400 font-bold">{sessions}</span> session{sessions !== 1 ? 's' : ''} today
+          <span className="text-emerald-400 font-bold">{sessions}</span> session{sessions !== 1 ? 's' : ''} today
           {sessions >= 3 && <span className="ml-1">🔥</span>}
         </div>
       </div>

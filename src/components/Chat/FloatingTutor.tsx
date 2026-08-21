@@ -36,7 +36,7 @@ export default function FloatingTutor() {
       {/* Floating Action Button */}
       <button
         onClick={handleToggle}
-        className="w-14 h-14 bg-indigo-600 hover:bg-indigo-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)] text-white transition-all transform hover:scale-105 active:scale-95"
+        className="w-14 h-14 bg-emerald-600 hover:bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(8,75,43,0.6)] text-white transition-all transform hover:scale-105 active:scale-95"
         aria-label="Toggle AI Tutor"
       >
         {isOpen ? (

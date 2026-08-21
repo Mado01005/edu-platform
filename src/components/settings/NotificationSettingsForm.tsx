@@ -74,7 +74,7 @@ export function NotificationSettingsForm({
       id: 'notify-zoom',
       label: 'Zoom class reminders',
       onChange: setNotifyZoomClasses,
-      tone: 'text-sky-700 bg-sky-100',
+      tone: 'text-[#084B2B] bg-emerald-100',
     },
     {
       checked: notifyAnnouncements,
@@ -101,7 +101,7 @@ export function NotificationSettingsForm({
     <>
       <Card>
         <CardHeader>
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#084B2B]">
             <BellRing className="size-5" aria-hidden="true" />
           </span>
           <CardTitle className="mt-2 text-xl">Notification center</CardTitle>
@@ -115,7 +115,7 @@ export function NotificationSettingsForm({
               const Icon = item.icon;
               return (
                 <div
-                  className="flex min-w-0 items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                  className="flex min-w-0 items-start gap-4 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4"
                   key={item.id}
                 >
                   <span

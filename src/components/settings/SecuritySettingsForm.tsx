@@ -93,7 +93,7 @@ export function SecuritySettingsForm({
       <div className="flex min-w-0 flex-col gap-4">
         <Card>
           <CardHeader>
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#084B2B]">
               <ShieldCheck className="size-5" aria-hidden="true" />
             </span>
             <CardTitle className="mt-2 text-xl">
@@ -104,7 +104,7 @@ export function SecuritySettingsForm({
             </p>
           </CardHeader>
           <CardContent className="pb-5 pt-6">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
                 Active providers
               </p>
@@ -128,7 +128,7 @@ export function SecuritySettingsForm({
 
         <Card>
           <CardHeader>
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#084B2B]">
               <KeyRound className="size-5" aria-hidden="true" />
             </span>
             <CardTitle className="mt-2 text-lg">Update password</CardTitle>
@@ -193,7 +193,7 @@ export function SecuritySettingsForm({
                 </Button>
               </form>
             ) : (
-              <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
+              <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-[#084B2B]">
                 <LockKeyhole className="mt-0.5 size-5 shrink-0" />
                 Continue using your connected OAuth provider to manage this
                 account securely.

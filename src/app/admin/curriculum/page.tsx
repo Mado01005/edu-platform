@@ -35,8 +35,8 @@ export default async function CurriculumPage() {
 
   return (
     <PortalShell user={admin}>
-      <header className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">
+      <header className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#084B2B]">
           Academic content
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">

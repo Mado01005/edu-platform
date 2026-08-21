@@ -57,7 +57,7 @@ function gradeLabel(grade: GradeLevel | null) {
 }
 
 function instructorInitials(name: string | null) {
-  const value = name?.trim() || 'Way Ground';
+  const value = name?.trim() || 'Oqool Academy';
   return value
     .split(/\s+/)
     .filter(Boolean)
@@ -90,7 +90,7 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
   const instructorName = course.teacher.name ?? 'Dr. Abdallah Saad';
 
   return (
-    <Card className="group overflow-hidden py-0 transition duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-sm">
+    <Card className="group overflow-hidden py-0 transition duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-sm">
       <div className="relative aspect-video overflow-hidden bg-slate-100">
         {course.imageUrl ? (
           <Image
@@ -103,15 +103,15 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
         ) : (
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-sky-100"
+            className="absolute inset-0 bg-emerald-100"
           >
-            <BookOpen className="absolute bottom-5 left-5 size-12 text-sky-600 transition duration-300 group-hover:-rotate-3" />
+            <BookOpen className="absolute bottom-5 left-5 size-12 text-[#084B2B] transition duration-300 group-hover:-rotate-3" />
           </div>
         )}
-        <Badge className="absolute right-3 top-3 border-slate-200 bg-white text-slate-700 shadow-sm">
+        <Badge className="absolute right-3 top-3 border-emerald-950/10 bg-white text-slate-700 shadow-sm">
           {course.subject?.name ?? gradeLabel(course.gradeLevel)}
         </Badge>
-        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-medium text-slate-600 shadow-sm">
+        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full border border-emerald-950/10 bg-white px-2.5 py-1 text-[10px] font-medium text-slate-600 shadow-sm">
           <Users className="size-3" aria-hidden="true" />
           {course._count.enrollments} learners
         </span>
@@ -144,17 +144,17 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
 
       <CardContent className="mt-5">
         <div className="grid min-w-0 grid-cols-2 gap-2">
-          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600">
-            <Layers3 className="size-3.5 shrink-0 text-sky-600" aria-hidden="true" />
+          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-[#F8FAF7] px-3 py-2 text-xs text-slate-600">
+            <Layers3 className="size-3.5 shrink-0 text-[#084B2B]" aria-hidden="true" />
             <span className="truncate">
               {course.modules.length} {course.modules.length === 1 ? 'Module' : 'Modules'}
             </span>
           </span>
-          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600">
+          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-[#F8FAF7] px-3 py-2 text-xs text-slate-600">
             {lessonTypes.has('PDF') ? (
-              <FileText className="size-3.5 shrink-0 text-sky-600" aria-hidden="true" />
+              <FileText className="size-3.5 shrink-0 text-[#084B2B]" aria-hidden="true" />
             ) : (
-              <PlayCircle className="size-3.5 shrink-0 text-sky-600" aria-hidden="true" />
+              <PlayCircle className="size-3.5 shrink-0 text-[#084B2B]" aria-hidden="true" />
             )}
             <span className="truncate">{contentLabel(lessonTypes)}</span>
           </span>
@@ -163,7 +163,7 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
           {course._count.zoomSessions > 0 ? (
             <Radio className="size-3 text-emerald-600" aria-hidden="true" />
           ) : (
-            <BookOpen className="size-3 text-sky-600" aria-hidden="true" />
+            <BookOpen className="size-3 text-[#084B2B]" aria-hidden="true" />
           )}
           {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
           {course._count.zoomSessions > 0

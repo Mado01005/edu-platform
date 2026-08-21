@@ -47,7 +47,7 @@ export default function CompleteButton({ subjectSlug, lessonSlug, initialComplet
           disabled={completed || loading}
           className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-xl ${
             completed 
-              ? 'bg-green-500/10 text-green-400 border border-green-500/20 cursor-default ring-2 ring-green-500/20' 
+              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default ring-2 ring-emerald-500/20'
               : 'bg-white text-black hover:bg-gray-200 hover:scale-105 active:scale-95'
           }`}
         >

@@ -76,7 +76,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
             key={src}
             id={`gallery-image-${i}`}
             onClick={() => openLightbox(i)}
-            className="relative w-full h-48 rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:border-indigo-500/50 hover:shadow-[0_10px_30px_rgba(99,102,241,0.2)] hover:-translate-y-1.5 transition-all duration-500 group cursor-pointer"
+            className="relative w-full h-48 rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:border-emerald-500/50 hover:shadow-[0_10px_30px_rgba(8,75,43,0.2)] hover:-translate-y-1.5 transition-all duration-500 group cursor-pointer"
             aria-label={`View image ${i + 1} of ${title}`}
           >
             <img

@@ -34,11 +34,11 @@ export function DocumentViewer({ fileType, title, url }: { fileType: string; tit
       : null;
 
   if (!viewerUrl) {
-    return <div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600"><FileText className="size-8 text-sky-600" />This file type does not have a protected in-app preview.</div>;
+    return <div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-[#F8FAF7] p-6 text-center text-sm text-slate-600"><FileText className="size-8 text-[#084B2B]" />This file type does not have a protected in-app preview.</div>;
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-emerald-950/10 bg-white shadow-sm">
       <iframe
         className="w-full border-0 bg-white"
         loading="lazy"
@@ -47,7 +47,7 @@ export function DocumentViewer({ fileType, title, url }: { fileType: string; tit
         style={{ height: '70dvh', minHeight: '28rem' }}
         title={`Document viewer: ${title}`}
       />
-      <p className="border-t border-slate-200 bg-slate-50 px-3 py-2 text-center text-xs text-slate-500">Protected in-app reading view · sharing and downloads are disabled in the course interface</p>
+      <p className="border-t border-emerald-950/10 bg-[#F8FAF7] px-3 py-2 text-center text-xs text-slate-500">Protected in-app reading view · sharing and downloads are disabled in the course interface</p>
     </div>
   );
 }

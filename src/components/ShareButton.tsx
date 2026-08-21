@@ -11,8 +11,8 @@ export default function ShareButton({ title }: ShareButtonProps) {
 
   const handleShare = async () => {
     const shareData = {
-      title: `${title} - Way Ground LMS`,
-      text: `Check out this lesson on Way Ground LMS: ${title}`,
+      title: `${title} - Oqool Academy`,
+      text: `Check out this lesson on Oqool Academy: ${title}`,
       url: window.location.href,
     };
 
@@ -46,8 +46,8 @@ export default function ShareButton({ title }: ShareButtonProps) {
       onClick={handleShare}
       className={`relative inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold uppercase tracking-widest text-[10px] md:text-sm transition-all duration-300 ${
         copied 
-          ? 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]'
-          : 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:-translate-y-1'
+          ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]'
+          : 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(8,75,43,0.2)] hover:shadow-[0_0_30px_rgba(8,75,43,0.4)] hover:-translate-y-1'
       }`}
     >
       <div className={`absolute inset-0 rounded-full border border-white/20 transition-all duration-500`}></div>

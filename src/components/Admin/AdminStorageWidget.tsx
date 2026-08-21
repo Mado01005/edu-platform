@@ -32,7 +32,7 @@ export function AdminStorageWidget({
       ? 'bg-red-400'
       : percent >= 70
         ? 'bg-amber-300'
-        : 'bg-emerald-400';
+        : 'bg-[#084B2B]';
   const statusTone =
     percent >= 90
       ? 'text-red-700'
@@ -42,22 +42,22 @@ export function AdminStorageWidget({
 
   return (
     <Link
-      className="group flex min-w-0 flex-col gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 text-slate-900 shadow-sm shadow-slate-200/50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 hover:shadow-md"
+      className="group flex min-w-0 flex-col gap-4 rounded-3xl border border-emerald-950/10 bg-white p-5 text-slate-900 shadow-sm shadow-emerald-950/5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-md"
       href="/admin/storage"
     >
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]">
           <Database className="size-5" aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-xs font-black uppercase tracking-[0.18em] text-sky-700">
+          <span className="block text-xs font-black uppercase tracking-[0.18em] text-[#084B2B]">
             R2 storage
           </span>
           <span className="mt-1 block truncate text-lg font-black">
             {formatBytes(totalBytes)} used
           </span>
         </span>
-        <ArrowRight className="size-5 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-sky-700" />
+        <ArrowRight className="size-5 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#084B2B]" />
       </div>
       <div>
         <div className="h-2 overflow-hidden rounded-full bg-slate-100">

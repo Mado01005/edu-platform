@@ -247,7 +247,7 @@ export default function ChatTutor() {
       <div className="px-6 py-4 border-b border-white/10 bg-white/5 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]'}`} />
-          <h2 className="text-sm font-bold text-white tracking-widest uppercase">Way Ground AI Tutor</h2>
+          <h2 className="text-sm font-bold text-white tracking-widest uppercase">Oqool Academy AI Tutor</h2>
         </div>
         <div className="flex items-center gap-3">
           {isLoading && (
@@ -284,7 +284,7 @@ export default function ChatTutor() {
               <div
                 className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-lg backdrop-blur-md whitespace-pre-wrap ${
                   m.role === 'user'
-                    ? 'bg-indigo-600/20 text-indigo-100 border border-indigo-500/30'
+                    ? 'bg-emerald-600/20 text-emerald-100 border border-emerald-500/30'
                     : 'bg-white/5 text-gray-200 border border-white/10'
                 }`}
               >
@@ -333,7 +333,7 @@ export default function ChatTutor() {
         {selectedFile && (
           <div className="mb-3 relative inline-block">
             {selectedFile.type === 'image' ? (
-              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.4)]">
+              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-emerald-500 shadow-[0_0_15px_rgba(8,75,43,0.4)]">
                 <img src={selectedFile.data} alt="Preview" className="w-full h-full object-cover" />
               </div>
             ) : (
@@ -358,7 +358,7 @@ export default function ChatTutor() {
         <form onSubmit={handleSubmit} className="relative flex items-center gap-2">
           <div className="relative flex-1">
             <input
-              className="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-14 py-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-inner backdrop-blur-sm transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-14 py-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-inner backdrop-blur-sm transition-all"
               value={input}
               placeholder={selectedFile ? `Explain this ${selectedFile.type}...` : "Type your question..."}
               onChange={(e) => setInput(e.target.value)}
@@ -367,7 +367,7 @@ export default function ChatTutor() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all z-10 ${selectedFile ? (selectedFile.type === 'pdf' ? 'text-red-400 bg-red-500/10' : 'text-indigo-400 bg-indigo-500/10') : 'text-gray-500 hover:text-white hover:bg-white/10'}`}
+              className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all z-10 ${selectedFile ? (selectedFile.type === 'pdf' ? 'text-red-400 bg-red-500/10' : 'text-emerald-400 bg-emerald-500/10') : 'text-gray-500 hover:text-white hover:bg-white/10'}`}
               title="Attach an image or PDF"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -384,7 +384,7 @@ export default function ChatTutor() {
             <button
               type="submit"
               disabled={isLoading || (!input.trim() && !selectedFile)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-indigo-500 hover:bg-indigo-400 disabled:opacity-50 disabled:hover:bg-indigo-500 text-white transition-all shadow-[0_0_15px_rgba(99,102,241,0.4)] z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-white transition-all shadow-[0_0_15px_rgba(8,75,43,0.4)] z-10"
               aria-label="Send message"
             >
               {isLoading ? (

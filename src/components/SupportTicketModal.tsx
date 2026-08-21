@@ -45,7 +45,7 @@ export default function SupportTicketModal() {
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="group fixed bottom-6 right-6 z-40 flex items-center justify-center rounded-full bg-sky-600 p-4 text-white shadow-md transition hover:bg-sky-700"
+        className="group fixed bottom-6 right-6 z-40 flex items-center justify-center rounded-full bg-[#084B2B] p-4 text-white shadow-md transition hover:bg-[#063B22]"
         title="Contact Instructor"
       >
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -55,10 +55,10 @@ export default function SupportTicketModal() {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 fade-in">
-          <div className="flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl scale-in">
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-6 py-5">
+          <div className="flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-emerald-950/10 bg-white shadow-xl scale-in">
+            <div className="flex items-center justify-between border-b border-emerald-950/10 bg-[#F8FAF7] px-6 py-5">
               <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-900">
-                <svg className="h-5 w-5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                <svg className="h-5 w-5 text-[#084B2B]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                 Secure Support Ticket
               </h2>
               <button 
@@ -72,7 +72,7 @@ export default function SupportTicketModal() {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {status === 'success' ? (
                 <div className="py-10 text-center space-y-3">
-                  <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                   </div>
                   <h3 className="text-xl font-semibold text-slate-900">Dispatched!</h3>
@@ -91,7 +91,7 @@ export default function SupportTicketModal() {
                       placeholder="e.g. Question about Physics Chapter 3"
                       value={subject}
                       onChange={e => setSubject(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
                       disabled={sending}
                     />
                   </div>
@@ -104,7 +104,7 @@ export default function SupportTicketModal() {
                       placeholder="Explain what you need help with..."
                       value={body}
                       onChange={e => setBody(e.target.value)}
-                      className="min-h-[120px] w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+                      className="min-h-[120px] w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
                       disabled={sending}
                     />
                   </div>
@@ -118,7 +118,7 @@ export default function SupportTicketModal() {
                   <button 
                     type="submit" 
                     disabled={sending || !subject || !body}
-                    className="mt-2 w-full rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-2 w-full rounded-xl bg-[#084B2B] px-6 py-3 font-semibold text-white transition hover:bg-[#063B22] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {sending ? 'Encrypting & Dispatching...' : 'Send Secure Message'}
                   </button>

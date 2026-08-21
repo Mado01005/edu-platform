@@ -13,7 +13,7 @@ export function PortalShell({
   user: Pick<User, 'avatarUrl' | 'email' | 'name' | 'role'>;
 }) {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900 transition-colors duration-200 ease-in-out">
+    <div className="min-h-screen w-full overflow-x-hidden bg-surface-canvas text-brand-700 transition-colors duration-200 ease-in-out">
       <LmsHeader user={user} />
       <div className="mx-auto flex w-full max-w-[92rem] min-w-0 items-start gap-6 px-4 py-6 sm:px-6">
         <AppSidebar role={user.role} />

@@ -8,9 +8,9 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          'border-sky-200 bg-sky-50 text-sky-700',
+          'border-emerald-200 bg-emerald-50 text-[#084B2B]',
         secondary:
-          'border-slate-200 bg-slate-100 text-slate-700',
+          'border-emerald-950/10 bg-slate-100 text-slate-700',
         success:
           'border-emerald-200 bg-emerald-50 text-emerald-700',
         outline:

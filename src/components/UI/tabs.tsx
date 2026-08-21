@@ -24,7 +24,7 @@ function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        'grid w-full min-w-0 grid-cols-2 gap-1 rounded-2xl border border-slate-200/80 bg-slate-100 p-1 shadow-sm shadow-slate-200/50 sm:grid-cols-4',
+        'grid w-full min-w-0 grid-cols-2 gap-1 rounded-2xl border border-emerald-950/10 bg-slate-100 p-1 shadow-sm shadow-emerald-950/5 sm:grid-cols-4',
         className,
       )}
       data-slot="tabs-list"
@@ -40,7 +40,7 @@ function TabsTrigger({
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        'flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-transparent px-2 text-xs font-semibold text-slate-600 transition-all duration-200 ease-in-out hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 data-[state=active]:border-sky-200/60 data-[state=active]:bg-sky-50 data-[state=active]:font-semibold data-[state=active]:text-sky-700 data-[state=active]:shadow-sm sm:text-sm',
+        'flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-transparent px-2 text-xs font-semibold text-slate-600 transition-all duration-200 ease-in-out hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B] data-[state=active]:border-emerald-200/60 data-[state=active]:bg-emerald-50 data-[state=active]:font-semibold data-[state=active]:text-[#084B2B] data-[state=active]:shadow-sm sm:text-sm',
         className,
       )}
       data-slot="tabs-trigger"
@@ -56,7 +56,7 @@ function TabsContent({
   return (
     <TabsPrimitive.Content
       className={cn(
-        'w-full min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500',
+        'w-full min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]',
         className,
       )}
       data-slot="tabs-content"

@@ -37,7 +37,7 @@ export class AdminErrorBoundary extends Component<Props, State> {
             </p>
             <button 
               onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors"
+              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors"
             >
               Reload Page
             </button>

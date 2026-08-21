@@ -95,19 +95,19 @@ function formatJoinedDate(value: string) {
 
 function roleBadgeClass(role: Role) {
   if (role === 'SUPER_ADMIN') {
-    return 'border-amber-200 bg-amber-50 text-amber-700';
+    return 'border-[#D4AF37]/40 bg-[#FDF8E8] text-[#8C6B1B]';
   }
 
   if (role === 'ADMIN') {
-    return 'border-blue-200 bg-blue-50 text-blue-700';
+    return 'border-[#D4AF37]/40 bg-[#FDF8E8] text-[#8C6B1B]';
   }
 
   if (role === 'TEACHER') {
-    return 'border-sky-200 bg-sky-50 text-sky-700';
+    return 'border-emerald-200 bg-emerald-50 text-[#084B2B]';
   }
 
   if (role === 'SUPPORT') {
-    return 'border-cyan-200 bg-cyan-50 text-cyan-700';
+    return 'border-emerald-200 bg-emerald-50 text-[#084B2B]';
   }
 
   if (role === 'ACCOUNTING') {
@@ -115,10 +115,10 @@ function roleBadgeClass(role: Role) {
   }
 
   if (role === 'PARENT') {
-    return 'border-rose-200 bg-rose-50 text-rose-700';
+    return 'border-[#D4AF37]/40 bg-[#FDF8E8] text-[#8C6B1B]';
   }
 
-  return 'border-slate-200 bg-slate-100 text-slate-700';
+  return 'border-emerald-200 bg-emerald-50 text-[#084B2B]';
 }
 
 function accountState(user: AdminUserRecord) {
@@ -360,9 +360,9 @@ export function UserManagementConsole({
     <>
       <div className="grid w-full min-w-0 grid-cols-2 gap-3">
         {metricCards.map(({ icon: Icon, label, value }) => (
-          <Card className="rounded-2xl border-slate-200/80 bg-white shadow-sm shadow-slate-200/50" key={label}>
+          <Card className="rounded-2xl border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5" key={label}>
             <CardContent className="flex min-w-0 items-center gap-3 px-4 py-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]">
                 <Icon className="size-4" aria-hidden="true" />
               </span>
               <span className="min-w-0">
@@ -403,7 +403,7 @@ export function UserManagementConsole({
         </div>
       ) : null}
 
-      <Card className="rounded-2xl border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
+      <Card className="rounded-2xl border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5">
         <CardContent className="flex min-w-0 flex-col gap-3 px-4 py-4">
           <label className="relative min-w-0">
             <span className="sr-only">Search by name or phone number</span>
@@ -422,7 +422,7 @@ export function UserManagementConsole({
           <label className="min-w-0">
             <span className="sr-only">Filter by role</span>
             <select
-              className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+              className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-4 text-sm font-bold text-slate-900 outline-none transition focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
               onChange={(event) =>
                 setRoleFilter(event.target.value as RoleFilter)
               }
@@ -444,13 +444,13 @@ export function UserManagementConsole({
         className="flex w-full min-w-0 flex-col gap-3"
         role="table"
       >
-        <Card className="rounded-2xl border-slate-200/80 bg-slate-50 shadow-sm">
+        <Card className="rounded-2xl border-emerald-950/10 bg-[#F8FAF7] shadow-sm">
           <CardContent className="flex items-center justify-between gap-3 px-4 py-3">
             <label className="flex min-w-0 items-center gap-3 text-sm font-black text-slate-800">
               <input
                 aria-label="Select all visible users"
                 checked={allVisibleSelected}
-                className="size-5 shrink-0 accent-sky-600"
+                className="size-5 shrink-0 accent-emerald-600"
                 disabled={!selectableUsers.length || !authStatusAvailable}
                 onChange={toggleAllVisible}
                 type="checkbox"
@@ -483,7 +483,7 @@ export function UserManagementConsole({
 
           return (
             <Card
-              className="card-hover rounded-2xl border-slate-200/80 bg-white shadow-sm shadow-slate-200/50"
+              className="card-hover rounded-2xl border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5"
               key={user.id}
               role="row"
             >
@@ -492,7 +492,7 @@ export function UserManagementConsole({
                   <input
                     aria-label={`Select ${user.name?.trim() || 'user account'}`}
                     checked={selectedUserIds.has(user.id)}
-                    className="mt-3 size-5 shrink-0 accent-sky-600"
+                    className="mt-3 size-5 shrink-0 accent-emerald-600"
                     disabled={
                       !authStatusAvailable || isSelf || isProtectedSuperAdmin
                     }
@@ -509,7 +509,7 @@ export function UserManagementConsole({
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <button
-                      className="block max-w-full truncate text-left font-black text-slate-900 transition hover:text-sky-700 focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                      className="block max-w-full truncate text-left font-black text-slate-900 transition hover:text-[#084B2B] focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
                       onClick={() => setEditingUser(user)}
                       type="button"
                     >
@@ -599,7 +599,7 @@ export function UserManagementConsole({
 
                 <div className="grid min-w-0 grid-cols-2 gap-3 text-xs">
                   <div
-                    className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
+                    className="min-w-0 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] px-3 py-3"
                     role="cell"
                   >
                     <p className="flex items-center gap-1.5 font-bold text-slate-600">
@@ -611,7 +611,7 @@ export function UserManagementConsole({
                     </p>
                   </div>
                   <div
-                    className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
+                    className="min-w-0 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] px-3 py-3"
                     role="cell"
                   >
                     <p className="flex items-center gap-1.5 font-bold text-slate-600">
@@ -625,7 +625,7 @@ export function UserManagementConsole({
                 </div>
                 <div className="flex min-w-0 gap-2">
                   <Button
-                    className="flex-1 border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                    className="flex-1 border-emerald-200 bg-emerald-50 text-[#084B2B] hover:bg-emerald-100"
                     disabled={isProtectedSuperAdmin}
                     onClick={() => setEditingUser(user)}
                     size="sm"
@@ -671,7 +671,7 @@ export function UserManagementConsole({
         })}
 
         {!filteredUsers.length ? (
-          <Card className="rounded-2xl border-dashed border-slate-300 bg-slate-50">
+          <Card className="rounded-2xl border-dashed border-slate-300 bg-[#F8FAF7]">
             <CardContent className="px-5 py-10 text-center">
               <Users className="mx-auto size-8 text-slate-400" />
               <p className="mt-3 font-black text-slate-900">No users found</p>

@@ -74,9 +74,9 @@ function formatBytes(bytes: number) {
 }
 
 function categoryTone(category: AssetCategory) {
-  if (category === 'VIDEO') return 'bg-violet-50 text-violet-700';
+  if (category === 'VIDEO') return 'bg-emerald-50 text-emerald-700';
   if (category === 'PDF') return 'bg-amber-50 text-amber-700';
-  if (category === 'IMAGE') return 'bg-sky-50 text-sky-700';
+  if (category === 'IMAGE') return 'bg-emerald-50 text-[#084B2B]';
   return 'bg-slate-100 text-slate-600';
 }
 
@@ -103,7 +103,7 @@ function storageHealth(percent: number) {
     };
   }
   return {
-    bar: 'bg-emerald-400',
+    bar: 'bg-[#084B2B]',
     label: 'Healthy free-tier usage',
     text: 'text-emerald-700',
   };
@@ -280,7 +280,7 @@ export function StorageDashboard({
     {
       icon: Film,
       label: 'Video storage',
-      tone: 'bg-violet-50 text-violet-700',
+      tone: 'bg-emerald-50 text-emerald-700',
       value: formatBytes(snapshot.videoBytes),
     },
     {
@@ -302,7 +302,7 @@ export function StorageDashboard({
           const Icon = metric.icon;
           return (
             <article
-              className="card-hover min-w-0 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
+              className="card-hover min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5"
               key={metric.label}
             >
               <span
@@ -321,7 +321,7 @@ export function StorageDashboard({
         })}
       </section>
 
-      <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50">
+      <section className="rounded-3xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
         <div className="flex min-w-0 items-end justify-between gap-3">
           <span className="min-w-0">
             <span className="block text-sm font-black">Storage threshold</span>
@@ -358,16 +358,16 @@ export function StorageDashboard({
           averages.
         </p>
         <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-          <span className="rounded-xl border border-slate-200/80 bg-slate-50 p-3 text-slate-600">
+          <span className="rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-slate-600">
             Images <b className="block text-slate-900">{formatBytes(snapshot.imageBytes)}</b>
           </span>
-          <span className="rounded-xl border border-slate-200/80 bg-slate-50 p-3 text-slate-600">
+          <span className="rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-slate-600">
             Other <b className="block text-slate-900">{formatBytes(snapshot.otherBytes)}</b>
           </span>
         </div>
       </section>
 
-      <section className="flex min-w-0 flex-col gap-3 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50">
+      <section className="flex min-w-0 flex-col gap-3 rounded-3xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5">
         <div>
           <h2 className="text-lg font-black">Recent assets</h2>
           <p className="mt-1 text-xs leading-5 text-slate-500">
@@ -414,11 +414,11 @@ export function StorageDashboard({
           ))}
         </div>
 
-        <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-black text-slate-700">
+        <label className="flex items-center gap-3 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-xs font-black text-slate-700">
           <input
             aria-label="Select all visible R2 assets"
             checked={allVisibleSelected}
-            className="size-5 accent-sky-600"
+            className="size-5 accent-emerald-600"
             disabled={!visibleAssets.length || Boolean(pendingKey)}
             onChange={toggleAllVisible}
             type="checkbox"
@@ -442,7 +442,7 @@ export function StorageDashboard({
                 const Icon = categoryIcon(asset.category);
                 return (
                   <article
-                    className="card-hover min-w-0 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
+                    className="card-hover min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5"
                     key={asset.key}
                     role="row"
                   >
@@ -450,7 +450,7 @@ export function StorageDashboard({
                       <input
                         aria-label={`Select ${asset.name}`}
                         checked={selectedKeys.has(asset.key)}
-                        className="mt-2.5 size-5 shrink-0 accent-sky-600"
+                        className="mt-2.5 size-5 shrink-0 accent-emerald-600"
                         disabled={Boolean(pendingKey)}
                         onChange={() => toggleAsset(asset.key)}
                         type="checkbox"
@@ -462,7 +462,7 @@ export function StorageDashboard({
                       </span>
                       <span className="min-w-0 flex-1" role="cell">
                         <a
-                          className="block truncate text-sm font-black text-slate-900 hover:text-sky-700 hover:underline"
+                          className="block truncate text-sm font-black text-slate-900 hover:text-[#084B2B] hover:underline"
                           href={asset.publicUrl}
                           rel="noopener noreferrer"
                           target="_blank"
@@ -489,7 +489,7 @@ export function StorageDashboard({
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
                       <span
-                        className="rounded-xl border border-slate-200/80 bg-slate-50 p-3"
+                        className="rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3"
                         role="cell"
                       >
                         <span className="block text-slate-500">Type</span>
@@ -498,7 +498,7 @@ export function StorageDashboard({
                         </span>
                       </span>
                       <span
-                        className="rounded-xl border border-slate-200/80 bg-slate-50 p-3"
+                        className="rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3"
                         role="cell"
                       >
                         <span className="block text-slate-500">Size</span>
@@ -507,7 +507,7 @@ export function StorageDashboard({
                         </span>
                       </span>
                       <span
-                        className="col-span-2 rounded-xl border border-slate-200/80 bg-slate-50 p-3"
+                        className="col-span-2 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3"
                         role="cell"
                       >
                         <span className="block text-slate-500">Uploaded</span>
@@ -525,7 +525,7 @@ export function StorageDashboard({
                 );
               })
             ) : (
-              <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">
+              <p className="rounded-2xl border border-dashed border-slate-300 bg-[#F8FAF7] p-6 text-center text-sm text-slate-500">
                 No recent assets match this filter.
               </p>
             )}
@@ -562,7 +562,7 @@ export function StorageDashboard({
                 : 'This asset will be permanently removed.'}
             </DialogDescription>
           </DialogHeader>
-          <p className="break-all rounded-xl border border-slate-200/80 bg-slate-50 p-3 font-mono text-[11px] leading-5 text-slate-600">
+          <p className="break-all rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 font-mono text-[11px] leading-5 text-slate-600">
             {deleteTarget?.key}
           </p>
           <DialogFooter>

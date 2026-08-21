@@ -43,18 +43,18 @@ export function CourseCreateForm({
   return (
     <form
       action={action}
-      className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-sm"
       id="new-course"
     >
       <div className="flex items-center gap-2 text-sm font-black">
-        <BookPlus className="size-4 text-sky-700" aria-hidden="true" />
+        <BookPlus className="size-4 text-[#084B2B]" aria-hidden="true" />
         Create a course
       </div>
       <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="min-w-0 text-xs font-bold text-slate-700">
           Grade Level
           <select
-            className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
             name="gradeLevel"
             onChange={(event) =>
               setGradeLevel(event.target.value as GradeLevel | '')
@@ -73,7 +73,7 @@ export function CourseCreateForm({
         <label className="min-w-0 text-xs font-bold text-slate-700">
           Subject
           <select
-            className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none disabled:bg-slate-100 disabled:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none disabled:bg-slate-100 disabled:text-slate-400 focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
             disabled={!gradeLevel}
             name="subjectId"
             required={requireSubject}
@@ -94,14 +94,14 @@ export function CourseCreateForm({
         </label>
       </div>
       <input
-        className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+        className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
         maxLength={200}
         name="title"
         placeholder="Course title"
         required
       />
       <textarea
-        className="min-h-24 w-full min-w-0 resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+        className="min-h-24 w-full min-w-0 resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
         maxLength={10_000}
         name="description"
         placeholder="What will students learn?"
@@ -115,7 +115,7 @@ export function CourseCreateForm({
         </p>
       ) : null}
       <ActionSubmitButton
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-3 text-sm font-bold text-white hover:bg-sky-700"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 py-3 text-sm font-bold text-white hover:bg-[#063B22]"
         pendingLabel="Creating course…"
       >
         Create course

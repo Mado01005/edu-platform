@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@config "../../tailwind.config.js";
 
 @theme inline {
   --color-background: var(--background);
@@ -12,22 +13,46 @@
   --color-primary-bright: var(--primary-bright);
   --color-card: var(--card-bg);
   --color-card-border: var(--card-border);
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-hover: var(--brand-accent-hover);
+  --color-brand-accent-light: var(--brand-accent-light);
+  --color-surface-canvas: var(--surface-canvas);
+  --color-surface-card: var(--surface-card);
+  --color-surface-border: var(--surface-border);
 }
 
 :root {
   color-scheme: light;
-  --background: #f8fafc;
-  --surface-subtle: #f8fafc;
-  --surface-muted: #f1f5f9;
-  --border: rgba(226, 232, 240, 0.8);
-  --foreground: #0f172a;
+  --brand-50: #f2fbf5;
+  --brand-100: #e1f6ea;
+  --brand-200: #c5ecd6;
+  --brand-500: #084b2b;
+  --brand-600: #063b22;
+  --brand-700: #042917;
+  --brand-accent: #d4af37;
+  --brand-accent-hover: #c5a059;
+  --brand-accent-light: #fdf8e8;
+  --surface-canvas: #f8faf7;
+  --surface-card: #ffffff;
+  --surface-border: rgba(8, 75, 43, 0.12);
+  --background: var(--surface-canvas);
+  --surface-subtle: var(--surface-canvas);
+  --surface-muted: var(--brand-50);
+  --border: var(--surface-border);
+  --foreground: var(--brand-700);
   --muted-foreground: #475569;
-  --primary: #0284c7;
-  --primary-soft: #e0f2fe;
-  --primary-bright: #38bdf8;
-  --gradient-primary: #0284c7;
-  --card-bg: #ffffff;
-  --card-border: rgba(226, 232, 240, 0.8);
+  --primary: var(--brand-500);
+  --primary-soft: var(--brand-50);
+  --primary-bright: var(--brand-accent);
+  --gradient-primary: var(--brand-500);
+  --card-bg: var(--surface-card);
+  --card-border: var(--surface-border);
 }
 
 *,
@@ -71,19 +96,19 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: var(--surface-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--brand-200);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--brand-500);
 }
 
 /* Slim, low-contrast scrollbar for contained navigation and panel regions. */
 .custom-scrollbar {
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: var(--brand-200) transparent;
   scrollbar-width: thin;
 }
 
@@ -96,12 +121,12 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--brand-200);
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--brand-500);
 }
 
 /* Compatibility surface for legacy modules that still use this class name. */
@@ -175,7 +200,7 @@ body {
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.06);
-  border-color: #bae6fd;
+  border-color: var(--brand-200);
 }
 
 /* Video container */

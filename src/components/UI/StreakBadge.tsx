@@ -24,9 +24,9 @@ export default function StreakBadge({ count }: StreakBadgeProps) {
   // Tier 2: Plasma (10-29)
   if (count >= 10) {
     return (
-      <div className="flex cursor-default items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5" title={`${count} day streak - Plasma Prestige`}>
+      <div className="flex cursor-default items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5" title={`${count} day streak - Plasma Prestige`}>
         <span className="text-base">☄️</span>
-        <span className="text-xs font-semibold text-sky-800">
+        <span className="text-xs font-semibold text-[#084B2B]">
           {count} DAY STREAK
         </span>
       </div>

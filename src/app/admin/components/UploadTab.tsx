@@ -58,22 +58,22 @@ export default function UploadTab({
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
          <div className="xl:col-span-4 space-y-6">
-            <div className="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/50 sm:p-8">
-               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-700">1. Select Subject and Lesson</label>
+            <div className="space-y-6 rounded-3xl border border-emerald-950/10 bg-white p-6 shadow-sm shadow-emerald-950/5 sm:p-8">
+               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#084B2B]">1. Select Subject and Lesson</label>
                <div className="space-y-4">
-                  <select className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100" value={selectedSubjectId} onChange={(e) => { setSelectedSubjectId(e.target.value); setSelectedLessonId(''); }}>
+                  <select className="w-full cursor-pointer rounded-2xl border border-emerald-950/10 bg-white px-6 py-4 text-sm text-slate-900 outline-none transition focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100" value={selectedSubjectId} onChange={(e) => { setSelectedSubjectId(e.target.value); setSelectedLessonId(''); }}>
                     <option value="">Select Subject / Course</option>
                     {localSubjects.map(s => <option key={s.id} value={s.id!}>{s.icon} {s.title}</option>)}
                   </select>
                   {selectedSubjectId && (
-                    <select className="w-full animate-in rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100 slide-in-from-top-2" value={selectedLessonId} onChange={(e) => setSelectedLessonId(e.target.value)}>
+                    <select className="w-full animate-in rounded-2xl border border-emerald-950/10 bg-white px-6 py-4 text-sm text-slate-900 outline-none transition focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100 slide-in-from-top-2" value={selectedLessonId} onChange={(e) => setSelectedLessonId(e.target.value)}>
                       <option value="">Select Lesson</option>
                       {activeLessons.map((l: LessonMeta) => <option key={l.id} value={l.id}>{l.title}</option>)}
                     </select>
                   )}
                   <div className="flex gap-2 pt-2">
-                    <button type="button" onClick={handleCreateSubject} className="flex-1 rounded-xl border border-slate-200 bg-slate-50 py-3 text-[9px] font-black uppercase tracking-widest text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700">+ Create Subject</button>
-                    {selectedSubjectId && <button type="button" onClick={() => handleCreateLesson(selectedSubjectId)} className="flex-1 rounded-xl border border-slate-200 bg-slate-50 py-3 text-[9px] font-black uppercase tracking-widest text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700">+ Create Lesson</button>}
+                    <button type="button" onClick={handleCreateSubject} className="flex-1 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] py-3 text-[9px] font-black uppercase tracking-widest text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#084B2B]">+ Create Subject</button>
+                    {selectedSubjectId && <button type="button" onClick={() => handleCreateLesson(selectedSubjectId)} className="flex-1 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] py-3 text-[9px] font-black uppercase tracking-widest text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#084B2B]">+ Create Lesson</button>}
                   </div>
                </div>
             </div>
@@ -85,7 +85,7 @@ export default function UploadTab({
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">2. Save In</label>
                   <select 
-                    className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+                    className="w-full cursor-pointer rounded-2xl border border-emerald-950/10 bg-white px-6 py-4 text-sm text-slate-900 outline-none transition focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
                     value={selectedFolderId}
                     onChange={(e) => setSelectedFolderId(e.target.value)}
                   >
@@ -99,7 +99,7 @@ export default function UploadTab({
                 </div>
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Optional Subfolder</label>
-                  <input type="text" placeholder="e.g., Chapter 1" value={subfolder} onChange={e => setSubfolder(e.target.value)} className="w-full rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-bold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100" />
+                  <input type="text" placeholder="e.g., Chapter 1" value={subfolder} onChange={e => setSubfolder(e.target.value)} className="w-full rounded-2xl border border-emerald-950/10 bg-white px-6 py-4 text-sm font-bold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100" />
                 </div>
               </div>
               

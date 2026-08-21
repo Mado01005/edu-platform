@@ -170,12 +170,12 @@ export function StudentRadar({
     <div className="flex w-full min-w-0 flex-col gap-4">
       <section className="grid min-w-0 grid-cols-3 gap-2" aria-label="Radar metrics">
         {[
-          { badge: 'bg-sky-50', icon: Activity, label: 'Active', tone: 'text-sky-700', value: totalStudents },
-          { badge: 'bg-emerald-50', icon: CheckCircle2, label: 'Healthy', tone: 'text-emerald-700', value: healthyCount },
+          { badge: 'bg-emerald-50', icon: Activity, label: 'Active', tone: 'text-[#084B2B]', value: totalStudents },
+          { badge: 'border border-[#D4AF37]/40 bg-[#FDF8E8]', icon: CheckCircle2, label: 'Healthy', tone: 'text-[#8C6B1B]', value: healthyCount },
           { badge: 'bg-red-50', icon: ShieldAlert, label: 'At-Risk', tone: 'text-red-700', value: atRiskCount },
         ].map(({ badge, icon: Icon, label, tone, value }) => (
           <article
-            className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-3 text-center shadow-sm shadow-slate-200/50"
+            className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-3 text-center shadow-sm shadow-emerald-950/5"
             key={label}
           >
             <span className={`mx-auto flex size-8 items-center justify-center rounded-xl ${badge} ${tone}`}>
@@ -191,7 +191,7 @@ export function StudentRadar({
 
       <form
         action="/admin/radar"
-        className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
+        className="flex min-w-0 flex-col gap-3 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5"
         method="get"
       >
         <label className="relative min-w-0">
@@ -211,7 +211,7 @@ export function StudentRadar({
         <div className="grid min-w-0 grid-cols-2 gap-2">
           <select
             aria-label="Filter by grade level"
-            className="h-11 min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+            className="h-11 min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
             defaultValue={filters.grade}
             name="grade"
           >
@@ -225,7 +225,7 @@ export function StudentRadar({
           </select>
           <select
             aria-label="Filter by engagement status"
-            className="h-11 min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+            className="h-11 min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
             defaultValue={filters.status}
             name="status"
           >
@@ -258,7 +258,7 @@ export function StudentRadar({
       <section className="flex min-w-0 flex-col gap-3" aria-label="Student engagement radar">
         {roster.map((student) => (
           <article
-            className={`card-hover min-w-0 rounded-2xl border p-4 shadow-sm shadow-slate-200/50 ${
+            className={`card-hover min-w-0 rounded-2xl border p-4 shadow-sm shadow-emerald-950/5 ${
               student.isAtRisk
                 ? 'border-red-200 bg-red-50/50'
                 : 'border-emerald-200 bg-white'
@@ -277,7 +277,7 @@ export function StudentRadar({
               </span>
               <div className="min-w-0 flex-1">
                 <button
-                  className="block max-w-full truncate text-left font-black text-slate-900 transition hover:text-sky-700 focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                  className="block max-w-full truncate text-left font-black text-slate-900 transition hover:text-[#084B2B] focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
                   onClick={() => setEditingStudent(student)}
                   type="button"
                 >
@@ -305,7 +305,7 @@ export function StudentRadar({
                 ['Video', student.videoCompletion],
                 ['Work', student.assignmentScore],
               ].map(([label, value]) => (
-                <div className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 p-2" key={label}>
+                <div className="min-w-0 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-2" key={label}>
                   <p className="text-sm font-black text-slate-900">{Math.round(Number(value))}%</p>
                   <p className="truncate text-[9px] font-bold uppercase text-slate-600">
                     {label}
@@ -339,7 +339,7 @@ export function StudentRadar({
             ) : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Button
-                className="border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                className="border-emerald-200 bg-emerald-50 text-[#084B2B] hover:bg-emerald-100"
                 onClick={() => setEditingStudent(student)}
                 size="sm"
                 type="button"
@@ -362,7 +362,7 @@ export function StudentRadar({
         ))}
 
         {!filteredCount ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-[#F8FAF7] p-8 text-center text-sm text-slate-600">
             No students match these filters.
           </div>
         ) : null}

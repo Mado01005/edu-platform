@@ -32,36 +32,36 @@ export default async function AccountingReceiptPage({
   return (
     <PortalShell user={user}>
       <Link
-        className="flex w-fit items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white"
+        className="flex w-fit items-center gap-2 text-sm font-bold text-[#084B2B] hover:text-[#063B22]"
         href="/accounting"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         Back to accounting
       </Link>
 
-      <article className="overflow-hidden rounded-3xl border border-emerald-400/20 bg-zinc-950">
-        <header className="border-b border-white/10 bg-emerald-400/10 p-5">
+      <article className="overflow-hidden rounded-3xl border border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5">
+        <header className="border-b border-[#D4AF37]/40 bg-[#FDF8E8] p-5">
           <div className="flex items-center justify-between gap-3">
-            <span className="flex size-12 items-center justify-center rounded-2xl bg-emerald-300 text-black">
+            <span className="flex size-12 items-center justify-center rounded-2xl bg-[#084B2B] text-white">
               <ReceiptText className="size-6" aria-hidden="true" />
             </span>
-            <span className="flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200">
+            <span className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800">
               <CheckCircle2 className="size-3.5" aria-hidden="true" />
               APPROVED
             </span>
           </div>
-          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
-            Way Ground Academy
+          <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#8C6B1B]">
+            Oqool Academy
           </p>
           <h1 className="mt-2 break-words text-3xl font-black">
             Digital receipt
           </h1>
-          <p className="mt-2 break-all text-sm text-zinc-400">
+          <p className="mt-2 break-all text-sm text-slate-600">
             {receipt.receiptNumber}
           </p>
         </header>
 
-        <dl className="grid min-w-0 grid-cols-1 gap-px bg-white/10 sm:grid-cols-2">
+        <dl className="grid min-w-0 grid-cols-1 gap-px bg-emerald-950/10 sm:grid-cols-2">
           {[
             ['Student', receipt.student.name ?? receipt.student.email],
             ['Email', receipt.student.email],
@@ -85,11 +85,11 @@ export default async function AccountingReceiptPage({
             ],
             ['Recorded', receipt.createdAt.toISOString().slice(0, 10)],
           ].map(([label, value]) => (
-            <div className="min-w-0 bg-zinc-950 p-4" key={label}>
-              <dt className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+            <div className="min-w-0 bg-white p-4" key={label}>
+              <dt className="text-[10px] font-black uppercase tracking-wider text-slate-500">
                 {label}
               </dt>
-              <dd className="mt-1 break-words text-sm font-bold text-white">
+              <dd className="mt-1 break-words text-sm font-bold text-slate-900">
                 {value}
               </dd>
             </div>
@@ -98,7 +98,7 @@ export default async function AccountingReceiptPage({
 
         {receipt.receiptUrl ? (
           <a
-            className="m-5 flex min-h-11 items-center justify-center rounded-xl border border-white/10 px-4 text-sm font-black hover:bg-white/5"
+            className="m-5 flex min-h-11 items-center justify-center rounded-xl bg-[#084B2B] px-4 text-sm font-black text-white transition hover:bg-[#063B22]"
             href={receipt.receiptUrl}
             rel="noopener noreferrer"
             target="_blank"

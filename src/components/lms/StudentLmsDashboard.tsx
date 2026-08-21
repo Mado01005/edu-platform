@@ -104,12 +104,12 @@ export async function StudentLmsDashboard({
           </p>
         </header>
         {urgentLiveClass ? (
-          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:flex-row sm:items-center sm:p-6">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5 sm:flex-row sm:items-center sm:p-6">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
               <Radio aria-hidden="true" className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#084B2B]">
                 What to do next · Starting within one hour
               </p>
               <h2 className="mt-1 truncate text-xl font-semibold text-slate-900">
@@ -120,7 +120,7 @@ export async function StudentLmsDashboard({
               </p>
             </div>
             <a
-              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md"
+              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#063B22] hover:shadow-md"
               href={urgentLiveClass.meetingUrl}
               rel="noopener noreferrer"
               target="_blank"
@@ -130,12 +130,12 @@ export async function StudentLmsDashboard({
             </a>
           </section>
         ) : resumableCourse?.progress.firstIncomplete ? (
-          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:flex-row sm:items-center sm:p-6">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+          <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5 sm:flex-row sm:items-center sm:p-6">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
               <PlayCircle aria-hidden="true" className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#084B2B]">
                 What to do next · Continue learning
               </p>
               <h2 className="mt-1 truncate text-xl font-semibold text-slate-900">
@@ -146,7 +146,7 @@ export async function StudentLmsDashboard({
               </p>
             </div>
             <Link
-              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md"
+              className="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#063B22] hover:shadow-md"
               href={`/courses/${resumableCourse.course.id}/learn/lessons/${resumableCourse.progress.firstIncomplete.id}`}
             >
               <PlayCircle aria-hidden="true" className="size-4" />
@@ -157,10 +157,10 @@ export async function StudentLmsDashboard({
         <section className="min-w-0">
           <div className="mb-4 flex min-w-0 items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <BookOpen className="size-5 text-sky-600" />
+              <BookOpen className="size-5 text-[#084B2B]" />
               <h2 className="text-xl font-semibold text-slate-900">Enrolled courses</h2>
             </div>
-            <Link className="shrink-0 text-sm font-semibold text-sky-700 hover:text-sky-800" href="/catalog">
+            <Link className="shrink-0 text-sm font-semibold text-[#084B2B] hover:text-[#084B2B]" href="/catalog">
               Browse catalog
             </Link>
           </div>
@@ -175,14 +175,14 @@ export async function StudentLmsDashboard({
               const nextLesson = firstIncomplete ?? lessons[0];
 
               return (
-                <article className="card-hover flex min-w-0 flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50" key={course.id}>
+                <article className="card-hover flex min-w-0 flex-col rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5" key={course.id}>
                   <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                     {completed}/{lessons.length} lessons complete
                   </p>
                   <h3 className="mt-2 break-words text-xl font-semibold text-slate-900">{course.title}</h3>
                   <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-sky-600"
+                      className="h-full rounded-full bg-[#084B2B]"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -192,7 +192,7 @@ export async function StudentLmsDashboard({
                   </div>
                   {nextLesson ? (
                     <Link
-                      className="mt-5 flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-sky-300 bg-white px-4 py-3 text-sm font-semibold text-sky-700 hover:bg-sky-50"
+                      className="mt-5 flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-white px-4 py-3 text-sm font-semibold text-[#084B2B] hover:bg-emerald-50"
                       href={`/courses/${course.id}/learn/lessons/${nextLesson.id}`}
                     >
                       Continue course <ArrowRight className="size-4" />
@@ -206,23 +206,23 @@ export async function StudentLmsDashboard({
           {!enrollments.length ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
               <p className="text-sm text-slate-500">You are not enrolled in a course yet.</p>
-              <Link className="mt-4 inline-block rounded-xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md" href="/catalog">
+              <Link className="mt-4 inline-block rounded-xl bg-[#084B2B] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#063B22] hover:shadow-md" href="/catalog">
                 Explore courses
               </Link>
             </div>
           ) : null}
         </section>
 
-        <section className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:p-6">
+        <section className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5 sm:p-6">
           <div className="mb-4 flex items-center gap-2">
-            <Radio className="size-5 text-sky-600" />
+            <Radio className="size-5 text-[#084B2B]" />
             <h2 className="text-xl font-semibold text-slate-900">Upcoming live classes</h2>
           </div>
           <div className="flex min-w-0 flex-col gap-2">
             {liveClasses.map((session) => (
-              <div className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center" key={session.id}>
+              <div className="flex min-w-0 flex-col gap-3 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-4 sm:flex-row sm:items-center" key={session.id}>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-semibold text-sky-700">
+                  <p className="truncate text-xs font-semibold text-[#084B2B]">
                     {session.course.title}
                   </p>
                   <p className="mt-1 break-words font-semibold text-slate-900">{session.title}</p>
@@ -237,7 +237,7 @@ export async function StudentLmsDashboard({
                     </span>
                   </p>
                 </div>
-                <a className="shrink-0 rounded-xl border border-sky-300 bg-white px-4 py-2 text-center text-sm font-semibold text-sky-700 hover:bg-sky-50" href={session.meetingUrl} rel="noopener noreferrer" target="_blank">
+                <a className="shrink-0 rounded-xl border border-emerald-300 bg-white px-4 py-2 text-center text-sm font-semibold text-[#084B2B] hover:bg-emerald-50" href={session.meetingUrl} rel="noopener noreferrer" target="_blank">
                   Join
                 </a>
               </div>

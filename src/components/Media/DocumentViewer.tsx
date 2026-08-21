@@ -61,18 +61,18 @@ export default function DocumentViewer({ fileUrl, title }: DocumentViewerProps) 
   return (
     <div className="relative w-full min-h-[75vh] bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,1)] group">
       {/* Midnight Glass Decor */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent z-10" />
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/5 blur-[80px] pointer-events-none rounded-full" />
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent z-10" />
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/5 blur-[80px] pointer-events-none rounded-full" />
       
       {/* Loading spinner overlay */}
       {loading && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-5 bg-[#05050A]/90 backdrop-blur-md">
           <div className="relative w-14 h-14">
             <div className="absolute inset-0 rounded-full border-2 border-white/5" />
-            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-indigo-500 animate-[spin_0.8s_linear_infinite]" />
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-emerald-500 animate-[spin_0.8s_linear_infinite]" />
           </div>
           <div className="text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-2">
               Syncing Presentation Flow
             </p>
             <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest opacity-60">
@@ -101,7 +101,7 @@ export default function DocumentViewer({ fileUrl, title }: DocumentViewerProps) 
               download
               target="_blank" 
               rel="noopener noreferrer"
-              className="w-full sm:w-auto px-8 py-3 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-indigo-400 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+              className="w-full sm:w-auto px-8 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-emerald-400 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(8,75,43,0.15)]"
             >
               Download Secure File
             </a>

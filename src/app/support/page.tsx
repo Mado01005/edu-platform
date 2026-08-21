@@ -131,17 +131,17 @@ export default async function SupportPortalPage({
   return (
     <PortalShell user={operator}>
       <div className="box-border flex w-full max-w-md min-w-0 flex-col gap-4">
-          <header className="w-full min-w-0 rounded-3xl border border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.2),transparent_56%)] p-5">
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-cyan-300 text-black shadow-lg shadow-cyan-500/20">
+          <header className="w-full min-w-0 rounded-3xl border border-[#D4AF37]/40 bg-[#FDF8E8] p-5 shadow-sm shadow-emerald-950/5">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-[#084B2B] text-white shadow-sm">
               <Headphones className="size-5" aria-hidden="true" />
             </span>
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-cyan-300">
+            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#8C6B1B]">
               Customer support
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-tight">
               Student account desk
             </h1>
-            <p className="mt-3 text-sm leading-6 text-zinc-400">
+            <p className="mt-3 text-sm leading-6 text-slate-600">
               Verify an account, review active course enrollments, reset a
               requested password, or resend an operational notice.
             </p>
@@ -149,7 +149,7 @@ export default async function SupportPortalPage({
 
           {noticeMessage ? (
             <div
-              className="flex min-w-0 items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm text-emerald-100"
+              className="flex min-w-0 items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"
               role="status"
             >
               <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
@@ -159,7 +159,7 @@ export default async function SupportPortalPage({
 
           {errorMessage ? (
             <div
-              className="flex min-w-0 items-start gap-3 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-100"
+              className="flex min-w-0 items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
               role="alert"
             >
               <AlertCircle className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
@@ -170,7 +170,7 @@ export default async function SupportPortalPage({
           <Card className="scroll-mt-28" id="student-lookup">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Search className="size-5 text-cyan-300" aria-hidden="true" />
+                <Search className="size-5 text-[#084B2B]" aria-hidden="true" />
                 Find a student
               </CardTitle>
               <CardDescription>
@@ -180,7 +180,7 @@ export default async function SupportPortalPage({
             </CardHeader>
             <CardContent className="pb-5 pt-4">
               <form action="/support" className="flex min-w-0 flex-col gap-3" method="get">
-                <label className="text-xs font-black uppercase tracking-[0.16em] text-zinc-400" htmlFor="support-search">
+                <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="support-search">
                   Phone or email
                 </label>
                 <Input
@@ -220,25 +220,25 @@ export default async function SupportPortalPage({
                       <Link
                         className={`flex min-w-0 items-start gap-3 rounded-2xl border p-4 transition ${
                           selected
-                            ? 'border-cyan-300/50 bg-cyan-300/10'
-                            : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                            ? 'border-[#084B2B] bg-emerald-50'
+                            : 'border-emerald-950/10 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'
                         }`}
                         href={supportStudentHref(query, student.id)}
                         key={student.id}
                         prefetch={false}
                       >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-cyan-200">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]">
                           <User className="size-5" aria-hidden="true" />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-black text-white">
+                          <span className="block truncate text-sm font-black text-slate-900">
                             {student.name?.trim() || 'Unnamed student'}
                           </span>
-                          <span className="mt-1 block break-all text-xs text-zinc-400">
+                          <span className="mt-1 block break-all text-xs text-slate-600">
                             {student.email}
                           </span>
                           {student.phoneNumber ? (
-                            <span className="mt-1 block break-all text-xs text-zinc-500">
+                            <span className="mt-1 block break-all text-xs text-slate-500">
                               {student.phoneNumber}
                             </span>
                           ) : null}
@@ -250,8 +250,8 @@ export default async function SupportPortalPage({
                             <Badge
                               className={
                                 student.status === 'ACTIVE'
-                                  ? 'bg-emerald-400 text-black'
-                                  : 'bg-red-400 text-black'
+                                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                                  : 'border-red-200 bg-red-50 text-red-700'
                               }
                             >
                               {student.status}
@@ -271,14 +271,14 @@ export default async function SupportPortalPage({
               <Card>
                 <CardHeader>
                   <div className="flex min-w-0 items-start justify-between gap-3">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-cyan-300 text-black">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#084B2B] text-white">
                       <ShieldCheck className="size-5" aria-hidden="true" />
                     </span>
                     <Badge
                       className={
                         selectedStudent.status === 'ACTIVE'
-                          ? 'bg-emerald-400 text-black'
-                          : 'bg-red-400 text-black'
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                          : 'border-red-200 bg-red-50 text-red-700'
                       }
                     >
                       {selectedStudent.status}
@@ -292,12 +292,12 @@ export default async function SupportPortalPage({
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3 pb-5 pt-4">
-                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-white/[0.04] p-3 text-sm text-zinc-300">
-                    <Mail className="mt-0.5 size-4 shrink-0 text-cyan-300" aria-hidden="true" />
+                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-[#F8FAF7] p-3 text-sm text-slate-700">
+                    <Mail className="mt-0.5 size-4 shrink-0 text-[#084B2B]" aria-hidden="true" />
                     <span className="min-w-0 break-all">{selectedStudent.email}</span>
                   </p>
-                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-white/[0.04] p-3 text-sm text-zinc-300">
-                    <Phone className="mt-0.5 size-4 shrink-0 text-cyan-300" aria-hidden="true" />
+                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-[#F8FAF7] p-3 text-sm text-slate-700">
+                    <Phone className="mt-0.5 size-4 shrink-0 text-[#084B2B]" aria-hidden="true" />
                     <span className="min-w-0 break-all">
                       {selectedStudent.phoneNumber || 'No phone number on file'}
                     </span>
@@ -308,7 +308,7 @@ export default async function SupportPortalPage({
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="size-5 text-violet-300" aria-hidden="true" />
+                    <BookOpen className="size-5 text-[#084B2B]" aria-hidden="true" />
                     Course enrollment status
                   </CardTitle>
                   <CardDescription>
@@ -319,31 +319,31 @@ export default async function SupportPortalPage({
                   {selectedStudent.enrollments.length ? (
                     selectedStudent.enrollments.map((enrollment) => (
                       <div
-                        className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                        className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4"
                         key={enrollment.id}
                       >
                         <span className="min-w-0">
-                          <span className="block truncate text-sm font-black text-white">
+                          <span className="block truncate text-sm font-black text-slate-900">
                             {enrollment.course.title}
                           </span>
-                          <span className="mt-1 block text-xs leading-5 text-zinc-500">
+                          <span className="mt-1 block text-xs leading-5 text-slate-500">
                             {enrollment.course.subject
                               ? `${gradeLabel(enrollment.course.subject.grade)} · ${enrollment.course.subject.name}`
                               : 'General course'}
                           </span>
                         </span>
                         <span className="flex shrink-0 flex-col items-end gap-1.5">
-                          <Badge className="bg-emerald-400 text-black">
+                          <Badge className="border-emerald-200 bg-emerald-50 text-emerald-800">
                             Enrolled
                           </Badge>
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">
                             {enrollment.course.isPublished ? 'Published' : 'Private'}
                           </span>
                         </span>
                       </div>
                     ))
                   ) : (
-                    <p className="rounded-2xl border border-dashed border-white/10 p-4 text-sm leading-6 text-zinc-500">
+                    <p className="rounded-2xl border border-dashed border-emerald-200 p-4 text-sm leading-6 text-slate-500">
                       This student has no course enrollments.
                     </p>
                   )}
@@ -353,7 +353,7 @@ export default async function SupportPortalPage({
               <Card className="scroll-mt-28" id="credential-resets">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <KeyRound className="size-5 text-amber-300" aria-hidden="true" />
+                    <KeyRound className="size-5 text-[#8C6B1B]" aria-hidden="true" />
                     Temporary password reset
                   </CardTitle>
                   <CardDescription>
@@ -366,7 +366,7 @@ export default async function SupportPortalPage({
                   <form action={resetStudentPasswordAction} className="flex min-w-0 flex-col gap-3">
                     <input name="studentId" type="hidden" value={selectedStudent.id} />
                     <input name="query" type="hidden" value={query} />
-                    <label className="text-xs font-black uppercase tracking-[0.16em] text-zinc-400" htmlFor="temporary-password">
+                    <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="temporary-password">
                       Temporary password
                     </label>
                     <Input
@@ -378,7 +378,7 @@ export default async function SupportPortalPage({
                       required
                       type="password"
                     />
-                    <label className="text-xs font-black uppercase tracking-[0.16em] text-zinc-400" htmlFor="temporary-password-confirmation">
+                    <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="temporary-password-confirmation">
                       Confirm temporary password
                     </label>
                     <Input
@@ -390,9 +390,9 @@ export default async function SupportPortalPage({
                       required
                       type="password"
                     />
-                    <label className="flex min-w-0 items-start gap-3 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm leading-6 text-amber-100">
+                    <label className="flex min-w-0 items-start gap-3 rounded-2xl border border-[#D4AF37]/40 bg-[#FDF8E8] p-4 text-sm leading-6 text-[#8C6B1B]">
                       <input
-                        className="mt-1 size-4 shrink-0 accent-amber-300"
+                        className="mt-1 size-4 shrink-0 accent-emerald-700"
                         name="confirmation"
                         required
                         type="checkbox"
@@ -405,7 +405,7 @@ export default async function SupportPortalPage({
                     <ActionSubmitButton
                       className={cn(
                         buttonVariants(),
-                        'w-full bg-amber-300 hover:bg-amber-200',
+                        'w-full bg-[#084B2B] text-white hover:bg-[#063B22]',
                       )}
                       pendingLabel="Resetting…"
                     >
@@ -419,7 +419,7 @@ export default async function SupportPortalPage({
               <Card className="scroll-mt-28" id="support-tickets">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Bell className="size-5 text-fuchsia-300" aria-hidden="true" />
+                    <Bell className="size-5 text-[#084B2B]" aria-hidden="true" />
                     Resend a recent notice
                   </CardTitle>
                   <CardDescription>
@@ -431,11 +431,11 @@ export default async function SupportPortalPage({
                     <form action={resendNotificationAction} className="flex min-w-0 flex-col gap-3">
                       <input name="studentId" type="hidden" value={selectedStudent.id} />
                       <input name="query" type="hidden" value={query} />
-                      <label className="text-xs font-black uppercase tracking-[0.16em] text-zinc-400" htmlFor="notification-to-resend">
+                      <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="notification-to-resend">
                         Recent notification
                       </label>
                       <select
-                        className="h-12 w-full min-w-0 rounded-xl border border-white/10 bg-zinc-900 px-4 text-sm text-white outline-none focus:border-fuchsia-400/50 focus:ring-4 focus:ring-fuchsia-400/10"
+                        className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
                         id="notification-to-resend"
                         name="notificationId"
                         required
@@ -459,7 +459,7 @@ export default async function SupportPortalPage({
                       </ActionSubmitButton>
                     </form>
                   ) : (
-                    <p className="rounded-2xl border border-dashed border-white/10 p-4 text-sm leading-6 text-zinc-500">
+                    <p className="rounded-2xl border border-dashed border-emerald-200 p-4 text-sm leading-6 text-slate-500">
                       No support-visible notifications are available to resend.
                     </p>
                   )}
@@ -469,7 +469,7 @@ export default async function SupportPortalPage({
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Send className="size-5 text-cyan-300" aria-hidden="true" />
+                    <Send className="size-5 text-[#084B2B]" aria-hidden="true" />
                     Create support notice
                   </CardTitle>
                   <CardDescription>
@@ -480,7 +480,7 @@ export default async function SupportPortalPage({
                   <form action={createSupportNoticeAction} className="flex min-w-0 flex-col gap-3">
                     <input name="studentId" type="hidden" value={selectedStudent.id} />
                     <input name="query" type="hidden" value={query} />
-                    <label className="text-xs font-black uppercase tracking-[0.16em] text-zinc-400" htmlFor="support-notice-title">
+                    <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="support-notice-title">
                       Title
                     </label>
                     <Input
@@ -491,7 +491,7 @@ export default async function SupportPortalPage({
                       placeholder="Account assistance"
                       required
                     />
-                    <label className="text-xs font-black uppercase tracking-[0.16em] text-zinc-400" htmlFor="support-notice-message">
+                    <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="support-notice-message">
                       Message
                     </label>
                     <Textarea
@@ -524,7 +524,7 @@ export default async function SupportPortalPage({
               </CardHeader>
               <CardContent className="pb-5 pt-4">
                 <Link
-                  className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-white/10 px-4 text-sm font-black text-white transition hover:bg-white/5"
+                  className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#084B2B] px-4 text-sm font-black text-white transition hover:bg-[#063B22]"
                   href={query ? `/support?q=${encodeURIComponent(query)}` : '/support'}
                 >
                   Back to search

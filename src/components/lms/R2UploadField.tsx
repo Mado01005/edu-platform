@@ -86,8 +86,8 @@ export function R2UploadField({
       <input name={name} type="hidden" value={url} />
       <span className="text-sm font-bold text-slate-700">{label}</span>
 
-      <label className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 transition hover:border-sky-400">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+      <label className="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-[#F8FAF7] p-4 transition hover:border-emerald-400">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
           {pending ? (
             <Loader2 className="size-5 animate-spin" />
           ) : url ? (

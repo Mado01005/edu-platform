@@ -39,7 +39,7 @@ export default async function LmsProfilePage() {
       <div className="flex w-full max-w-4xl min-w-0 flex-col gap-6">
         <Card className="overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,.18),transparent_46%)] p-6 sm:p-8">
           <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
-            <Avatar className="size-20 border-violet-400/20 shadow-xl shadow-violet-950/40">
+            <Avatar className="size-20 border-emerald-400/20 shadow-xl shadow-emerald-950/40">
               <AvatarImage
                 alt={`${displayName} avatar`}
                 src={user.avatarUrl ?? undefined}
@@ -54,7 +54,7 @@ export default async function LmsProfilePage() {
                 {displayName}
               </h1>
               {user.headline ? (
-                <p className="mt-1 break-words text-sm font-bold text-violet-200">
+                <p className="mt-1 break-words text-sm font-bold text-emerald-200">
                   {user.headline}
                 </p>
               ) : null}
@@ -73,7 +73,7 @@ export default async function LmsProfilePage() {
 
         <section className="scroll-mt-28" id="settings">
           <div className="mb-4">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
               Account preferences
             </p>
             <h2 className="mt-2 text-2xl font-black">Settings</h2>
@@ -81,7 +81,7 @@ export default async function LmsProfilePage() {
           <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <span className="flex size-10 items-center justify-center rounded-xl bg-violet-400/10 text-violet-300">
+                <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
                   <CircleUserRound className="size-5" aria-hidden="true" />
                 </span>
                 <CardTitle className="mt-2 text-lg">Learning profile</CardTitle>
@@ -98,7 +98,7 @@ export default async function LmsProfilePage() {
 
             <Card>
               <CardHeader>
-                <span className="flex size-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+                <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
                   <Clock3 className="size-5" aria-hidden="true" />
                 </span>
                 <CardTitle className="mt-2 text-lg">Local schedule</CardTitle>
@@ -131,7 +131,7 @@ export default async function LmsProfilePage() {
               </CardHeader>
               <CardContent className="pb-5 pt-4">
                 <Link
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 text-sm font-black text-black transition hover:bg-violet-300"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 text-sm font-black text-black transition hover:bg-emerald-300"
                   href="/settings"
                 >
                   <Settings2 className="size-4" aria-hidden="true" />

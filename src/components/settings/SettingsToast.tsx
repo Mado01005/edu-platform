@@ -35,7 +35,7 @@ export function SettingsToast({
       </p>
       <button
         aria-label="Dismiss notification"
-        className="rounded-lg p-1 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+        className="rounded-lg p-1 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
         onClick={onDismiss}
         type="button"
       >

@@ -56,7 +56,7 @@ export default async function AccountingPage() {
 
   return (
     <PortalShell user={accountingUser}>
-      <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <header className="rounded-3xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
         <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
           <Banknote className="size-5" aria-hidden="true" />
         </span>
@@ -86,10 +86,10 @@ export default async function AccountingPage() {
           { icon: Banknote, label: 'Students', value: students.length },
         ].map(({ icon: Icon, label, value }) => (
           <div
-            className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm"
+            className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-3 text-center shadow-sm shadow-emerald-950/5"
             key={label}
           >
-            <span className="mx-auto flex size-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <span className={`mx-auto flex size-8 items-center justify-center rounded-xl ${label === 'Pending' ? 'border border-[#D4AF37]/40 bg-[#FDF8E8] text-[#8C6B1B]' : 'border border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
               <Icon className="size-4" aria-hidden="true" />
             </span>
             <p className="mt-2 text-xl font-black text-slate-900">{value}</p>

@@ -23,17 +23,17 @@ export function SubjectCreateForm() {
   return (
     <form
       action={action}
-      className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/50"
+      className="flex w-full min-w-0 flex-col gap-3 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5"
       id="new-subject"
     >
       <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
-        <BookPlus className="size-4 text-sky-700" aria-hidden="true" />
+        <BookPlus className="size-4 text-[#084B2B]" aria-hidden="true" />
         Create a subject
       </div>
       <label className="text-xs font-bold text-slate-700">
         Subject Name
         <input
-          className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+          className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
           maxLength={120}
           name="name"
           placeholder="e.g. Mathematics"
@@ -43,7 +43,7 @@ export function SubjectCreateForm() {
       <label className="text-xs font-bold text-slate-700">
         Grade Level
         <select
-          className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+          className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
           defaultValue=""
           name="grade"
           required
@@ -69,7 +69,7 @@ export function SubjectCreateForm() {
         </p>
       ) : null}
       <ActionSubmitButton
-        className="flex w-full items-center justify-center rounded-xl bg-sky-500 px-4 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md"
+        className="flex w-full items-center justify-center rounded-xl bg-[#084B2B] px-4 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#063B22] hover:shadow-md"
         pendingLabel="Creating subject…"
       >
         + Create New Subject

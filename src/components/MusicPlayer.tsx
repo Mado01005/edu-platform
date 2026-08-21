@@ -304,7 +304,7 @@ const MusicPlayerContent = () => {
 
                     {/* Volume Control Slider — Midnight Glass */}
                     <div className="flex items-center gap-3 bg-white/[0.03] backdrop-blur-md p-4 rounded-2xl border border-white/[0.06] group/volume hover:bg-white/[0.05] transition-colors duration-300">
-                      <button onClick={toggleMute} className="text-white/40 hover:text-cyan-400 transition-colors duration-200 flex-shrink-0" title={isMuted ? 'Unmute' : 'Mute'}>
+                      <button onClick={toggleMute} className="text-white/40 hover:text-emerald-400 transition-colors duration-200 flex-shrink-0" title={isMuted ? 'Unmute' : 'Mute'}>
                         {isMuted || localVolume === 0 ? (
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5L6 9H2V15H6L11 19V5Z" /><path d="M23 9L17 15" /><path d="M17 9L23 15" /></svg>
                         ) : localVolume < 0.4 ? (
@@ -331,7 +331,7 @@ const MusicPlayerContent = () => {
                           onTouchEnd={() => commitVolume(localVolume)}
                           className="midnight-volume-slider"
                           style={{
-                            background: `linear-gradient(to right, rgba(6,182,212,0.9) 0%, rgba(6,182,212,0.5) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) 100%)`
+                            background: `linear-gradient(to right, rgba(8,75,43,0.9) 0%, rgba(8,75,43,0.5) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) 100%)`
                           }}
                         />
                       </div>
@@ -469,8 +469,8 @@ const MusicPlayerContent = () => {
         <div className="absolute -bottom-10 left-10 right-10 h-8 bg-black/40 backdrop-blur-md rounded-full border border-white/5 flex items-center overflow-hidden z-0">
           <div className="flex animate-marquee gap-10 whitespace-nowrap items-center px-4">
             {socialActivities.map((act, i) => (
-              <span key={i} className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-400/60 flex items-center gap-2">
-                <div className="w-1 h-1 bg-indigo-500 rounded-full" />
+              <span key={i} className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400/60 flex items-center gap-2">
+                <div className="w-1 h-1 bg-emerald-500 rounded-full" />
                 {act.userName} is listening to {act.trackName}
               </span>
             ))}

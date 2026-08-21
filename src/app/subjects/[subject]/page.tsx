@@ -22,8 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!subject) return { title: 'Subject Not Found' };
   
   return {
-    title: `${subject.title} - Way Ground LMS`,
-    description: `Explore the ${subject.title} curriculum on Way Ground LMS featuring ${subject.lessons.length} active modules.`,
+    title: `${subject.title} - Oqool Academy`,
+    description: `Explore the ${subject.title} curriculum on Oqool Academy featuring ${subject.lessons.length} active modules.`,
     openGraph: {
       title: `${subject.title} Curriculum`,
       description: `Access specialized content for ${subject.title}.`,
@@ -71,7 +71,7 @@ export default async function SubjectPage({ params }: Props) {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8 fade-in" aria-label="Breadcrumb">
-          <Link href="/dashboard" className="hover:text-indigo-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
@@ -89,7 +89,7 @@ export default async function SubjectPage({ params }: Props) {
               {subject.title}
             </h1>
             <p className="text-gray-400 text-lg md:text-xl font-bold uppercase tracking-widest inline-flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse"></span>
               {subject.lessons.length} {subject.lessons.length === 1 ? 'Module' : 'Modules'} Active
             </p>
           </div>
@@ -116,7 +116,7 @@ export default async function SubjectPage({ params }: Props) {
             <p className="text-2xl font-black text-white mb-2">No active modules</p>
             <p className="text-base mt-2">
               The administrator is currently uploading folders to{' '}
-              <code className="bg-white/10 px-2 py-1 rounded-md text-indigo-300 font-mono text-sm max-w-full inline-block truncate mt-2 border border-white/10 shadow-inner">/content/{subjectSlug}/</code>
+              <code className="bg-white/10 px-2 py-1 rounded-md text-emerald-300 font-mono text-sm max-w-full inline-block truncate mt-2 border border-white/10 shadow-inner">/content/{subjectSlug}/</code>
             </p>
           </div>
         ) : (

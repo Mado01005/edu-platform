@@ -89,16 +89,16 @@ export default function ForgeSnippets({ lessonId }: ForgeSnippetsProps) {
   return (
     <div className="mt-12 space-y-6">
       <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-        <h3 className="text-xl font-black text-white uppercase tracking-widest"><span className="text-indigo-500">⚡</span> The Forge Transmissions</h3>
-        <span className="px-2.5 py-1 bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase rounded-full tracking-widest border border-indigo-500/30">Live</span>
+        <h3 className="text-xl font-black text-white uppercase tracking-widest"><span className="text-emerald-500">⚡</span> The Forge Transmissions</h3>
+        <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-full tracking-widest border border-emerald-500/30">Live</span>
       </div>
 
       <div className="space-y-8">
         {snippets.map((snippet) => (
-          <div key={snippet.id} className="group bg-black/40 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm transition-all hover:border-indigo-500/50 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] animate-in fade-in slide-in-from-top-4 duration-500">
+          <div key={snippet.id} className="group bg-black/40 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm transition-all hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(8,75,43,0.15)] animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="flex justify-between items-center px-4 py-3 border-b border-white/5 bg-white-[0.02]">
                <div className="flex items-center gap-3">
-                 <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-2 py-1 rounded">
+                 <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded">
                    {snippet.language_type}
                  </span>
                  <span className="text-[10px] text-gray-500 font-medium">

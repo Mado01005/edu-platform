@@ -16,7 +16,7 @@ export default async function MpsLoginPage() {
         <h1 className="mt-2 text-3xl font-black">Parent radar</h1>
         <p className="mt-2 text-sm leading-6 text-zinc-400">Use the phone number and 4-digit PIN issued by the academy. Five failed attempts lock access for 15 minutes.</p>
         <div className="mt-6"><ParentLoginForm /></div>
-        <Link className="mt-5 block text-center text-xs font-bold text-zinc-500 hover:text-white" href="/catalog">Back to Way Ground</Link>
+        <Link className="mt-5 block text-center text-xs font-bold text-zinc-500 hover:text-white" href="/catalog">Back to Oqool Academy</Link>
       </main>
     </div>
   );

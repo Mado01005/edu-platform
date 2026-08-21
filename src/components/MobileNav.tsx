@@ -37,14 +37,14 @@ export default function MobileNav({ isAdmin }: MobileNavProps) {
                 href={tab.href}
                 className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-300 ${
                   isActive
-                    ? 'text-indigo-400 scale-110'
+                    ? 'text-emerald-400 scale-110'
                     : 'text-gray-500 hover:text-gray-300 active:scale-95'
                 }`}
               >
                 <div className={`relative ${isActive ? 'drop-shadow-[0_0_8px_rgba(129,140,248,0.6)]' : ''}`}>
                   {tab.icon}
                   {isActive && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.8)]"></span>
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(129,140,248,0.8)]"></span>
                   )}
                 </div>
                 <span className="text-[10px] font-bold tracking-wide">{tab.label}</span>

@@ -33,8 +33,8 @@ export function JoinLiveClassButton({ zoomSessionId }: { zoomSessionId: string }
 
   return (
     <div className="shrink-0">
-      <button className="w-full rounded-xl bg-white px-4 py-3 text-center text-sm font-black text-black hover:bg-emerald-200 disabled:opacity-60" disabled={joining} onClick={() => void join()} type="button">
-        {joining ? 'Recording attendance…' : 'Join live class'}
+      <button className="w-full rounded-xl bg-[#084B2B] px-4 py-3 text-center text-sm font-black text-white transition hover:bg-[#063B22] disabled:opacity-60" disabled={joining} onClick={() => void join()} type="button">
+        {joining ? 'Recording attendance…' : '🔴 Join live class'}
       </button>
       {error ? <p aria-live="polite" className="mt-2 max-w-48 text-xs text-red-300">{error}</p> : null}
     </div>

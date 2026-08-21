@@ -72,14 +72,14 @@ function notificationPresentation(type: string) {
     return {
       Icon: CalendarCheck2,
       label: 'Attendance',
-      tone: 'bg-sky-100 text-sky-700',
+      tone: 'bg-emerald-100 text-[#084B2B]',
     };
   }
   if (type === 'GRADE') {
     return {
       Icon: GraduationCap,
       label: 'Grade',
-      tone: 'bg-sky-100 text-sky-700',
+      tone: 'bg-emerald-100 text-[#084B2B]',
     };
   }
   if (type === 'PAYMENT') {
@@ -414,12 +414,12 @@ export function NotificationBell() {
               ? `Notifications, ${unreadCount} unread`
               : 'Notifications'
           }
-          className="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+          className="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-950/10 bg-white text-slate-600 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#084B2B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
           type="button"
         >
           <Bell className="size-4.5" aria-hidden="true" />
           {unreadCount ? (
-            <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-sky-600 px-1 text-[9px] font-bold leading-none text-white">
+            <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-[#084B2B] px-1 text-[9px] font-bold leading-none text-white">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           ) : null}
@@ -430,7 +430,7 @@ export function NotificationBell() {
         className="w-80 max-w-[calc(100vw-2rem)] overflow-hidden p-0"
         collisionPadding={16}
       >
-        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-emerald-950/10 px-4 py-3">
           <span className="min-w-0">
             <span className="block text-sm font-semibold text-slate-900">
               Notifications
@@ -440,7 +440,7 @@ export function NotificationBell() {
             </span>
           </span>
           <button
-            className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-sky-700 transition hover:bg-sky-50 disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[#084B2B] transition hover:bg-emerald-50 disabled:opacity-40"
             disabled={!unreadCount || markingRead}
             onClick={() => void markAllRead()}
             type="button"
@@ -468,7 +468,7 @@ export function NotificationBell() {
               return (
                 <article
                   className={`relative flex min-w-0 gap-3 rounded-xl px-3 py-3 ${
-                    notification.isRead ? 'bg-transparent' : 'bg-sky-50'
+                    notification.isRead ? 'bg-transparent' : 'bg-emerald-50'
                   }`}
                   key={notification.id}
                 >
@@ -485,7 +485,7 @@ export function NotificationBell() {
                       {!notification.isRead ? (
                         <span
                           aria-label="Unread"
-                          className="mt-1 size-2 shrink-0 rounded-full bg-sky-600"
+                          className="mt-1 size-2 shrink-0 rounded-full bg-[#084B2B]"
                         />
                       ) : null}
                     </span>
@@ -513,7 +513,7 @@ export function NotificationBell() {
           )}
         </div>
 
-        <div className="border-t border-slate-200 p-3">
+        <div className="border-t border-emerald-950/10 p-3">
           {feedError ? (
             <p className="mb-2 break-words text-[11px] font-bold leading-5 text-red-300" role="alert">
               {feedError}

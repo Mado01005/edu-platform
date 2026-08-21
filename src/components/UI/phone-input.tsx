@@ -114,12 +114,12 @@ export function PhoneInput({
 
   return (
     <div className={cn('relative min-w-0', className)} ref={rootRef}>
-      <div className="flex h-12 min-w-0 items-center rounded-xl border border-slate-300 bg-white transition focus-within:border-sky-500 focus-within:ring-4 focus-within:ring-sky-100">
+      <div className="flex h-12 min-w-0 items-center rounded-xl border border-slate-300 bg-white transition focus-within:border-[#084B2B] focus-within:ring-4 focus-within:ring-emerald-100">
         <button
           aria-expanded={open}
           aria-haspopup="listbox"
           aria-label="Choose phone country code"
-          className="flex h-full shrink-0 items-center gap-2 border-r border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-full shrink-0 items-center gap-2 border-r border-emerald-950/10 px-3 text-sm font-medium text-slate-700 transition hover:bg-[#F8FAF7] disabled:cursor-not-allowed disabled:opacity-50"
           disabled={disabled}
           onClick={() => setOpen((current) => !current)}
           type="button"
@@ -155,8 +155,8 @@ export function PhoneInput({
       </div>
 
       {open ? (
-        <div className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-          <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3">
+        <div className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 min-w-0 overflow-hidden rounded-2xl border border-emerald-950/10 bg-white p-2 shadow-sm">
+          <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] px-3">
             <Search className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
             <span className="sr-only">Search countries</span>
             <input
@@ -176,7 +176,7 @@ export function PhoneInput({
             {visibleCountries.map((option) => (
               <button
                 aria-selected={option.code === country}
-                className="flex min-h-11 w-full min-w-0 items-center gap-3 rounded-xl px-3 text-left text-sm text-slate-700 transition hover:bg-sky-50"
+                className="flex min-h-11 w-full min-w-0 items-center gap-3 rounded-xl px-3 text-left text-sm text-slate-700 transition hover:bg-emerald-50"
                 key={option.code}
                 onClick={() => selectCountry(option.code)}
                 role="option"
@@ -190,7 +190,7 @@ export function PhoneInput({
                   +{option.callingCode}
                 </span>
                 {option.code === country ? (
-                  <Check className="size-4 shrink-0 text-sky-600" />
+                  <Check className="size-4 shrink-0 text-[#084B2B]" />
                 ) : null}
               </button>
             ))}

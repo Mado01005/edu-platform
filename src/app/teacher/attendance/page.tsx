@@ -26,11 +26,11 @@ export default async function TeacherAttendancePage() {
 
   return (
     <>
-      <header className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/50 sm:p-6">
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+      <header className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5 sm:p-6">
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#084B2B]">
           <CalendarCheck2 className="size-5" aria-hidden="true" />
         </span>
-        <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-sky-700">
+        <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-[#084B2B]">
           Digital attendance
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">
@@ -47,8 +47,8 @@ export default async function TeacherAttendancePage() {
           { icon: Radio, label: 'Live joins', value: liveCount },
           { icon: MonitorPlay, label: 'All records', value: attendance.length },
         ].map(({ icon: Icon, label, value }) => (
-          <div className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-3 text-center shadow-sm shadow-slate-200/50" key={label}>
-            <Icon className="mx-auto size-4 text-sky-700" aria-hidden="true" />
+          <div className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-3 text-center shadow-sm shadow-emerald-950/5" key={label}>
+            <Icon className="mx-auto size-4 text-[#084B2B]" aria-hidden="true" />
             <p className="mt-2 text-xl font-black">{value}</p>
             <p className="truncate text-[9px] font-bold uppercase tracking-wider text-slate-500">
               {label}
@@ -57,15 +57,15 @@ export default async function TeacherAttendancePage() {
         ))}
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
-        <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
+      <section className="overflow-hidden rounded-2xl border border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5">
+        <div className="border-b border-emerald-950/10 px-4 py-4 sm:px-5">
           <h2 className="font-black">Recent attendance</h2>
           <p className="mt-1 text-xs text-slate-500">Latest 200 digital attendance records</p>
         </div>
         <div className="divide-y divide-slate-100">
           {attendance.map((record) => (
             <article className="flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center sm:p-5" key={record.id}>
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
                 {record.type === 'LIVE_ZOOM' ? (
                   <Radio className="size-4" aria-hidden="true" />
                 ) : (
