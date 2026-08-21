@@ -7,6 +7,9 @@ import {
   getGoogleOAuthRedirectUrl,
 } from '../src/lib/supabase/config';
 
+const REQUIRED_GOOGLE_PROVIDER_CALLBACK =
+  'https://cqvmeucgatkjozkgzcql.supabase.co/auth/v1/callback';
+
 for (const environmentFile of ['.env.local', '.env']) {
   dotenv.config({
     path: resolve(process.cwd(), environmentFile),
@@ -229,6 +232,7 @@ function heading(value: string) {
 
 async function main() {
   const googleCallback = getGoogleOAuthRedirectUrl();
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   const gcloudStatus = probeGcloud();
   const supabaseStatus = probeSupabase();
   const remoteSupabase = await verifyRemoteSupabaseConfig();
@@ -240,10 +244,25 @@ async function main() {
   console.log(`  Supabase Management API: ${remoteSupabase.detail}`);
   console.log(`  Google provider callback: ${googleProvider.detail}`);
 
-  console.log(heading('\nGoogle Cloud authorized redirect URI'));
+  console.log(heading('\nApplication OAuth environment'));
   console.log(
-    `  ${googleCallback ?? 'Set NEXT_PUBLIC_SUPABASE_URL to compute /auth/v1/callback.'}`,
+    `  NEXT_PUBLIC_SUPABASE_URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ? 'configured' : 'missing'}`,
   );
+  console.log(
+    `  NEXT_PUBLIC_SITE_URL: ${configuredSiteUrl || `${PRODUCTION_SITE_URL} (production fallback)`}`,
+  );
+
+  console.log(heading('\nGoogle Cloud authorized redirect URI'));
+  console.log(`  Required: ${REQUIRED_GOOGLE_PROVIDER_CALLBACK}`);
+  console.log(
+    `  Derived from NEXT_PUBLIC_SUPABASE_URL: ${googleCallback ?? 'unavailable'}`,
+  );
+
+  if (googleCallback && googleCallback !== REQUIRED_GOOGLE_PROVIDER_CALLBACK) {
+    console.log(
+      '  NOTICE: NEXT_PUBLIC_SUPABASE_URL points to a different project than the required Google callback above.',
+    );
+  }
 
   console.log(heading('\nSupabase production URL configuration'));
   console.log(`  Site URL: ${PRODUCTION_SITE_URL}`);

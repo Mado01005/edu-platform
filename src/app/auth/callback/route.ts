@@ -58,10 +58,12 @@ function loginErrorRedirect(
   origin: string,
   message: string,
   next: string,
+  reason: 'oauth_failed' | 'oauth_missing_code' | 'oauth_provider_error',
 ) {
   const errorUrl = new URL('/lms/login', origin);
   errorUrl.searchParams.set('error', message);
   errorUrl.searchParams.set('next', next);
+  errorUrl.searchParams.set('reason', reason);
 
   const response = NextResponse.redirect(errorUrl);
   response.headers.set(
@@ -120,6 +122,7 @@ export async function GET(request: NextRequest) {
       origin,
       authErrorMessage(oauthError, oauthErrorCode),
       next,
+      'oauth_provider_error',
     );
   }
 
@@ -128,6 +131,7 @@ export async function GET(request: NextRequest) {
       origin,
       'The sign-in link is missing or has expired. Please try again.',
       next,
+      'oauth_missing_code',
     );
   }
 
@@ -238,5 +242,6 @@ export async function GET(request: NextRequest) {
     origin,
     'Unable to complete sign in. Please try again.',
     next,
+    'oauth_failed',
   );
 }
