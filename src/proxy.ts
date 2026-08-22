@@ -35,6 +35,8 @@ const PUBLIC_PATHS = [
   '/auth/callback',
   '/auth/sync',
   '/catalog',
+  '/privacy',
+  '/terms',
   '/mps',
   '/sitemap.xml',
   '/robots.txt',

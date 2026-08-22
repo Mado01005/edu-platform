@@ -367,6 +367,17 @@ export default async function CatalogPage({
           )}
         </section>
       </main>
+
+      <footer className="mt-10 border-t border-[#D4AF37]/25 bg-[#042917] text-white">
+        <div className="mx-auto flex w-full max-w-[92rem] flex-col gap-4 px-4 py-7 text-sm text-emerald-100/75 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <p>© {new Date().getFullYear()} Oqool Academy. Structured learning, clearly protected.</p>
+          <nav aria-label="Legal and support links" className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link className="hover:text-white" href="/privacy">Privacy</Link>
+            <Link className="hover:text-white" href="/terms">Terms</Link>
+            <a className="hover:text-white" href="mailto:support@edu-platform.me">Support</a>
+          </nav>
+        </div>
+      </footer>
     </div>
   );
 }

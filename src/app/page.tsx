@@ -194,10 +194,14 @@ export default function RootPage() {
         <div className="border-t border-[#D4AF37]/20">
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-emerald-100/60 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
             <p>© {new Date().getFullYear()} Oqool Academy. All rights reserved.</p>
-            <a className="inline-flex items-center gap-2 hover:text-white" href="mailto:support@edu-platform.me">
-              <Mail aria-hidden="true" className="size-3.5" />
-              support@edu-platform.me
-            </a>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <Link className="hover:text-white" href="/privacy">Privacy</Link>
+              <Link className="hover:text-white" href="/terms">Terms</Link>
+              <a className="inline-flex items-center gap-2 hover:text-white" href="mailto:support@edu-platform.me">
+                <Mail aria-hidden="true" className="size-3.5" />
+                support@edu-platform.me
+              </a>
+            </div>
           </div>
         </div>
       </footer>
