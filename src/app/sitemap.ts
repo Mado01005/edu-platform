@@ -1,50 +1,26 @@
 import { MetadataRoute } from 'next';
-import { getAllSubjects } from '@/lib/content';
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+const publicRoutes = [
+  { path: '/', changeFrequency: 'daily', priority: 1 },
+  { path: '/catalog', changeFrequency: 'daily', priority: 0.9 },
+  { path: '/preview', changeFrequency: 'daily', priority: 0.8 },
+  { path: '/lms/login', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
+  { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
+] as const satisfies ReadonlyArray<{
+  path: `/${string}`;
+  changeFrequency: NonNullable<MetadataRoute.Sitemap[number]['changeFrequency']>;
+  priority: number;
+}>;
+
+export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.edu-platform.me';
+  const lastModified = new Date();
 
-  // Static routes
-  const routes: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-  ];
-
-  try {
-    const subjects = await getAllSubjects();
-
-    for (const subject of subjects) {
-      // Add subject page
-      routes.push({
-        url: `${baseUrl}/subjects/${subject.slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.9,
-      });
-
-      // Add lesson pages
-      for (const lesson of subject.lessons) {
-        routes.push({
-          url: `${baseUrl}/subjects/${subject.slug}/${lesson.slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.8,
-        });
-      }
-    }
-  } catch (error) {
-    console.error('Sitemap generation error:', error);
-  }
-
-  return routes;
+  return publicRoutes.map(({ changeFrequency, path, priority }) => ({
+    url: new URL(path, baseUrl).toString(),
+    lastModified,
+    changeFrequency,
+    priority,
+  }));
 }
