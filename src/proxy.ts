@@ -325,6 +325,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/_vercel') ||
     pathname.startsWith('/favicon') ||
+    pathname.startsWith('/brand/') ||
     pathname.startsWith('/images/') ||
     PUBLIC_ASSET_PATHS.has(pathname) ||
     pathname === '/sw.js' ||

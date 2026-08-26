@@ -22,7 +22,12 @@ module.exports = {
           canvas: '#F8FAF8',
           card: '#FFFFFF',
           border: 'rgba(8, 75, 43, 0.12)',
+          ink: '#1A2E22',
         },
+      },
+      fontFamily: {
+        sans: ['var(--font-english)', 'var(--font-arabic)', 'sans-serif'],
+        arabic: ['var(--font-arabic)', 'var(--font-english)', 'sans-serif'],
       },
     },
   },

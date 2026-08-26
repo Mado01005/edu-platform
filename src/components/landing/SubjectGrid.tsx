@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { BookOpen, Eye, GraduationCap, PlayCircle } from 'lucide-react';
+import { BookOpen, GraduationCap, PlayCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 export type LandingCourse = {
@@ -12,7 +12,7 @@ export type LandingCourse = {
   instructorAvatar: string | null;
   instructorName: string;
   previewLessonId: string | null;
-  subject: 'Physics' | 'Pure Mathematics' | 'Mechanics' | 'Chemistry' | 'Biology' | 'Languages';
+  subject: 'Physics' | 'Pure Mathematics' | 'Mechanics' | 'Chemistry' | 'Biology';
   title: string;
 };
 
@@ -23,7 +23,6 @@ const subjects = [
   'Mechanics',
   'Chemistry',
   'Biology',
-  'Languages',
 ] as const;
 
 type FilterMode = 'grade' | 'subject';
@@ -77,7 +76,7 @@ export function SubjectGrid({ courses }: { courses: LandingCourse[] }) {
               return (
                 <button
                   aria-pressed={selected}
-                  className={`min-h-10 shrink-0 rounded-xl border px-4 text-xs font-extrabold ${selected ? 'border-[#D4AF37] bg-[#FBF6E2] text-[#084B2B]' : 'border-emerald-950/10 bg-white text-slate-600 hover:border-emerald-300'}`}
+                  className={`min-h-11 shrink-0 rounded-xl border px-4 text-xs font-extrabold ${selected ? 'border-[#D4AF37] bg-[#FBF6E2] text-[#084B2B]' : 'border-emerald-950/10 bg-white text-slate-600 hover:border-emerald-300'}`}
                   key={value}
                   onClick={() => {
                     if (mode === 'grade') setGrade(value as (typeof grades)[number]);
@@ -111,19 +110,14 @@ export function SubjectGrid({ courses }: { courses: LandingCourse[] }) {
                   <span className="mt-0.5 flex items-center gap-1 text-xs text-slate-500"><BookOpen aria-hidden="true" className="size-3" /> {course.chapterCount} chapters</span>
                 </span>
               </div>
-              {course.previewLessonId ? (
-                <Link className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-extrabold text-white hover:bg-[#0F6E41]" href={`/preview/${course.previewLessonId}`}>
-                  <PlayCircle aria-hidden="true" className="size-4" />
-                  <span data-language-copy="en">Preview Lesson 1</span>
-                  <span data-language-copy="ar">شاهد الدرس الأول</span>
-                </Link>
-              ) : (
-                <span className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-950/15 bg-[#F8FAF8] px-4 text-sm font-bold text-slate-500">
-                  <Eye aria-hidden="true" className="size-4" />
-                  <span data-language-copy="en">Free preview being prepared</span>
-                  <span data-language-copy="ar">يتم تجهيز الدرس المجاني</span>
-                </span>
-              )}
+              <Link
+                className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-extrabold text-white hover:bg-[#0F6E41]"
+                href={course.previewLessonId ? `/preview/${course.previewLessonId}` : '/preview'}
+              >
+                <PlayCircle aria-hidden="true" className="size-4" />
+                <span data-language-copy="en">Preview Lesson 1</span>
+                <span data-language-copy="ar">شاهد الدرس الأول</span>
+              </Link>
             </article>
           ))}
         </div>

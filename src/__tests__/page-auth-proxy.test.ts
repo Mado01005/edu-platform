@@ -67,6 +67,23 @@ describe('Supabase page auth proxy', () => {
     });
   });
 
+  it('keeps the storefront, free preview, and official brand assets public', async () => {
+    const urls = [
+      'https://www.edu-platform.me/',
+      'https://www.edu-platform.me/preview',
+      'https://www.edu-platform.me/brand/oqool-logo.png',
+      'https://www.edu-platform.me/brand/oqool-banner.png',
+    ];
+
+    for (const url of urls) {
+      const response = await proxy(new NextRequest(url));
+      expect(response.status).toBe(200);
+    }
+
+    expect(mockAuth).not.toHaveBeenCalled();
+    expect(mockGetSupabaseRequestContext).not.toHaveBeenCalled();
+  });
+
   it('authorizes the admin landing page with the Supabase LMS role', async () => {
     mockGetSupabaseRequestContext.mockResolvedValue(
       supabasePageContext({

@@ -1,17 +1,14 @@
 import type { Metadata } from 'next';
 import { Cairo, Inter } from 'next/font/google';
 import Script from 'next/script';
-import SessionTracker from '@/components/SessionTracker';
-import InteractionTracker from '@/components/InteractionTracker';
-import { PWAInstallPrompt, KeyboardShortcuts, StudyTimer, MobileNav, MusicPlayer } from '@/components/LazyWidgets';
+import { PWAInstallPrompt } from '@/components/LazyWidgets';
 import Providers from '@/components/Providers';
+import { WorkspaceEnhancements } from '@/components/WorkspaceEnhancements';
 import './globals.css';
 import 'katex/dist/katex.min.css';
-import PrefetchEngine from '@/components/PrefetchEngine';
 
 import { auth } from '@/auth';
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import FloatingTutor from '@/components/Chat/FloatingTutor';
 import { LanguageProvider } from '@/components/i18n/language-provider';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-english' });
@@ -41,10 +38,10 @@ export const metadata: Metadata = {
     siteName: 'Oqool Academy',
     images: [
       {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Oqool Academy Learning Hub',
+        url: '/brand/oqool-banner.png',
+        width: 1942,
+        height: 809,
+        alt: 'Oqool Academy — Grow Minds. Shape the Future.',
       },
     ],
     locale: 'en_US',
@@ -54,7 +51,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Oqool Academy | أكاديمية عقول',
     description: 'Grow Minds. Shape the Future.',
-    images: ['/og-image.png'],
+    images: ['/brand/oqool-banner.png'],
   },
   alternates: {
     canonical: '/',
@@ -65,8 +62,6 @@ export const metadata: Metadata = {
     title: 'Oqool Academy',
   },
 };
-
-import { SpotifyProvider } from '@/context/SpotifyContext';
 
 export default async function RootLayout({
   children,
@@ -88,29 +83,19 @@ export default async function RootLayout({
     >
       <body className={`${inter.className} ${inter.variable} ${cairo.variable} overflow-x-hidden bg-surface-canvas text-brand-700 antialiased`}>
         <LanguageProvider>
-        <Providers>
+        <Providers session={session}>
           <PWAInstallPrompt />
-          <KeyboardShortcuts />
-          <PrefetchEngine />
-          {session ? (
-            <>
-              <InteractionTracker />
-              <SessionTracker />
-              <StudyTimer />
-              <MobileNav />
-            </>
-          ) : null}
-
-          <SpotifyProvider accessToken={spotifyToken} refreshToken={spotifyRefreshToken} tokenExpiresAt={spotifyTokenExpiresAt}>
-            <div className="flex min-h-screen w-full min-w-0">
-              <div className="min-w-0 flex-1">{children}</div>
-            </div>
-            {session ? <MusicPlayer /> : null}
-          </SpotifyProvider>
+          <div className="flex min-h-dvh w-full min-w-0">
+            <div className="min-w-0 flex-1">{children}</div>
+          </div>
+          <WorkspaceEnhancements
+            accessToken={spotifyToken}
+            enabled={Boolean(session)}
+            refreshToken={spotifyRefreshToken}
+            tokenExpiresAt={spotifyTokenExpiresAt}
+          />
         </Providers>
         </LanguageProvider>
-
-        {session ? <FloatingTutor /> : null}
         {process.env.VERCEL === '1' ? <SpeedInsights /> : null}
 
         {/* PWA Service Worker Registration */}

@@ -34,14 +34,16 @@ export function LiveClassTicker({
     : '--:--:--';
 
   return (
-    <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-[#D4AF37]/50 bg-[#FBF6E2] px-3 py-2 text-xs font-extrabold text-[#1A2E22] sm:px-4">
-      <span aria-hidden="true" className="size-2 shrink-0 animate-pulse rounded-full bg-red-600" />
-      <span className="truncate">
-        <span data-language-copy="en">Next Live Masterclass{title ? ` · ${title}` : ''} starting in </span>
-        <span data-language-copy="ar">المحاضرة المباشرة القادمة{title ? ` · ${title}` : ''} تبدأ خلال </span>
+    <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-2xl border border-[#D4AF37]/50 bg-[#FBF6E2] px-3 py-2 text-xs font-extrabold text-[#1A2E22] sm:flex-nowrap sm:rounded-full sm:px-4">
+      <span aria-hidden="true" className="shrink-0 animate-pulse">🔴</span>
+      <span className="min-w-0 flex-1 leading-5 sm:truncate">
+        Next Live Masterclass starting soon
+        <span className="mx-1.5 text-[#A68020]">|</span>
+        <span className="font-arabic" dir="rtl" lang="ar">بث مباشر قادم</span>
+        {title ? <span className="hidden sm:inline"> · {title}</span> : null}
       </span>
       <time className="shrink-0 font-mono tabular-nums text-[#084B2B]" dateTime={startTime ?? undefined}>
-        {countdown}
+        {startTime ? countdown : 'SOON'}
       </time>
     </div>
   );

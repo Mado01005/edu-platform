@@ -106,7 +106,7 @@ html[data-locale='ar'] [data-language-copy='ar'] {
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   background-color: var(--surface-subtle);
   color: var(--foreground);

@@ -1,6 +1,6 @@
 import { FileText } from 'lucide-react';
 import { DocumentViewer } from '@/components/course/document-viewer';
-import { UniversalVideoPlayer } from '@/components/lms/UniversalVideoPlayer';
+import { UniversalVideoPlayer } from '@/components/classroom/UniversalVideoPlayer';
 import type { PrimaryLessonContent } from '@/lib/lms/course-player';
 
 type QualitySources = {
