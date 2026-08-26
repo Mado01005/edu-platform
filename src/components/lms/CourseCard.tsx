@@ -37,7 +37,11 @@ export interface CatalogCourse {
   subject: { id: string; name: string; grade: GradeLevel } | null;
   teacher: { name: string | null };
   modules: Array<{
+    id: string;
     lessons: Array<{ contentType: ContentType }>;
+    priceEGP: string;
+    purchased: boolean;
+    title: string;
   }>;
   _count: {
     enrollments: number;

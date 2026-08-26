@@ -40,7 +40,7 @@ describe('live-class digital attendance route', () => {
 
     expect(response.status).toBe(200);
     expect(mockRequireLmsRole).toHaveBeenCalledWith(['STUDENT']);
-    expect(mockRecordLiveAttendance).toHaveBeenCalledWith('student-1', 'zoom-1');
+    expect(mockRecordLiveAttendance).toHaveBeenCalledWith('student-1', 'zoom-1', 'join');
     await expect(response.json()).resolves.toEqual({ meetingUrl: 'https://zoom.us/j/123' });
   });
 

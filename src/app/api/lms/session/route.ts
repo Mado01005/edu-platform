@@ -3,9 +3,13 @@ import { cookies } from 'next/headers';
 import { isSameOriginRequest } from '@/lib/http/same-origin';
 import {
   ACTIVE_SESSION_COOKIE,
+  DEVICE_ID_COOKIE,
   activateStudentSession,
   activeSessionCookieOptions,
   deactivateStudentSession,
+  deviceIdCookieOptions,
+  normalizeOrCreateDeviceId,
+  readClientIp,
 } from '@/lib/lms/active-session';
 import {
   getLmsAuthState,
@@ -56,9 +60,15 @@ export async function POST(request: Request) {
     );
   }
 
+  const cookieStore = await cookies();
+  const deviceId = normalizeOrCreateDeviceId(
+    cookieStore.get(DEVICE_ID_COOKIE)?.value,
+  );
   const token = await activateStudentSession(
     user,
     request.headers.get('user-agent'),
+    deviceId,
+    readClientIp(request.headers),
   );
   const response = NextResponse.json(
     { active: true, enforced: Boolean(token) },
@@ -70,6 +80,11 @@ export async function POST(request: Request) {
       ACTIVE_SESSION_COOKIE,
       token,
       activeSessionCookieOptions(),
+    );
+    response.cookies.set(
+      DEVICE_ID_COOKIE,
+      deviceId,
+      deviceIdCookieOptions(),
     );
   } else {
     response.cookies.delete(ACTIVE_SESSION_COOKIE);

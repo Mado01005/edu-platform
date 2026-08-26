@@ -6,7 +6,7 @@ import { cookies, headers } from 'next/headers';
 import { cache } from 'react';
 import {
   ACTIVE_SESSION_COOKIE,
-  hasValidActiveSession,
+  hasValidStudentSession,
 } from '@/lib/lms/active-session';
 import { normalizePhoneNumber } from '@/lib/phone';
 import { getPrisma } from '@/lib/prisma';
@@ -242,7 +242,7 @@ export const getLmsAuthState = cache(
     if (activeUser.role === 'STUDENT') {
       const cookieStore = await cookies();
       const cookieToken = cookieStore.get(ACTIVE_SESSION_COOKIE)?.value;
-      if (!hasValidActiveSession(activeUser, cookieToken)) {
+      if (!(await hasValidStudentSession(activeUser, cookieToken))) {
         return { reason: 'concurrent_login', user: null };
       }
 

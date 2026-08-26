@@ -16,6 +16,7 @@ export async function POST(request: Request) {
     const payment = await submitOnlinePayment({
       courseId: body.courseId,
       method: body.method,
+      moduleId: body.moduleId,
       receiptContentType: body.receiptContentType,
       receiptObjectKey: body.receiptObjectKey,
       studentId: student.id,

@@ -3,9 +3,19 @@ import type { TeacherMaterial } from '@/components/teacher/material-uploader';
 
 export type TeacherAssignment = {
   dueAt: string | null;
+  durationMin: number;
   id: string;
   instructions: string | null;
+  maxAttempts: number;
   questionCount: number;
+  questions: {
+    correctOptionKey: string;
+    diagramUrl: string | null;
+    id: string;
+    options: { key: string; text: string }[];
+    prompt: string;
+    workedSolution: string;
+  }[];
   type: 'QUIZ' | 'HOMEWORK';
 };
 
@@ -32,6 +42,7 @@ export type TeacherModule = {
   lessons: TeacherLesson[];
   materials: TeacherMaterial[];
   position: number;
+  standalonePriceEGP: string;
   title: string;
 };
 

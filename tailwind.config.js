@@ -8,18 +8,18 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          50: '#f2fbf5',
-          100: '#e1f6ea',
-          200: '#c5ecd6',
+          50: '#F8FAF8',
+          100: '#EAF6EF',
+          200: '#CDE8D8',
           500: '#084B2B',
-          600: '#063B22',
-          700: '#042917',
+          600: '#0F6E41',
+          700: '#042D1A',
           accent: '#D4AF37',
-          'accent-hover': '#C5A059',
-          'accent-light': '#FDF8E8',
+          'accent-hover': '#B89122',
+          'accent-light': '#FBF6E2',
         },
         surface: {
-          canvas: '#F8FAF7',
+          canvas: '#F8FAF8',
           card: '#FFFFFF',
           border: 'rgba(8, 75, 43, 0.12)',
         },

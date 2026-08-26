@@ -14,6 +14,7 @@ import { LmsHeader } from '@/components/lms/LmsHeader';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { AssignmentSubmissionCard } from '@/components/course/assignment-submission-card';
+import { ExamRunner } from '@/components/exams/exam-runner';
 import { ProtectedContentShell } from '@/components/course/protected-content-shell';
 import { requireLmsPageUser } from '@/lib/lms/auth';
 import {
@@ -49,6 +50,7 @@ export default async function LessonPlayerPage({
           fileType: true,
           fileUrl: true,
           id: true,
+          isDownloadable: true,
           title: true,
         },
       },
@@ -59,10 +61,14 @@ export default async function LessonPlayerPage({
       modules: {
         orderBy: { position: 'asc' },
         include: {
+          chapterAccess: {
+            where: { studentId: user.id },
+            select: { id: true },
+          },
           materials: {
             orderBy: { createdAt: 'desc' },
             select: {
-              fileSize: true, fileType: true, fileUrl: true, id: true, title: true,
+              fileSize: true, fileType: true, fileUrl: true, id: true, isDownloadable: true, title: true,
             },
           },
           lessons: {
@@ -70,9 +76,20 @@ export default async function LessonPlayerPage({
             include: {
               assignment: {
                 include: {
+                  examAttempts: {
+                    where: { studentId: user.id },
+                    select: { score: true, submittedAt: true },
+                  },
                   submissions: {
                     where: { studentId: user.id },
-                    select: { feedback: true, fileUrl: true, grade: true, status: true },
+                    select: {
+                      attachmentUrls: true,
+                      feedback: true,
+                      fileUrl: true,
+                      grade: true,
+                      status: true,
+                      textSolution: true,
+                    },
                     take: 1,
                   },
                 },
@@ -84,6 +101,7 @@ export default async function LessonPlayerPage({
                   fileType: true,
                   fileUrl: true,
                   id: true,
+                  isDownloadable: true,
                   title: true,
                 },
               },
@@ -100,7 +118,12 @@ export default async function LessonPlayerPage({
 
   if (!course) notFound();
   const lessons = course.modules.flatMap((module) =>
-    module.lessons.map((lesson) => ({ ...lesson, moduleMaterials: module.materials, moduleTitle: module.title })),
+    module.lessons.map((lesson) => ({
+      ...lesson,
+      chapterAccess: module.chapterAccess,
+      moduleMaterials: module.materials,
+      moduleTitle: module.title,
+    })),
   );
   const activeIndex = lessons.findIndex((lesson) => lesson.id === lessonId);
   const lesson = lessons[activeIndex];
@@ -111,15 +134,25 @@ export default async function LessonPlayerPage({
     isAdminRole(user.role) ||
     (user.role === 'TEACHER' && user.id === course.teacherId);
   const isEnrolled = course.enrollments.length > 0;
+  const hasChapterAccess = lesson.chapterAccess.length > 0;
   const isPreview = query.preview === 'true';
 
   if (isPreview && !canTeach) redirect('/catalog');
 
   if (
     !isPreview && ((!course.isPublished && !canTeach) ||
-    (course.isPublished && !isEnrolled && !canTeach && !lesson.isFree))
+    (course.isPublished && !isEnrolled && !hasChapterAccess && !canTeach && !lesson.isFree))
   ) {
     redirect('/catalog');
+  }
+
+  if (user.role === 'STUDENT' && !isPreview && !lesson.isFree) {
+    const firstIncompleteIndex = lessons.findIndex(
+      (item) => !(item.progress[0]?.isCompleted ?? false),
+    );
+    if (firstIncompleteIndex >= 0 && activeIndex > firstIncompleteIndex) {
+      redirect(`/courses/${courseId}/learn/lessons/${lessons[firstIncompleteIndex]!.id}`);
+    }
   }
 
   const discussions = await getPrisma().discussion.findMany({
@@ -148,6 +181,7 @@ export default async function LessonPlayerPage({
           fileType: 'PDF',
           fileUrl: lesson.pdfUrl,
           id: `lesson-pdf-${lesson.id}`,
+          isDownloadable: false,
           title: `${lesson.title} resource`,
         },
       ]
@@ -182,11 +216,20 @@ export default async function LessonPlayerPage({
     lessonTitle: lesson.title,
     preview: isPreview,
   });
+  const firstIncompleteLessonIndex = lessons.findIndex(
+    (candidate) => !(candidate.progress[0]?.isCompleted ?? false),
+  );
   const sidebarModules = course.modules.map((courseModule) => ({
     id: courseModule.id,
     lessons: courseModule.lessons.map((item) => ({
       completed: item.progress[0]?.isCompleted ?? false,
       id: item.id,
+      locked:
+        user.role === 'STUDENT' &&
+        !isPreview &&
+        firstIncompleteLessonIndex >= 0 &&
+        lessons.findIndex((candidate) => candidate.id === item.id) >
+          firstIncompleteLessonIndex,
       title: item.title,
     })),
     title: courseModule.title,
@@ -213,7 +256,7 @@ export default async function LessonPlayerPage({
             )}
           </h1>
 
-          <div className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-2 shadow-sm shadow-emerald-950/5">
+          {lesson.contentType !== 'QUIZ' && lesson.contentType !== 'ASSIGNMENT' ? <div className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-2 shadow-sm shadow-emerald-950/5">
             <CoursePlayer
               autoPlayNextHref={
                 user.autoPlayNext && next
@@ -232,8 +275,9 @@ export default async function LessonPlayerPage({
               preferredQuality={user.defaultVideoQuality}
               qualitySources={qualitySources}
               title={lesson.title}
+              watermark={`${user.name ?? 'Oqool Student'} — ${user.email}`}
             />
-          </div>
+          </div> : null}
 
           <nav
             aria-label="Lesson navigation"
@@ -256,7 +300,7 @@ export default async function LessonPlayerPage({
                 <span className="truncate">Previous Lesson</span>
               </span>
             )}
-            {next ? (
+            {next && (user.role !== 'STUDENT' || isPreview || completed) ? (
               <Link
                 className="flex min-h-10 min-w-0 items-center justify-end gap-1 rounded-lg bg-[#084B2B] px-3 py-2 text-right text-sm font-semibold text-white transition hover:bg-[#063B22]"
                 href={`/courses/${courseId}/learn/lessons/${next.id}${previewSuffix}`}
@@ -293,7 +337,21 @@ export default async function LessonPlayerPage({
             </section>
           ) : null}
 
-          <LessonResources materials={resourceMaterials} />
+          <LessonResources
+            materials={resourceMaterials}
+            watermark={`${user.name ?? 'Oqool Student'} — ${user.email}`}
+          />
+
+          {lesson.contentType === 'QUIZ' && lesson.assignment && user.role === 'STUDENT' && !isPreview ? (
+            <ExamRunner
+              assignmentId={lesson.assignment.id}
+              attemptsUsed={lesson.assignment.examAttempts.filter((attempt) => attempt.submittedAt).length}
+              durationMin={lesson.assignment.durationMin}
+              highestScore={lesson.assignment.examAttempts.reduce<number | null>((highest, attempt) => attempt.score === null ? highest : Math.max(highest ?? 0, attempt.score), null)}
+              maxAttempts={lesson.assignment.maxAttempts}
+              title={lesson.assignment.title}
+            />
+          ) : null}
 
           {lesson.contentType === 'ASSIGNMENT' && lesson.assignment && user.role === 'STUDENT' && !isPreview ? (
             <AssignmentSubmissionCard

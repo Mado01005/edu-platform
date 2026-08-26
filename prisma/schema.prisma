@@ -96,6 +96,17 @@ enum OnlinePaymentMethod {
   PAYPAL
 }
 
+enum PurchaseKind {
+  TERM_PACKAGE
+  CHAPTER
+}
+
+enum WhatsAppDispatchStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 model User {
   id                     String                    @id @default(cuid())
   supabaseId             String                    @unique @map("supabase_id")
@@ -119,6 +130,10 @@ model User {
   role                   Role                      @default(STUDENT)
   status                 AccountStatus             @default(ACTIVE)
   gradeLevel             GradeLevel?               @map("grade_level")
+  city                   String?
+  governorate            String?
+  parentPhone            String?                   @map("parent_phone")
+  onboardingCompletedAt  DateTime?                 @map("onboarding_completed_at")
   courses                Course[]
   enrollments            Enrollment[]
   progress               LessonProgress[]
@@ -142,6 +157,11 @@ model User {
   updatedPaymentChannels PaymentChannel[]          @relation("UpdatedPaymentChannels")
   parentPortalCredential ParentPortalCredential?
   parentPortalSessions   ParentPortalSession[]
+  deviceSessions         UserSession[]
+  examAttempts           ExamAttempt[]
+  chapterAccess          StudentChapterAccess[]
+  approvedChapterAccess  StudentChapterAccess[]    @relation("ApprovedChapterAccess")
+  whatsAppDispatches     WhatsAppDispatch[]        @relation("WhatsAppDispatchStudent")
   createdAt              DateTime                  @default(now()) @map("created_at")
   updatedAt              DateTime                  @updatedAt @map("updated_at")
 
@@ -195,14 +215,17 @@ model Course {
 }
 
 model Module {
-  id        String           @id @default(cuid())
-  title     String
-  position  Int
-  courseId  String           @map("course_id")
-  course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons   Lesson[]
-  materials CourseMaterial[]
-  createdAt DateTime         @default(now()) @map("created_at")
+  id                 String                    @id @default(cuid())
+  title              String
+  position           Int
+  courseId           String                    @map("course_id")
+  course             Course                    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons            Lesson[]
+  materials          CourseMaterial[]
+  standalonePriceEGP Decimal                   @default(0) @map("standalone_price_egp") @db.Decimal(12, 2)
+  chapterAccess      StudentChapterAccess[]
+  onlinePayments     OnlinePaymentSubmission[]
+  createdAt          DateTime                  @default(now()) @map("created_at")
 
   @@index([courseId, position])
   @@map("lms_modules")
@@ -237,19 +260,20 @@ model Lesson {
 }
 
 model CourseMaterial {
-  id        String   @id @default(cuid())
-  title     String
-  fileUrl   String   @map("file_url")
-  objectKey String   @unique @map("object_key")
-  fileType  String   @map("file_type")
-  fileSize  Int?     @map("file_size")
-  courseId  String?  @map("course_id")
-  course    Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  moduleId  String?  @map("module_id")
-  module    Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  lessonId  String?  @map("lesson_id")
-  lesson    Lesson?  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now()) @map("created_at")
+  id             String   @id @default(cuid())
+  title          String
+  fileUrl        String   @map("file_url")
+  objectKey      String   @unique @map("object_key")
+  fileType       String   @map("file_type")
+  fileSize       Int?     @map("file_size")
+  isDownloadable Boolean  @default(false) @map("is_downloadable")
+  courseId       String?  @map("course_id")
+  course         Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  moduleId       String?  @map("module_id")
+  module         Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  lessonId       String?  @map("lesson_id")
+  lesson         Lesson?  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now()) @map("created_at")
 
   @@index([courseId, createdAt])
   @@index([moduleId, createdAt])
@@ -330,8 +354,12 @@ model Assignment {
   lesson        Lesson                 @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   instructions  String?                @db.Text
   questionCount Int                    @default(0) @map("question_count")
+  durationMin   Int                    @default(45) @map("duration_min")
+  maxAttempts   Int                    @default(2) @map("max_attempts")
   dueAt         DateTime?              @map("due_at")
   submissions   AssignmentSubmission[]
+  questions     ExamQuestion[]
+  examAttempts  ExamAttempt[]
   createdAt     DateTime               @default(now()) @map("created_at")
 
   @@index([courseId, dueAt])
@@ -339,23 +367,27 @@ model Assignment {
 }
 
 model AssignmentSubmission {
-  id           String                     @id @default(cuid())
-  assignmentId String                     @map("assignment_id")
-  assignment   Assignment                 @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  lessonId     String                     @map("lesson_id")
-  lesson       Lesson                     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  studentId    String                     @map("student_id")
-  student      User                       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  fileUrl      String                     @map("file_url")
-  objectKey    String                     @unique @map("object_key")
-  fileType     String                     @map("file_type")
-  fileSize     Int?                       @map("file_size")
-  grade        Float?                     @map("score_percentage")
-  feedback     String?                    @map("teacher_feedback") @db.Text
-  status       AssignmentSubmissionStatus @default(SUBMITTED)
-  createdAt    DateTime                   @default(now()) @map("submitted_at")
-  gradedAt     DateTime?                  @map("graded_at")
-  updatedAt    DateTime                   @updatedAt @map("updated_at")
+  id                   String                     @id @default(cuid())
+  assignmentId         String                     @map("assignment_id")
+  assignment           Assignment                 @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  lessonId             String                     @map("lesson_id")
+  lesson               Lesson                     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  studentId            String                     @map("student_id")
+  student              User                       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  fileUrl              String?                    @map("file_url")
+  objectKey            String?                    @unique @map("object_key")
+  fileType             String?                    @map("file_type")
+  fileSize             Int?                       @map("file_size")
+  attachmentUrls       Json?                      @map("attachment_urls")
+  attachmentObjectKeys Json?                      @map("attachment_object_keys")
+  textSolution         String?                    @map("text_solution") @db.Text
+  rubricSelections     Json?                      @map("rubric_selections")
+  grade                Float?                     @map("score_percentage")
+  feedback             String?                    @map("teacher_feedback") @db.Text
+  status               AssignmentSubmissionStatus @default(SUBMITTED)
+  createdAt            DateTime                   @default(now()) @map("submitted_at")
+  gradedAt             DateTime?                  @map("graded_at")
+  updatedAt            DateTime                   @updatedAt @map("updated_at")
 
   @@unique([assignmentId, studentId])
   @@index([studentId, createdAt])
@@ -494,6 +526,7 @@ model DigitalAttendance {
   zoomSession   ZoomSession?   @relation(fields: [zoomSessionId], references: [id], onDelete: Cascade)
   type          AttendanceType @default(VIDEO_LESSON)
   joinedAt      DateTime       @default(now()) @map("joined_at")
+  leftAt        DateTime?      @map("left_at")
   durationMin   Int            @default(0) @map("duration_min")
   updatedAt     DateTime       @updatedAt @map("updated_at")
 
@@ -528,6 +561,9 @@ model OnlinePaymentSubmission {
   student              User                @relation("StudentOnlinePayments", fields: [studentId], references: [id], onDelete: Restrict)
   courseId             String              @map("course_id")
   course               Course              @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  moduleId             String?             @map("module_id")
+  module               Module?             @relation(fields: [moduleId], references: [id], onDelete: Restrict)
+  purchaseKind         PurchaseKind        @default(TERM_PACKAGE) @map("purchase_kind")
   currency             PaymentCurrency
   amount               Decimal             @db.Decimal(12, 2)
   paymentMethod        OnlinePaymentMethod @map("payment_method")
@@ -540,6 +576,7 @@ model OnlinePaymentSubmission {
   rejectionReason      String?             @map("rejection_reason") @db.Text
   reviewedById         String?             @map("reviewed_by_id")
   reviewedBy           User?               @relation("ReviewedOnlinePayments", fields: [reviewedById], references: [id], onDelete: Restrict)
+  whatsAppDispatches   WhatsAppDispatch[]
   reviewedAt           DateTime?           @map("reviewed_at")
   createdAt            DateTime            @default(now()) @map("created_at")
   updatedAt            DateTime            @updatedAt @map("updated_at")
@@ -547,6 +584,7 @@ model OnlinePaymentSubmission {
   @@index([status, createdAt])
   @@index([studentId, createdAt])
   @@index([courseId])
+  @@index([moduleId])
   @@index([reviewedById])
   @@map("lms_online_payment_submissions")
 }
@@ -577,4 +615,93 @@ model ParentPortalSession {
   @@index([parentId, expiresAt])
   @@index([expiresAt])
   @@map("lms_parent_portal_sessions")
+}
+
+model UserSession {
+  id           String    @id @default(cuid())
+  userId       String    @map("user_id")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId     String    @map("device_id")
+  tokenHash    String    @unique @map("token_hash")
+  userAgent    String    @map("user_agent")
+  ipAddress    String?   @map("ip_address")
+  lastActiveAt DateTime  @default(now()) @map("last_active_at")
+  revokedAt    DateTime? @map("revoked_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@unique([userId, deviceId])
+  @@index([userId, revokedAt, lastActiveAt])
+  @@map("lms_user_sessions")
+}
+
+model ExamQuestion {
+  id               String     @id @default(cuid())
+  assignmentId     String     @map("assignment_id")
+  assignment       Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  prompt           String     @db.Text
+  options          Json
+  correctOptionKey String     @map("correct_option_key")
+  workedSolution   String     @map("worked_solution") @db.Text
+  diagramUrl       String?    @map("diagram_url") @db.Text
+  position         Int
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  @@unique([assignmentId, position])
+  @@index([assignmentId])
+  @@map("lms_exam_questions")
+}
+
+model ExamAttempt {
+  id            String     @id @default(cuid())
+  assignmentId  String     @map("assignment_id")
+  assignment    Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId     String     @map("student_id")
+  student       User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  attemptNumber Int        @map("attempt_number")
+  questionOrder Json       @map("question_order")
+  answerOrder   Json       @map("answer_order")
+  answers       Json?
+  score         Float?
+  startedAt     DateTime   @default(now()) @map("started_at")
+  submittedAt   DateTime?  @map("submitted_at")
+
+  @@unique([assignmentId, studentId, attemptNumber])
+  @@index([studentId, assignmentId, submittedAt])
+  @@map("lms_exam_attempts")
+}
+
+model StudentChapterAccess {
+  id           String   @id @default(cuid())
+  studentId    String   @map("student_id")
+  student      User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  moduleId     String   @map("module_id")
+  module       Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  approvedById String   @map("approved_by_id")
+  approvedBy   User     @relation("ApprovedChapterAccess", fields: [approvedById], references: [id], onDelete: Restrict)
+  approvedAt   DateTime @default(now()) @map("approved_at")
+
+  @@unique([studentId, moduleId])
+  @@index([moduleId])
+  @@map("lms_student_chapter_access")
+}
+
+model WhatsAppDispatch {
+  id          String                  @id @default(cuid())
+  studentId   String                  @map("student_id")
+  student     User                    @relation("WhatsAppDispatchStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  paymentId   String                  @map("payment_id")
+  payment     OnlinePaymentSubmission @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  phoneNumber String                  @map("phone_number")
+  message     String                  @db.Text
+  status      WhatsAppDispatchStatus  @default(PENDING)
+  attempts    Int                     @default(0)
+  lastError   String?                 @map("last_error") @db.Text
+  sentAt      DateTime?               @map("sent_at")
+  createdAt   DateTime                @default(now()) @map("created_at")
+  updatedAt   DateTime                @updatedAt @map("updated_at")
+
+  @@unique([paymentId, phoneNumber])
+  @@index([status, createdAt])
+  @@map("lms_whatsapp_dispatches")
 }

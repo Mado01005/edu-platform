@@ -93,7 +93,7 @@ export function getApiRateLimitPolicy(
       : AUTH_WRITE_LIMIT;
   }
 
-  if (pathname === '/api/mps/login') return MPS_LOGIN_LIMIT;
+  if (pathname === '/api/mps/login' || pathname === '/api/parent/otp') return MPS_LOGIN_LIMIT;
   if (pathname === '/api/mps/logout') return MPS_LOGOUT_LIMIT;
   if (pathname === '/api/cron/student-health') return CRON_LIMIT;
   if (pathname === '/api/settings/password') return PASSWORD_LIMIT;

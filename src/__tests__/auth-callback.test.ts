@@ -4,6 +4,9 @@ const mockGetPrisma = jest.fn();
 const mockGetSupabaseAdminClient = jest.fn();
 const mockActivateStudentSession = jest.fn();
 const mockActiveSessionCookieOptions = jest.fn();
+const mockDeviceIdCookieOptions = jest.fn();
+const mockNormalizeOrCreateDeviceId = jest.fn();
+const mockReadClientIp = jest.fn();
 const mockRecalculateStudentHealthScores = jest.fn();
 
 jest.mock('server-only', () => ({}));
@@ -18,8 +21,12 @@ jest.mock('@/lib/supabase/admin', () => ({
 }));
 jest.mock('@/lib/lms/active-session', () => ({
   ACTIVE_SESSION_COOKIE: 'lms_active_session',
+  DEVICE_ID_COOKIE: 'lms_device_id',
   activateStudentSession: mockActivateStudentSession,
   activeSessionCookieOptions: mockActiveSessionCookieOptions,
+  deviceIdCookieOptions: mockDeviceIdCookieOptions,
+  normalizeOrCreateDeviceId: mockNormalizeOrCreateDeviceId,
+  readClientIp: mockReadClientIp,
 }));
 jest.mock('@/lib/lms/health', () => ({
   recalculateStudentHealthScores: mockRecalculateStudentHealthScores,
@@ -100,6 +107,13 @@ describe('Supabase OAuth callback', () => {
       path: '/',
       sameSite: 'lax',
     });
+    mockDeviceIdCookieOptions.mockReturnValue({
+      httpOnly: true,
+      path: '/',
+      sameSite: 'lax',
+    });
+    mockNormalizeOrCreateDeviceId.mockReturnValue('device-1');
+    mockReadClientIp.mockReturnValue('203.0.113.1');
     mockRecalculateStudentHealthScores.mockResolvedValue(undefined);
   });
 
@@ -200,6 +214,7 @@ describe('Supabase OAuth callback', () => {
       expect.arrayContaining([
         { name: 'sb-auth-token', value: 'settled-session' },
         { name: 'lms_active_session', value: 'active-session-token' },
+        { name: 'lms_device_id', value: 'device-1' },
       ]),
     );
     expect(response.headers.get('cache-control')).toContain('no-store');

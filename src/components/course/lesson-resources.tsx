@@ -23,8 +23,10 @@ function MaterialIcon({ fileType }: { fileType: string }) {
 
 export function LessonResources({
   materials,
+  watermark,
 }: {
   materials: CoursePlayerMaterial[];
+  watermark?: string;
 }) {
   const [previewing, setPreviewing] = useState<CoursePlayerMaterial | null>(null);
 
@@ -89,9 +91,11 @@ export function LessonResources({
               </DialogDescription>
             </DialogHeader>
             <DocumentViewer
+              downloadHref={previewing.isDownloadable ? `/api/lms/materials/${previewing.id}/download` : undefined}
               fileType={previewing.fileType}
               title={previewing.title}
               url={previewing.fileUrl}
+              watermark={watermark}
             />
           </DialogContent>
         ) : null}

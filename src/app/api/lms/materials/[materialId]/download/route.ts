@@ -62,6 +62,13 @@ export async function GET(
       );
     }
 
+    if (user.role === 'STUDENT' && !material.isDownloadable) {
+      return NextResponse.json(
+        { error: 'This document is available in the protected viewer only.' },
+        { status: 403 },
+      );
+    }
+
     const course = material.course ?? material.module?.course ?? material.lesson?.module.course;
     const enrollmentCount =
       course && 'enrollments' in course ? course.enrollments.length : 0;

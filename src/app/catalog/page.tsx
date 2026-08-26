@@ -42,10 +42,13 @@ const getCachedPublishedCourses = unstable_cache(
           modules: {
             orderBy: { position: 'asc' },
             select: {
+              id: true,
               lessons: {
                 orderBy: { position: 'asc' },
                 select: { contentType: true },
               },
+              standalonePriceEGP: true,
+              title: true,
             },
           },
           _count: { select: { enrollments: true, zoomSessions: true } },
@@ -60,11 +63,19 @@ const getCachedPublishedCourses = unstable_cache(
     // misses identical at runtime.
     return courses.map((course) => ({
       ...course,
+      modules: course.modules.map((courseModule) => {
+        const { standalonePriceEGP, ...moduleData } = courseModule;
+        return {
+          ...moduleData,
+          priceEGP: serializeCoursePrice(standalonePriceEGP),
+          purchased: false,
+        };
+      }),
       priceEGP: serializeCoursePrice(course.priceEGP),
       priceUSD: serializeCoursePrice(course.priceUSD),
     }));
   },
-  ['published-course-catalog-v3'],
+  ['published-course-catalog-v4'],
   { revalidate: 60, tags: ['catalog'] },
 );
 
@@ -131,12 +142,23 @@ export default async function CatalogPage({
         )
       : [],
   );
+  const chapterAccessRowsPromise = userPromise.then((user) =>
+    user?.role === 'STUDENT'
+      ? withPrismaRetry((database) =>
+          database.studentChapterAccess.findMany({
+            where: { studentId: user.id },
+            select: { moduleId: true },
+          }),
+        )
+      : [],
+  );
   const [
     { category, q },
     user,
     cachedCatalog,
     cachedPaymentChannels,
     enrollmentRows,
+    chapterAccessRows,
   ] =
     await Promise.all([
       searchParams,
@@ -144,6 +166,7 @@ export default async function CatalogPage({
       getCachedPublishedCourses(),
       getCachedPaymentChannels(),
       enrollmentRowsPromise,
+      chapterAccessRowsPromise,
     ]);
   const query = q?.trim().slice(0, 100) ?? '';
   const gradeOptions = Array.from(
@@ -179,6 +202,7 @@ export default async function CatalogPage({
   const enrolledCourseIds = new Set(
     enrollmentRows.map(({ courseId }) => courseId),
   );
+  const purchasedModuleIds = new Set(chapterAccessRows.map(({ moduleId }) => moduleId));
   const normalizedQuery = query.toLocaleLowerCase();
   const catalog = normalizedQuery
     ? cachedCatalog.filter((course) =>
@@ -338,7 +362,13 @@ export default async function CatalogPage({
               {courses.map((course) => (
                 <CourseCard
                   channels={paymentChannels}
-                  course={course}
+                  course={{
+                    ...course,
+                    modules: course.modules.map((module) => ({
+                      ...module,
+                      purchased: purchasedModuleIds.has(module.id),
+                    })),
+                  }}
                   enrolled={enrolledCourseIds.has(course.id)}
                   key={course.id}
                   user={user}

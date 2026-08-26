@@ -26,6 +26,7 @@ export type TeacherMaterial = {
   fileType: string;
   fileUrl: string;
   id: string;
+  isDownloadable: boolean;
   title: string;
 };
 
@@ -177,6 +178,29 @@ export function MaterialUploader({
     }
   }
 
+  async function toggleDownloadable(material: TeacherMaterial) {
+    setError('');
+    try {
+      const response = await fetch(`/api/lms/materials/${material.id}`, {
+        body: JSON.stringify({ isDownloadable: !material.isDownloadable }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'PATCH',
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        material?: TeacherMaterial;
+      };
+      if (!response.ok || !result.material) {
+        throw new Error(result.error ?? 'Unable to change download access.');
+      }
+      setMaterials((current) =>
+        current.map((item) => item.id === result.material!.id ? result.material! : item),
+      );
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to change download access.');
+    }
+  }
+
   async function remove(material: TeacherMaterial) {
     setError('');
     setDeletingId(material.id);
@@ -287,7 +311,7 @@ export function MaterialUploader({
                   {material.fileType} · {formatMaterialFileSize(material.fileSize)}
                 </span>
               </span>
-              <span className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
+              <span className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-5">
                 <button
                   aria-label={`Preview ${material.title}`}
                   className="flex size-9 items-center justify-center rounded-lg border border-emerald-950/10 text-slate-500 hover:bg-[#F8FAF7] hover:text-[#084B2B]"
@@ -303,6 +327,14 @@ export function MaterialUploader({
                 >
                   <Download className="size-4" aria-hidden="true" />
                 </a>
+                <button
+                  aria-pressed={material.isDownloadable}
+                  className={`flex min-h-9 items-center justify-center rounded-lg border px-2 text-[10px] font-black ${material.isDownloadable ? 'border-[#D4AF37] bg-[#FBF6E2] text-[#8C6B1B]' : 'border-emerald-950/10 text-slate-500'}`}
+                  onClick={() => void toggleDownloadable(material)}
+                  type="button"
+                >
+                  {material.isDownloadable ? 'Worksheet DL on' : 'No student DL'}
+                </button>
                 <button
                   className="flex min-h-9 items-center justify-center gap-1 rounded-lg border border-emerald-950/10 px-2 text-xs font-bold text-slate-600 hover:bg-[#F8FAF7]"
                   onClick={() => { setRenaming(material); setRenameTitle(material.title); }}

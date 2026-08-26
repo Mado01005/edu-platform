@@ -1,9 +1,10 @@
-import { Check, ChevronDown, ListTree } from 'lucide-react';
+import { Check, ChevronDown, ListTree, LockKeyhole } from 'lucide-react';
 import Link from 'next/link';
 
 type SidebarLesson = {
   completed: boolean;
   id: string;
+  locked?: boolean;
   title: string;
 };
 
@@ -65,10 +66,13 @@ export function CourseSidebar({
                   const active = lesson.id === activeLessonId;
                   return (
                     <Link
+                      aria-disabled={lesson.locked || undefined}
                       aria-current={active ? 'page' : undefined}
                       className={`flex min-w-0 items-start gap-3 border-l-4 px-3 py-3 text-sm transition ${
                         active
                           ? 'border-[#084B2B] bg-emerald-50 font-medium text-[#084B2B]'
+                          : lesson.locked
+                            ? 'pointer-events-none border-transparent bg-slate-50 text-slate-400'
                           : 'border-transparent text-slate-600 hover:bg-[#F8FAF7] hover:text-slate-900'
                       }`}
                       href={`/courses/${courseId}/learn/lessons/${lesson.id}${previewSuffix}`}
@@ -83,6 +87,8 @@ export function CourseSidebar({
                       >
                         {lesson.completed ? (
                           <Check aria-hidden="true" className="size-3" />
+                        ) : lesson.locked ? (
+                          <LockKeyhole aria-hidden="true" className="size-2.5" />
                         ) : null}
                       </span>
                       <span className="min-w-0 break-words">{lesson.title}</span>

@@ -117,7 +117,7 @@ export async function DELETE(request: Request) {
     ]);
     const objectKeys = new Set<string>([
       ...materials.map((item) => item.objectKey),
-      ...submissions.map((item) => item.objectKey),
+      ...submissions.flatMap((item) => item.objectKey ? [item.objectKey] : []),
     ]);
     const urls = [
       ...lessons.flatMap((lesson) => [

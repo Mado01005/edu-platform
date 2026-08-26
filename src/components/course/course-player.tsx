@@ -19,6 +19,7 @@ export function CoursePlayer({
   preferredQuality,
   qualitySources,
   title,
+  watermark,
 }: {
   autoPlayNextHref?: string;
   defaultPlaybackSpeed: number;
@@ -28,6 +29,7 @@ export function CoursePlayer({
   preferredQuality: string;
   qualitySources: QualitySources;
   title: string;
+  watermark?: string;
 }) {
   if (primaryContent.kind === 'video') {
     return (
@@ -48,9 +50,15 @@ export function CoursePlayer({
   if (primaryContent.kind === 'document') {
     return (
       <DocumentViewer
+        downloadHref={
+          primaryContent.isDownloadable && primaryContent.materialId
+            ? `/api/lms/materials/${primaryContent.materialId}/download`
+            : undefined
+        }
         fileType={primaryContent.fileType}
         title={primaryContent.title}
         url={primaryContent.url}
+        watermark={watermark}
       />
     );
   }

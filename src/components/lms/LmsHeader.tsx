@@ -13,9 +13,21 @@ import { NotificationBell } from '@/components/navbar/notification-bell';
 import { UserNav } from '@/components/navbar/user-nav';
 import { CommandMenu } from '@/components/navigation/command-menu';
 import { cn } from '@/lib/utils';
+import { LanguageToggle } from '@/components/i18n/language-provider';
+import { StudentOnboardingModal } from '@/components/auth/student-onboarding-modal';
 
 interface LmsHeaderProps {
-  user: Pick<User, 'avatarUrl' | 'email' | 'name' | 'role'> | null;
+  user: (Pick<User, 'avatarUrl' | 'email' | 'name' | 'role'> &
+    Partial<
+      Pick<
+        User,
+        | 'city'
+        | 'governorate'
+        | 'gradeLevel'
+        | 'onboardingCompletedAt'
+        | 'parentPhone'
+      >
+    >) | null;
 }
 
 const navigation = [
@@ -26,7 +38,20 @@ const navigation = [
 
 export function LmsHeader({ user }: LmsHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 h-16 w-full border-b border-emerald-950/10 bg-white px-4 shadow-sm shadow-emerald-950/5">
+    <>
+      {user?.role === 'STUDENT' ? (
+        <StudentOnboardingModal
+          profile={{
+            city: user.city ?? null,
+            governorate: user.governorate ?? null,
+            gradeLevel: user.gradeLevel ?? null,
+            name: user.name,
+            onboardingCompletedAt: user.onboardingCompletedAt ?? null,
+            parentPhone: user.parentPhone ?? null,
+          }}
+        />
+      ) : null}
+      <header className="sticky top-0 z-50 h-16 w-full border-b border-emerald-950/10 bg-white px-4 shadow-sm shadow-emerald-950/5">
         <div className="mx-auto flex h-full w-full max-w-7xl min-w-0 items-center justify-between gap-4">
           {/* Left zone: brand */}
           <Link
@@ -66,6 +91,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
 
           {/* Right zone: alerts and account. */}
           <div className="ml-auto flex min-w-0 shrink-0 items-center gap-2">
+            <LanguageToggle className="hidden md:inline-flex" />
             {user ? (
               <div className="flex min-w-0 items-center gap-2 whitespace-nowrap">
                 <NotificationBell />
@@ -101,6 +127,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
             )}
           </div>
         </div>
-    </header>
+      </header>
+    </>
   );
 }

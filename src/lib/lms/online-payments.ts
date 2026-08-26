@@ -10,6 +10,8 @@ import { lockAccountingMutation } from '@/lib/lms/accounting';
 import { deliverSystemNotification } from '@/lib/lms/notifications';
 import { getPrisma } from '@/lib/prisma';
 import { getR2ObjectMetadata } from '@/lib/r2';
+import { normalizePhoneNumber } from '@/lib/phone';
+import { dispatchPaymentWhatsApp } from '@/lib/lms/whatsapp';
 
 export const RECEIPT_CONTENT_TYPES = [
   'image/jpeg',
@@ -79,12 +81,49 @@ export async function getCheckoutCourse(studentId: string, courseId: string) {
   return course;
 }
 
+async function getCheckoutTarget(
+  studentId: string,
+  courseId: string,
+  moduleId?: unknown,
+) {
+  const course = await getCheckoutCourse(studentId, courseId);
+  if (moduleId === undefined || moduleId === null || moduleId === '') {
+    return {
+      amountEGP: course.priceEGP,
+      course,
+      module: null,
+      purchaseKind: 'TERM_PACKAGE' as const,
+      targetKey: 'term',
+    };
+  }
+  const normalizedModuleId = boundedText(moduleId, 'Chapter', 128);
+  const chapter = await getPrisma().module.findFirst({
+    where: {
+      courseId: course.id,
+      id: normalizedModuleId,
+      chapterAccess: { none: { studentId } },
+    },
+    select: { id: true, standalonePriceEGP: true, title: true },
+  });
+  if (!chapter || chapter.standalonePriceEGP.lte(0)) {
+    throw new OnlinePaymentError('This chapter is unavailable for standalone checkout.', 404);
+  }
+  return {
+    amountEGP: chapter.standalonePriceEGP,
+    course,
+    module: chapter,
+    purchaseKind: 'CHAPTER' as const,
+    targetKey: chapter.id,
+  };
+}
+
 export async function prepareReceiptUpload({
   contentType,
   courseId,
   fileName,
   fileSize,
   method: rawMethod,
+  moduleId,
   studentId,
 }: {
   contentType: unknown;
@@ -92,6 +131,7 @@ export async function prepareReceiptUpload({
   fileName: unknown;
   fileSize: unknown;
   method: unknown;
+  moduleId?: unknown;
   studentId: string;
 }) {
   const normalizedCourseId = boundedText(courseId, 'Course', 128);
@@ -100,8 +140,8 @@ export async function prepareReceiptUpload({
   if (!Number.isInteger(fileSize) || Number(fileSize) < 1 || Number(fileSize) > MAX_RECEIPT_BYTES) {
     throw new OnlinePaymentError('Receipt image must be 8 MB or smaller.');
   }
-  const [course, channel] = await Promise.all([
-    getCheckoutCourse(studentId, normalizedCourseId),
+  const [target, channel] = await Promise.all([
+    getCheckoutTarget(studentId, normalizedCourseId, moduleId),
     getPrisma().paymentChannel.findFirst({
       where: { isActive: true, method: normalizedMethod },
       select: { currency: true, id: true },
@@ -110,7 +150,10 @@ export async function prepareReceiptUpload({
   if (!channel || channel.currency !== METHOD_CURRENCY[normalizedMethod]) {
     throw new OnlinePaymentError('This payment method is not currently available.', 409);
   }
-  const amount = channel.currency === 'EGP' ? course.priceEGP : course.priceUSD;
+  if (target.purchaseKind === 'CHAPTER' && channel.currency !== 'EGP') {
+    throw new OnlinePaymentError('Standalone chapters are available in EGP only.', 409);
+  }
+  const amount = channel.currency === 'EGP' ? target.amountEGP : target.course.priceUSD;
   if (amount.lte(0)) {
     throw new OnlinePaymentError(`This course does not have a ${channel.currency} checkout price.`, 409);
   }
@@ -129,14 +172,16 @@ export async function prepareReceiptUpload({
     .slice(0, 50) || 'receipt';
   return {
     contentType: normalizedType,
-    key: `lms/receipts/${studentId}/${course.id}/${randomUUID()}-${stem}.${extension}`,
+    key: `lms/receipts/${studentId}/${target.course.id}/${target.targetKey}/${randomUUID()}-${stem}.${extension}`,
     method: normalizedMethod,
+    moduleId: target.module?.id ?? null,
   };
 }
 
 export async function submitOnlinePayment({
   courseId,
   method: rawMethod,
+  moduleId,
   receiptContentType,
   receiptObjectKey,
   studentId,
@@ -144,6 +189,7 @@ export async function submitOnlinePayment({
 }: {
   courseId: unknown;
   method: unknown;
+  moduleId?: unknown;
   receiptContentType: unknown;
   receiptObjectKey: unknown;
   studentId: string;
@@ -153,7 +199,8 @@ export async function submitOnlinePayment({
   const normalizedMethod = method(rawMethod);
   const normalizedType = receiptType(receiptContentType);
   const key = boundedText(receiptObjectKey, 'Receipt', 1_000);
-  const expectedPrefix = `lms/receipts/${studentId}/${normalizedCourseId}/`;
+  const target = await getCheckoutTarget(studentId, normalizedCourseId, moduleId);
+  const expectedPrefix = `lms/receipts/${studentId}/${normalizedCourseId}/${target.targetKey}/`;
   if (!key.startsWith(expectedPrefix) || key.includes('..')) {
     throw new OnlinePaymentError('Receipt does not belong to this checkout.', 403);
   }
@@ -162,8 +209,7 @@ export async function submitOnlinePayment({
       ? null
       : boundedText(transactionReference, 'Transaction reference', 120);
 
-  const [course, channel, metadata] = await Promise.all([
-    getCheckoutCourse(studentId, normalizedCourseId),
+  const [channel, metadata] = await Promise.all([
     getPrisma().paymentChannel.findFirst({
       where: { isActive: true, method: normalizedMethod },
       select: { currency: true },
@@ -172,6 +218,9 @@ export async function submitOnlinePayment({
   ]);
   if (!channel || channel.currency !== METHOD_CURRENCY[normalizedMethod]) {
     throw new OnlinePaymentError('This payment method is not currently available.', 409);
+  }
+  if (target.purchaseKind === 'CHAPTER' && channel.currency !== 'EGP') {
+    throw new OnlinePaymentError('Standalone chapters are available in EGP only.', 409);
   }
   if (
     !metadata ||
@@ -182,7 +231,7 @@ export async function submitOnlinePayment({
     throw new OnlinePaymentError('Uploaded receipt metadata could not be verified.', 409);
   }
   const receiptSizeBytes = metadata.sizeBytes;
-  const amount = channel.currency === 'EGP' ? course.priceEGP : course.priceUSD;
+  const amount = channel.currency === 'EGP' ? target.amountEGP : target.course.priceUSD;
   if (amount.lte(0)) throw new OnlinePaymentError('Course price is unavailable.', 409);
 
   try {
@@ -191,9 +240,11 @@ export async function submitOnlinePayment({
       return tx.onlinePaymentSubmission.create({
         data: {
           amount,
-          courseId: course.id,
+          courseId: target.course.id,
           currency: channel.currency,
+          moduleId: target.module?.id ?? null,
           paymentMethod: normalizedMethod,
+          purchaseKind: target.purchaseKind,
           receiptContentType: normalizedType,
           receiptObjectKey: key,
           receiptSizeBytes,
@@ -246,7 +297,17 @@ export async function approveOnlinePayment(paymentId: string, reviewerId: string
     await lockAccountingMutation(tx);
     const payment = await tx.onlinePaymentSubmission.findUnique({
       where: { id: paymentId },
-      select: { course: { select: { title: true } }, courseId: true, id: true, status: true, studentId: true },
+      select: {
+        course: { select: { title: true } },
+        courseId: true,
+        id: true,
+        module: { select: { id: true, title: true } },
+        moduleId: true,
+        purchaseKind: true,
+        status: true,
+        student: { select: { name: true, parentPhone: true, phoneNumber: true } },
+        studentId: true,
+      },
     });
     if (!payment) throw new OnlinePaymentError('Payment not found.', 404);
     if (payment.status !== 'PENDING') {
@@ -259,25 +320,57 @@ export async function approveOnlinePayment(paymentId: string, reviewerId: string
       data: { invoiceNumber, reviewedAt, reviewedById: reviewerId, status: 'APPROVED' },
     });
     if (updated.count !== 1) throw new OnlinePaymentError('Payment was already reviewed.', 409);
-    await tx.studentSubscription.upsert({
-      where: { studentId_courseId: { courseId: payment.courseId, studentId: payment.studentId } },
-      create: {
-        approvedAt: reviewedAt,
-        approvedById: reviewerId,
-        courseId: payment.courseId,
-        status: 'APPROVED',
-        studentId: payment.studentId,
-      },
-      update: { approvedAt: reviewedAt, approvedById: reviewerId, status: 'APPROVED' },
-    });
-    await tx.enrollment.upsert({
-      where: { studentId_courseId: { courseId: payment.courseId, studentId: payment.studentId } },
-      create: { courseId: payment.courseId, studentId: payment.studentId },
-      update: {},
-    });
-    return { courseTitle: payment.course.title, invoiceNumber, studentId: payment.studentId };
+    if (payment.purchaseKind === 'CHAPTER') {
+      if (!payment.moduleId) throw new OnlinePaymentError('Chapter payment is missing its target.', 409);
+      await tx.studentChapterAccess.upsert({
+        where: { studentId_moduleId: { moduleId: payment.moduleId, studentId: payment.studentId } },
+        create: {
+          approvedById: reviewerId,
+          moduleId: payment.moduleId,
+          studentId: payment.studentId,
+        },
+        update: { approvedAt: reviewedAt, approvedById: reviewerId },
+      });
+    } else {
+      await tx.studentSubscription.upsert({
+        where: { studentId_courseId: { courseId: payment.courseId, studentId: payment.studentId } },
+        create: {
+          approvedAt: reviewedAt,
+          approvedById: reviewerId,
+          courseId: payment.courseId,
+          status: 'APPROVED',
+          studentId: payment.studentId,
+        },
+        update: { approvedAt: reviewedAt, approvedById: reviewerId, status: 'APPROVED' },
+      });
+      await tx.enrollment.upsert({
+        where: { studentId_courseId: { courseId: payment.courseId, studentId: payment.studentId } },
+        create: { courseId: payment.courseId, studentId: payment.studentId },
+        update: {},
+      });
+    }
+    const targetTitle = payment.module?.title
+      ? `${payment.course.title} — ${payment.module.title}`
+      : payment.course.title;
+    const phones = [...new Set([
+      normalizePhoneNumber(payment.student.phoneNumber ?? ''),
+      normalizePhoneNumber(payment.student.parentPhone ?? ''),
+    ].filter((phone): phone is string => Boolean(phone)))];
+    if (phones.length) {
+      await tx.whatsAppDispatch.createMany({
+        data: phones.map((phoneNumber) => ({
+          message: `Oqool Academy: ${payment.student.name ?? 'Student'} now has access to ${targetTitle}. Payment ${invoiceNumber} was approved.`,
+          paymentId: payment.id,
+          phoneNumber,
+          studentId: payment.studentId,
+        })),
+        skipDuplicates: true,
+      });
+    }
+    return { courseTitle: targetTitle, invoiceNumber, paymentId: payment.id, studentId: payment.studentId };
   });
   await notifyPaymentResult({ approved: true, courseTitle: result.courseTitle, studentId: result.studentId });
+  await dispatchPaymentWhatsApp(result.paymentId);
   return result;
 }
 

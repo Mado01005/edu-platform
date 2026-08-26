@@ -1,25 +1,28 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Cairo, Inter } from 'next/font/google';
 import Script from 'next/script';
 import SessionTracker from '@/components/SessionTracker';
 import InteractionTracker from '@/components/InteractionTracker';
 import { PWAInstallPrompt, KeyboardShortcuts, StudyTimer, MobileNav, MusicPlayer } from '@/components/LazyWidgets';
 import Providers from '@/components/Providers';
 import './globals.css';
+import 'katex/dist/katex.min.css';
 import PrefetchEngine from '@/components/PrefetchEngine';
 
 import { auth } from '@/auth';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import FloatingTutor from '@/components/Chat/FloatingTutor';
+import { LanguageProvider } from '@/components/i18n/language-provider';
 
-const inter = Inter({ subsets: ['latin'], display: 'swap' });
+const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-english' });
+const cairo = Cairo({ subsets: ['arabic'], display: 'swap', variable: '--font-arabic' });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
   || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.edu-platform.me');
 
 export const metadata: Metadata = {
-  title: 'Oqool Academy — Learn, Build, Progress',
-  description: 'A modern education platform for structured courses, resources, and live classes.',
+  title: 'Oqool Academy | أكاديمية عقول',
+  description: 'Grow Minds. Shape the Future. نُنَمِّي العقول... ونصنع المستقبل',
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
   icons: {
@@ -32,8 +35,8 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'Oqool Academy — Learn, Build, Progress',
-    description: 'A modern education platform for students.',
+    title: 'Oqool Academy | أكاديمية عقول',
+    description: 'Grow Minds. Shape the Future. نُنَمِّي العقول... ونصنع المستقبل',
     url: SITE_URL,
     siteName: 'Oqool Academy',
     images: [
@@ -49,8 +52,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Oqool Academy — Learn, Build, Progress',
-    description: 'A modern education platform for students.',
+    title: 'Oqool Academy | أكاديمية عقول',
+    description: 'Grow Minds. Shape the Future.',
     images: ['/og-image.png'],
   },
   alternates: {
@@ -78,10 +81,13 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
+      dir="ltr"
+      data-locale="en"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <body className={`${inter.className} overflow-x-hidden bg-surface-canvas text-brand-700 antialiased`}>
+      <body className={`${inter.className} ${inter.variable} ${cairo.variable} overflow-x-hidden bg-surface-canvas text-brand-700 antialiased`}>
+        <LanguageProvider>
         <Providers>
           <PWAInstallPrompt />
           <KeyboardShortcuts />
@@ -102,6 +108,7 @@ export default async function RootLayout({
             {session ? <MusicPlayer /> : null}
           </SpotifyProvider>
         </Providers>
+        </LanguageProvider>
 
         {session ? <FloatingTutor /> : null}
         {process.env.VERCEL === '1' ? <SpeedInsights /> : null}

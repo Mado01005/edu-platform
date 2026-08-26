@@ -20,6 +20,7 @@ export async function POST(request: Request) {
       fileName: body.fileName,
       fileSize: body.fileSize,
       method: body.method,
+      moduleId: body.moduleId,
       studentId: student.id,
     });
     const uploadUrl = await getPresignedUploadUrl(upload.key, upload.contentType, 600);

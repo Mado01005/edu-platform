@@ -4,8 +4,12 @@ import type { GradeLevel } from '@prisma/client';
 import { normalizePhoneNumber } from '@/lib/phone';
 import {
   ACTIVE_SESSION_COOKIE,
+  DEVICE_ID_COOKIE,
   activateStudentSession,
   activeSessionCookieOptions,
+  deviceIdCookieOptions,
+  normalizeOrCreateDeviceId,
+  readClientIp,
 } from '@/lib/lms/active-session';
 import { recalculateStudentHealthScores } from '@/lib/lms/health';
 import { getPrisma } from '@/lib/prisma';
@@ -214,15 +218,25 @@ export async function GET(request: NextRequest) {
       });
       await recalculateStudentHealthScores([profile.id]);
 
+      const deviceId = normalizeOrCreateDeviceId(
+        request.cookies.get(DEVICE_ID_COOKIE)?.value,
+      );
       const activeSessionToken = await activateStudentSession(
         profile,
         request.headers.get('user-agent'),
+        deviceId,
+        readClientIp(request.headers),
       );
       if (activeSessionToken) {
         response.cookies.set(
           ACTIVE_SESSION_COOKIE,
           activeSessionToken,
           activeSessionCookieOptions(),
+        );
+        response.cookies.set(
+          DEVICE_ID_COOKIE,
+          deviceId,
+          deviceIdCookieOptions(),
         );
       } else {
         response.cookies.delete(ACTIVE_SESSION_COOKIE);

@@ -1,7 +1,7 @@
 'use client';
 
 import type { ContentType } from '@prisma/client';
-import { FileText, Settings2 } from 'lucide-react';
+import { FileText, Gauge, RotateCcw, RotateCw, Settings2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getVideoEmbedUrl } from '@/lib/lms/video';
@@ -11,6 +11,7 @@ type YouTubePlayer = {
   getCurrentTime: () => number;
   getDuration: () => number;
   getPlayerState: () => number;
+  pauseVideo: () => void;
   playVideo: () => void;
   seekTo: (seconds: number, allowSeekAhead: boolean) => void;
   setPlaybackQuality?: (quality: string) => void;
@@ -48,6 +49,10 @@ type VideoQuality = 'auto' | '1080p' | '720p' | '480p' | '360p';
 type QualitySources = Partial<Record<Exclude<VideoQuality, 'auto'>, string | null>>;
 
 const VIDEO_QUALITY_STORAGE_KEY = 'preferred_video_quality';
+const CLASSROOM_CHANNEL = 'oqool-classroom-playback';
+const CLASSROOM_HEARTBEAT_KEY = 'oqool-classroom-playback-heartbeat';
+const COMPLETION_PERCENTAGE = 85;
+const PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 1.75, 2] as const;
 const VIDEO_QUALITY_OPTIONS: readonly { label: string; value: VideoQuality }[] = [
   { label: 'Auto (Adaptive)', value: 'auto' },
   { label: '1080p (HD)', value: '1080p' },
@@ -123,6 +128,51 @@ function QualityControl({
   );
 }
 
+function PlaybackControls({
+  onSeek,
+  onSpeedChange,
+  playbackSpeed,
+}: {
+  onSeek: (seconds: number) => void;
+  onSpeedChange: (speed: number) => void;
+  playbackSpeed: number;
+}) {
+  return (
+    <div className="flex min-w-0 flex-wrap items-center gap-2 border-t border-white/10 bg-zinc-950 px-3 py-2 text-white">
+      <button
+        aria-label="Skip backward 10 seconds"
+        className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-white/10 px-2 text-xs font-bold hover:bg-white/10"
+        onClick={() => onSeek(-10)}
+        type="button"
+      >
+        <RotateCcw className="size-4" /> 10s
+      </button>
+      <button
+        aria-label="Skip forward 10 seconds"
+        className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-white/10 px-2 text-xs font-bold hover:bg-white/10"
+        onClick={() => onSeek(10)}
+        type="button"
+      >
+        10s <RotateCw className="size-4" />
+      </button>
+      <label className="ml-auto flex min-w-0 items-center gap-2 text-xs font-bold text-zinc-300">
+        <Gauge className="size-4 shrink-0" aria-hidden="true" />
+        <span className="sr-only sm:not-sr-only">Speed</span>
+        <select
+          aria-label="Playback speed"
+          className="min-h-9 rounded-lg border border-white/10 bg-black px-2 text-xs font-bold text-white"
+          onChange={(event) => onSpeedChange(Number(event.target.value))}
+          value={playbackSpeed}
+        >
+          {PLAYBACK_RATES.map((rate) => (
+            <option key={rate} value={rate}>{rate}x</option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
+}
+
 function loadYouTubeApi() {
   if (window.YT?.Player) return Promise.resolve(window.YT);
   if (youtubeApiPromise) return youtubeApiPromise;
@@ -184,6 +234,12 @@ export function UniversalVideoPlayer({
   );
   const [activeHtmlSource, setActiveHtmlSource] = useState(url ?? '');
   const [qualityError, setQualityError] = useState('');
+  const [playbackSpeed, setPlaybackSpeed] = useState(() =>
+    PLAYBACK_RATES.includes(defaultPlaybackSpeed as (typeof PLAYBACK_RATES)[number])
+      ? defaultPlaybackSpeed
+      : 1,
+  );
+  const [playbackGuardMessage, setPlaybackGuardMessage] = useState('');
   const htmlVideoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const pendingPlaybackRestore = useRef<{
@@ -198,12 +254,19 @@ export function UniversalVideoPlayer({
   const progressWorker = useRef<Promise<boolean> | null>(null);
   const watchedSeconds = useRef(0);
   const lastPlaybackPosition = useRef<number | null>(null);
+  const playerInstanceId = useRef(
+    typeof crypto === 'undefined' ? String(Date.now()) : crypto.randomUUID(),
+  );
+  const playbackHeartbeat = useRef<number | null>(null);
 
   const reportProgress = useCallback(
     (percentage: number) => {
       if (!lessonId) return Promise.resolve(true);
       const normalized = Math.min(100, Math.max(0, percentage));
-      const checkpoint = normalized >= 95 ? 95 : Math.floor(normalized / 10) * 10;
+      const checkpoint =
+        normalized >= COMPLETION_PERCENTAGE
+          ? COMPLETION_PERCENTAGE
+          : Math.floor(normalized / 10) * 10;
       targetPercentage.current = Math.max(targetPercentage.current, checkpoint);
       if (confirmedPercentage.current >= targetPercentage.current) {
         return Promise.resolve(true);
@@ -306,7 +369,7 @@ export function UniversalVideoPlayer({
             (watchedSeconds.current / duration) * 100
           : targetPercentage.current;
       const persisted = await reportProgress(trackedPercentage);
-      const completed = confirmedPercentage.current >= 95;
+      const completed = confirmedPercentage.current >= COMPLETION_PERCENTAGE;
 
       if (persisted && completed && autoPlayNextHref) {
         router.push(autoPlayNextHref);
@@ -328,6 +391,111 @@ export function UniversalVideoPlayer({
     },
     [qualitySources, type],
   );
+
+  const pausePlayback = useCallback(() => {
+    const htmlVideo = htmlVideoRef.current;
+    if (htmlVideo && !htmlVideo.paused) htmlVideo.pause();
+    const vimeo = vimeoPlayerRef.current;
+    if (vimeo) void vimeo.pause().catch(() => undefined);
+    youtubePlayerRef.current?.pauseVideo();
+    lastPlaybackPosition.current = null;
+  }, []);
+
+  const seekPlayback = useCallback((delta: number) => {
+    const htmlVideo = htmlVideoRef.current;
+    if (htmlVideo) {
+      htmlVideo.currentTime = Math.max(
+        0,
+        Math.min(
+          Number.isFinite(htmlVideo.duration) ? htmlVideo.duration : Infinity,
+          htmlVideo.currentTime + delta,
+        ),
+      );
+      return;
+    }
+    const vimeo = vimeoPlayerRef.current;
+    if (vimeo) {
+      void Promise.all([vimeo.getCurrentTime(), vimeo.getDuration()])
+        .then(([current, duration]) =>
+          vimeo.setCurrentTime(Math.max(0, Math.min(duration, current + delta))),
+        )
+        .catch(() => undefined);
+      return;
+    }
+    const youtube = youtubePlayerRef.current;
+    if (youtube) {
+      youtube.seekTo(
+        Math.max(0, Math.min(youtube.getDuration(), youtube.getCurrentTime() + delta)),
+        true,
+      );
+    }
+  }, []);
+
+  const changePlaybackSpeed = useCallback((speed: number) => {
+    if (!PLAYBACK_RATES.includes(speed as (typeof PLAYBACK_RATES)[number])) return;
+    setPlaybackSpeed(speed);
+    const htmlVideo = htmlVideoRef.current;
+    if (htmlVideo) htmlVideo.playbackRate = speed;
+    const vimeo = vimeoPlayerRef.current;
+    if (vimeo) void vimeo.setPlaybackRate(speed).catch(() => undefined);
+    youtubePlayerRef.current?.setPlaybackRate(speed);
+  }, []);
+
+  const claimPlayback = useCallback(() => {
+    if (!lessonId) return true;
+    const now = Date.now();
+    try {
+      const raw = window.localStorage.getItem(CLASSROOM_HEARTBEAT_KEY);
+      const current = raw
+        ? (JSON.parse(raw) as { expiresAt?: unknown; instanceId?: unknown })
+        : null;
+      if (
+        current &&
+        current.instanceId !== playerInstanceId.current &&
+        typeof current.expiresAt === 'number' &&
+        current.expiresAt > now
+      ) {
+        setPlaybackGuardMessage('Another classroom tab is already playing. Pause it before continuing here.');
+        pausePlayback();
+        return false;
+      }
+      const heartbeat = JSON.stringify({
+        expiresAt: now + 5_000,
+        instanceId: playerInstanceId.current,
+        lessonId,
+      });
+      window.localStorage.setItem(CLASSROOM_HEARTBEAT_KEY, heartbeat);
+      setPlaybackGuardMessage('');
+      return true;
+    } catch {
+      return true;
+    }
+  }, [lessonId, pausePlayback]);
+
+  const startPlaybackHeartbeat = useCallback(() => {
+    if (!lessonId || !claimPlayback()) return false;
+    if (playbackHeartbeat.current) window.clearInterval(playbackHeartbeat.current);
+    playbackHeartbeat.current = window.setInterval(claimPlayback, 2_000);
+    return true;
+  }, [claimPlayback, lessonId]);
+
+  const stopPlaybackHeartbeat = useCallback(() => {
+    if (playbackHeartbeat.current) {
+      window.clearInterval(playbackHeartbeat.current);
+      playbackHeartbeat.current = null;
+    }
+    try {
+      const raw = window.localStorage.getItem(CLASSROOM_HEARTBEAT_KEY);
+      const current = raw
+        ? (JSON.parse(raw) as { instanceId?: unknown })
+        : null;
+      if (current?.instanceId === playerInstanceId.current) {
+        window.localStorage.removeItem(CLASSROOM_HEARTBEAT_KEY);
+      }
+    } catch {
+      // Storage can be unavailable in hardened browser modes.
+    }
+  }, []);
 
   const handleQualityChange = useCallback(
     async (quality: VideoQuality) => {
@@ -439,6 +607,58 @@ export function UniversalVideoPlayer({
     };
   }, [lessonId]);
 
+  useEffect(() => {
+    const channel = lessonId && 'BroadcastChannel' in window
+      ? new BroadcastChannel(CLASSROOM_CHANNEL)
+      : null;
+    const pauseForBackground = () => {
+      if (document.hidden || !document.hasFocus()) {
+        pausePlayback();
+        stopPlaybackHeartbeat();
+        setPlaybackGuardMessage('Playback paused while this window is not active.');
+      }
+    };
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== CLASSROOM_HEARTBEAT_KEY || !event.newValue) return;
+      try {
+        const value = JSON.parse(event.newValue) as { instanceId?: unknown };
+        if (value.instanceId !== playerInstanceId.current) {
+          pausePlayback();
+          stopPlaybackHeartbeat();
+          setPlaybackGuardMessage('Playback moved to another classroom tab.');
+        }
+      } catch {
+        // Ignore malformed values owned by extensions or old builds.
+      }
+    };
+    const onChannelMessage = (event: MessageEvent<{ instanceId?: string }>) => {
+      if (event.data.instanceId && event.data.instanceId !== playerInstanceId.current) {
+        pausePlayback();
+        stopPlaybackHeartbeat();
+        setPlaybackGuardMessage('Playback moved to another classroom tab.');
+      }
+    };
+    const announce = () => channel?.postMessage({ instanceId: playerInstanceId.current });
+    const onPlaying = () => {
+      if (startPlaybackHeartbeat()) announce();
+    };
+
+    document.addEventListener('visibilitychange', pauseForBackground);
+    window.addEventListener('blur', pauseForBackground);
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('oqool:video-playing', onPlaying);
+    channel?.addEventListener('message', onChannelMessage);
+    return () => {
+      document.removeEventListener('visibilitychange', pauseForBackground);
+      window.removeEventListener('blur', pauseForBackground);
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('oqool:video-playing', onPlaying);
+      channel?.removeEventListener('message', onChannelMessage);
+      channel?.close();
+      stopPlaybackHeartbeat();
+    };
+  }, [lessonId, pausePlayback, startPlaybackHeartbeat, stopPlaybackHeartbeat]);
+
   let safeUrl: URL | null = null;
   if (url) {
     try {
@@ -468,7 +688,15 @@ export function UniversalVideoPlayer({
     const handleSeeking = () => {
       lastPlaybackPosition.current = null;
     };
+    const handlePlay = () => {
+      window.dispatchEvent(new Event('oqool:video-playing'));
+    };
+    const handlePause = () => {
+      stopPlaybackHeartbeat();
+      lastPlaybackPosition.current = null;
+    };
     const handleEnded = (event: { duration: number; seconds: number }) => {
+      stopPlaybackHeartbeat();
       void finishPlayback(event.seconds, event.duration);
     };
 
@@ -478,8 +706,10 @@ export function UniversalVideoPlayer({
       vimeoPlayerRef.current = player;
       player.on('timeupdate', handleTimeUpdate);
       player.on('seeking', handleSeeking);
+      player.on('play', handlePlay);
+      player.on('pause', handlePause);
       player.on('ended', handleEnded);
-      void player.setPlaybackRate(defaultPlaybackSpeed).catch(() => undefined);
+      void player.setPlaybackRate(playbackSpeed).catch(() => undefined);
       void player
         .setQuality(qualityPreference.current)
         .catch(() => undefined);
@@ -491,13 +721,16 @@ export function UniversalVideoPlayer({
       if (vimeoPlayerRef.current === player) vimeoPlayerRef.current = null;
       player.off('timeupdate', handleTimeUpdate);
       player.off('seeking', handleSeeking);
+      player.off('play', handlePlay);
+      player.off('pause', handlePause);
       player.off('ended', handleEnded);
     };
   }, [
-    defaultPlaybackSpeed,
+    playbackSpeed,
     embedUrl,
     finishPlayback,
     reportWatchedTime,
+    stopPlaybackHeartbeat,
     type,
   ]);
 
@@ -516,7 +749,7 @@ export function UniversalVideoPlayer({
           events: {
             onReady: ({ target }) => {
               youtubePlayerRef.current = target;
-              target.setPlaybackRate(defaultPlaybackSpeed);
+              target.setPlaybackRate(playbackSpeed);
               target.setPlaybackQuality?.(
                 YOUTUBE_QUALITY[qualityPreference.current],
               );
@@ -533,6 +766,7 @@ export function UniversalVideoPlayer({
             },
             onStateChange: ({ data, target }) => {
               if (data === youtube.PlayerState.PLAYING) {
+                window.dispatchEvent(new Event('oqool:video-playing'));
                 lastPlaybackPosition.current = target.getCurrentTime();
               } else if (
                 data === youtube.PlayerState.PAUSED ||
@@ -544,6 +778,7 @@ export function UniversalVideoPlayer({
                   5,
                 );
                 lastPlaybackPosition.current = null;
+                stopPlaybackHeartbeat();
               } else if (data === youtube.PlayerState.ENDED) {
                 void finishPlayback(
                   target.getCurrentTime(),
@@ -562,10 +797,11 @@ export function UniversalVideoPlayer({
       youtubePlayerRef.current = null;
     };
   }, [
-    defaultPlaybackSpeed,
+    playbackSpeed,
     embedUrl,
     finishPlayback,
     reportWatchedTime,
+    stopPlaybackHeartbeat,
     type,
   ]);
 
@@ -617,12 +853,13 @@ export function UniversalVideoPlayer({
           src={safeHttpsUrl(activeHtmlSource) ?? safeUrl.toString()}
           onEnded={(event) => {
             const { currentTime, duration } = event.currentTarget;
+            stopPlaybackHeartbeat();
             void finishPlayback(currentTime, duration);
           }}
           onError={(event) => setFailedMediaUrl(event.currentTarget.currentSrc)}
           onLoadedMetadata={(event) => {
             const video = event.currentTarget;
-            video.playbackRate = defaultPlaybackSpeed;
+            video.playbackRate = playbackSpeed;
             const restore = pendingPlaybackRestore.current;
             if (!restore) return;
             pendingPlaybackRestore.current = null;
@@ -638,8 +875,10 @@ export function UniversalVideoPlayer({
             const { currentTime, duration } = event.currentTarget;
             void reportWatchedTime(currentTime, duration, 5);
             lastPlaybackPosition.current = null;
+            stopPlaybackHeartbeat();
           }}
           onPlaying={(event) => {
+            window.dispatchEvent(new Event('oqool:video-playing'));
             lastPlaybackPosition.current = event.currentTarget.currentTime;
           }}
           onSeeking={() => {
@@ -652,6 +891,16 @@ export function UniversalVideoPlayer({
         >
           Your browser does not support HTML5 video.
         </video>
+        {playbackGuardMessage ? (
+          <p aria-live="polite" className="border-t border-amber-400/30 bg-amber-950 px-3 py-2 text-xs text-amber-100">
+            {playbackGuardMessage}
+          </p>
+        ) : null}
+        <PlaybackControls
+          onSeek={seekPlayback}
+          onSpeedChange={changePlaybackSpeed}
+          playbackSpeed={playbackSpeed}
+        />
         <QualityControl
           currentQuality={currentQuality}
           error={qualityError}
@@ -692,6 +941,16 @@ export function UniversalVideoPlayer({
           title={title}
         />
       </div>
+      {playbackGuardMessage ? (
+        <p aria-live="polite" className="border-t border-amber-400/30 bg-amber-950 px-3 py-2 text-xs text-amber-100">
+          {playbackGuardMessage}
+        </p>
+      ) : null}
+      <PlaybackControls
+        onSeek={seekPlayback}
+        onSpeedChange={changePlaybackSpeed}
+        playbackSpeed={playbackSpeed}
+      />
       <QualityControl
         currentQuality={currentQuality}
         error={qualityError}

@@ -6,6 +6,7 @@ export type CoursePlayerMaterial = {
   fileType: string;
   fileUrl: string;
   id: string;
+  isDownloadable?: boolean;
   title: string;
 };
 
@@ -31,6 +32,8 @@ export type PrimaryLessonContent =
   | {
       kind: 'document';
       fileType: string;
+      isDownloadable?: boolean;
+      materialId?: string;
       title: string;
       url: string;
     }
@@ -171,6 +174,7 @@ export function resolvePrimaryLessonContent({
   if (directPdfUrl) {
     return {
       fileType: 'PDF',
+      isDownloadable: false,
       kind: 'document',
       title: `${lessonTitle} resource`,
       url: directPdfUrl,
@@ -184,7 +188,9 @@ export function resolvePrimaryLessonContent({
   if (document && documentUrl) {
     return {
       fileType: document.fileType,
+      isDownloadable: document.isDownloadable,
       kind: 'document',
+      materialId: document.id,
       title: document.title,
       url: documentUrl,
     };

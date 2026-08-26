@@ -9,7 +9,14 @@ import { z } from 'zod';
 
 export const runtime = 'nodejs';
 
-const renameSchema = z.object({ title: z.string().trim().min(1).max(200) });
+const updateSchema = z
+  .object({
+    isDownloadable: z.boolean().optional(),
+    title: z.string().trim().min(1).max(200).optional(),
+  })
+  .refine((value) => value.title !== undefined || value.isDownloadable !== undefined, {
+    message: 'A material change is required.',
+  });
 
 async function editableMaterial(materialId: string, teacher: Awaited<ReturnType<typeof requireLmsRole>>) {
   const material = await getPrisma().courseMaterial.findUnique({
@@ -30,11 +37,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ma
   try {
     if (!isSameOriginRequest(request)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });
     const [{ materialId }, teacher] = await Promise.all([params, requireLmsRole(TEACHING_ROLES)]);
-    const input = renameSchema.safeParse(await request.json());
+    const input = updateSchema.safeParse(await request.json());
     if (!input.success) return NextResponse.json({ error: input.error.issues[0]?.message ?? 'Enter a valid file title.' }, { status: 400 });
     const editable = await editableMaterial(materialId, teacher);
     if (!editable) return NextResponse.json({ error: 'Material not found.' }, { status: 404 });
-    const material = await getPrisma().courseMaterial.update({ where: { id: materialId }, data: { title: input.data.title } });
+    const material = await getPrisma().courseMaterial.update({
+      where: { id: materialId },
+      data: {
+        ...(input.data.title !== undefined ? { title: input.data.title } : {}),
+        ...(input.data.isDownloadable !== undefined ? { isDownloadable: input.data.isDownloadable } : {}),
+      },
+    });
     revalidatePath(`/teacher/courses/${editable.course.id}`);
     return NextResponse.json({ material });
   } catch (error) {

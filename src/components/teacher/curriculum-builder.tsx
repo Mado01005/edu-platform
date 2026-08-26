@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import type { ContentType } from '@prisma/client';
 import { ChevronDown, FileText, GripVertical, Plus, Save } from 'lucide-react';
-import { createLessonAction, createModuleAction, updateLessonAction } from '@/app/lms/actions';
+import { createLessonAction, createModuleAction, updateLessonAction, updateModulePriceAction } from '@/app/lms/actions';
 import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
 import { R2UploadField } from '@/components/lms/R2UploadField';
 import { MaterialUploader } from '@/components/teacher/material-uploader';
+import { ExamQuestionBuilder } from '@/components/teacher/exam-question-builder';
 import type { TeacherCourse, TeacherLesson, TeacherModule } from '@/components/teacher/course-editor-types';
 
 const VIDEO_TYPES: ContentType[] = ['VIMEO', 'YOUTUBE', 'R2_VIDEO'];
@@ -82,12 +83,18 @@ function LessonEditor({ lesson }: { lesson: TeacherLesson }) {
         {type === 'TEXT' ? <label className="text-xs font-bold text-slate-600">Lesson Content<textarea className="mt-1 min-h-40 w-full min-w-0 resize-y rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#084B2B]" defaultValue={lesson.textContent ?? ''} name="textContent" /></label> : null}
         {type === 'QUIZ' || type === 'ASSIGNMENT' ? <>
           <label className="text-xs font-bold text-slate-600">Instructions<textarea className="mt-1 min-h-28 w-full min-w-0 resize-y rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#084B2B]" defaultValue={lesson.assignment?.instructions ?? ''} name="instructions" placeholder="Explain what students need to submit." /></label>
-          {type === 'QUIZ' ? <label className="text-xs font-bold text-slate-600">Questions Count<input className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#084B2B]" defaultValue={lesson.assignment?.questionCount ?? 0} max="500" min="0" name="questionCount" type="number" /></label> : null}
+          {type === 'QUIZ' ? <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3"><label className="text-xs font-bold text-slate-600">Questions Count<input className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#084B2B]" defaultValue={lesson.assignment?.questionCount ?? 0} max="500" min="0" name="questionCount" readOnly type="number" /></label><label className="text-xs font-bold text-slate-600">Duration (minutes)<input className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#084B2B]" defaultValue={lesson.assignment?.durationMin ?? 45} max="300" min="1" name="examDurationMin" type="number" /></label><label className="text-xs font-bold text-slate-600">Maximum attempts<input className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#084B2B]" defaultValue={lesson.assignment?.maxAttempts ?? 2} max="10" min="1" name="maxAttempts" type="number" /></label></div> : null}
           <label className="text-xs font-bold text-slate-600">Due Date & Time (Cairo)<input className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#084B2B]" defaultValue={cairoInputValue(lesson.assignment?.dueAt ?? null)} name="dueAt" type="datetime-local" /></label>
         </> : null}
         <label className="flex items-center gap-2 text-xs font-bold text-slate-700"><input defaultChecked={lesson.isFree} name="isFree" type="checkbox" /> Free preview lesson</label>
         <ActionSubmitButton className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#084B2B] px-3 py-2 text-sm font-bold text-white hover:bg-[#063B22]" pendingLabel="Saving lesson…"><Save className="size-4" /> Save lesson</ActionSubmitButton>
       </form>
+      {type === 'QUIZ' && lesson.assignment ? (
+        <ExamQuestionBuilder
+          assignmentId={lesson.assignment.id}
+          initialQuestions={lesson.assignment.questions}
+        />
+      ) : null}
       <div className="border-t border-emerald-950/10 p-3"><MaterialUploader initialMaterials={lesson.materials} lessonId={lesson.id} title={type === 'ASSIGNMENT' ? 'Assignment worksheet & references' : 'Lesson attachments'} /></div>
     </details>
   );
@@ -103,6 +110,10 @@ function ModuleCard({ module }: { module: TeacherModule }) {
         <ChevronDown className="size-4 shrink-0 text-slate-400 transition group-open:rotate-180" />
       </summary>
       <div className="flex min-w-0 flex-col gap-3 border-t border-emerald-950/10 p-3">
+        <form action={updateModulePriceAction.bind(null, module.id)} className="flex min-w-0 items-end gap-2 rounded-xl border border-[#D4AF37]/40 bg-[#FBF6E2] p-3">
+          <label className="min-w-0 flex-1 text-xs font-bold text-[#8C6B1B]">Standalone chapter price (EGP)<input className="mt-1 w-full rounded-lg border border-[#D4AF37]/50 bg-white px-3 py-2 text-sm text-slate-900" defaultValue={module.standalonePriceEGP} min="0" name="standalonePriceEGP" step="0.01" type="number" /></label>
+          <ActionSubmitButton className="min-h-10 rounded-lg bg-[#084B2B] px-3 text-xs font-black text-white" pendingLabel="Saving…">Save price</ActionSubmitButton>
+        </form>
         {module.lessons.map((lesson) => <LessonEditor key={lesson.id} lesson={lesson} />)}
         {!module.lessons.length ? <p className="rounded-xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">No lessons added yet. Use the form below to add the first lesson.</p> : null}
         <form action={createLessonAction.bind(null, module.id)} className="flex min-w-0 flex-col gap-2 rounded-xl border border-dashed border-slate-300 bg-[#F8FAF7] p-3">

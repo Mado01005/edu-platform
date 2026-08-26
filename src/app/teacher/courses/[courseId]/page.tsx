@@ -14,6 +14,7 @@ const materialSelect = {
   fileType: true,
   fileUrl: true,
   id: true,
+  isDownloadable: true,
   title: true,
 } as const;
 
@@ -46,7 +47,7 @@ export default async function TeacherCourseEditorPage({
           lessons: {
             orderBy: { position: 'asc' },
             include: {
-              assignment: true,
+              assignment: { include: { questions: { orderBy: { position: 'asc' } } } },
               materials: { orderBy: { createdAt: 'desc' }, select: materialSelect },
             },
           },
@@ -62,9 +63,22 @@ export default async function TeacherCourseEditorPage({
         ...course,
         modules: course.modules.map((module) => ({
           ...module,
+          standalonePriceEGP: module.standalonePriceEGP.toFixed(2),
           lessons: module.lessons.map((lesson) => ({
             ...lesson,
-            assignment: lesson.assignment ? { ...lesson.assignment, dueAt: lesson.assignment.dueAt?.toISOString() ?? null } : null,
+            assignment: lesson.assignment ? {
+              ...lesson.assignment,
+              dueAt: lesson.assignment.dueAt?.toISOString() ?? null,
+              questions: lesson.assignment.questions.map((question) => ({
+                ...question,
+                options: Array.isArray(question.options)
+                  ? question.options.filter((option): option is { key: string; text: string } =>
+                      typeof option === 'object' && option !== null &&
+                      typeof (option as { key?: unknown }).key === 'string' &&
+                      typeof (option as { text?: unknown }).text === 'string')
+                  : [],
+              })),
+            } : null,
           })),
         })),
         zoomSessions: course.zoomSessions.map((session) => ({ ...session, startTime: session.startTime.toISOString() })),

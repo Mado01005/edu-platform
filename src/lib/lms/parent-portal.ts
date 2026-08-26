@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { randomBytes, scrypt as rawScrypt, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, scrypt as rawScrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { Prisma } from '@prisma/client';
 import { cookies } from 'next/headers';
@@ -130,6 +130,65 @@ export async function setParentSessionCookie(token: string, expiresAt: Date) {
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
   });
+}
+
+export async function loginParentWithVerifiedPhone(
+  supabaseId: string,
+  phoneValue: string,
+) {
+  const phone = normalizePhoneNumber(phoneValue);
+  if (!phone) throw new ParentPortalError('Verified parent phone is invalid.', 400);
+  const prisma = getPrisma();
+  const students = await prisma.user.findMany({
+    where: { parentPhone: phone, role: 'STUDENT', status: 'ACTIVE' },
+    select: { id: true },
+  });
+  if (!students.length) {
+    throw new ParentPortalError('No active student is linked to this parent number.', 403);
+  }
+
+  const parent = await prisma.$transaction(async (tx) => {
+    const identityOwner = await tx.user.findUnique({ where: { supabaseId } });
+    if (identityOwner && identityOwner.role !== 'PARENT') {
+      throw new ParentPortalError('This phone identity belongs to a non-parent account.', 409);
+    }
+    const phoneOwner = await tx.user.findUnique({ where: { phoneNumber: phone } });
+    if (phoneOwner && phoneOwner.role !== 'PARENT') {
+      throw new ParentPortalError('This phone number belongs to a non-parent account.', 409);
+    }
+    const existing = identityOwner ?? phoneOwner;
+    const emailHash = createHash('sha256').update(phone).digest('hex').slice(0, 24);
+    const profile = existing
+      ? await tx.user.update({
+          where: { id: existing.id },
+          data: { phoneNumber: phone, phoneVerified: true, supabaseId },
+        })
+      : await tx.user.create({
+          data: {
+            email: `parent+${emailHash}@parents.oqool.local`,
+            name: 'Oqool Parent',
+            phoneNumber: phone,
+            phoneVerified: true,
+            role: 'PARENT',
+            supabaseId,
+          },
+        });
+    for (const student of students) {
+      await tx.parentStudent.upsert({
+        where: { parentId_studentId: { parentId: profile.id, studentId: student.id } },
+        create: { parentId: profile.id, studentId: student.id },
+        update: {},
+      });
+    }
+    return profile;
+  });
+
+  const token = randomBytes(32).toString('base64url');
+  const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1_000);
+  await prisma.parentPortalSession.create({
+    data: { expiresAt, parentId: parent.id, tokenHash: hashParentPortalSessionToken(token) },
+  });
+  return { expiresAt, token };
 }
 
 export async function getParentPortalSession() {

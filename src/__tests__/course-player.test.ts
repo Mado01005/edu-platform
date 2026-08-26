@@ -107,6 +107,7 @@ describe('course player primary content', () => {
       }),
     ).toEqual({
       fileType: 'PDF',
+      isDownloadable: false,
       kind: 'document',
       title: 'Addition resource',
       url: 'https://media.example.com/direct.pdf',

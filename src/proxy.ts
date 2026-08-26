@@ -12,8 +12,9 @@ import {
 } from '@/lib/http/api-security';
 import {
   ACTIVE_SESSION_COOKIE,
-  hasValidActiveSession,
+  hashActiveSessionToken,
 } from '@/lib/lms/active-session-core';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import {
   ACCOUNTING_ROLES,
   ADMIN_ROLES,
@@ -29,6 +30,7 @@ import {
 import { getSupabaseRequestContext } from '@/lib/supabase/proxy';
 
 const PUBLIC_PATHS = [
+  '/',
   '/login',
   '/signup',
   '/lms/login',
@@ -36,6 +38,8 @@ const PUBLIC_PATHS = [
   '/auth/sync',
   '/catalog',
   '/privacy',
+  '/preview',
+  '/parent',
   '/terms',
   '/mps',
   '/sitemap.xml',
@@ -57,6 +61,7 @@ const PUBLIC_ASSET_PATHS = new Set([
 const NEXTAUTH_PROTOCOL_API = '/api/auth';
 const EXACT_API_AUTH_EXEMPTIONS = new Set([
   '/api/mps/login', // Parent login bootstrap; establishes its own session.
+  '/api/parent/otp', // Validates a linked parent number before Supabase OTP.
   '/api/cron/student-health', // Route validates CRON_SECRET itself.
 ]);
 
@@ -279,13 +284,6 @@ function redirectWithSessionCookies(
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // The LMS catalog is the canonical product entry point. Keep the legacy
-  // NextAuth login available for existing users without routing new visitors
-  // through the retired portal landing flow.
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/catalog', request.url));
-  }
-
   if (matchesRoute(pathname, '/api')) {
     return protectApiRequest(request);
   }
@@ -369,7 +367,7 @@ export async function proxy(request: NextRequest) {
 
     const { data: profile, error } = await supabase!
       .from('lms_users')
-      .select('active_session_token, role, status')
+      .select('id, active_session_token, role, status')
       .eq('supabase_id', userId)
       .maybeSingle();
 
@@ -388,16 +386,20 @@ export async function proxy(request: NextRequest) {
       return redirectWithSessionCookies(loginUrl, supabaseContext.response);
     }
 
-    if (
-      profile.role === 'STUDENT' &&
-      !hasValidActiveSession(
-        {
-          activeSessionToken: profile.active_session_token,
-          role: profile.role,
-        },
-        request.cookies.get(ACTIVE_SESSION_COOKIE)?.value,
-      )
-    ) {
+    const activeSessionCookie = request.cookies.get(ACTIVE_SESSION_COOKIE)?.value;
+    let studentSessionIsValid = profile.role !== 'STUDENT';
+    if (profile.role === 'STUDENT' && activeSessionCookie) {
+      const { data: activeDeviceSession } = await getSupabaseAdminClient()
+        .from('lms_user_sessions')
+        .select('id')
+        .eq('user_id', profile.id)
+        .eq('token_hash', hashActiveSessionToken(activeSessionCookie))
+        .is('revoked_at', null)
+        .maybeSingle();
+      studentSessionIsValid = Boolean(activeDeviceSession);
+    }
+
+    if (!studentSessionIsValid) {
       await supabase!.auth.signOut({ scope: 'local' }).catch(() => undefined);
       const loginUrl = new URL('/lms/login', request.url);
       loginUrl.searchParams.set('reason', 'concurrent_login');

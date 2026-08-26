@@ -17,24 +17,38 @@ export function OnlineCheckoutModal({
   onClose,
 }: {
   channels: CheckoutChannel[];
-  course: { id: string; priceEGP: string; priceUSD: string; title: string };
+  course: {
+    id: string;
+    modules: { id: string; priceEGP: string; purchased: boolean; title: string }[];
+    priceEGP: string;
+    priceUSD: string;
+    title: string;
+  };
   onClose: () => void;
 }) {
   const available = useMemo(
     () =>
       channels.filter((channel) =>
         channel.currency === 'EGP'
-          ? Number(course.priceEGP) > 0
+          ? Number(course.priceEGP) > 0 || course.modules.some((module) => Number(module.priceEGP) > 0 && !module.purchased)
           : Number(course.priceUSD) > 0,
       ),
-    [channels, course.priceEGP, course.priceUSD],
+    [channels, course.modules, course.priceEGP, course.priceUSD],
   );
   const [method, setMethod] = useState(available[0]?.method ?? 'INSTAPAY');
+  const [moduleId, setModuleId] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [reference, setReference] = useState('');
   const [status, setStatus] = useState<'idle' | 'saving' | 'done'>('idle');
   const [error, setError] = useState('');
   const selected = available.find((channel) => channel.method === method) ?? available[0];
+  const selectedModule = course.modules.find((module) => module.id === moduleId) ?? null;
+  const amount = selectedModule
+    ? selectedModule.priceEGP
+    : selected?.currency === 'EGP' ? course.priceEGP : course.priceUSD;
+  const eligibleChannels = selectedModule
+    ? available.filter((channel) => channel.currency === 'EGP')
+    : available;
 
   async function submit() {
     if (!selected || !file) {
@@ -51,6 +65,7 @@ export function OnlineCheckoutModal({
           fileName: file.name,
           fileSize: file.size,
           method: selected.method,
+          moduleId: selectedModule?.id ?? null,
         }),
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
@@ -75,6 +90,7 @@ export function OnlineCheckoutModal({
         body: JSON.stringify({
           courseId: course.id,
           method: selected.method,
+          moduleId: selectedModule?.id ?? null,
           receiptContentType: prepared.contentType,
           receiptObjectKey: prepared.key,
           transactionReference: reference,
@@ -111,8 +127,13 @@ export function OnlineCheckoutModal({
           </div>
         ) : (
           <>
-            <div className="mt-5 grid min-w-0 grid-cols-2 gap-2">
-              {available.map((channel) => (
+            <fieldset className="mt-5 rounded-xl border border-emerald-950/10 bg-[#F8FAF8] p-3">
+              <legend className="px-1 text-xs font-black uppercase tracking-wide text-[#084B2B]">Choose access</legend>
+              <label className={`mt-1 flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 text-sm ${moduleId === null ? 'border-[#D4AF37] bg-[#FBF6E2]' : 'border-emerald-950/10 bg-white'}`}><span className="font-black">Complete term package</span><span className="shrink-0 font-black">{course.priceEGP} EGP</span><input checked={moduleId === null} className="sr-only" name="purchase-target" onChange={() => setModuleId(null)} type="radio" /></label>
+              {course.modules.filter((module) => Number(module.priceEGP) > 0).map((module) => <label className={`mt-2 flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 text-sm ${moduleId === module.id ? 'border-[#D4AF37] bg-[#FBF6E2]' : 'border-emerald-950/10 bg-white'} ${module.purchased ? 'cursor-not-allowed opacity-50' : ''}`} key={module.id}><span className="min-w-0 truncate font-bold">{module.title}</span><span className="shrink-0 font-black">{module.priceEGP} EGP</span><input checked={moduleId === module.id} className="sr-only" disabled={module.purchased} name="purchase-target" onChange={() => { setModuleId(module.id); const egpChannel = available.find((channel) => channel.currency === 'EGP'); if (egpChannel) setMethod(egpChannel.method); }} type="radio" /></label>)}
+            </fieldset>
+            <div className="mt-3 grid min-w-0 grid-cols-2 gap-2">
+              {eligibleChannels.map((channel) => (
                 <button
                   className={`min-w-0 rounded-xl border p-3 text-left text-xs ${selected?.method === channel.method ? 'border-emerald-300 bg-emerald-50 text-[#084B2B]' : 'border-emerald-950/10 text-slate-600 hover:bg-[#F8FAF7]'}`}
                   key={channel.method}
@@ -126,7 +147,7 @@ export function OnlineCheckoutModal({
             </div>
             {selected ? (
               <div className="mt-3 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Send {selected.currency === 'EGP' ? course.priceEGP : course.priceUSD} {selected.currency} to</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Send exactly {amount} {selected.currency} to</p>
                 <div className="mt-2 flex min-w-0 items-center gap-2">
                   <code className="min-w-0 flex-1 break-all text-sm text-[#084B2B]">{selected.accountValue}</code>
                   <button aria-label="Copy payment account" className="shrink-0 rounded-lg border border-emerald-950/10 bg-white p-2 text-slate-600 hover:bg-slate-100" onClick={() => void navigator.clipboard.writeText(selected.accountValue)} type="button"><Copy className="size-4" /></button>

@@ -24,6 +24,7 @@ const materialInputSchema = z
     fileSize: z.number().int().min(1).max(MAX_MATERIAL_UPLOAD_BYTES),
     fileType: z.enum(MATERIAL_FILE_TYPES),
     lessonId: z.string().trim().min(1).max(64).nullable().optional(),
+    isDownloadable: z.boolean().optional().default(false),
     moduleId: z.string().trim().min(1).max(64).nullable().optional(),
     objectKey: z
       .string()
@@ -140,6 +141,7 @@ export async function POST(request: Request) {
           fileType: input.fileType,
           fileUrl: getPublicUrl(input.objectKey),
           lessonId: input.lessonId ?? null,
+          isDownloadable: input.isDownloadable,
           moduleId: input.moduleId ?? null,
           objectKey: input.objectKey,
           title: input.title,

@@ -7,6 +7,7 @@ import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 const MIN_CHECKPOINT_INTERVAL_MS = 2_000;
+const COMPLETION_PERCENTAGE = 85;
 
 export async function POST(request: Request) {
   try {
@@ -164,7 +165,8 @@ export async function POST(request: Request) {
         );
       }
     }
-    const isCompleted = current?.isCompleted === true || watchPercentage >= 95;
+    const isCompleted =
+      current?.isCompleted === true || watchPercentage >= COMPLETION_PERCENTAGE;
 
     await prisma.$transaction(async (tx) => {
       await tx.lessonProgress.upsert({

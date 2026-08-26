@@ -66,7 +66,7 @@ export default async function LiveClassesPage() {
                 </div>
               </div>
               {user.role === 'STUDENT' ? (
-                <JoinLiveClassButton zoomSessionId={session.id} />
+                <JoinLiveClassButton startTime={session.startTime.toISOString()} zoomSessionId={session.id} />
               ) : (
                 <a className="shrink-0 rounded-xl bg-[#084B2B] px-4 py-3 text-center text-sm font-black text-white transition hover:bg-[#063B22]" href={session.meetingUrl} rel="noopener noreferrer" target="_blank">Join meeting</a>
               )}

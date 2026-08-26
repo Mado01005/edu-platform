@@ -124,6 +124,7 @@ describe('course material APIs', () => {
     mockMaterialFindUnique.mockResolvedValue({
       course: { id: 'course_1', teacherId: 'teacher_1' },
       id: 'material_1',
+      isDownloadable: true,
       lesson: null,
       objectKey: materialKey,
     });
@@ -153,6 +154,7 @@ describe('course material APIs', () => {
         teacherId: 'teacher_1',
       },
       id: 'material_1',
+      isDownloadable: true,
       lesson: null,
       objectKey: materialKey,
       title: 'Handout.pdf',

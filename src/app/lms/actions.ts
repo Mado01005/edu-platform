@@ -404,6 +404,30 @@ export async function createLessonAction(moduleId: string, formData: FormData) {
   revalidatePath(`/teacher/courses/${courseModule.courseId}`);
 }
 
+export async function updateModulePriceAction(moduleId: string, formData: FormData) {
+  const courseModule = await getPrisma().module.findUnique({
+    where: { id: moduleId },
+    select: { courseId: true },
+  });
+  if (!courseModule) throw new Error('Module not found.');
+  await teacherCourse(courseModule.courseId);
+  const rawPrice = optionalString(formData, 'standalonePriceEGP', 20) ?? '0';
+  if (!/^\d+(?:\.\d{1,2})?$/.test(rawPrice)) {
+    throw new Error('Enter a valid non-negative EGP chapter price.');
+  }
+  const price = new Prisma.Decimal(rawPrice);
+  if (price.lt(0) || price.gt(1_000_000)) {
+    throw new Error('Chapter price must be between 0 and 1,000,000 EGP.');
+  }
+  await getPrisma().module.update({
+    where: { id: moduleId },
+    data: { standalonePriceEGP: price },
+  });
+  revalidatePath(`/teacher/courses/${courseModule.courseId}`);
+  revalidatePath('/catalog');
+  revalidateTag('catalog', 'max');
+}
+
 export async function updateLessonAction(
   lessonId: string,
   formData: FormData,
@@ -468,6 +492,16 @@ export async function updateLessonAction(
   if (!Number.isInteger(questionCount) || questionCount < 0 || questionCount > 500) {
     throw new Error('Question count must be between 0 and 500.');
   }
+  const examDurationRaw = optionalString(formData, 'examDurationMin', 3);
+  const examDurationMin = examDurationRaw ? Number(examDurationRaw) : 45;
+  if (!Number.isInteger(examDurationMin) || examDurationMin < 1 || examDurationMin > 300) {
+    throw new Error('Exam duration must be between 1 and 300 minutes.');
+  }
+  const maxAttemptsRaw = optionalString(formData, 'maxAttempts', 2);
+  const maxAttempts = maxAttemptsRaw ? Number(maxAttemptsRaw) : 2;
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 10) {
+    throw new Error('Exam attempts must be between 1 and 10.');
+  }
   const dueAtValue = optionalString(formData, 'dueAt', 100);
   const dueAt = dueAtValue ? cairoDateTimeLocalToUtc(dueAtValue) : null;
   if (dueAtValue && !dueAt) throw new Error('Enter a valid Cairo due date and time.');
@@ -509,6 +543,8 @@ export async function updateLessonAction(
           type: type === 'QUIZ' ? 'QUIZ' : 'HOMEWORK',
           instructions,
           questionCount: type === 'QUIZ' ? questionCount : 0,
+          durationMin: type === 'QUIZ' ? examDurationMin : 45,
+          maxAttempts: type === 'QUIZ' ? maxAttempts : 2,
           dueAt,
         },
         update: {
@@ -516,6 +552,8 @@ export async function updateLessonAction(
           type: type === 'QUIZ' ? 'QUIZ' : 'HOMEWORK',
           instructions,
           questionCount: type === 'QUIZ' ? questionCount : 0,
+          durationMin: type === 'QUIZ' ? examDurationMin : 45,
+          maxAttempts: type === 'QUIZ' ? maxAttempts : 2,
           dueAt,
         },
       });
@@ -661,14 +699,25 @@ export async function enrollCourseAction(courseId: string) {
     include: {
       modules: {
         orderBy: { position: 'asc' },
-        include: { lessons: { orderBy: { position: 'asc' }, take: 1 } },
+        include: {
+          chapterAccess: {
+            where: { studentId: student.id },
+            select: { id: true },
+          },
+          lessons: { orderBy: { position: 'asc' }, take: 1 },
+        },
       },
     },
   });
 
   if (!course) throw new Error('Course not found.');
   if (course.priceEGP.gt(0) || course.priceUSD.gt(0)) {
-    throw new LmsAuthError('Paid courses require an approved online payment.', 409);
+    const purchasedModule = course.modules.find((module) => module.chapterAccess.length > 0);
+    if (!purchasedModule) {
+      throw new LmsAuthError('Paid courses require an approved online payment.', 409);
+    }
+    const firstLesson = purchasedModule.lessons[0];
+    redirect(firstLesson ? `/courses/${courseId}/learn/lessons/${firstLesson.id}` : '/dashboard');
   }
 
   await getPrisma().enrollment.upsert({

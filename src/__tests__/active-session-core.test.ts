@@ -1,7 +1,9 @@
 import {
   ACTIVE_SESSION_COOKIE,
+  MAX_STUDENT_DEVICES,
   hashActiveSessionToken,
   hasValidActiveSession,
+  selectOldestSessionIdsToRevoke,
 } from '@/lib/lms/active-session-core';
 
 describe('student active session validation', () => {
@@ -44,5 +46,21 @@ describe('student active session validation', () => {
         undefined,
       ),
     ).toBe(true);
+  });
+
+  it('keeps two student devices and silently evicts the oldest session', () => {
+    const activeSessions = [
+      { id: 'oldest-device' },
+      { id: 'second-device' },
+      { id: 'new-device' },
+    ];
+
+    expect(MAX_STUDENT_DEVICES).toBe(2);
+    expect(selectOldestSessionIdsToRevoke(activeSessions)).toEqual([
+      'oldest-device',
+    ]);
+    expect(selectOldestSessionIdsToRevoke(activeSessions.slice(1))).toEqual(
+      [],
+    );
   });
 });

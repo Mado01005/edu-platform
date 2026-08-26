@@ -10,7 +10,17 @@ export function PortalShell({
   user,
 }: {
   children: ReactNode;
-  user: Pick<User, 'avatarUrl' | 'email' | 'name' | 'role'>;
+  user: Pick<User, 'avatarUrl' | 'email' | 'name' | 'role'> &
+    Partial<
+      Pick<
+        User,
+        | 'city'
+        | 'governorate'
+        | 'gradeLevel'
+        | 'onboardingCompletedAt'
+        | 'parentPhone'
+      >
+    >;
 }) {
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-surface-canvas text-brand-700 transition-colors duration-200 ease-in-out">

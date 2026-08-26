@@ -53,8 +53,7 @@ export default async function ParentPortalPage({
             modules: {
               include: {
                 lessons: {
-                  where: { contentType: { in: ['VIMEO', 'YOUTUBE', 'R2_VIDEO'] } },
-                  include: { progress: { where: { studentId: selected.id }, select: { watchPercentage: true } } },
+                  include: { progress: { where: { studentId: selected.id }, select: { isCompleted: true, watchPercentage: true } } },
                 },
               },
             },
@@ -64,7 +63,7 @@ export default async function ParentPortalPage({
       orderBy: { createdAt: 'desc' },
     }),
     prisma.assignmentSubmission.findMany({
-      where: { studentId: selected.id, assignment: { type: 'QUIZ' } },
+      where: { studentId: selected.id },
       include: { assignment: { include: { course: { select: { title: true } } } } },
       orderBy: { createdAt: 'desc' },
       take: 50,
@@ -96,7 +95,7 @@ export default async function ParentPortalPage({
   const averageByAssignment = new Map(averages.map((item) => [item.assignmentId, item._avg.grade]));
   const videoProgress = enrollments.map(({ course }) => {
     const lessons = course.modules.flatMap((module) => module.lessons);
-    const total = lessons.reduce((sum, lesson) => sum + (lesson.progress[0]?.watchPercentage ?? 0), 0);
+    const total = lessons.reduce((sum, lesson) => sum + (lesson.progress[0]?.isCompleted ? 100 : lesson.progress[0]?.watchPercentage ?? 0), 0);
     return { id: course.id, percentage: lessons.length ? Math.round(total / lessons.length) : 0, title: course.title };
   });
 
@@ -120,7 +119,7 @@ export default async function ParentPortalPage({
 
         <section className="scroll-mt-24 rounded-2xl border border-white/10 bg-zinc-950 p-4" id="attendance">
           <h2 className="flex items-center gap-2 font-black"><Clock3 className="size-4 text-emerald-300" /> Digital attendance</h2>
-          <div className="mt-3 flex flex-col gap-2">{attendance.map((record) => <div className="rounded-xl bg-black p-3" key={record.id}><div className="flex min-w-0 justify-between gap-2"><p className="min-w-0 truncate text-sm font-bold">{record.zoomSession?.title ?? record.lesson?.title ?? record.course.title}</p><span className="shrink-0 text-[10px] text-emerald-300">{record.type.replaceAll('_', ' ')}</span></div><p className="mt-1 text-xs text-zinc-500">Joined {dateTime(record.joinedAt)} · {record.durationMin} min tracked</p></div>)}{!attendance.length ? <p className="text-sm text-zinc-500">No digital attendance recorded yet.</p> : null}</div>
+          <div className="mt-3 flex flex-col gap-2">{attendance.map((record) => <div className="rounded-xl bg-black p-3" key={record.id}><div className="flex min-w-0 justify-between gap-2"><p className="min-w-0 truncate text-sm font-bold">{record.zoomSession?.title ?? record.lesson?.title ?? record.course.title}</p><span className="shrink-0 text-[10px] text-emerald-300">{record.type.replaceAll('_', ' ')}</span></div><p className="mt-1 text-xs text-zinc-500">Entered {dateTime(record.joinedAt)} · {record.leftAt ? `Exited ${dateTime(record.leftAt)} · ` : 'Attendance active · '}{record.durationMin} min tracked</p></div>)}{!attendance.length ? <p className="text-sm text-zinc-500">No digital attendance recorded yet.</p> : null}</div>
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-zinc-950 p-4">
@@ -129,8 +128,8 @@ export default async function ParentPortalPage({
         </section>
 
         <section className="scroll-mt-24 rounded-2xl border border-white/10 bg-zinc-950 p-4" id="report-cards">
-          <h2 className="flex items-center gap-2 font-black"><Activity className="size-4 text-amber-300" /> Online quiz grades</h2>
-          <div className="mt-3 flex flex-col gap-2">{submissions.map((submission) => <article className="rounded-xl bg-black p-3" key={submission.id}><div className="flex min-w-0 justify-between gap-2"><span className="min-w-0 truncate text-sm font-bold">{submission.assignment.title}</span><span className="shrink-0 font-black text-amber-300">{submission.grade?.toFixed(1) ?? '—'}%</span></div><p className="mt-1 text-xs text-zinc-500">{submission.assignment.course.title} · Class avg {averageByAssignment.get(submission.assignmentId)?.toFixed(1) ?? '—'}%</p>{submission.feedback ? <p className="mt-2 text-xs leading-5 text-zinc-300">Teacher: {submission.feedback}</p> : null}</article>)}{!submissions.length ? <p className="text-sm text-zinc-500">No quiz submissions yet.</p> : null}</div>
+          <h2 className="flex items-center gap-2 font-black"><Activity className="size-4 text-amber-300" /> Exams &amp; homework</h2>
+          <div className="mt-3 flex flex-col gap-2">{submissions.map((submission) => <article className="rounded-xl bg-black p-3" key={submission.id}><div className="flex min-w-0 justify-between gap-2"><span className="min-w-0 truncate text-sm font-bold">{submission.assignment.title}</span><span className="shrink-0 font-black text-amber-300">{submission.grade === null ? 'Awaiting grade' : submission.assignment.type === 'HOMEWORK' ? `${submission.grade.toFixed(1)} / 10` : `${submission.grade.toFixed(1)}%`}</span></div><p className="mt-1 text-xs text-zinc-500">{submission.assignment.course.title} · {submission.assignment.type === 'HOMEWORK' ? 'Homework submission' : `Class avg ${averageByAssignment.get(submission.assignmentId)?.toFixed(1) ?? '—'}%`}</p>{submission.feedback ? <p className="mt-2 text-xs leading-5 text-zinc-300">Teacher: {submission.feedback}</p> : null}</article>)}{!submissions.length ? <p className="text-sm text-zinc-500">No exam or homework submissions yet.</p> : null}</div>
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-zinc-950 p-4">

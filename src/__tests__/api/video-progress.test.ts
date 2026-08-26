@@ -144,18 +144,18 @@ describe('video progress checkpoints', () => {
     expect(mockRecalculateHealth).toHaveBeenCalledWith(['student-1']);
   });
 
-  it('marks a video complete at the 95 percent threshold', async () => {
+  it('marks a video complete at the 85 percent threshold', async () => {
     mockProgressFindUnique.mockResolvedValue({
       isCompleted: false,
       updatedAt: new Date('2026-08-05T00:00:00.000Z'),
-      watchPercentage: 90,
+      watchPercentage: 80,
     });
 
-    const response = await saveVideoProgress(progressRequest(95));
+    const response = await saveVideoProgress(progressRequest(85));
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body).toEqual({ isCompleted: true, watchPercentage: 95 });
+    expect(body).toEqual({ isCompleted: true, watchPercentage: 85 });
     expect(mockAttendanceUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         create: expect.objectContaining({
