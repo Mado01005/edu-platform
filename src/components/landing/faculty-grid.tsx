@@ -11,7 +11,7 @@ export type LandingFaculty = {
 
 export function FacultyGrid({ faculty }: { faculty: LandingFaculty[] }) {
   return (
-    <section className="bg-white py-20 md:py-28" id="faculty">
+    <section className="py-20 md:py-28" id="faculty">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#0F6E41]">
@@ -26,7 +26,7 @@ export function FacultyGrid({ faculty }: { faculty: LandingFaculty[] }) {
 
         <div className="mt-10 grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {faculty.map((teacher) => (
-            <article className="min-w-0 rounded-2xl border border-emerald-950/10 bg-[#F8FAF8] p-5" key={teacher.id}>
+            <article className="landing-card min-w-0 rounded-3xl border border-emerald-950/5 bg-white p-5 hover:-translate-y-1 hover:shadow-lg" key={teacher.id}>
               <div className="flex min-w-0 items-center gap-4">
                 {teacher.avatarUrl ? (
                   <Image alt={teacher.name} className="size-14 rounded-2xl object-cover" height={56} src={teacher.avatarUrl} width={56} />

@@ -1,9 +1,15 @@
-import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, PlayCircle, ShieldCheck } from 'lucide-react';
+import { ArrowRight, PlayCircle, Star } from 'lucide-react';
 import { LiveClassTicker } from '@/components/landing/live-class-ticker';
 import { StudentDashboardPreview } from '@/components/landing/student-dashboard-preview';
 import { siteConfig } from '@/config/site';
+
+const studentFaces = [
+  { initials: 'MA', color: 'bg-[#E7C96A]' },
+  { initials: 'YS', color: 'bg-[#B9DDC6]' },
+  { initials: 'LN', color: 'bg-[#F0C7AE]' },
+  { initials: 'OK', color: 'bg-[#084B2B] text-white' },
+] as const;
 
 export function HeroSection({
   nextClass,
@@ -12,31 +18,32 @@ export function HeroSection({
 }) {
   return (
     <section
-      className="relative border-b border-emerald-950/10 bg-white"
+      className="relative isolate overflow-hidden pb-20 pt-10 sm:pb-28 sm:pt-14"
       id="live-schedule"
     >
-      <div aria-hidden="true" className="oqool-orbit absolute inset-0 opacity-50" />
-      <div className="relative mx-auto grid min-h-[calc(100dvh-7.75rem)] w-full max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8 lg:py-20">
-        <div className="min-w-0 max-w-2xl">
+      <div aria-hidden="true" className="absolute -left-32 top-16 -z-10 size-80 rounded-full bg-emerald-200/35 blur-3xl" />
+      <div aria-hidden="true" className="absolute -right-32 bottom-8 -z-10 size-96 rounded-full bg-amber-100/60 blur-3xl" />
+      <div className="relative mx-auto grid min-h-[calc(100dvh-8rem)] w-full max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12 lg:px-8">
+        <div className="min-w-0 max-w-2xl lg:py-14">
           <LiveClassTicker
             startTime={nextClass?.startTime ?? null}
             title={nextClass?.title ?? null}
           />
-          <p className="mt-8 text-xs font-black uppercase tracking-[0.22em] text-[#0F6E41]">
+          <p className="mt-8 text-[11px] font-black uppercase tracking-[0.24em] text-[#0F6E41]">
             Egypt · KSA · Secondary STEM mastery
           </p>
-          <h1 className="mt-4 text-5xl font-black leading-[0.98] tracking-[-0.045em] text-[#042D1A] sm:text-6xl lg:text-7xl">
+          <h1 className="mt-4 text-5xl font-black leading-[0.96] tracking-tight text-[#084B2B] sm:text-6xl lg:text-[4.35rem]">
             <span data-language-copy="en">
-              Grow Minds.<br />Shape the Future.
+              Grow Minds.<br /><span className="text-[#1A2E22]">Shape the Future.</span>
             </span>
             <span className="font-arabic" data-language-copy="ar">
-              نُنَمِّي العقول...<br />ونصنع المستقبل
+              نُنَمِّي العقول...<br /><span className="text-[#1A2E22]">ونصنع المستقبل</span>
             </span>
           </h1>
-          <p className="mt-5 font-arabic text-xl font-black leading-9 text-[#A68020] sm:text-2xl" dir="rtl" lang="ar">
+          <p className="mt-5 font-arabic text-lg font-black leading-9 text-[#A68020] sm:text-xl" dir="rtl" lang="ar">
             {siteConfig.sloganArabic}
           </p>
-          <p className="mt-6 max-w-xl text-base leading-8 text-slate-600 sm:text-lg">
+          <p className="mt-6 max-w-xl text-[15px] leading-7 text-slate-600 sm:text-base sm:leading-8">
             <span data-language-copy="en">
               Master Egypt and KSA secondary STEM curricula through guided
               chapters, expert live teaching, protected HD lessons, and clear
@@ -49,15 +56,15 @@ export function HeroSection({
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-6 text-sm font-extrabold text-white outline-none hover:bg-[#0F6E41] focus-visible:ring-4 focus-visible:ring-emerald-200"
+              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#084B2B] px-6 text-sm font-extrabold text-white outline-none transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0F6E41] hover:shadow-[0_12px_32px_rgba(212,175,55,0.28)] focus-visible:ring-4 focus-visible:ring-emerald-200"
               href="/catalog"
             >
               <span data-language-copy="en">Explore Curriculum</span>
               <span data-language-copy="ar">استكشف المناهج</span>
-              <ArrowRight aria-hidden="true" className="size-4 rtl:rotate-180" />
+              <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180" />
             </Link>
             <Link
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-emerald-950/15 bg-white px-6 text-sm font-extrabold text-[#084B2B] outline-none hover:border-[#D4AF37] hover:bg-[#FBF6E2] focus-visible:ring-4 focus-visible:ring-emerald-100"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-emerald-950/10 bg-white px-6 text-sm font-extrabold text-[#084B2B] shadow-sm outline-none transition-all duration-300 hover:-translate-y-0.5 hover:border-[#D4AF37]/70 hover:shadow-md focus-visible:ring-4 focus-visible:ring-emerald-100"
               href="/preview"
             >
               <PlayCircle aria-hidden="true" className="size-4" />
@@ -65,38 +72,30 @@ export function HeroSection({
               <span data-language-copy="ar">شاهد الدرس الأول مجانًا</span>
             </Link>
           </div>
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <div aria-label="Oqool student community" className="flex -space-x-2.5 rtl:space-x-reverse">
+              {studentFaces.map((student) => (
+                <span
+                  aria-label={`Student ${student.initials}`}
+                  className={`flex size-10 items-center justify-center rounded-full border-2 border-[#FAFAF7] text-[10px] font-black text-[#1A2E22] shadow-sm ${student.color}`}
+                  key={student.initials}
+                  role="img"
+                >
+                  {student.initials}
+                </span>
+              ))}
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1 text-[#C79A16]">
+                {Array.from({ length: 5 }, (_, index) => <Star aria-hidden="true" className="size-3.5 fill-current" key={index} />)}
+                <span className="ml-1 text-xs font-black tabular-nums text-[#1A2E22]">4.9</span>
+              </div>
+              <p className="mt-1 text-[11px] font-bold text-slate-500">Trusted by ambitious students and families</p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid min-w-0 gap-4 xl:grid-cols-[1.02fr_0.98fr]">
-          <article className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-emerald-950/10 bg-[#042D1A] text-white">
-            <Image
-              alt="Official Oqool Academy banner with the four learning pillars"
-              className="h-auto w-full border-b border-[#D4AF37]/30 object-cover"
-              height={809}
-              priority
-              sizes="(max-width: 1023px) 100vw, (max-width: 1535px) 55vw, 28vw"
-              src="/brand/oqool-banner.png"
-              width={1942}
-            />
-            <div className="flex flex-1 flex-col justify-between p-5">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F3D878]">
-                  Official academy identity
-                </p>
-                <h2 className="mt-3 text-xl font-black">A clear path from lesson one to exam day.</h2>
-                <p className="mt-2 text-sm leading-6 text-emerald-100/75">
-                  Every chapter connects the lecture, practice, assessment, and
-                  family progress signal in one protected workspace.
-                </p>
-              </div>
-              <p className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4 text-xs font-bold text-emerald-100/80">
-                <ShieldCheck aria-hidden="true" className="size-4 text-[#D4AF37]" />
-                Built for focused, accountable learning
-              </p>
-            </div>
-          </article>
-          <StudentDashboardPreview />
-        </div>
+        <StudentDashboardPreview />
       </div>
     </section>
   );

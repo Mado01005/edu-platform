@@ -171,7 +171,7 @@ export default async function RootPage() {
   const data = await landingData();
 
   return (
-    <main className="min-h-dvh w-full min-w-0 max-w-full overflow-x-hidden bg-[#F8FAF8] text-[#1A2E22]">
+    <main className="min-h-dvh w-full min-w-0 max-w-full overflow-x-clip bg-[#FAFAF7] bg-gradient-to-tr from-emerald-100/40 via-transparent to-amber-100/30 text-[#1A2E22]">
       <Header />
       <HeroSection nextClass={data.nextClass} />
       <MottoRibbon />

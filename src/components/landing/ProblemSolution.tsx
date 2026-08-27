@@ -32,7 +32,7 @@ export function ProblemSolution() {
           </h2>
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-2xl border border-white/15">
+        <div className="mt-10 overflow-hidden rounded-3xl border border-white/15">
           <div className="hidden grid-cols-[1fr_auto_1fr] border-b border-white/15 bg-white/[0.06] text-xs font-black uppercase tracking-[0.16em] text-emerald-100/75 md:grid">
             <p className="p-5">Traditional tutoring friction</p>
             <span aria-hidden="true" className="w-px bg-white/15" />

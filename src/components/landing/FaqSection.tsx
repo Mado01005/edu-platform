@@ -25,7 +25,7 @@ const faqs = [
 
 export function FaqSection() {
   return (
-    <section className="bg-[#F8FAF8] py-20" id="faq">
+    <section className="py-20" id="faq">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
         <div className="max-w-lg">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#0F6E41]">
@@ -43,7 +43,7 @@ export function FaqSection() {
         <div className="space-y-3">
           {faqs.map((faq) => (
             <details
-              className="group rounded-2xl border border-emerald-950/10 bg-white p-5 open:border-[#D4AF37]/60 open:bg-[#FBF6E2]"
+              className="landing-card group rounded-3xl border border-emerald-950/5 bg-white p-5 hover:-translate-y-1 hover:shadow-lg open:border-[#D4AF37]/60 open:bg-[#FBF6E2]"
               key={faq.question}
             >
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-extrabold text-[#1A2E22] outline-none marker:hidden focus-visible:ring-4 focus-visible:ring-emerald-100">

@@ -105,6 +105,30 @@ html[data-locale='ar'] [data-language-copy='ar'] {
   to { transform: scaleX(1); }
 }
 
+@keyframes oqool-float {
+  0%, 100% { transform: translateY(0) rotate(-0.35deg); }
+  50% { transform: translateY(-7px) rotate(0.35deg); }
+}
+
+@keyframes oqool-badge-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.landing-card {
+  transition-duration: 300ms !important;
+  transition-property: transform, box-shadow, border-color, background-color !important;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.landing-float {
+  animation: oqool-float 7s ease-in-out infinite;
+}
+
+.landing-badge-float {
+  animation: oqool-badge-float 4.5s ease-in-out infinite;
+}
+
 body {
   min-height: 100dvh;
   overflow-x: hidden;
