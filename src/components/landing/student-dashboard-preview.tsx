@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import {
   BadgeCheck,
   BookOpenCheck,
@@ -19,6 +20,10 @@ export function StudentDashboardPreview() {
       <div aria-hidden="true" className="absolute inset-x-12 inset-y-8 -z-10 rounded-full bg-emerald-200/50 blur-3xl" />
       <div aria-hidden="true" className="absolute right-4 top-8 size-28 rounded-[2rem] border border-[#D4AF37]/25 bg-[#FBF6E2]/60 sm:right-10" />
       <div aria-hidden="true" className="absolute bottom-8 left-3 size-24 rounded-full border border-emerald-900/10 bg-white/60 sm:left-8" />
+
+      <div aria-hidden="true" className="absolute inset-x-5 top-6 z-0 h-44 -rotate-3 overflow-hidden rounded-[2rem] border border-[#D4AF37]/25 bg-[#084B2B] opacity-35 shadow-lg sm:inset-x-10 sm:top-8">
+        <Image alt="" className="object-cover" fill sizes="(max-width: 1024px) 90vw, 38rem" src="/brand/oqool-banner.png" />
+      </div>
 
       <div className="landing-float relative z-10 min-w-0 rounded-[2rem] border border-emerald-950/5 bg-white p-4 shadow-[0_28px_80px_rgba(8,75,43,0.14)] sm:p-6">
         <header className="flex min-w-0 items-center justify-between gap-3 border-b border-emerald-950/5 pb-5">

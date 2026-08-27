@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, PlayCircle, Star } from 'lucide-react';
+import { ArrowRight, BadgeCheck, PlayCircle } from 'lucide-react';
 import { LiveClassTicker } from '@/components/landing/live-class-ticker';
 import { StudentDashboardPreview } from '@/components/landing/student-dashboard-preview';
 import { siteConfig } from '@/config/site';
@@ -40,8 +40,9 @@ export function HeroSection({
               نُنَمِّي العقول...<br /><span className="text-[#1A2E22]">ونصنع المستقبل</span>
             </span>
           </h1>
-          <p className="mt-5 font-arabic text-lg font-black leading-9 text-[#A68020] sm:text-xl" dir="rtl" lang="ar">
-            {siteConfig.sloganArabic}
+          <p className="mt-5 text-lg font-black leading-9 text-[#A68020] sm:text-xl">
+            <span className="font-arabic" data-language-copy="en" dir="rtl" lang="ar">{siteConfig.sloganArabic}</span>
+            <span data-language-copy="ar" dir="ltr" lang="en">{siteConfig.slogan}</span>
           </p>
           <p className="mt-6 max-w-xl text-[15px] leading-7 text-slate-600 sm:text-base sm:leading-8">
             <span data-language-copy="en">
@@ -65,7 +66,7 @@ export function HeroSection({
             </Link>
             <Link
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-emerald-950/10 bg-white px-6 text-sm font-extrabold text-[#084B2B] shadow-sm outline-none transition-all duration-300 hover:-translate-y-0.5 hover:border-[#D4AF37]/70 hover:shadow-md focus-visible:ring-4 focus-visible:ring-emerald-100"
-              href="/preview"
+              href="/catalog"
             >
               <PlayCircle aria-hidden="true" className="size-4" />
               <span data-language-copy="en">Watch Free Lesson 1</span>
@@ -86,11 +87,11 @@ export function HeroSection({
               ))}
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-1 text-[#C79A16]">
-                {Array.from({ length: 5 }, (_, index) => <Star aria-hidden="true" className="size-3.5 fill-current" key={index} />)}
-                <span className="ml-1 text-xs font-black tabular-nums text-[#1A2E22]">4.9</span>
+              <div className="flex items-center gap-1.5 text-[#0F6E41]">
+                <BadgeCheck aria-hidden="true" className="size-4" />
+                <span className="text-xs font-black text-[#1A2E22]">12,000+ students reached</span>
               </div>
-              <p className="mt-1 text-[11px] font-bold text-slate-500">Trusted by ambitious students and families</p>
+              <p className="mt-1 text-[11px] font-bold text-slate-500">Built for ambitious students and informed families</p>
             </div>
           </div>
         </div>

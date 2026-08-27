@@ -6,7 +6,7 @@ import { siteConfig } from '@/config/site';
 export function Footer() {
   return (
     <footer className="bg-[#042D1A] text-white">
-      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.3fr_0.7fr_0.8fr] lg:px-8">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.35fr_0.65fr_0.7fr_0.8fr] lg:px-8">
         <div>
           <div className="flex items-center gap-4">
             <Image
@@ -29,14 +29,23 @@ export function Footer() {
           </p>
         </div>
 
-        <nav aria-label="Footer navigation" className="flex flex-col items-start gap-1 text-sm text-emerald-100/75">
-          <a className="inline-flex min-h-11 items-center hover:text-white" href="#curriculum">Curriculum · المناهج</a>
-          <a className="inline-flex min-h-11 items-center hover:text-white" href="#faculty">Faculty · هيئة التدريس</a>
+        <nav aria-label="Explore Oqool" className="flex flex-col items-start gap-1 text-sm text-emerald-100/75">
+          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#F3D878]">Explore</p>
+          <a className="inline-flex min-h-11 items-center hover:text-white" href="#why-oqool">Why Oqool</a>
+          <a className="inline-flex min-h-11 items-center hover:text-white" href="#how-it-works">How it works</a>
+          <a className="inline-flex min-h-11 items-center hover:text-white" href="#curriculum">Curriculum</a>
+        </nav>
+
+        <nav aria-label="Oqool access and legal" className="flex flex-col items-start gap-1 text-sm text-emerald-100/75">
+          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#F3D878]">Access</p>
+          <Link className="inline-flex min-h-11 items-center hover:text-white" href="/catalog">Course catalog</Link>
+          <Link className="inline-flex min-h-11 items-center hover:text-white" href="/lms/login">Student sign in</Link>
           <Link className="inline-flex min-h-11 items-center hover:text-white" href="/privacy">Privacy · الخصوصية</Link>
           <Link className="inline-flex min-h-11 items-center hover:text-white" href="/terms">Terms · الشروط</Link>
         </nav>
 
         <div>
+          <p className="mb-4 text-[10px] font-black uppercase tracking-[0.18em] text-[#F3D878]">Support</p>
           <a
             className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#D4AF37]/45 px-4 text-sm font-extrabold text-[#F3D878] hover:bg-white/5"
             href={siteConfig.support.whatsappUrl}
