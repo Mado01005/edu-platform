@@ -24,11 +24,13 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/brand/oqool-logo.png', sizes: '1254x1254', type: 'image/png' },
+    ],
+    shortcut: [
+      { url: '/brand/oqool-logo.png', sizes: '1254x1254', type: 'image/png' },
     ],
     apple: [
-      { url: '/icon-512x512.png' },
+      { url: '/brand/oqool-logo.png', sizes: '1254x1254', type: 'image/png' },
     ],
   },
   openGraph: {
