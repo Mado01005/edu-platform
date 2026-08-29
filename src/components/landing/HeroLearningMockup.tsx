@@ -9,9 +9,9 @@ import {
 import { LandingCopy } from '@/components/landing/LandingCopy';
 
 const cards = [
-  { icon: ClipboardCheck, label: { en: 'Diagnostic', ar: 'التقييم التشخيصي' }, value: { en: 'Baseline ready', ar: 'تم تحديد خط البداية' }, tone: 'bg-[#FBF6E2] text-[#8A6A16]' },
-  { icon: Target, label: { en: 'Learning gap', ar: 'الفجوة التعليمية' }, value: { en: 'Fractions & reasoning', ar: 'الكسور والاستدلال' }, tone: 'bg-rose-50 text-rose-700' },
-  { icon: BookOpenCheck, label: { en: 'Personalized plan', ar: 'الخطة المخصصة' }, value: { en: '4 focus milestones', ar: '4 محطات تركيز' }, tone: 'bg-emerald-50 text-[#084B2B]' },
+  { icon: ClipboardCheck, label: { en: 'Diagnostic', ar: 'التقييم التشخيصي' }, value: { en: 'Baseline Ready', ar: 'تم تحديد خط البداية' }, tone: 'bg-[#FBF6E2] text-[#8A6A16]' },
+  { icon: Target, label: { en: 'Learning Gap', ar: 'الفجوة التعليمية' }, value: { en: 'Fractions & Reasoning', ar: 'الكسور والاستدلال' }, tone: 'bg-rose-50 text-rose-700' },
+  { icon: BookOpenCheck, label: { en: 'Personalized Plan', ar: 'الخطة المخصصة' }, value: { en: '4 Focus Milestones', ar: '4 محطات تركيز' }, tone: 'bg-emerald-50 text-[#084B2B]' },
 ] as const;
 
 export function HeroLearningMockup() {
@@ -31,10 +31,12 @@ export function HeroLearningMockup() {
           {cards.map((card) => {
             const Icon = card.icon;
             return (
-              <article className="min-w-0 rounded-2xl border border-emerald-950/8 bg-white p-4" key={card.label.en}>
+              <article className="flex min-w-0 flex-col items-start rounded-2xl border border-emerald-950/8 bg-white p-4" key={card.label.en}>
                 <span className={`flex size-9 items-center justify-center rounded-xl ${card.tone}`}><Icon aria-hidden="true" className="size-4" /></span>
-                <LandingCopy className="mt-4 block text-[10px] font-black uppercase tracking-[0.12em] text-slate-500">{card.label}</LandingCopy>
-                <LandingCopy className="mt-1 block break-words text-sm font-black text-[#1A2E22]">{card.value}</LandingCopy>
+                <div className="mt-4 flex w-full min-w-0 flex-col gap-1.5">
+                  <LandingCopy className="block w-full break-normal text-xs font-extrabold uppercase leading-4 tracking-[0.12em] text-slate-500">{card.label}</LandingCopy>
+                  <LandingCopy className="block w-full break-normal text-pretty text-sm font-black leading-5 text-[#1A2E22] sm:text-base">{card.value}</LandingCopy>
+                </div>
               </article>
             );
           })}
@@ -53,7 +55,6 @@ export function HeroLearningMockup() {
                 </span>
               ))}
             </div>
-            <LandingCopy className="mt-4 block text-[11px] leading-5 text-slate-500">{{ en: 'Illustrative pattern only — not a real student result.', ar: 'عرض توضيحي فقط — وليس نتيجة لطالب حقيقي.' }}</LandingCopy>
           </article>
 
           <div className="grid gap-3">
@@ -73,4 +74,3 @@ export function HeroLearningMockup() {
     </div>
   );
 }
-
