@@ -12,9 +12,9 @@ export const siteConfig = {
     { icon: '🎯', label: 'Achieve More', labelArabic: 'أنجز أكثر' },
   ],
   support: {
-    email: 'support@edu-platform.me',
-    phone: '+201025272693',
-    whatsappUrl: 'https://wa.me/201025272693',
+    email: 'support@oqoolacademy.com',
+    phone: '+966596899362',
+    whatsappUrl: 'https://wa.me/966596899362',
   },
   values: [
     {

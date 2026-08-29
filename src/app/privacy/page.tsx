@@ -14,7 +14,7 @@ const sections: readonly LegalSection[] = [
     content: (
       <>
         <p>Oqool Academy provides structured online learning, live classes, assignments, course resources, and student-support services. This policy explains how we handle personal information when students, parents, instructors, and administrators use our websites and learning platform.</p>
-        <p>“Oqool Academy,” “we,” and “our” refer to the academy service operating through <strong>edu-platform.me</strong>. Questions can be sent to <a href="mailto:support@edu-platform.me">support@edu-platform.me</a>.</p>
+        <p>“Oqool Academy,” “we,” and “our” refer to the academy service operating through <strong>edu-platform.me</strong>. Questions can be sent to <a href="mailto:support@oqoolacademy.com">support@oqoolacademy.com</a>.</p>
       </>
     ),
   },
@@ -103,7 +103,7 @@ const sections: readonly LegalSection[] = [
     content: (
       <>
         <p>Depending on applicable law, users or guardians may request access, correction, deletion, restriction, or a copy of personal information. Some records cannot be deleted immediately when they are needed for academic integrity, financial audit history, fraud prevention, dispute resolution, or legal compliance.</p>
-        <p>Send a request from the account email to <a href="mailto:support@edu-platform.me">support@edu-platform.me</a>. We may verify identity and authority before acting on a request.</p>
+        <p>Send a request from the account email to <a href="mailto:support@oqoolacademy.com">support@oqoolacademy.com</a>. We may verify identity and authority before acting on a request.</p>
       </>
     ),
   },
@@ -114,7 +114,7 @@ const sections: readonly LegalSection[] = [
     content: (
       <>
         <p>We may update this policy when the service, providers, or legal requirements change. The effective date at the top identifies the current version. Material changes may also be announced through the platform or registered contact details.</p>
-        <p>Privacy questions and requests: <a href="mailto:support@edu-platform.me">support@edu-platform.me</a>.</p>
+        <p>Privacy questions and requests: <a href="mailto:support@oqoolacademy.com">support@oqoolacademy.com</a>.</p>
       </>
     ),
   },

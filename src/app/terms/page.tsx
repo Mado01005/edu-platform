@@ -132,7 +132,7 @@ const sections: readonly LegalSection[] = [
     content: (
       <>
         <p>We may update these terms to reflect service, legal, security, or operational changes. The effective date identifies the current version. Material changes may be announced through the platform or registered contact details; continued use after the effective date means the updated terms apply where permitted by law.</p>
-        <p>Questions, payment disputes, and account notices can be sent to <a href="mailto:support@edu-platform.me">support@edu-platform.me</a>.</p>
+        <p>Questions, payment disputes, and account notices can be sent to <a href="mailto:support@oqoolacademy.com">support@oqoolacademy.com</a>.</p>
       </>
     ),
   },

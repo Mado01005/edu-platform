@@ -8,8 +8,7 @@ export type LandingEventName =
   | 'hero_free_lesson_click'
   | 'navbar_diagnostic_click'
   | 'whatsapp_click'
-  | 'sign_in_click'
-  | 'catalog_click'
+  | 'curriculum_anchor_click'
   | 'preview_lesson_click'
   | 'curriculum_tab_change'
   | 'grade_select'
@@ -26,4 +25,3 @@ export type LandingTestimonial = Readonly<{
   attribution: LocalizedText;
   consentVerified: true;
 }>;
-

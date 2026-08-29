@@ -133,9 +133,9 @@ export function LegalPageShell({
           <nav aria-label="Legal and contact links" className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-emerald-100/75">
             <Link className="hover:text-white" href="/privacy">Privacy</Link>
             <Link className="hover:text-white" href="/terms">Terms</Link>
-            <a className="inline-flex items-center gap-2 hover:text-white" href="mailto:support@edu-platform.me">
+            <a className="inline-flex items-center gap-2 hover:text-white" href="mailto:support@oqoolacademy.com">
               <Mail aria-hidden="true" className="size-4" />
-              support@edu-platform.me
+              support@oqoolacademy.com
             </a>
           </nav>
         </div>

@@ -11,8 +11,6 @@ import { trackLandingEvent } from '@/lib/landing/analytics';
 import { landingContent } from '@/lib/landing/content';
 import { getWhatsAppUrl, siteConfig } from '@/lib/siteConfig';
 
-const signInText = { en: 'Sign In', ar: 'تسجيل الدخول' } as const;
-
 export function FloatingNavbar() {
   const { locale, setLocale } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,14 +89,6 @@ export function FloatingNavbar() {
             >
               <MessageCircle aria-hidden="true" className="size-4" />
               <LandingCopy>{landingContent.hero.primary}</LandingCopy>
-            </ConversionLink>
-            <ConversionLink
-              className="hidden min-h-11 items-center justify-center rounded-full border border-emerald-950/10 bg-white px-4 text-xs font-black text-[#084B2B] outline-none hover:bg-[#F2F6F1] focus-visible:ring-4 focus-visible:ring-emerald-100 sm:inline-flex"
-              eventName="sign_in_click"
-              href={siteConfig.routes.login}
-              label="navbar"
-            >
-              <LandingCopy>{signInText}</LandingCopy>
             </ConversionLink>
             <button
               aria-controls="landing-mobile-menu"

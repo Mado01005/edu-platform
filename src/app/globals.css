@@ -113,19 +113,6 @@ html[data-locale='en'] [data-language-copy='en'] {
   mask-image: linear-gradient(to bottom, black, transparent 88%);
 }
 
-@keyframes oqool-ticker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.oqool-ticker {
-  animation: oqool-ticker 34s linear infinite;
-}
-
-html[dir='rtl'] .oqool-ticker {
-  animation-direction: reverse;
-}
-
 @keyframes oqool-progress {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }

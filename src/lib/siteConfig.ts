@@ -1,6 +1,6 @@
 import type { Locale } from '@/lib/landing/types';
 
-const FALLBACK_WHATSAPP_NUMBER = '201025272693';
+const FALLBACK_WHATSAPP_NUMBER = '966596899362';
 
 function digitsOnly(value: string) {
   return value.replace(/\D/g, '');
@@ -17,8 +17,6 @@ export const siteConfig = {
   url: 'https://oqoolacademy.com',
   routes: {
     home: '/',
-    login: '/lms/login',
-    catalog: '/catalog',
     privacy: '/privacy',
     terms: '/terms',
   },
@@ -51,4 +49,3 @@ export function getWhatsAppUrl(intent: WhatsAppIntent, locale: Locale) {
   const message = siteConfig.whatsapp.messages[intent][locale];
   return `https://wa.me/${siteConfig.whatsapp.number}?text=${encodeURIComponent(message)}`;
 }
-

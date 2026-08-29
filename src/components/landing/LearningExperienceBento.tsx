@@ -1,9 +1,8 @@
 import { BookMarked, Calculator, ClipboardCheck, Laptop2, MessageSquareText, Radio } from 'lucide-react';
-import { ConversionLink } from '@/components/landing/ConversionLink';
+import { WhatsAppLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { landingContent } from '@/lib/landing/content';
 import { landingFeatureFlags } from '@/lib/landing/featureFlags';
-import { siteConfig } from '@/lib/siteConfig';
 
 const visuals = { diagnostic: ClipboardCheck, assessment: Calculator, resources: BookMarked, devices: Laptop2, parents: MessageSquareText, live: Radio } as const;
 const cardClasses = ['md:col-span-7 bg-white', 'md:col-span-5 bg-[#084B2B] text-white', 'md:col-span-5 bg-[#F1F5EF]', 'md:col-span-7 bg-white', 'md:col-span-7 bg-[#FBF6E2]', 'md:col-span-5 bg-[#042D1A] text-white'] as const;
@@ -42,12 +41,11 @@ export function LearningExperienceBento() {
           })}
         </div>
         <div className="mt-8 flex justify-center">
-          <ConversionLink className="inline-flex min-h-12 items-center justify-center rounded-full border border-emerald-950/12 bg-white px-6 text-sm font-black text-[#084B2B] outline-none hover:border-[#D4AF37] hover:bg-[#FBF6E2] focus-visible:ring-4 focus-visible:ring-emerald-100" eventName="preview_lesson_click" href={siteConfig.routes.catalog} label="learning_experience">
-            <LandingCopy>{{ en: 'Preview Lesson', ar: 'شاهد حصة تجريبية' }}</LandingCopy>
-          </ConversionLink>
+          <WhatsAppLink className="inline-flex min-h-12 items-center justify-center rounded-full border border-emerald-950/12 bg-white px-6 text-sm font-black text-[#084B2B] outline-none hover:border-[#D4AF37] hover:bg-[#FBF6E2] focus-visible:ring-4 focus-visible:ring-emerald-100" eventName="preview_lesson_click" intent="freeLesson" label="learning_experience">
+            {{ en: 'Preview Lesson', ar: 'شاهد حصة تجريبية' }}
+          </WhatsAppLink>
         </div>
       </div>
     </section>
   );
 }
-

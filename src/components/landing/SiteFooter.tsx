@@ -26,8 +26,7 @@ export function SiteFooter() {
 
         <nav aria-label="Oqool access and legal" className="flex flex-col items-start text-sm text-emerald-100/75">
           <LandingCopy className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#E7CD78]">{landingContent.footer.access}</LandingCopy>
-          <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href={siteConfig.routes.catalog}><LandingCopy>{{ en: 'Curriculum', ar: 'المناهج' }}</LandingCopy></Link>
-          <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href={siteConfig.routes.login}><LandingCopy>{{ en: 'Sign In', ar: 'تسجيل الدخول' }}</LandingCopy></Link>
+          <a className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href="#curriculum"><LandingCopy>{{ en: 'Curriculum', ar: 'المناهج' }}</LandingCopy></a>
           <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href={siteConfig.routes.privacy}><LandingCopy>{{ en: 'Privacy', ar: 'الخصوصية' }}</LandingCopy></Link>
           <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href={siteConfig.routes.terms}><LandingCopy>{{ en: 'Terms', ar: 'الشروط' }}</LandingCopy></Link>
         </nav>
@@ -38,4 +37,3 @@ export function SiteFooter() {
     </footer>
   );
 }
-

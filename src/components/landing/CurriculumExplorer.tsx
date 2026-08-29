@@ -1,14 +1,12 @@
 'use client';
 
-import { ArrowUpRight, BookOpen, GraduationCap } from 'lucide-react';
+import { BookOpen, GraduationCap } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { ConversionLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { useLanguage } from '@/components/i18n/language-provider';
 import { trackLandingEvent } from '@/lib/landing/analytics';
 import { curriculumAvailability, landingContent } from '@/lib/landing/content';
 import type { CurriculumId } from '@/lib/landing/types';
-import { siteConfig } from '@/lib/siteConfig';
 
 export function CurriculumExplorer() {
   const { locale } = useLanguage();
@@ -36,9 +34,6 @@ export function CurriculumExplorer() {
             <LandingCopy className="mt-6 block text-xs font-black uppercase tracking-[0.18em] text-[#0F6E41]">{landingContent.curriculum.eyebrow}</LandingCopy>
             <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-[#042D1A] sm:text-5xl">{landingContent.curriculum.title}</LandingCopy>
             <LandingCopy as="p" className="mt-5 text-sm leading-7 text-slate-600 sm:text-base">{landingContent.curriculum.description}</LandingCopy>
-            <ConversionLink className="mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#084B2B] px-6 text-sm font-black text-white outline-none hover:bg-[#0F6E41] focus-visible:ring-4 focus-visible:ring-emerald-200" eventName="catalog_click" href={siteConfig.routes.catalog} label="curriculum_explorer">
-              <LandingCopy>{landingContent.curriculum.explore}</LandingCopy><ArrowUpRight aria-hidden="true" className="size-4 rtl:-scale-x-100" />
-            </ConversionLink>
           </div>
 
           <div className="min-w-0 rounded-[2rem] border border-emerald-950/10 bg-white p-4 sm:p-6">

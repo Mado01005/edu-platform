@@ -24,10 +24,7 @@ export function OutcomesSection() {
           </div>
         ) : (
           <div className="mt-12 overflow-hidden rounded-[2rem] border border-emerald-950/10 bg-white p-5 sm:p-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-2xl bg-[#084B2B] text-[#E7CD78]"><Eye aria-hidden="true" className="size-5" /></span><LandingCopy as="h3" className="font-black text-[#042D1A]">{landingContent.outcomes.sampleLabel}</LandingCopy></div>
-              <LandingCopy className="w-fit rounded-full border border-[#D4AF37]/40 bg-[#FBF6E2] px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-[#8A6A16]">{{ en: 'Illustrative — no real student data', ar: 'توضيحي — لا يتضمن بيانات طالب حقيقي' }}</LandingCopy>
-            </div>
+            <div className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-2xl bg-[#084B2B] text-[#E7CD78]"><Eye aria-hidden="true" className="size-5" /></span><LandingCopy as="h3" className="font-black text-[#042D1A]">{landingContent.outcomes.sampleLabel}</LandingCopy></div>
             <ol className="mt-8 grid gap-3 md:grid-cols-5">
               {landingContent.outcomes.sequence.map((item, index) => (
                 <li className="relative flex min-h-28 flex-col justify-between rounded-2xl bg-[#F7F8F4] p-4" key={item.en}>

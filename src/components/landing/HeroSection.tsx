@@ -3,7 +3,6 @@ import { ConversionLink, WhatsAppLink } from '@/components/landing/ConversionLin
 import { HeroLearningMockup } from '@/components/landing/HeroLearningMockup';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { landingContent } from '@/lib/landing/content';
-import { siteConfig } from '@/lib/siteConfig';
 
 export function HeroSection() {
   return (
@@ -33,7 +32,7 @@ export function HeroSection() {
             <WhatsAppLink className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-emerald-950/12 bg-white px-6 text-sm font-black text-[#084B2B] outline-none hover:-translate-y-0.5 hover:border-[#D4AF37]/70 hover:bg-[#FBF6E2] focus-visible:ring-4 focus-visible:ring-emerald-100" eventName="hero_free_lesson_click" intent="freeLesson" label="hero_free_lesson">
               {landingContent.hero.secondary}
             </WhatsAppLink>
-            <ConversionLink className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-black text-[#084B2B] underline decoration-[#D4AF37] decoration-2 underline-offset-4 outline-none hover:text-[#0F6E41] focus-visible:ring-4 focus-visible:ring-emerald-100" eventName="catalog_click" href={siteConfig.routes.catalog} label="hero">
+            <ConversionLink className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-black text-[#084B2B] underline decoration-[#D4AF37] decoration-2 underline-offset-4 outline-none hover:text-[#0F6E41] focus-visible:ring-4 focus-visible:ring-emerald-100" eventName="curriculum_anchor_click" href="#curriculum" label="hero">
               <LandingCopy>{landingContent.hero.tertiary}</LandingCopy>
               <ArrowUpRight aria-hidden="true" className="size-4 rtl:-scale-x-100" />
             </ConversionLink>
@@ -49,15 +48,15 @@ export function HeroSection() {
       </div>
 
       <div className="mx-auto mt-12 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-full border border-emerald-950/8 bg-white py-3" aria-label="Oqool learning services">
-          <div className="oqool-ticker flex w-max items-center gap-7 px-5 text-[10px] font-black uppercase tracking-[0.14em] text-slate-600 sm:text-xs">
-            {[...landingContent.ticker, ...landingContent.ticker].map((item, index) => (
-              <span className="flex shrink-0 items-center gap-2" key={`${item.en}-${index}`}>
-                <MessageCircle aria-hidden="true" className="size-3.5 text-[#0F6E41]" />
-                <LandingCopy>{item}</LandingCopy>
-              </span>
+        <div className="rounded-[1.75rem] border border-emerald-950/8 bg-white p-2 sm:p-3 lg:rounded-full" aria-label="Oqool learning services">
+          <ul className="grid grid-cols-2 gap-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-slate-600 md:grid-cols-3 lg:grid-cols-6 lg:text-[11px]" role="list">
+            {landingContent.ticker.map((item) => (
+              <li className="flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-full bg-[#F8FAF8] px-3 py-2 text-center leading-4" key={item.en}>
+                <MessageCircle aria-hidden="true" className="size-3.5 shrink-0 text-[#0F6E41]" />
+                <LandingCopy className="min-w-0">{item}</LandingCopy>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
     </section>

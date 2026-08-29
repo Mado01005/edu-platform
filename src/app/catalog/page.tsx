@@ -404,7 +404,7 @@ export default async function CatalogPage({
           <nav aria-label="Legal and support links" className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link className="hover:text-white" href="/privacy">Privacy</Link>
             <Link className="hover:text-white" href="/terms">Terms</Link>
-            <a className="hover:text-white" href="mailto:support@edu-platform.me">Support</a>
+            <a className="hover:text-white" href="mailto:support@oqoolacademy.com">Support</a>
           </nav>
         </div>
       </footer>
