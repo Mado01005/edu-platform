@@ -84,7 +84,11 @@ html[data-locale='ar'] [data-language-copy='en'] {
 }
 
 html[data-locale='ar'] [data-language-copy='ar'] {
-  display: inline;
+  display: revert;
+}
+
+html[data-locale='en'] [data-language-copy='en'] {
+  display: revert;
 }
 
 .font-arabic {
@@ -98,6 +102,28 @@ html[data-locale='ar'] [data-language-copy='ar'] {
     linear-gradient(rgba(8, 75, 43, 0.035) 1px, transparent 1px);
   background-size: auto, 48px 48px, 48px 48px;
   mask-image: linear-gradient(to left, black, transparent 72%);
+}
+
+.oqool-hero-grid {
+  background-image:
+    linear-gradient(rgba(8, 75, 43, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8, 75, 43, 0.035) 1px, transparent 1px);
+  background-position: center;
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+}
+
+@keyframes oqool-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.oqool-ticker {
+  animation: oqool-ticker 34s linear infinite;
+}
+
+html[dir='rtl'] .oqool-ticker {
+  animation-direction: reverse;
 }
 
 @keyframes oqool-progress {

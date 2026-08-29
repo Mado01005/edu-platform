@@ -1,189 +1,90 @@
 import type { Metadata } from 'next';
-import { BentoGridFeatures } from '@/components/landing/BentoGridFeatures';
-import { FaqAccordion } from '@/components/landing/FaqAccordion';
-import { FinalCta } from '@/components/landing/FinalCta';
-import { Footer } from '@/components/landing/Footer';
+import { CurriculumExplorer } from '@/components/landing/CurriculumExplorer';
+import { FAQSection } from '@/components/landing/FaqSection';
+import { FinalCTASection } from '@/components/landing/FinalCTASection';
+import { FloatingNavbar } from '@/components/landing/FloatingNavbar';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { HowItWorks } from '@/components/landing/HowItWorks';
-import { Navbar } from '@/components/landing/Navbar';
-import { ProblemSolution } from '@/components/landing/ProblemSolution';
-import { SubjectExplorer, type LandingCourse } from '@/components/landing/SubjectExplorer';
-import { Testimonials } from '@/components/landing/Testimonials';
-import { TrustBar, type LandingFaculty } from '@/components/landing/TrustBar';
-import { getPrisma } from '@/lib/prisma';
+import { LandingAnalytics } from '@/components/landing/LandingAnalytics';
+import { LearningExperienceBento } from '@/components/landing/LearningExperienceBento';
+import { MobileConversionBar } from '@/components/landing/MobileConversionBar';
+import { OutcomesSection } from '@/components/landing/OutcomesSection';
+import { ProblemSection } from '@/components/landing/ProblemSection';
+import { SiteFooter } from '@/components/landing/SiteFooter';
+import { SolutionFramework } from '@/components/landing/SolutionFramework';
+import { TrustBar } from '@/components/landing/TrustBar';
+import { siteConfig } from '@/lib/siteConfig';
 
-export const dynamic = 'force-dynamic';
+const description =
+  'Oqool Academy provides structured live online learning for students in Saudi Arabia and the UAE through diagnostic assessment, personalized learning plans, carefully selected teachers, and continuous progress tracking.';
 
 export const metadata: Metadata = {
-  title: 'Oqool Academy | أكاديمية عقول',
-  description:
-    'English-first bilingual secondary STEM mastery for Egypt and Saudi Arabia, with live teaching, structured curriculum, exams, and parent progress tracking.',
+  title: 'Oqool Academy | Personalized Online Learning for Grades 1–12',
+  description,
+  alternates: { canonical: `${siteConfig.url}/` },
+  openGraph: {
+    title: 'Oqool Academy | A Learning Journey Built Around Your Child',
+    description,
+    images: [
+      {
+        url: `${siteConfig.url}${siteConfig.brand.banner}`,
+        width: 1942,
+        height: 809,
+        alt: 'Oqool Academy official banner',
+      },
+    ],
+    locale: 'en_US',
+    siteName: siteConfig.name,
+    type: 'website',
+    url: `${siteConfig.url}/`,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Oqool Academy | Personalized Online Learning for Grades 1–12',
+    description,
+    images: [`${siteConfig.url}${siteConfig.brand.banner}`],
+  },
 };
 
-const FALLBACK_COURSES: LandingCourse[] = [
-  'Physics',
-  'Pure Mathematics',
-  'Mechanics',
-  'Chemistry',
-  'Biology',
-].map((subject, index) => ({
-  chapterCount: 0,
-  grade: (['1st Sec', '2nd Sec', '3rd Sec'] as const)[index % 3],
-  id: `path-${subject.toLowerCase().replaceAll(' ', '-')}`,
-  instructorAvatar: null,
-  instructorName: 'Oqool Faculty',
-  previewLessonId: null,
-  subject: subject as LandingCourse['subject'],
-  title: `${subject} mastery path`,
-}));
+const educationalOrganization = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  name: siteConfig.name,
+  alternateName: siteConfig.arabicName,
+  url: siteConfig.url,
+  logo: `${siteConfig.url}${siteConfig.brand.logo}`,
+  description,
+  areaServed: ['Saudi Arabia', 'United Arab Emirates'],
+};
 
-function secondaryGrade(value: string | null): LandingCourse['grade'] | null {
-  if (value === 'GRADE_10') return '1st Sec';
-  if (value === 'GRADE_11') return '2nd Sec';
-  if (value === 'GRADE_12') return '3rd Sec';
-  return null;
-}
-
-function courseSubject(value: string): LandingCourse['subject'] | null {
-  const normalized = value.toLowerCase();
-  if (normalized.includes('mechanic')) return 'Mechanics';
-  if (normalized.includes('physics')) return 'Physics';
-  if (normalized.includes('chem')) return 'Chemistry';
-  if (normalized.includes('bio')) return 'Biology';
-  if (
-    normalized.includes('math') ||
-    normalized.includes('calculus') ||
-    normalized.includes('algebra')
-  ) {
-    return 'Pure Mathematics';
-  }
-  return null;
-}
-
-async function landingData() {
-  try {
-    const prisma = getPrisma();
-    const [courses, faculty, nextClass] = await Promise.all([
-      prisma.course.findMany({
-        where: { isPublished: true },
-        orderBy: { title: 'asc' },
-        select: {
-          gradeLevel: true,
-          id: true,
-          modules: {
-            orderBy: { position: 'asc' },
-            select: {
-              lessons: {
-                orderBy: { position: 'asc' },
-                select: { id: true, isFree: true },
-              },
-            },
-          },
-          subject: { select: { name: true } },
-          teacher: { select: { avatarUrl: true, name: true } },
-          title: true,
-        },
-      }),
-      prisma.user.findMany({
-        where: {
-          status: 'ACTIVE',
-          OR: [{ role: 'TEACHER' }, { courses: { some: { isPublished: true } } }],
-        },
-        orderBy: { name: 'asc' },
-        select: {
-          avatarUrl: true,
-          bio: true,
-          headline: true,
-          id: true,
-          name: true,
-          teacherSubjects: { select: { name: true } },
-        },
-        take: 6,
-      }),
-      prisma.zoomSession.findFirst({
-        where: { startTime: { gte: new Date() }, course: { isPublished: true } },
-        orderBy: { startTime: 'asc' },
-        select: { startTime: true, title: true },
-      }),
-    ]);
-
-    const published: LandingCourse[] = courses.flatMap((course) => {
-      const grade = secondaryGrade(course.gradeLevel);
-      const subject = courseSubject(
-        `${course.subject?.name ?? ''} ${course.title}`,
-      );
-      if (!grade || !subject) return [];
-
-      const lessons = course.modules.flatMap((module) => module.lessons);
-      return [{
-        chapterCount: course.modules.length,
-        grade,
-        id: course.id,
-        instructorAvatar: course.teacher.avatarUrl,
-        instructorName: course.teacher.name ?? 'Oqool Faculty',
-        previewLessonId: lessons.find((lesson) => lesson.isFree)?.id ?? null,
-        subject,
-        title: course.title,
-      }];
-    });
-    const facultyCards: LandingFaculty[] = faculty.map((teacher) => ({
-      avatarUrl: teacher.avatarUrl,
-      credential:
-        teacher.headline ??
-        teacher.bio?.slice(0, 120) ??
-        'Oqool Academy academic specialist',
-      id: teacher.id,
-      name: teacher.name ?? 'Oqool Faculty Member',
-      subjects: teacher.teacherSubjects.map((subject) => subject.name).slice(0, 4),
-    }));
-
-    return {
-      courses: published.length ? published : FALLBACK_COURSES,
-      faculty: facultyCards.length
-        ? facultyCards
-        : [{
-            avatarUrl: null,
-            credential: 'Secondary education subject specialist',
-            id: 'oqool-faculty',
-            name: 'Oqool Academic Faculty',
-            subjects: ['Mathematics', 'Sciences', 'Languages'],
-          }],
-      nextClass: nextClass
-        ? { startTime: nextClass.startTime.toISOString(), title: nextClass.title }
-        : null,
-    };
-  } catch (error) {
-    console.error('[LANDING_DATA]', error);
-    return {
-      courses: FALLBACK_COURSES,
-      faculty: [{
-        avatarUrl: null,
-        credential: 'Secondary education subject specialist',
-        id: 'oqool-faculty',
-        name: 'Oqool Academic Faculty',
-        subjects: ['Mathematics', 'Sciences', 'Languages'],
-      }],
-      nextClass: null,
-    };
-  }
-}
-
-export default async function RootPage() {
-  const data = await landingData();
-
+export default function RootPage() {
   return (
-    <main className="min-h-dvh w-full min-w-0 max-w-full overflow-x-clip bg-[#FAFAF7] bg-[radial-gradient(circle_at_10%_8%,rgba(167,243,208,0.30),transparent_28%),radial-gradient(circle_at_92%_22%,rgba(254,243,199,0.48),transparent_28%)] text-[#1A2E22]">
-      <Navbar />
-      <HeroSection nextClass={data.nextClass} />
-      <TrustBar faculty={data.faculty} />
-      <ProblemSolution />
-      <BentoGridFeatures />
-      <HowItWorks />
-      <SubjectExplorer courses={data.courses} />
-      <Testimonials />
-      <FaqAccordion />
-      <FinalCta />
-      <Footer />
-    </main>
+    <div className="min-h-dvh w-full min-w-0 max-w-full overflow-x-hidden bg-[#FAFAF7] text-[#1A2E22]">
+      <a className="sr-only z-[100] rounded-lg bg-white px-4 py-3 text-[#084B2B] focus:not-sr-only focus:fixed focus:left-4 focus:top-4" href="#main-content">
+        Skip to main content
+      </a>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(educationalOrganization).replace(/</g, '\\u003c'),
+        }}
+        type="application/ld+json"
+      />
+      <LandingAnalytics />
+      <FloatingNavbar />
+      <main id="main-content">
+        <HeroSection />
+        <TrustBar />
+        <ProblemSection />
+        <SolutionFramework />
+        <LearningExperienceBento />
+        <HowItWorks />
+        <CurriculumExplorer />
+        <OutcomesSection />
+        <FAQSection />
+        <FinalCTASection />
+      </main>
+      <SiteFooter />
+      <MobileConversionBar />
+    </div>
   );
 }
