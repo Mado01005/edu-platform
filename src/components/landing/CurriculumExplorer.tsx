@@ -37,9 +37,10 @@ export function CurriculumExplorer() {
           </div>
 
           <div className="min-w-0 rounded-[2rem] border border-emerald-950/10 bg-white p-4 sm:p-6">
-            <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#F1F5EF] p-1.5" role="tablist" aria-label={locale === 'ar' ? 'اختر المنهج' : 'Choose curriculum'}>
+            <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">{landingContent.curriculum.tracksLabel}</LandingCopy>
+            <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl bg-[#F1F5EF] p-1.5" role="tablist" aria-label={locale === 'ar' ? 'اختر المنهج' : 'Choose curriculum'}>
               {(Object.keys(curriculumAvailability) as CurriculumId[]).map((id) => (
-                <button aria-selected={curriculumId === id} className={`min-h-12 min-w-0 rounded-xl px-3 text-xs font-black outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 sm:text-sm ${curriculumId === id ? 'bg-[#084B2B] text-white shadow-sm' : 'text-slate-600 hover:bg-white'}`} key={id} onClick={() => selectCurriculum(id)} role="tab" type="button">
+                <button aria-selected={curriculumId === id} className={`min-h-12 min-w-0 rounded-xl px-3 py-2 text-xs font-black leading-5 outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 sm:text-sm ${curriculumId === id ? 'bg-[#084B2B] text-white shadow-sm' : 'text-slate-600 hover:bg-white'}`} key={id} onClick={() => selectCurriculum(id)} role="tab" type="button">
                   <LandingCopy>{curriculumAvailability[id].label}</LandingCopy>
                 </button>
               ))}

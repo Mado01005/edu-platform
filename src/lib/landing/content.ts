@@ -6,6 +6,12 @@ import type {
 
 const text = (en: string, ar: string): LocalizedText => ({ en, ar });
 
+const curriculumLabels = {
+  combined: text('National & International Curricula', 'المناهج الوطنية والدولية'),
+  national: text('National Curriculum', 'المنهج الوطني'),
+  international: text('International Curriculum', 'المنهج الدولي'),
+} as const;
+
 export const landingContent = {
   navigation: [
     { href: '#how-it-works', label: text('How It Works', 'كيف نعمل') },
@@ -25,8 +31,8 @@ export const landingContent = {
       'نحدد الفجوات التعليمية، ونبني خطة تعلم مخصصة، ونختار المعلم المناسب، ثم نتابع التقدم الأكاديمي باستمرار.',
     ),
     qualifier: text(
-      'Grades 1–12 • National & international Curricula • Live Online Classes • KSA & UAE',
-      'الصفوف 1–12 • المنهجان السعودي والأمريكي • حصص مباشرة عبر الإنترنت • السعودية والإمارات',
+      `Grades 1–12 • ${curriculumLabels.combined.en} • Live Online Classes • KSA & UAE`,
+      `الصفوف 1–12 • ${curriculumLabels.combined.ar} • حصص مباشرة عبر الإنترنت • السعودية والإمارات`,
     ),
     primary: text('Book Your FREE Diagnostic Assessment', 'احجز التقييم التشخيصي المجاني'),
     secondary: text('Try Your First Lesson FREE', 'جرّب الحصة الأولى مجانًا'),
@@ -37,8 +43,7 @@ export const landingContent = {
     text('Free Diagnostic Assessment', 'تقييم تشخيصي مجاني'),
     text('Personalized Learning Plans', 'خطط تعلم مخصصة'),
     text('Parent Progress Visibility', 'متابعة واضحة لولي الأمر'),
-    text('Saudi Curriculum', 'المنهج السعودي'),
-    text('American Curriculum', 'المنهج الأمريكي'),
+    curriculumLabels.combined,
   ],
   trust: {
     label: text('Built on a clearer academic process', 'منهج أكاديمي واضح من البداية'),
@@ -47,7 +52,7 @@ export const landingContent = {
       text('Teacher Selection & Academic Evaluation', 'اختيار المعلم وتقييمه أكاديميًا'),
       text('Personalized Learning Plans', 'خطط تعلم مخصصة'),
       text('Parent Progress Visibility', 'رؤية واضحة لتقدم الطالب'),
-      text('Saudi + American Curricula', 'المنهجان السعودي والأمريكي'),
+      curriculumLabels.combined,
       text('KSA + UAE', 'السعودية والإمارات'),
     ],
   },
@@ -173,6 +178,7 @@ export const landingContent = {
     eyebrow: text('Curriculum & grade explorer', 'استكشف المنهج والصف الدراسي'),
     title: text('Find the right academic starting point.', 'اعثر على نقطة البداية الأكاديمية المناسبة.'),
     description: text('Explore representative learning areas across every grade. Arabic is available across both National and International curricula.', 'استكشف مجالات التعلم الرئيسية في كل صف. اللغة العربية متاحة في المنهجين الوطني والدولي.'),
+    tracksLabel: curriculumLabels.combined,
     gradesLabel: text('Choose a grade', 'اختر الصف'),
     subjectsLabel: text('Learning focus', 'مجالات التعلم'),
   },
@@ -229,7 +235,7 @@ const arabicSubject = text('Arabic', 'اللغة العربية');
 export const curriculumAvailability = {
   saudi: {
     id: 'saudi',
-    label: text('Saudi National Curriculum', 'المنهج الوطني السعودي'),
+    label: curriculumLabels.national,
     grades: [
       { id: 'saudi-1-3', label: text('Grades 1–3', 'الصفوف 1–3'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
       { id: 'saudi-4-6', label: text('Grades 4–6', 'الصفوف 4–6'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
@@ -241,7 +247,7 @@ export const curriculumAvailability = {
   },
   american: {
     id: 'american',
-    label: text('American Curriculum', 'المنهج الأمريكي'),
+    label: curriculumLabels.international,
     grades: [
       { id: 'american-1-3', label: text('Grades 1–3', 'الصفوف 1–3'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
       { id: 'american-4-6', label: text('Grades 4–6', 'الصفوف 4–6'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },

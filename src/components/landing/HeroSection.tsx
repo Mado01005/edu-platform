@@ -49,7 +49,7 @@ export function HeroSection() {
 
       <div className="mx-auto mt-12 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="rounded-[1.75rem] border border-emerald-950/8 bg-white p-2 sm:p-3 lg:rounded-full" aria-label="Oqool learning services">
-          <ul className="grid grid-cols-2 gap-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-slate-600 md:grid-cols-3 lg:grid-cols-6 lg:text-[11px]" role="list">
+          <ul className="grid grid-cols-2 gap-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-slate-600 md:grid-cols-3 lg:grid-cols-5 lg:text-[11px]" role="list">
             {landingContent.ticker.map((item) => (
               <li className="flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-full bg-[#F8FAF8] px-3 py-2 text-center leading-4" key={item.en}>
                 <MessageCircle aria-hidden="true" className="size-3.5 shrink-0 text-[#0F6E41]" />
