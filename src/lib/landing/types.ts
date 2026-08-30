@@ -7,6 +7,7 @@ export type LandingEventName =
   | 'hero_diagnostic_click'
   | 'hero_free_lesson_click'
   | 'navbar_diagnostic_click'
+  | 'contact_whatsapp_click'
   | 'whatsapp_click'
   | 'curriculum_anchor_click'
   | 'preview_lesson_click'

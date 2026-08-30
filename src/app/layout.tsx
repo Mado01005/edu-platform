@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Cairo, Inter } from 'next/font/google';
+import { cookies } from 'next/headers';
 import Script from 'next/script';
-import { PWAInstallPrompt } from '@/components/LazyWidgets';
 import Providers from '@/components/Providers';
 import { WorkspaceEnhancements } from '@/components/WorkspaceEnhancements';
 import './globals.css';
@@ -10,6 +10,7 @@ import 'katex/dist/katex.min.css';
 import { auth } from '@/auth';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { LanguageProvider } from '@/components/i18n/language-provider';
+import { LANGUAGE_PREFERENCE_KEY, resolveLocale } from '@/lib/i18n';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-english' });
 const cairo = Cairo({ subsets: ['arabic'], display: 'swap', variable: '--font-arabic' });
@@ -46,7 +47,8 @@ export const metadata: Metadata = {
         alt: 'Oqool Academy — Grow Minds. Shape the Future.',
       },
     ],
-    locale: 'en_US',
+    locale: 'ar_SA',
+    alternateLocale: ['en_US'],
     type: 'website',
   },
   twitter: {
@@ -70,33 +72,35 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const [session, cookieStore] = await Promise.all([auth(), cookies()]);
+  const initialLocale = resolveLocale(
+    cookieStore.get(LANGUAGE_PREFERENCE_KEY)?.value,
+  );
   const spotifyToken = session?.user?.spotifyAccessToken;
   const spotifyRefreshToken = session?.user?.spotifyRefreshToken;
   const spotifyTokenExpiresAt = session?.user?.spotifyTokenExpiresAt;
 
   return (
     <html
-      lang="en"
-      dir="ltr"
-      data-locale="en"
+      lang={initialLocale}
+      dir={initialLocale === 'ar' ? 'rtl' : 'ltr'}
+      data-locale={initialLocale}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <body className={`${inter.className} ${inter.variable} ${cairo.variable} overflow-x-hidden bg-surface-canvas text-brand-700 antialiased`}>
-        <LanguageProvider>
-        <Providers session={session}>
-          <PWAInstallPrompt />
-          <div className="flex min-h-dvh w-full min-w-0">
-            <div className="min-w-0 flex-1">{children}</div>
-          </div>
-          <WorkspaceEnhancements
-            accessToken={spotifyToken}
-            enabled={Boolean(session)}
-            refreshToken={spotifyRefreshToken}
-            tokenExpiresAt={spotifyTokenExpiresAt}
-          />
-        </Providers>
+        <LanguageProvider initialLocale={initialLocale}>
+          <Providers session={session}>
+            <div className="flex min-h-dvh w-full min-w-0">
+              <div className="min-w-0 flex-1">{children}</div>
+            </div>
+            <WorkspaceEnhancements
+              accessToken={spotifyToken}
+              enabled={Boolean(session)}
+              refreshToken={spotifyRefreshToken}
+              tokenExpiresAt={spotifyTokenExpiresAt}
+            />
+          </Providers>
         </LanguageProvider>
         {process.env.VERCEL === '1' ? <SpeedInsights /> : null}
 

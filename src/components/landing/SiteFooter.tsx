@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { MessageCircle } from 'lucide-react';
+import { WhatsAppLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { landingContent } from '@/lib/landing/content';
 import { siteConfig } from '@/lib/siteConfig';
@@ -27,6 +29,15 @@ export function SiteFooter() {
         <nav aria-label="Oqool access and legal" className="flex flex-col items-start text-sm text-emerald-100/75">
           <LandingCopy className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#E7CD78]">{landingContent.footer.access}</LandingCopy>
           <a className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href="#curriculum"><LandingCopy>{{ en: 'Curriculum', ar: 'المناهج' }}</LandingCopy></a>
+          <WhatsAppLink
+            before={<MessageCircle aria-hidden="true" className="size-4 shrink-0 text-[#E7CD78]" />}
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
+            eventName="contact_whatsapp_click"
+            intent="support"
+            label="footer_contact"
+          >
+            {{ en: 'Contact Us', ar: 'تواصل معنا' }}
+          </WhatsAppLink>
           <a
             className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
             href="https://docs.google.com/forms/d/e/1FAIpQLSczTjAyFpqxqcFvq2O7Hqmee8GN_6PvxsbEus61LdCiw7l9CA/viewform"

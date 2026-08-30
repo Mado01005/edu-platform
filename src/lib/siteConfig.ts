@@ -39,6 +39,10 @@ export const siteConfig = {
         en: 'Hello Oqool Academy, I would like a personalized learning recommendation for my child.',
         ar: 'مرحبًا أكاديمية عقول، أود الحصول على توصية تعليمية مخصصة لابني.',
       },
+      support: {
+        en: 'Hello Oqool Academy, I need help and would like to speak with your support team.',
+        ar: 'مرحبًا أكاديمية عقول، أحتاج إلى المساعدة وأود التواصل مع فريق الدعم.',
+      },
     },
   },
 } as const;

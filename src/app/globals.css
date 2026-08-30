@@ -128,6 +128,20 @@ html[data-locale='en'] [data-language-copy='en'] {
   50% { transform: translateY(-4px); }
 }
 
+@keyframes oqool-feature-ticker-right {
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+.oqool-feature-ticker-track {
+  animation: oqool-feature-ticker-right 30s linear infinite;
+  will-change: transform;
+}
+
+.oqool-feature-ticker:hover .oqool-feature-ticker-track {
+  animation-play-state: paused;
+}
+
 .landing-card {
   transition-duration: 300ms !important;
   transition-property: transform, box-shadow, border-color, background-color !important;
@@ -158,6 +172,30 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .oqool-feature-ticker {
+    overflow: visible;
+  }
+
+  .oqool-feature-ticker-track {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: none !important;
+    transform: none;
+    will-change: auto;
+  }
+
+  .oqool-feature-ticker-sequence {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-inline-end: 0;
+  }
+
+  .oqool-feature-ticker-copy {
+    display: none;
   }
 }
 

@@ -10,9 +10,13 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import {
+  DEFAULT_LOCALE,
+  LANGUAGE_PREFERENCE_KEY,
+  resolveLocale,
+} from '@/lib/i18n';
+import type { Locale } from '@/lib/landing/types';
 import { cn } from '@/lib/utils';
-
-type Locale = 'en' | 'ar';
 
 type LanguageContextValue = {
   locale: Locale;
@@ -20,28 +24,35 @@ type LanguageContextValue = {
   toggleLocale: () => void;
 };
 
-const STORAGE_KEY = 'oqool-locale-v1';
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('en');
+export function LanguageProvider({
+  children,
+  initialLocale = DEFAULT_LOCALE,
+}: {
+  children: ReactNode;
+  initialLocale?: Locale;
+}) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   const setLocale = useCallback((nextLocale: Locale) => {
     setLocaleState(nextLocale);
     document.documentElement.lang = nextLocale;
     document.documentElement.dir = nextLocale === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.dataset.locale = nextLocale;
-    window.localStorage.setItem(STORAGE_KEY, nextLocale);
+    window.localStorage.setItem(LANGUAGE_PREFERENCE_KEY, nextLocale);
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${LANGUAGE_PREFERENCE_KEY}=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
   }, []);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
+    const saved = window.localStorage.getItem(LANGUAGE_PREFERENCE_KEY);
     const timer = window.setTimeout(
-      () => setLocale(saved === 'ar' ? 'ar' : 'en'),
+      () => setLocale(resolveLocale(saved, initialLocale)),
       0,
     );
     return () => window.clearTimeout(timer);
-  }, [setLocale]);
+  }, [initialLocale, setLocale]);
 
   const value = useMemo<LanguageContextValue>(
     () => ({
