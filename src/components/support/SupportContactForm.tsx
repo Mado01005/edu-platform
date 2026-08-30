@@ -512,18 +512,22 @@ export function SupportContactForm() {
                     className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-emerald-100/45"
                   />
                   <input
+                    aria-autocomplete="list"
+                    aria-controls="support-country-options"
+                    aria-expanded={isCountryPickerOpen}
                     aria-label={text(locale, copy.countrySearch)}
                     className="min-h-11 w-full rounded-xl border border-white/15 bg-[#063B25] pe-3 ps-10 text-sm font-semibold text-[#FBF6E2] outline-none placeholder:text-emerald-100/35 focus:border-[#D4AF37]/70 focus:ring-4 focus:ring-[#D4AF37]/10"
                     onChange={(event) => setCountrySearch(event.target.value)}
                     placeholder={text(locale, copy.countrySearch)}
                     ref={countrySearchRef}
+                    role="combobox"
                     type="search"
                     value={countrySearch}
                   />
                 </label>
                 <div
                   aria-label={text(locale, copy.countryCode)}
-                  className="mt-2 max-h-64 overflow-y-auto overscroll-contain rounded-xl"
+                  className="mt-2 max-h-60 scroll-smooth overflow-y-auto overscroll-contain rounded-xl [scrollbar-color:#D4AF37_#063B25] [scrollbar-width:thin]"
                   id="support-country-options"
                   role="listbox"
                 >
@@ -532,6 +536,7 @@ export function SupportContactForm() {
                       const isSelected = country.code === phoneCountry;
                       return (
                         <button
+                          aria-label={`${text(locale, country.name)} (${country.dialCode})`}
                           aria-selected={isSelected}
                           className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-start text-sm text-emerald-50 outline-none transition-colors hover:bg-white/[0.07] focus-visible:bg-white/[0.09] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#D4AF37]/45"
                           key={country.code}
@@ -549,7 +554,7 @@ export function SupportContactForm() {
                             className="shrink-0 font-black text-[#E7CD78]"
                             dir="ltr"
                           >
-                            {country.dialCode}
+                            ({country.dialCode})
                           </span>
                           {isSelected ? (
                             <Check

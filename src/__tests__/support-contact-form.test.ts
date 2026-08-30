@@ -66,10 +66,30 @@ describe('SupportContactForm', () => {
 
     expect(screen.getAllByRole('option').length).toBeGreaterThan(200);
 
-    fireEvent.change(screen.getByLabelText('Search country or code'), {
+    const countrySearch = screen.getByRole('combobox', {
+      name: 'Search country or code',
+    });
+
+    fireEvent.change(countrySearch, { target: { value: 'Egypt' } });
+    expect(screen.getByRole('option', { name: 'Egypt (+20)' })).toBeTruthy();
+
+    fireEvent.change(countrySearch, { target: { value: '+20' } });
+    expect(screen.getByRole('option', { name: 'Egypt (+20)' })).toBeTruthy();
+
+    fireEvent.change(countrySearch, { target: { value: '20' } });
+    expect(screen.getByRole('option', { name: 'Egypt (+20)' })).toBeTruthy();
+
+    fireEvent.change(countrySearch, { target: { value: 'United States' } });
+    expect(
+      screen.getByRole('option', { name: 'United States (+1)' }).textContent,
+    ).toContain('🇺🇸');
+
+    fireEvent.change(countrySearch, {
       target: { value: 'Saudi' },
     });
-    fireEvent.click(screen.getByRole('option', { name: /Saudi Arabia.*\+966/ }));
+    fireEvent.click(
+      screen.getByRole('option', { name: 'Saudi Arabia (+966)' }),
+    );
 
     expect(
       screen.getByRole('button', {
