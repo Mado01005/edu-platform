@@ -26,6 +26,7 @@ const segmentLabels: Record<string, string> = {
   settings: 'Settings',
   storage: 'Storage',
   support: 'Support',
+  operations: 'Operations',
   teacher: 'Teacher Studio',
   users: 'Manage Users',
 };
@@ -43,7 +44,7 @@ const navigablePaths = new Set([
   '/live-classes',
   '/lms/profile',
   '/settings',
-  '/support',
+  '/support/operations',
   '/teacher',
   '/teacher/courses',
   '/teacher/grading',

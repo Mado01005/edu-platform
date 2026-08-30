@@ -93,7 +93,7 @@ describe('role-aware universal navigation', () => {
       PARENT: '/mps',
       STUDENT: '/dashboard',
       SUPER_ADMIN: '/admin',
-      SUPPORT: '/support',
+      SUPPORT: '/support/operations',
       TEACHER: '/teacher',
     });
   });

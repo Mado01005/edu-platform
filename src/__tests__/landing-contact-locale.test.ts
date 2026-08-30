@@ -1,5 +1,9 @@
 import { DEFAULT_LOCALE, resolveLocale } from '@/lib/i18n';
-import { getWhatsAppUrl, siteConfig } from '@/lib/siteConfig';
+import {
+  getSupportWhatsAppUrl,
+  getWhatsAppUrl,
+  siteConfig,
+} from '@/lib/siteConfig';
 
 describe('landing locale and contact configuration', () => {
   test('defaults first visits and invalid preferences to Arabic', () => {
@@ -22,4 +26,22 @@ describe('landing locale and contact configuration', () => {
       );
     },
   );
+
+  test('provides all three requested support lines with localized messages', () => {
+    expect(siteConfig.whatsapp.supportLines.map((line) => line.number)).toEqual([
+      '201555920686',
+      '201024991857',
+      '966596899362',
+    ]);
+
+    for (const line of siteConfig.whatsapp.supportLines) {
+      for (const locale of ['en', 'ar'] as const) {
+        const destination = new URL(getSupportWhatsAppUrl(line, locale));
+        expect(destination.pathname).toBe(`/${line.number}`);
+        expect(destination.searchParams.get('text')).toBe(
+          siteConfig.whatsapp.messages.support[locale],
+        );
+      }
+    }
+  });
 });

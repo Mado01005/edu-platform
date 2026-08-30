@@ -1,548 +1,192 @@
+import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
-  AlertCircle,
-  Bell,
-  BookOpen,
-  CheckCircle2,
+  ArrowLeft,
+  Clock3,
   Headphones,
-  KeyRound,
   Mail,
-  Phone,
-  Search,
-  Send,
+  MessageCircle,
   ShieldCheck,
-  User,
 } from 'lucide-react';
-import {
-  createSupportNoticeAction,
-  resendNotificationAction,
-  resetStudentPasswordAction,
-} from '@/app/support/actions';
-import { PortalShell } from '@/components/erp/PortalShell';
-import { ActionSubmitButton } from '@/components/lms/ActionSubmitButton';
-import { Badge } from '@/components/UI/badge';
-import { Button, buttonVariants } from '@/components/UI/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/UI/card';
-import { Input } from '@/components/UI/input';
-import { Textarea } from '@/components/UI/textarea';
-import { requireLmsPageRole } from '@/lib/lms/auth';
-import { SUPPORT_ROLES } from '@/lib/lms/roles';
-import {
-  getStudentSupportRecord,
-  searchStudentsForSupport,
-  SupportPortalError,
-} from '@/lib/lms/support';
-import { cn } from '@/lib/utils';
+import { LanguageToggle } from '@/components/i18n/language-provider';
+import { LandingCopy } from '@/components/landing/LandingCopy';
+import { SiteFooter } from '@/components/landing/SiteFooter';
+import { SupportChannels } from '@/components/support/SupportChannels';
+import { SupportContactForm } from '@/components/support/SupportContactForm';
+import { siteConfig } from '@/lib/siteConfig';
 
-export const dynamic = 'force-dynamic';
+const description =
+  'Contact Oqool Academy support through WhatsApp, email, or a secure in-page support form.';
 
-const NOTICE_MESSAGES: Record<string, string> = {
-  'notice-created': 'The support notice is now in the student notification center.',
-  'notice-resent': 'A fresh unread copy of the selected notification was created.',
-  'password-reset': 'The temporary password was set successfully.',
+export const metadata: Metadata = {
+  title: 'Support Center | Oqool Academy',
+  description,
+  alternates: { canonical: `${siteConfig.url}${siteConfig.routes.support}` },
+  openGraph: {
+    title: 'Support Center | مركز الدعم — Oqool Academy',
+    description,
+    locale: 'ar_SA',
+    alternateLocale: ['en_US'],
+    siteName: siteConfig.name,
+    type: 'website',
+    url: `${siteConfig.url}${siteConfig.routes.support}`,
+  },
 };
 
-const ERROR_MESSAGES: Record<string, string> = {
-  'confirmation-required': 'Confirm that the student requested the reset.',
-  'identity-mismatch': 'The LMS and Supabase identities did not match. No password was changed.',
-  'invalid-notice': 'Enter a valid notice title and message.',
-  'invalid-password': 'Use a temporary password between 12 and 128 characters.',
-  'invalid-search': 'Enter at least 3 characters from a name, email address, or phone number.',
-  'invalid-student': 'Choose a valid student account.',
-  'notification-not-found': 'Choose an available non-payment notification.',
-  'operation-failed': 'The operation could not be completed. Try again.',
-  'password-mismatch': 'The temporary passwords do not match.',
-  'password-update-failed': 'Supabase could not update the password. Try again.',
-  'student-not-found': 'That student account is no longer available.',
+const contactPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Oqool Academy Support Center',
+  url: `${siteConfig.url}${siteConfig.routes.support}`,
+  mainEntity: {
+    '@type': 'EducationalOrganization',
+    contactPoint: siteConfig.whatsapp.supportLines.map((line) => ({
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      telephone: `+${line.number}`,
+    })),
+    email: siteConfig.support.email,
+    name: siteConfig.name,
+  },
 };
 
-type SupportSearchParams = {
-  error?: string | string[];
-  notice?: string | string[];
-  q?: string | string[];
-  student?: string | string[];
-};
-
-function firstValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] ?? '' : value ?? '';
-}
-
-function supportStudentHref(query: string, studentId: string) {
-  const params = new URLSearchParams({ q: query, student: studentId });
-  return `/support?${params.toString()}`;
-}
-
-function gradeLabel(grade: string | null) {
-  return grade ? grade.replace('GRADE_', 'Grade ') : 'Grade not assigned';
-}
-
-function notificationDate(value: Date) {
-  return new Intl.DateTimeFormat('en', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(value);
-}
-
-export default async function SupportPortalPage({
-  searchParams,
-}: {
-  searchParams: Promise<SupportSearchParams>;
-}) {
-  const [operator, params] = await Promise.all([
-    requireLmsPageRole(SUPPORT_ROLES, 'support-required'),
-    searchParams,
-  ]);
-  const query = firstValue(params.q).trim().slice(0, 160);
-  const selectedStudentId = firstValue(params.student).trim().slice(0, 100);
-  const noticeCode = firstValue(params.notice);
-  const errorCode = firstValue(params.error);
-  const [studentSearchResult, selectedStudentResult] =
-    await Promise.allSettled([
-      query ? searchStudentsForSupport(query) : Promise.resolve([]),
-      selectedStudentId
-        ? getStudentSupportRecord(selectedStudentId)
-        : Promise.resolve(null),
-    ]);
-  const students =
-    studentSearchResult.status === 'fulfilled'
-      ? studentSearchResult.value
-      : [];
-  const selectedStudent =
-    selectedStudentResult.status === 'fulfilled'
-      ? selectedStudentResult.value
-      : null;
-  const searchError =
-    studentSearchResult.status === 'rejected'
-      ? studentSearchResult.reason instanceof SupportPortalError
-        ? ERROR_MESSAGES[studentSearchResult.reason.code] ??
-          ERROR_MESSAGES['operation-failed']
-        : ERROR_MESSAGES['operation-failed']
-      : '';
-
-  const noticeMessage = NOTICE_MESSAGES[noticeCode];
-  const errorMessage = ERROR_MESSAGES[errorCode] ?? searchError;
-
+export default function PublicSupportPage() {
   return (
-    <PortalShell user={operator}>
-      <div className="box-border flex w-full max-w-md min-w-0 flex-col gap-4">
-          <header className="w-full min-w-0 rounded-3xl border border-[#D4AF37]/40 bg-[#FDF8E8] p-5 shadow-sm shadow-emerald-950/5">
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-[#084B2B] text-white shadow-sm">
-              <Headphones className="size-5" aria-hidden="true" />
+    <div className="min-h-dvh w-full min-w-0 max-w-full overflow-x-hidden bg-[#FAFAF7] text-[#1A2E22]">
+      <a className="sr-only z-[100] rounded-lg bg-white px-4 py-3 text-[#084B2B] focus:not-sr-only focus:fixed focus:left-4 focus:top-4" href="#support-content">
+        Skip to support content
+      </a>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(contactPageSchema).replace(/</g, '\\u003c'),
+        }}
+        type="application/ld+json"
+      />
+
+      <header className="sticky top-0 z-50 border-b border-emerald-950/8 bg-[#FAFAF7]/92 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-18 w-full max-w-7xl items-center justify-between gap-3">
+          <Link
+            aria-label="Oqool Academy home"
+            className="flex min-h-11 min-w-0 items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"
+            href={siteConfig.routes.home}
+          >
+            <Image
+              alt="Oqool Academy official crest"
+              className="size-11 shrink-0 rounded-xl object-cover"
+              height={44}
+              priority
+              src={siteConfig.brand.logo}
+              width={44}
+            />
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate text-sm font-black text-[#084B2B]">Oqool Academy</span>
+              <span className="block truncate font-arabic text-[11px] font-bold text-[#8A6A16]" dir="rtl" lang="ar">أكاديمية عقول</span>
             </span>
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#8C6B1B]">
-              Customer support
-            </p>
-            <h1 className="mt-2 text-3xl font-black tracking-tight">
-              Student account desk
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Verify an account, review active course enrollments, reset a
-              requested password, or resend an operational notice.
-            </p>
-          </header>
+          </Link>
 
-          {noticeMessage ? (
-            <div
-              className="flex min-w-0 items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"
-              role="status"
+          <div className="flex shrink-0 items-center gap-2">
+            <Link
+              className="hidden min-h-11 items-center gap-2 rounded-full px-3 text-xs font-black text-slate-600 outline-none hover:bg-white hover:text-[#084B2B] focus-visible:ring-4 focus-visible:ring-emerald-100 sm:inline-flex"
+              href={siteConfig.routes.home}
             >
-              <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-              <p className="min-w-0 leading-6">{noticeMessage}</p>
+              <ArrowLeft aria-hidden="true" className="size-4 rtl:-scale-x-100" />
+              <LandingCopy>{{ en: 'Back to home', ar: 'العودة للرئيسية' }}</LandingCopy>
+            </Link>
+            <LanguageToggle className="min-h-11 rounded-full" />
+          </div>
+        </div>
+      </header>
+
+      <main id="support-content">
+        <section className="relative isolate overflow-hidden border-b border-emerald-950/8">
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_18%,rgba(15,110,65,0.13),transparent_28%),radial-gradient(circle_at_88%_12%,rgba(212,175,55,0.14),transparent_24%),linear-gradient(rgba(8,75,43,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(8,75,43,0.035)_1px,transparent_1px)] bg-[size:auto,auto,44px_44px,44px_44px]" />
+          <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:px-8 lg:py-24">
+            <div className="min-w-0">
+              <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[#D4AF37]/35 bg-[#FBF6E2] px-4 text-xs font-black uppercase tracking-[0.14em] text-[#7A5C14]">
+                <Headphones aria-hidden="true" className="size-4" />
+                <LandingCopy>{{ en: 'Human support, three direct lines', ar: 'دعم مباشر عبر ثلاثة خطوط' }}</LandingCopy>
+              </p>
+              <h1 className="mt-6 max-w-3xl text-5xl font-black leading-[0.98] tracking-[-0.045em] text-[#042D1A] sm:text-6xl lg:text-7xl">
+                <LandingCopy>{{ en: 'Support Center', ar: 'مركز الدعم' }}</LandingCopy>
+              </h1>
+              <LandingCopy as="p" className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">{{
+                en: 'Choose a direct WhatsApp line for a quick conversation, or send a detailed message through the secure form below. Our team will follow up using the contact details you provide.',
+                ar: 'اختر أحد خطوط واتساب للتواصل السريع، أو أرسل رسالة مفصلة عبر النموذج الآمن أدناه. سيتابع فريقنا معك باستخدام بيانات الاتصال التي تقدمها.',
+              }}</LandingCopy>
             </div>
-          ) : null}
 
-          {errorMessage ? (
-            <div
-              className="flex min-w-0 items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
-              role="alert"
-            >
-              <AlertCircle className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-              <p className="min-w-0 leading-6">{errorMessage}</p>
+            <aside className="relative min-w-0 rounded-[2rem] border border-white/70 bg-[#042D1A] p-6 text-white shadow-[0_30px_80px_rgba(4,45,26,0.18)] sm:p-8">
+              <span aria-hidden="true" className="absolute end-7 top-7 size-24 rounded-full border border-[#D4AF37]/20" />
+              <span aria-hidden="true" className="absolute end-12 top-12 size-14 rounded-full border border-[#D4AF37]/25" />
+              <Mail aria-hidden="true" className="size-7 text-[#E7CD78]" />
+              <LandingCopy as="h2" className="mt-8 text-2xl font-black">{{ en: 'Prefer email?', ar: 'تفضل البريد الإلكتروني؟' }}</LandingCopy>
+              <LandingCopy as="p" className="mt-3 text-sm leading-7 text-emerald-100/70">{{
+                en: 'Our support inbox is available for account questions, academic help, and follow-up documents.',
+                ar: 'بريد الدعم متاح لأسئلة الحسابات، والمساعدة الأكاديمية، ومستندات المتابعة.',
+              }}</LandingCopy>
+              <a
+                className="mt-7 inline-flex min-h-12 max-w-full items-center rounded-xl border border-white/15 bg-white/8 px-4 text-sm font-black text-white outline-none hover:border-[#D4AF37]/60 hover:bg-white/12 focus-visible:ring-4 focus-visible:ring-[#D4AF37]/35"
+                href={`mailto:${siteConfig.support.email}`}
+              >
+                <span className="break-all" dir="ltr">{siteConfig.support.email}</span>
+              </a>
+            </aside>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8" aria-labelledby="whatsapp-support-title">
+          <div className="mb-8 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8A6A16]">
+                <LandingCopy>{{ en: 'Direct support switchboard', ar: 'خطوط الدعم المباشر' }}</LandingCopy>
+              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-[#042D1A] sm:text-4xl" id="whatsapp-support-title">
+                <LandingCopy>{{ en: 'Choose the line that suits you.', ar: 'اختر خط التواصل المناسب لك.' }}</LandingCopy>
+              </h2>
             </div>
-          ) : null}
+            <p className="inline-flex items-center gap-2 text-sm font-bold text-slate-500">
+              <MessageCircle aria-hidden="true" className="size-4 text-[#0F6E41]" />
+              <LandingCopy>{{ en: 'WhatsApp opens in a new tab', ar: 'يفتح واتساب في علامة تبويب جديدة' }}</LandingCopy>
+            </p>
+          </div>
+          <SupportChannels />
+        </section>
 
-          <Card className="scroll-mt-28" id="student-lookup">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="size-5 text-[#084B2B]" aria-hidden="true" />
-                Find a student
-              </CardTitle>
-              <CardDescription>
-                Search with at least three characters from an email address or
-                phone number. Results are limited to student accounts.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pb-5 pt-4">
-              <form action="/support" className="flex min-w-0 flex-col gap-3" method="get">
-                <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="support-search">
-                  Phone or email
-                </label>
-                <Input
-                  defaultValue={query}
-                  id="support-search"
-                  maxLength={160}
-                  minLength={3}
-                  name="q"
-                  placeholder="student@example.com or +20…"
-                  required
-                  type="search"
-                />
-                <Button className="w-full" type="submit">
-                  <Search className="size-4" aria-hidden="true" />
-                  Search accounts
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        <section className="border-y border-emerald-950/8 bg-white" id="contact-form">
+          <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:px-8">
+            <div className="min-w-0 lg:sticky lg:top-24">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8A6A16]">
+                <LandingCopy>{{ en: 'Detailed support request', ar: 'طلب دعم مفصل' }}</LandingCopy>
+              </p>
+              <h2 className="mt-3 text-4xl font-black tracking-tight text-[#042D1A] sm:text-5xl">
+                <LandingCopy>{{ en: 'Tell us what you need.', ar: 'أخبرنا بما تحتاج إليه.' }}</LandingCopy>
+              </h2>
+              <LandingCopy as="p" className="mt-5 text-sm leading-7 text-slate-600 sm:text-base">{{
+                en: 'Your message is stored securely for the Oqool support team. Required fields help us identify the right response channel.',
+                ar: 'تُحفظ رسالتك بأمان لفريق دعم عقول. تساعدنا الحقول المطلوبة في اختيار وسيلة الرد المناسبة.',
+              }}</LandingCopy>
 
-          {query && !searchError ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Search results</CardTitle>
-                <CardDescription>
-                  {students.length
-                    ? `${students.length} matching student account${students.length === 1 ? '' : 's'}`
-                    : 'No student accounts matched that phone or email.'}
-                </CardDescription>
-              </CardHeader>
-              {students.length ? (
-                <CardContent className="flex flex-col gap-3 pb-5 pt-4">
-                  {students.map((student) => {
-                    const selected = student.id === selectedStudentId;
+              <ul className="mt-8 grid gap-4 text-sm text-slate-600">
+                <li className="flex items-start gap-3">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]"><ShieldCheck aria-hidden="true" className="size-4" /></span>
+                  <span className="pt-1.5 font-bold"><LandingCopy>{{ en: 'Validated and rate-limited submission', ar: 'إرسال محمي بالتحقق وتحديد المعدل' }}</LandingCopy></span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#FBF6E2] text-[#8A6A16]"><Clock3 aria-hidden="true" className="size-4" /></span>
+                  <span className="pt-1.5 font-bold"><LandingCopy>{{ en: 'A reference appears immediately after submission', ar: 'يظهر رقم مرجعي فور الإرسال' }}</LandingCopy></span>
+                </li>
+              </ul>
+            </div>
 
-                    return (
-                      <Link
-                        className={`flex min-w-0 items-start gap-3 rounded-2xl border p-4 transition ${
-                          selected
-                            ? 'border-[#084B2B] bg-emerald-50'
-                            : 'border-emerald-950/10 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'
-                        }`}
-                        href={supportStudentHref(query, student.id)}
-                        key={student.id}
-                        prefetch={false}
-                      >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]">
-                          <User className="size-5" aria-hidden="true" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-black text-slate-900">
-                            {student.name?.trim() || 'Unnamed student'}
-                          </span>
-                          <span className="mt-1 block break-all text-xs text-slate-600">
-                            {student.email}
-                          </span>
-                          {student.phoneNumber ? (
-                            <span className="mt-1 block break-all text-xs text-slate-500">
-                              {student.phoneNumber}
-                            </span>
-                          ) : null}
-                          <span className="mt-2 flex min-w-0 flex-wrap gap-2">
-                            <Badge variant="secondary">
-                              {gradeLabel(student.gradeLevel)}
-                            </Badge>
-                            <Badge>{student._count.enrollments} enrolled</Badge>
-                            <Badge
-                              className={
-                                student.status === 'ACTIVE'
-                                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                                  : 'border-red-200 bg-red-50 text-red-700'
-                              }
-                            >
-                              {student.status}
-                            </Badge>
-                          </span>
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </CardContent>
-              ) : null}
-            </Card>
-          ) : null}
+            <div className="min-w-0 rounded-[2rem] border border-emerald-950/10 bg-[#FAFAF7] p-5 shadow-[0_24px_70px_rgba(4,45,26,0.07)] sm:p-8 lg:p-10">
+              <SupportContactForm />
+            </div>
+          </div>
+        </section>
+      </main>
 
-          {selectedStudent ? (
-            <>
-              <Card>
-                <CardHeader>
-                  <div className="flex min-w-0 items-start justify-between gap-3">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#084B2B] text-white">
-                      <ShieldCheck className="size-5" aria-hidden="true" />
-                    </span>
-                    <Badge
-                      className={
-                        selectedStudent.status === 'ACTIVE'
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                          : 'border-red-200 bg-red-50 text-red-700'
-                      }
-                    >
-                      {selectedStudent.status}
-                    </Badge>
-                  </div>
-                  <CardTitle className="pt-2 text-xl">
-                    {selectedStudent.name?.trim() || 'Unnamed student'}
-                  </CardTitle>
-                  <CardDescription>
-                    {gradeLabel(selectedStudent.gradeLevel)}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3 pb-5 pt-4">
-                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-[#F8FAF7] p-3 text-sm text-slate-700">
-                    <Mail className="mt-0.5 size-4 shrink-0 text-[#084B2B]" aria-hidden="true" />
-                    <span className="min-w-0 break-all">{selectedStudent.email}</span>
-                  </p>
-                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-[#F8FAF7] p-3 text-sm text-slate-700">
-                    <Phone className="mt-0.5 size-4 shrink-0 text-[#084B2B]" aria-hidden="true" />
-                    <span className="min-w-0 break-all">
-                      {selectedStudent.phoneNumber || 'No phone number on file'}
-                    </span>
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="size-5 text-[#084B2B]" aria-hidden="true" />
-                    Course enrollment status
-                  </CardTitle>
-                  <CardDescription>
-                    Current LMS enrollment records only.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3 pb-5 pt-4">
-                  {selectedStudent.enrollments.length ? (
-                    selectedStudent.enrollments.map((enrollment) => (
-                      <div
-                        className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4"
-                        key={enrollment.id}
-                      >
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-black text-slate-900">
-                            {enrollment.course.title}
-                          </span>
-                          <span className="mt-1 block text-xs leading-5 text-slate-500">
-                            {enrollment.course.subject
-                              ? `${gradeLabel(enrollment.course.subject.grade)} · ${enrollment.course.subject.name}`
-                              : 'General course'}
-                          </span>
-                        </span>
-                        <span className="flex shrink-0 flex-col items-end gap-1.5">
-                          <Badge className="border-emerald-200 bg-emerald-50 text-emerald-800">
-                            Enrolled
-                          </Badge>
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">
-                            {enrollment.course.isPublished ? 'Published' : 'Private'}
-                          </span>
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="rounded-2xl border border-dashed border-emerald-200 p-4 text-sm leading-6 text-slate-500">
-                      This student has no course enrollments.
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="scroll-mt-28" id="credential-resets">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <KeyRound className="size-5 text-[#8C6B1B]" aria-hidden="true" />
-                    Temporary password reset
-                  </CardTitle>
-                  <CardDescription>
-                    The LMS identity is matched exactly to Supabase before any
-                    password is changed. Never send passwords through an
-                    in-app notification.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pb-5 pt-4">
-                  <form action={resetStudentPasswordAction} className="flex min-w-0 flex-col gap-3">
-                    <input name="studentId" type="hidden" value={selectedStudent.id} />
-                    <input name="query" type="hidden" value={query} />
-                    <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="temporary-password">
-                      Temporary password
-                    </label>
-                    <Input
-                      autoComplete="new-password"
-                      id="temporary-password"
-                      maxLength={128}
-                      minLength={12}
-                      name="password"
-                      required
-                      type="password"
-                    />
-                    <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="temporary-password-confirmation">
-                      Confirm temporary password
-                    </label>
-                    <Input
-                      autoComplete="new-password"
-                      id="temporary-password-confirmation"
-                      maxLength={128}
-                      minLength={12}
-                      name="passwordConfirmation"
-                      required
-                      type="password"
-                    />
-                    <label className="flex min-w-0 items-start gap-3 rounded-2xl border border-[#D4AF37]/40 bg-[#FDF8E8] p-4 text-sm leading-6 text-[#8C6B1B]">
-                      <input
-                        className="mt-1 size-4 shrink-0 accent-emerald-700"
-                        name="confirmation"
-                        required
-                        type="checkbox"
-                        value="confirmed"
-                      />
-                      <span>
-                        I verified that this student requested a password reset.
-                      </span>
-                    </label>
-                    <ActionSubmitButton
-                      className={cn(
-                        buttonVariants(),
-                        'w-full bg-[#084B2B] text-white hover:bg-[#063B22]',
-                      )}
-                      pendingLabel="Resetting…"
-                    >
-                      <KeyRound className="size-4" aria-hidden="true" />
-                      Set temporary password
-                    </ActionSubmitButton>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <Card className="scroll-mt-28" id="support-tickets">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bell className="size-5 text-[#084B2B]" aria-hidden="true" />
-                    Resend a recent notice
-                  </CardTitle>
-                  <CardDescription>
-                    Payment alerts are intentionally unavailable in this portal.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pb-5 pt-4">
-                  {selectedStudent.notifications.length ? (
-                    <form action={resendNotificationAction} className="flex min-w-0 flex-col gap-3">
-                      <input name="studentId" type="hidden" value={selectedStudent.id} />
-                      <input name="query" type="hidden" value={query} />
-                      <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="notification-to-resend">
-                        Recent notification
-                      </label>
-                      <select
-                        className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
-                        id="notification-to-resend"
-                        name="notificationId"
-                        required
-                      >
-                        <option value="">Choose a notification</option>
-                        {selectedStudent.notifications.map((notification) => (
-                          <option key={notification.id} value={notification.id}>
-                            {notification.title} · {notificationDate(notification.createdAt)}
-                          </option>
-                        ))}
-                      </select>
-                      <ActionSubmitButton
-                        className={cn(
-                          buttonVariants({ variant: 'outline' }),
-                          'w-full',
-                        )}
-                        pendingLabel="Resending…"
-                      >
-                        <Send className="size-4" aria-hidden="true" />
-                        Create unread copy
-                      </ActionSubmitButton>
-                    </form>
-                  ) : (
-                    <p className="rounded-2xl border border-dashed border-emerald-200 p-4 text-sm leading-6 text-slate-500">
-                      No support-visible notifications are available to resend.
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Send className="size-5 text-[#084B2B]" aria-hidden="true" />
-                    Create support notice
-                  </CardTitle>
-                  <CardDescription>
-                    Send an unread operational message to this student.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pb-5 pt-4">
-                  <form action={createSupportNoticeAction} className="flex min-w-0 flex-col gap-3">
-                    <input name="studentId" type="hidden" value={selectedStudent.id} />
-                    <input name="query" type="hidden" value={query} />
-                    <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="support-notice-title">
-                      Title
-                    </label>
-                    <Input
-                      id="support-notice-title"
-                      maxLength={120}
-                      minLength={3}
-                      name="title"
-                      placeholder="Account assistance"
-                      required
-                    />
-                    <label className="text-xs font-black uppercase tracking-[0.16em] text-slate-600" htmlFor="support-notice-message">
-                      Message
-                    </label>
-                    <Textarea
-                      id="support-notice-message"
-                      maxLength={1000}
-                      minLength={3}
-                      name="message"
-                      placeholder="Write the support update…"
-                      required
-                    />
-                    <ActionSubmitButton
-                      className={cn(buttonVariants(), 'w-full')}
-                      pendingLabel="Sending…"
-                    >
-                      <Send className="size-4" aria-hidden="true" />
-                      Send support notice
-                    </ActionSubmitButton>
-                  </form>
-                </CardContent>
-              </Card>
-            </>
-          ) : selectedStudentId ? (
-            <Card className="border-red-400/20">
-              <CardHeader>
-                <CardTitle>Student unavailable</CardTitle>
-                <CardDescription>
-                  Return to the search results and choose a current student
-                  account.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pb-5 pt-4">
-                <Link
-                  className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#084B2B] px-4 text-sm font-black text-white transition hover:bg-[#063B22]"
-                  href={query ? `/support?q=${encodeURIComponent(query)}` : '/support'}
-                >
-                  Back to search
-                </Link>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="border-dashed">
-              <CardHeader>
-                <CardTitle>Select a student to begin</CardTitle>
-                <CardDescription>
-                  Account tools appear only after a student is selected from
-                  a phone or email search.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          )}
-      </div>
-    </PortalShell>
+      <SiteFooter />
+    </div>
   );
 }

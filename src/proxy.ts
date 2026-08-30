@@ -62,6 +62,7 @@ const NEXTAUTH_PROTOCOL_API = '/api/auth';
 const EXACT_API_AUTH_EXEMPTIONS = new Set([
   '/api/mps/login', // Parent login bootstrap; establishes its own session.
   '/api/parent/otp', // Validates a linked parent number before Supabase OTP.
+  '/api/support/inquiries', // Public form; same-origin, schema, honeypot, and IP limits apply.
   '/api/cron/student-health', // Route validates CRON_SECRET itself.
 ]);
 
@@ -253,7 +254,11 @@ const LMS_PAGE_RULES: readonly {
 }[] = [
   { route: '/admin', allowed: ADMIN_ROLES, notice: 'admin-required' },
   { route: '/teacher', allowed: TEACHING_ROLES, notice: 'teacher-required' },
-  { route: '/support', allowed: SUPPORT_ROLES, notice: 'support-required' },
+  {
+    route: '/support/operations',
+    allowed: SUPPORT_ROLES,
+    notice: 'support-required',
+  },
   {
     route: '/accounting',
     allowed: ACCOUNTING_ROLES,
@@ -322,6 +327,7 @@ export async function proxy(request: NextRequest) {
   // Allow public/static paths, PWA assets
   if (
     PUBLIC_PATHS.some((path) => matchesRoute(pathname, path)) ||
+    pathname === '/support' ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/_vercel') ||
     pathname.startsWith('/favicon') ||

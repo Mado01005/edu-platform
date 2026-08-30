@@ -156,7 +156,7 @@ const sections: readonly NavigationSection[] = [
     items: [
       {
         description: 'Find a student by phone number or email address.',
-        href: '/support#student-lookup',
+        href: '/support/operations#student-lookup',
         key: 'support-lookup',
         keywords: ['search', 'phone', 'email'],
         label: 'Student Lookup',
@@ -164,7 +164,7 @@ const sections: readonly NavigationSection[] = [
       },
       {
         description: 'Open the verified temporary-password workflow.',
-        href: '/support#credential-resets',
+        href: '/support/operations#credential-resets',
         key: 'support-resets',
         keywords: ['password', 'credentials', 'account'],
         label: 'Credential Resets',
@@ -172,7 +172,7 @@ const sections: readonly NavigationSection[] = [
       },
       {
         description: 'Review and resend student support notices.',
-        href: '/support#support-tickets',
+        href: '/support/operations#support-tickets',
         key: 'support-tickets',
         keywords: ['help', 'notices', 'requests'],
         label: 'Support Tickets',
@@ -284,7 +284,7 @@ const sections: readonly NavigationSection[] = [
       },
       {
         description: 'Search student accounts and resolve access issues.',
-        href: '/support',
+        href: '/support/operations',
         key: 'support-lookup',
         keywords: ['support', 'password', 'lookup'],
         label: 'Support Portal',
@@ -343,7 +343,7 @@ export function getRoleHome(role: Role) {
     case 'PARENT':
       return '/mps';
     case 'SUPPORT':
-      return '/support';
+      return '/support/operations';
     case 'ACCOUNTING':
       return '/accounting';
     case 'ADMIN':

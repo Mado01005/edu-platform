@@ -19,6 +19,7 @@ describe('public storefront sitemap', () => {
       'https://oqool.example/',
       'https://oqool.example/catalog',
       'https://oqool.example/preview',
+      'https://oqool.example/support',
       'https://oqool.example/lms/login',
       'https://oqool.example/privacy',
       'https://oqool.example/terms',

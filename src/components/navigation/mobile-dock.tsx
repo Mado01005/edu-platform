@@ -25,9 +25,9 @@ function dockDestinations(role: Role) {
   }
   if (role === 'SUPPORT') {
     return {
-      catalog: '/support#student-lookup',
+      catalog: '/support/operations#student-lookup',
       profile: '/settings',
-      schedule: '/support#support-tickets',
+      schedule: '/support/operations#support-tickets',
     };
   }
   if (role === 'ACCOUNTING') {

@@ -132,7 +132,7 @@ export async function GET(request: Request) {
   for (const student of students) {
     results.push({
       description: student.email,
-      href: `/support?q=${encodeURIComponent(student.email)}&student=${encodeURIComponent(student.id)}`,
+      href: `/support/operations?q=${encodeURIComponent(student.email)}&student=${encodeURIComponent(student.id)}`,
       id: student.id,
       label: student.name?.trim() || student.email,
       type: 'student',

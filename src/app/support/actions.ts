@@ -32,7 +32,7 @@ function supportDestination(
   if (state.notice) params.set('notice', state.notice);
   if (state.error) params.set('error', state.error);
 
-  return `/support?${params.toString()}`;
+  return `/support/operations?${params.toString()}`;
 }
 
 function errorCode(error: unknown) {
@@ -65,7 +65,7 @@ export async function resetStudentPasswordAction(formData: FormData) {
     redirect(supportDestination(formData, { error: failure }));
   }
 
-  revalidatePath('/support');
+  revalidatePath('/support/operations');
   redirect(supportDestination(formData, { notice: 'password-reset' }));
 }
 
@@ -87,7 +87,7 @@ export async function createSupportNoticeAction(formData: FormData) {
     redirect(supportDestination(formData, { error: failure }));
   }
 
-  revalidatePath('/support');
+  revalidatePath('/support/operations');
   redirect(supportDestination(formData, { notice: 'notice-created' }));
 }
 
@@ -108,6 +108,6 @@ export async function resendNotificationAction(formData: FormData) {
     redirect(supportDestination(formData, { error: failure }));
   }
 
-  revalidatePath('/support');
+  revalidatePath('/support/operations');
   redirect(supportDestination(formData, { notice: 'notice-resent' }));
 }

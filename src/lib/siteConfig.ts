@@ -18,7 +18,11 @@ export const siteConfig = {
   routes: {
     home: '/',
     privacy: '/privacy',
+    support: '/support',
     terms: '/terms',
+  },
+  support: {
+    email: 'support@oqoolacademy.com',
   },
   brand: {
     logo: '/brand/oqool-logo.png',
@@ -26,6 +30,26 @@ export const siteConfig = {
   },
   whatsapp: {
     number: configuredWhatsAppNumber || FALLBACK_WHATSAPP_NUMBER,
+    supportLines: [
+      {
+        id: 'egypt-primary',
+        number: '201555920686',
+        displayNumber: '+20 155 592 0686',
+        label: { en: 'Egypt support line 1', ar: 'خط الدعم في مصر ١' },
+      },
+      {
+        id: 'egypt-secondary',
+        number: '201024991857',
+        displayNumber: '+20 102 499 1857',
+        label: { en: 'Egypt support line 2', ar: 'خط الدعم في مصر ٢' },
+      },
+      {
+        id: 'saudi',
+        number: '966596899362',
+        displayNumber: '+966 59 689 9362',
+        label: { en: 'Saudi Arabia support', ar: 'الدعم في السعودية' },
+      },
+    ],
     messages: {
       diagnostic: {
         en: 'Hello Oqool Academy, I would like to book a free diagnostic assessment for my child.',
@@ -48,8 +72,17 @@ export const siteConfig = {
 } as const;
 
 export type WhatsAppIntent = keyof typeof siteConfig.whatsapp.messages;
+export type SupportWhatsAppLine = (typeof siteConfig.whatsapp.supportLines)[number];
 
 export function getWhatsAppUrl(intent: WhatsAppIntent, locale: Locale) {
   const message = siteConfig.whatsapp.messages[intent][locale];
   return `https://wa.me/${siteConfig.whatsapp.number}?text=${encodeURIComponent(message)}`;
+}
+
+export function getSupportWhatsAppUrl(
+  line: SupportWhatsAppLine,
+  locale: Locale,
+) {
+  const message = siteConfig.whatsapp.messages.support[locale];
+  return `https://wa.me/${line.number}?text=${encodeURIComponent(message)}`;
 }

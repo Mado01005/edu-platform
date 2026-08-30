@@ -107,6 +107,13 @@ enum WhatsAppDispatchStatus {
   FAILED
 }
 
+enum SupportInquiryStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
 model User {
   id                     String                    @id @default(cuid())
   supabaseId             String                    @unique @map("supabase_id")
@@ -704,4 +711,21 @@ model WhatsAppDispatch {
   @@unique([paymentId, phoneNumber])
   @@index([status, createdAt])
   @@map("lms_whatsapp_dispatches")
+}
+
+model SupportInquiry {
+  id        String               @id @default(cuid())
+  firstName String               @map("first_name")
+  lastName  String               @map("last_name")
+  phone     String
+  email     String
+  message   String               @db.Text
+  locale    String               @default("ar")
+  status    SupportInquiryStatus @default(NEW)
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@index([email, createdAt])
+  @@map("support_inquiries")
 }

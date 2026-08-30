@@ -24,12 +24,12 @@ jest.mock('@/lib/lms/parent-session', () => ({
   validateParentPortalSessionToken: mockValidateParentPortalSessionToken,
 }));
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { proxy } from '@/proxy';
 import { resetApiRateLimitsForTests } from '@/lib/http/api-security';
 
 function nextResponse() {
-  return new Response(null, { status: 200 });
+  return NextResponse.next();
 }
 
 describe('global API proxy security', () => {
@@ -65,6 +65,21 @@ describe('global API proxy security', () => {
     expect(response.status).toBe(200);
     expect(mockGetSupabaseRequestContext).not.toHaveBeenCalled();
     expect(mockAuth).not.toHaveBeenCalled();
+  });
+
+  it('keeps the public support page anonymous while protecting support operations', async () => {
+    const publicResponse = await proxy(
+      new NextRequest('https://www.edu-platform.me/support'),
+    );
+    const operationsResponse = await proxy(
+      new NextRequest('https://www.edu-platform.me/support/operations'),
+    );
+
+    expect(publicResponse.status).toBe(200);
+    expect(operationsResponse.status).toBe(307);
+    expect(operationsResponse.headers.get('location')).toBe(
+      'https://www.edu-platform.me/lms/login?next=%2Fsupport%2Foperations',
+    );
   });
 
   it('accepts a server-validated Supabase bearer access token', async () => {
@@ -179,6 +194,7 @@ describe('global API proxy security', () => {
   it.each([
     ['GET', '/api/auth/session'],
     ['POST', '/api/mps/login'],
+    ['POST', '/api/support/inquiries'],
     ['POST', '/api/cron/student-health'],
   ])('narrowly exempts %s %s from user JWT auth', async (method, pathname) => {
     const response = await proxy(
@@ -345,6 +361,30 @@ describe('global API proxy security', () => {
 
     expect(response?.status).toBe(429);
     expect(response?.headers.get('retry-after')).toMatch(/^\d+$/);
+  });
+
+  it('rate-limits public support inquiries by IP with Retry-After', async () => {
+    let response: Response | undefined;
+
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      response = await proxy(
+        new NextRequest(
+          'https://www.edu-platform.me/api/support/inquiries',
+          {
+            method: 'POST',
+            headers: {
+              origin: 'https://www.edu-platform.me',
+              'x-forwarded-for': '203.0.113.44',
+            },
+          },
+        ),
+      );
+    }
+
+    expect(response?.status).toBe(429);
+    expect(response?.headers.get('retry-after')).toMatch(/^\d+$/);
+    expect(mockGetSupabaseRequestContext).not.toHaveBeenCalled();
+    expect(mockAuth).not.toHaveBeenCalled();
   });
 
   it('rate-limits authenticated parent-session teardown', async () => {

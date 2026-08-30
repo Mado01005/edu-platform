@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { MessageCircle } from 'lucide-react';
-import { WhatsAppLink } from '@/components/landing/ConversionLink';
+import { Mail } from 'lucide-react';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { landingContent } from '@/lib/landing/content';
 import { siteConfig } from '@/lib/siteConfig';
@@ -19,25 +18,32 @@ export function SiteFooter() {
             </span>
           </div>
           <LandingCopy as="p" className="mt-5 max-w-md text-sm leading-7 text-emerald-100/70">{landingContent.footer.description}</LandingCopy>
+          <a
+            className="mt-5 inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-sm text-emerald-50 outline-none hover:border-[#D4AF37]/50 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
+            href={`mailto:${siteConfig.support.email}`}
+          >
+            <Mail aria-hidden="true" className="size-4 shrink-0 text-[#E7CD78]" />
+            <span className="min-w-0">
+              <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.14em] text-emerald-100/55">{{ en: 'Support email', ar: 'البريد الإلكتروني للدعم' }}</LandingCopy>
+              <span className="block break-all font-bold text-white" dir="ltr">{siteConfig.support.email}</span>
+            </span>
+          </a>
         </div>
 
         <nav aria-label="Explore Oqool" className="flex flex-col items-start text-sm text-emerald-100/75">
           <LandingCopy className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#E7CD78]">{landingContent.footer.explore}</LandingCopy>
-          {landingContent.navigation.map((item) => <a className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href={item.href} key={item.href}><LandingCopy>{item.label}</LandingCopy></a>)}
+          {landingContent.navigation.map((item) => <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href={`/${item.href}`} key={item.href}><LandingCopy>{item.label}</LandingCopy></Link>)}
         </nav>
 
         <nav aria-label="Oqool access and legal" className="flex flex-col items-start text-sm text-emerald-100/75">
           <LandingCopy className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#E7CD78]">{landingContent.footer.access}</LandingCopy>
-          <a className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href="#curriculum"><LandingCopy>{{ en: 'Curriculum', ar: 'المناهج' }}</LandingCopy></a>
-          <WhatsAppLink
-            before={<MessageCircle aria-hidden="true" className="size-4 shrink-0 text-[#E7CD78]" />}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
-            eventName="contact_whatsapp_click"
-            intent="support"
-            label="footer_contact"
+          <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]" href="/#curriculum"><LandingCopy>{{ en: 'Curriculum', ar: 'المناهج' }}</LandingCopy></Link>
+          <Link
+            className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
+            href={siteConfig.routes.support}
           >
-            {{ en: 'Contact Us', ar: 'تواصل معنا' }}
-          </WhatsAppLink>
+            <LandingCopy>{{ en: 'Contact Us', ar: 'تواصل معنا' }}</LandingCopy>
+          </Link>
           <a
             className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
             href="https://docs.google.com/forms/d/e/1FAIpQLSczTjAyFpqxqcFvq2O7Hqmee8GN_6PvxsbEus61LdCiw7l9CA/viewform"

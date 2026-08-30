@@ -67,6 +67,11 @@ const PAYMENT_LIMIT: ApiRateLimitPolicy = {
   subject: { capacity: 30, refillPerSecond: 0.5 },
 };
 
+const PUBLIC_SUPPORT_INQUIRY_LIMIT: ApiRateLimitPolicy = {
+  name: 'public-support-inquiry',
+  ip: { capacity: 5, refillPerSecond: 5 / (10 * 60) },
+};
+
 const ADMIN_UPLOAD_LIMIT: ApiRateLimitPolicy = {
   name: 'admin-upload',
   ip: { capacity: 120, refillPerSecond: 2 },
@@ -87,6 +92,10 @@ export function getApiRateLimitPolicy(
   pathname: string,
   method: string,
 ): ApiRateLimitPolicy | null {
+  if (pathname === '/api/support/inquiries') {
+    return PUBLIC_SUPPORT_INQUIRY_LIMIT;
+  }
+
   if (matchesRoute(pathname, '/api/auth')) {
     return method === 'GET' && pathname.endsWith('/session')
       ? AUTH_READ_LIMIT
