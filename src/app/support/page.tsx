@@ -179,7 +179,7 @@ export default function PublicSupportPage() {
               </ul>
             </div>
 
-            <div className="min-w-0 rounded-[2rem] border border-emerald-950/10 bg-[#FAFAF7] p-5 shadow-[0_24px_70px_rgba(4,45,26,0.07)] sm:p-8 lg:p-10">
+            <div className="min-w-0 rounded-[2rem] border border-gray-200 bg-white p-5 shadow-[0_24px_70px_rgba(4,45,26,0.08)] sm:p-8 lg:p-10">
               <SupportContactForm />
             </div>
           </div>

@@ -12,16 +12,16 @@ const fetchMock = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>();
 const originalFetch = global.fetch;
 
 function fillValidSupportForm() {
-  fireEvent.change(screen.getByLabelText('First name'), {
+  fireEvent.change(screen.getByLabelText(/First name/), {
     target: { value: 'Oqool' },
   });
-  fireEvent.change(screen.getByLabelText('Last name'), {
+  fireEvent.change(screen.getByLabelText(/Last name/), {
     target: { value: 'Support' },
   });
-  fireEvent.change(screen.getByLabelText(/Phone number/), {
-    target: { value: '+201555920686' },
+  fireEvent.change(screen.getByLabelText(/Phone/), {
+    target: { value: '155 592 0686' },
   });
-  fireEvent.change(screen.getByLabelText('Email address'), {
+  fireEvent.change(screen.getByLabelText(/Email/), {
     target: { value: 'support-qa@example.com' },
   });
   fireEvent.change(screen.getByLabelText(/Message or questions/), {
@@ -42,21 +42,34 @@ describe('SupportContactForm', () => {
   it('shows client-side errors without sending an invalid form', () => {
     render(createElement(SupportContactForm));
 
+    expect(screen.getByRole('img', { name: 'Egypt flag' }).textContent).toBe('🇪🇬');
     expect(
-      (screen.getByLabelText(/Phone number/) as HTMLInputElement).placeholder,
-    ).toBe('');
+      (screen.getByLabelText('Country code') as HTMLSelectElement).value,
+    ).toBe('EG');
 
     fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
-    expect(screen.getAllByText('Enter at least 2 characters.')).toHaveLength(2);
-    expect(
-      screen.getByText('Enter a valid phone number with its country code.'),
-    ).toBeTruthy();
-    expect(screen.getByText('Enter a valid email address.')).toBeTruthy();
-    expect(
-      screen.getByText('Tell us how we can help in at least 10 characters.'),
-    ).toBeTruthy();
+    expect(screen.getByText('First name is required.')).toBeTruthy();
+    expect(screen.getByText('Last name is required.')).toBeTruthy();
+    expect(screen.getByText('Email is required.')).toBeTruthy();
+    expect(screen.getByText('Phone number is required.')).toBeTruthy();
+    expect(screen.getByText('Message or questions is required.')).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('updates the phone prefix and flag as one grouped field', () => {
+    render(createElement(SupportContactForm));
+
+    fireEvent.change(screen.getByLabelText('Country code'), {
+      target: { value: 'SA' },
+    });
+
+    expect(
+      (screen.getByLabelText('Country code') as HTMLSelectElement).value,
+    ).toBe('SA');
+    expect(
+      screen.getByRole('img', { name: 'Saudi Arabia flag' }).textContent,
+    ).toBe('🇸🇦');
   });
 
   it('shows loading and success states after a valid direct submission', async () => {
@@ -81,6 +94,14 @@ describe('SupportContactForm', () => {
       '/api/support/inquiries',
       expect.objectContaining({ method: 'POST' }),
     );
+    const requestInit = fetchMock.mock.calls[0]?.[1];
+    expect(JSON.parse(String(requestInit?.body))).toMatchObject({
+      email: 'support-qa@example.com',
+      firstName: 'Oqool',
+      lastName: 'Support',
+      message: 'Please help with this support question.',
+      phone: '+201555920686',
+    });
 
     await act(async () => {
       resolveResponse?.(
@@ -122,5 +143,16 @@ describe('SupportContactForm', () => {
       await screen.findByText(/email notification is temporarily pending/i),
     ).toBeTruthy();
     expect(screen.getByText(/QA-PENDING/)).toBeTruthy();
+  });
+
+  it('links the submission acknowledgment to the privacy policy', () => {
+    render(createElement(SupportContactForm));
+
+    expect(
+      screen.getByText(/By submitting this form I have read and acknowledged/),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: 'Privacy Policy' }).getAttribute('href'),
+    ).toBe('/privacy');
   });
 });

@@ -1,16 +1,30 @@
 'use client';
 
-import { CheckCircle2, LoaderCircle, RotateCcw, Send } from 'lucide-react';
+import {
+  CheckCircle2,
+  ChevronDown,
+  LoaderCircle,
+  RotateCcw,
+  Send,
+} from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { useLanguage } from '@/components/i18n/language-provider';
 import type { Locale, LocalizedText } from '@/lib/landing/types';
+import { normalizePhoneNumber } from '@/lib/phone';
+import type { CountryCode } from 'libphonenumber-js/min';
 
 type FieldName = 'firstName' | 'lastName' | 'phone' | 'email' | 'message';
 type FormValues = Record<FieldName, string>;
-type FormErrors = Partial<Record<FieldName, true>>;
+type FormErrors = Partial<Record<FieldName, string>>;
 type SubmissionReceipt = {
   emailDelivery: 'pending' | 'sent';
   reference: string;
+};
+type PhoneCountry = {
+  code: CountryCode;
+  dialCode: `+${string}`;
+  flag: string;
+  name: LocalizedText;
 };
 
 const initialValues: FormValues = {
@@ -21,8 +35,58 @@ const initialValues: FormValues = {
   phone: '',
 };
 
+const phoneCountries = [
+  {
+    code: 'EG',
+    dialCode: '+20',
+    flag: '🇪🇬',
+    name: { en: 'Egypt', ar: 'مصر' },
+  },
+  {
+    code: 'SA',
+    dialCode: '+966',
+    flag: '🇸🇦',
+    name: { en: 'Saudi Arabia', ar: 'السعودية' },
+  },
+  {
+    code: 'AE',
+    dialCode: '+971',
+    flag: '🇦🇪',
+    name: { en: 'United Arab Emirates', ar: 'الإمارات' },
+  },
+  {
+    code: 'KW',
+    dialCode: '+965',
+    flag: '🇰🇼',
+    name: { en: 'Kuwait', ar: 'الكويت' },
+  },
+  {
+    code: 'QA',
+    dialCode: '+974',
+    flag: '🇶🇦',
+    name: { en: 'Qatar', ar: 'قطر' },
+  },
+  {
+    code: 'BH',
+    dialCode: '+973',
+    flag: '🇧🇭',
+    name: { en: 'Bahrain', ar: 'البحرين' },
+  },
+  {
+    code: 'JO',
+    dialCode: '+962',
+    flag: '🇯🇴',
+    name: { en: 'Jordan', ar: 'الأردن' },
+  },
+] as const satisfies readonly PhoneCountry[];
+
 const copy = {
-  email: { en: 'Email address', ar: 'البريد الإلكتروني' },
+  countryCode: { en: 'Country code', ar: 'رمز الدولة' },
+  email: { en: 'Email', ar: 'البريد الإلكتروني' },
+  emailRequired: {
+    en: 'Email is required.',
+    ar: 'البريد الإلكتروني مطلوب.',
+  },
   emailInvalid: {
     en: 'Enter a valid email address.',
     ar: 'أدخل عنوان بريد إلكتروني صحيحًا.',
@@ -32,8 +96,20 @@ const copy = {
     ar: 'تعذر إرسال رسالتك. حاول مرة أخرى أو تواصل عبر واتساب.',
   },
   firstName: { en: 'First name', ar: 'الاسم الأول' },
+  firstNameRequired: {
+    en: 'First name is required.',
+    ar: 'الاسم الأول مطلوب.',
+  },
   lastName: { en: 'Last name', ar: 'اسم العائلة' },
+  lastNameRequired: {
+    en: 'Last name is required.',
+    ar: 'اسم العائلة مطلوب.',
+  },
   message: { en: 'Message or questions', ar: 'الرسالة أو الأسئلة' },
+  messageRequired: {
+    en: 'Message or questions is required.',
+    ar: 'الرسالة أو الأسئلة مطلوبة.',
+  },
   messageInvalid: {
     en: 'Tell us how we can help in at least 10 characters.',
     ar: 'أخبرنا كيف يمكننا مساعدتك في ١٠ أحرف على الأقل.',
@@ -42,14 +118,22 @@ const copy = {
     en: 'Enter at least 2 characters.',
     ar: 'أدخل حرفين على الأقل.',
   },
-  phone: { en: 'Phone number', ar: 'رقم الهاتف' },
-  phoneHint: {
-    en: 'Include the country code, for example +20 or +966.',
-    ar: 'أضف رمز الدولة، مثل +20 أو +966.',
+  phone: { en: 'Phone', ar: 'رقم الهاتف' },
+  phoneRequired: {
+    en: 'Phone number is required.',
+    ar: 'رقم الهاتف مطلوب.',
   },
   phoneInvalid: {
-    en: 'Enter a valid phone number with its country code.',
-    ar: 'أدخل رقم هاتف صحيحًا مع رمز الدولة.',
+    en: 'Enter a valid phone number.',
+    ar: 'أدخل رقم هاتف صحيحًا.',
+  },
+  privacyLead: {
+    en: 'By submitting this form I have read and acknowledged the',
+    ar: 'بإرسال هذا النموذج، أقر بأنني قرأت',
+  },
+  privacyLink: {
+    en: 'Privacy Policy',
+    ar: 'سياسة الخصوصية',
   },
   reference: { en: 'Reference', ar: 'الرقم المرجعي' },
   reset: { en: 'Send another message', ar: 'إرسال رسالة أخرى' },
@@ -70,25 +154,38 @@ function text(locale: Locale, value: LocalizedText) {
   return value[locale];
 }
 
-function validate(values: FormValues): FormErrors {
+function validate(
+  values: FormValues,
+  country: CountryCode,
+  locale: Locale,
+): FormErrors {
   const errors: FormErrors = {};
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phonePattern = /^\+[1-9]\d{7,14}$/;
 
-  if (values.firstName.trim().length < 2) {
-    errors.firstName = true;
+  if (!values.firstName.trim()) {
+    errors.firstName = text(locale, copy.firstNameRequired);
+  } else if (values.firstName.trim().length < 2) {
+    errors.firstName = text(locale, copy.nameInvalid);
   }
-  if (values.lastName.trim().length < 2) {
-    errors.lastName = true;
+  if (!values.lastName.trim()) {
+    errors.lastName = text(locale, copy.lastNameRequired);
+  } else if (values.lastName.trim().length < 2) {
+    errors.lastName = text(locale, copy.nameInvalid);
   }
-  if (!phonePattern.test(values.phone.replace(/[\s()-]/g, ''))) {
-    errors.phone = true;
+  if (!values.email.trim()) {
+    errors.email = text(locale, copy.emailRequired);
+  } else if (!emailPattern.test(values.email.trim())) {
+    errors.email = text(locale, copy.emailInvalid);
   }
-  if (!emailPattern.test(values.email.trim())) {
-    errors.email = true;
+  if (!values.phone.trim()) {
+    errors.phone = text(locale, copy.phoneRequired);
+  } else if (!normalizePhoneNumber(values.phone, country)) {
+    errors.phone = text(locale, copy.phoneInvalid);
   }
-  if (values.message.trim().length < 10) {
-    errors.message = true;
+  if (!values.message.trim()) {
+    errors.message = text(locale, copy.messageRequired);
+  } else if (values.message.trim().length < 10) {
+    errors.message = text(locale, copy.messageInvalid);
   }
 
   return errors;
@@ -102,9 +199,29 @@ function FieldError({ id, message }: { id: string; message?: string }) {
   ) : null;
 }
 
+function RequiredLabel({ children }: { children: string }) {
+  return (
+    <>
+      {children} <span className="text-red-600" aria-hidden="true">*</span>
+    </>
+  );
+}
+
+const baseInputClass =
+  'mt-2 min-h-13 w-full min-w-0 rounded-2xl border bg-white px-4 text-[15px] text-slate-900 shadow-sm outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-slate-400 hover:border-gray-400 focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100';
+
+function inputClass(hasError: boolean) {
+  return `${baseInputClass} ${
+    hasError
+      ? 'border-red-400 bg-red-50/30 focus:border-red-500 focus:ring-red-100'
+      : 'border-gray-300'
+  }`;
+}
+
 export function SupportContactForm() {
   const { locale } = useLanguage();
   const [values, setValues] = useState<FormValues>(initialValues);
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>('EG');
   const [errors, setErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,16 +233,36 @@ export function SupportContactForm() {
     setFormError('');
   };
 
+  const updatePhoneCountry = (value: string) => {
+    const nextCountry = phoneCountries.find((country) => country.code === value);
+    if (!nextCountry) return;
+
+    setPhoneCountry(nextCountry.code);
+    setErrors((current) => ({ ...current, phone: undefined }));
+    setFormError('');
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isSubmitting) return;
     const website = new FormData(event.currentTarget).get('website');
 
-    const nextErrors = validate(values);
+    const nextErrors = validate(values, phoneCountry, locale);
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
+      const firstInvalidField = (
+        ['firstName', 'lastName', 'email', 'phone', 'message'] as const
+      ).find((field) => nextErrors[field]);
+      if (firstInvalidField) {
+        requestAnimationFrame(() => {
+          document.getElementById(`support-${firstInvalidField}`)?.focus();
+        });
+      }
       return;
     }
+
+    const normalizedPhone = normalizePhoneNumber(values.phone, phoneCountry);
+    if (!normalizedPhone) return;
 
     setIsSubmitting(true);
     setFormError('');
@@ -134,6 +271,7 @@ export function SupportContactForm() {
       const response = await fetch('/api/support/inquiries', {
         body: JSON.stringify({
           ...values,
+          phone: normalizedPhone,
           locale,
           website: typeof website === 'string' ? website : '',
         }),
@@ -200,82 +338,56 @@ export function SupportContactForm() {
     );
   }
 
-  const inputClass =
-    'mt-2 min-h-12 w-full min-w-0 rounded-xl border border-emerald-950/12 bg-white px-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 hover:border-emerald-800/30 focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100';
+  const selectedCountry =
+    phoneCountries.find((country) => country.code === phoneCountry) ??
+    phoneCountries[0];
 
   return (
     <form className="min-w-0" noValidate onSubmit={handleSubmit}>
-      <div className="grid min-w-0 gap-5 sm:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-2 gap-x-3 gap-y-5 sm:gap-x-5">
         <label className="min-w-0 text-sm font-black text-[#042D1A]">
-          {text(locale, copy.firstName)}
+          <RequiredLabel>{text(locale, copy.firstName)}</RequiredLabel>
           <input
             aria-describedby={errors.firstName ? 'support-first-name-error' : undefined}
             aria-invalid={Boolean(errors.firstName)}
             autoComplete="given-name"
-            className={inputClass}
+            className={inputClass(Boolean(errors.firstName))}
+            id="support-firstName"
             maxLength={80}
             name="firstName"
             onChange={(event) => updateField('firstName', event.target.value)}
             required
             value={values.firstName}
           />
-          <FieldError
-            id="support-first-name-error"
-            message={errors.firstName ? text(locale, copy.nameInvalid) : undefined}
-          />
+          <FieldError id="support-first-name-error" message={errors.firstName} />
         </label>
 
         <label className="min-w-0 text-sm font-black text-[#042D1A]">
-          {text(locale, copy.lastName)}
+          <RequiredLabel>{text(locale, copy.lastName)}</RequiredLabel>
           <input
             aria-describedby={errors.lastName ? 'support-last-name-error' : undefined}
             aria-invalid={Boolean(errors.lastName)}
             autoComplete="family-name"
-            className={inputClass}
+            className={inputClass(Boolean(errors.lastName))}
+            id="support-lastName"
             maxLength={80}
             name="lastName"
             onChange={(event) => updateField('lastName', event.target.value)}
             required
             value={values.lastName}
           />
-          <FieldError
-            id="support-last-name-error"
-            message={errors.lastName ? text(locale, copy.nameInvalid) : undefined}
-          />
+          <FieldError id="support-last-name-error" message={errors.lastName} />
         </label>
 
-        <label className="min-w-0 text-sm font-black text-[#042D1A]">
-          {text(locale, copy.phone)}
-          <input
-            aria-describedby={errors.phone ? 'support-phone-error' : 'support-phone-hint'}
-            aria-invalid={Boolean(errors.phone)}
-            autoComplete="tel"
-            className={inputClass}
-            dir="ltr"
-            inputMode="tel"
-            maxLength={32}
-            name="phone"
-            onChange={(event) => updateField('phone', event.target.value)}
-            required
-            value={values.phone}
-          />
-          <p className="mt-1.5 text-xs font-medium leading-5 text-slate-500" id="support-phone-hint">
-            {text(locale, copy.phoneHint)}
-          </p>
-          <FieldError
-            id="support-phone-error"
-            message={errors.phone ? text(locale, copy.phoneInvalid) : undefined}
-          />
-        </label>
-
-        <label className="min-w-0 text-sm font-black text-[#042D1A]">
-          {text(locale, copy.email)}
+        <label className="col-span-2 min-w-0 text-sm font-black text-[#042D1A]">
+          <RequiredLabel>{text(locale, copy.email)}</RequiredLabel>
           <input
             aria-describedby={errors.email ? 'support-email-error' : undefined}
             aria-invalid={Boolean(errors.email)}
             autoComplete="email"
-            className={inputClass}
+            className={inputClass(Boolean(errors.email))}
             dir="ltr"
+            id="support-email"
             inputMode="email"
             maxLength={254}
             name="email"
@@ -284,18 +396,71 @@ export function SupportContactForm() {
             type="email"
             value={values.email}
           />
-          <FieldError
-            id="support-email-error"
-            message={errors.email ? text(locale, copy.emailInvalid) : undefined}
-          />
+          <FieldError id="support-email-error" message={errors.email} />
         </label>
 
-        <label className="min-w-0 text-sm font-black text-[#042D1A] sm:col-span-2">
-          {text(locale, copy.message)}
+        <div className="col-span-2 min-w-0 text-sm font-black text-[#042D1A]">
+          <label htmlFor="support-phone">
+            <RequiredLabel>{text(locale, copy.phone)}</RequiredLabel>
+          </label>
+          <div
+            className={`mt-2 flex min-h-13 w-full min-w-0 overflow-hidden rounded-2xl border bg-white shadow-sm transition-[border-color,box-shadow,background-color] duration-200 focus-within:ring-4 ${
+              errors.phone
+                ? 'border-red-400 bg-red-50/30 focus-within:border-red-500 focus-within:ring-red-100'
+                : 'border-gray-300 hover:border-gray-400 focus-within:border-[#084B2B] focus-within:ring-emerald-100'
+            }`}
+            dir="ltr"
+          >
+            <div className="relative flex shrink-0 border-r border-gray-200 bg-gray-50/80">
+              <select
+                aria-label={text(locale, copy.countryCode)}
+                className="min-h-13 appearance-none bg-transparent py-0 pl-4 pr-9 text-sm font-black text-[#084B2B] outline-none"
+                onChange={(event) => updatePhoneCountry(event.target.value)}
+                value={phoneCountry}
+              >
+                {phoneCountries.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.dialCode}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                aria-hidden="true"
+                className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-500"
+              />
+            </div>
+            <input
+              aria-describedby={errors.phone ? 'support-phone-error' : undefined}
+              aria-invalid={Boolean(errors.phone)}
+              autoComplete="tel-national"
+              className="min-h-13 min-w-0 flex-1 bg-transparent px-3 text-[15px] font-medium text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-400 sm:px-4"
+              id="support-phone"
+              inputMode="tel"
+              maxLength={24}
+              name="phone"
+              onChange={(event) => updateField('phone', event.target.value)}
+              placeholder={phoneCountry === 'EG' ? '100 000 0000' : undefined}
+              required
+              value={values.phone}
+            />
+            <span
+              aria-label={`${text(locale, selectedCountry.name)} flag`}
+              className="flex min-h-13 min-w-13 shrink-0 items-center justify-center border-l border-gray-200 bg-gray-50/80 text-xl"
+              role="img"
+            >
+              {selectedCountry.flag}
+            </span>
+          </div>
+          <FieldError id="support-phone-error" message={errors.phone} />
+        </div>
+
+        <label className="col-span-2 min-w-0 text-sm font-black text-[#042D1A]">
+          <RequiredLabel>{text(locale, copy.message)}</RequiredLabel>
           <textarea
             aria-describedby={errors.message ? 'support-message-error' : undefined}
             aria-invalid={Boolean(errors.message)}
-            className={`${inputClass} min-h-40 resize-y py-3 leading-6`}
+            className={`${inputClass(Boolean(errors.message))} min-h-40 resize-y py-3 leading-6`}
+            id="support-message"
             maxLength={4_000}
             name="message"
             onChange={(event) => updateField('message', event.target.value)}
@@ -305,7 +470,7 @@ export function SupportContactForm() {
           <div className="mt-1.5 flex items-start justify-between gap-3">
             <FieldError
               id="support-message-error"
-              message={errors.message ? text(locale, copy.messageInvalid) : undefined}
+              message={errors.message}
             />
             <span className="ms-auto shrink-0 text-xs font-bold text-slate-400" dir="ltr">
               {values.message.length}/4000
@@ -323,7 +488,7 @@ export function SupportContactForm() {
       ) : null}
 
       <button
-        className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-5 text-sm font-black text-white shadow-[0_14px_30px_rgba(8,75,43,0.16)] outline-none hover:bg-[#0F6E41] focus-visible:ring-4 focus-visible:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-65"
+        className="mt-6 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-[#084B2B] px-5 text-sm font-black text-white shadow-[0_14px_30px_rgba(8,75,43,0.18)] outline-none transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-[#0F6E41] hover:shadow-[0_18px_34px_rgba(8,75,43,0.22)] focus-visible:ring-4 focus-visible:ring-emerald-200 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-65"
         disabled={isSubmitting}
         type="submit"
       >
@@ -334,6 +499,16 @@ export function SupportContactForm() {
         )}
         {text(locale, isSubmitting ? copy.sending : copy.send)}
       </button>
+      <p className="mx-auto mt-4 max-w-xl text-center text-xs font-medium leading-5 text-slate-500">
+        {text(locale, copy.privacyLead)}{' '}
+        <a
+          className="font-bold text-[#084B2B] underline decoration-emerald-700/30 underline-offset-4 hover:text-[#0F6E41] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+          href="/privacy"
+        >
+          {text(locale, copy.privacyLink)}
+        </a>
+        .
+      </p>
     </form>
   );
 }
