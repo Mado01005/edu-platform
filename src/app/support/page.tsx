@@ -153,33 +153,34 @@ export default function PublicSupportPage() {
           <SupportChannels />
         </section>
 
-        <section className="border-y border-emerald-950/8 bg-white dark:border-gray-800 dark:bg-slate-950" id="contact-form">
+        <section className="relative isolate overflow-hidden border-y border-[#D4AF37]/15 bg-[#021E12]" id="contact-form">
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(15,110,65,0.22),transparent_28%),radial-gradient(circle_at_88%_86%,rgba(212,175,55,0.09),transparent_24%),linear-gradient(rgba(231,205,120,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(231,205,120,0.025)_1px,transparent_1px)] bg-[size:auto,auto,48px_48px,48px_48px]" />
           <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:px-8">
             <div className="min-w-0 lg:sticky lg:top-24">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8A6A16]">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#E7CD78]">
                 <LandingCopy>{{ en: 'Detailed support request', ar: 'طلب دعم مفصل' }}</LandingCopy>
               </p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight text-[#042D1A] dark:text-white sm:text-5xl">
+              <h2 className="mt-3 text-4xl font-black tracking-tight text-[#FBF6E2] sm:text-5xl">
                 <LandingCopy>{{ en: 'Tell us what you need.', ar: 'أخبرنا بما تحتاج إليه.' }}</LandingCopy>
               </h2>
-              <LandingCopy as="p" className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">{{
+              <LandingCopy as="p" className="mt-5 text-sm leading-7 text-emerald-100/65 sm:text-base">{{
                 en: 'Your message is stored securely for the Oqool support team. Required fields help us identify the right response channel.',
                 ar: 'تُحفظ رسالتك بأمان لفريق دعم عقول. تساعدنا الحقول المطلوبة في اختيار وسيلة الرد المناسبة.',
               }}</LandingCopy>
 
-              <ul className="mt-8 grid gap-4 text-sm text-slate-600 dark:text-slate-300">
+              <ul className="mt-8 grid gap-4 text-sm text-emerald-50/75">
                 <li className="flex items-start gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]"><ShieldCheck aria-hidden="true" className="size-4" /></span>
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-emerald-300/15 bg-emerald-300/10 text-emerald-200"><ShieldCheck aria-hidden="true" className="size-4" /></span>
                   <span className="pt-1.5 font-bold"><LandingCopy>{{ en: 'Validated and rate-limited submission', ar: 'إرسال محمي بالتحقق وتحديد المعدل' }}</LandingCopy></span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#FBF6E2] text-[#8A6A16]"><Clock3 aria-hidden="true" className="size-4" /></span>
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#D4AF37]/20 bg-[#D4AF37]/10 text-[#E7CD78]"><Clock3 aria-hidden="true" className="size-4" /></span>
                   <span className="pt-1.5 font-bold"><LandingCopy>{{ en: 'A reference appears immediately after submission', ar: 'يظهر رقم مرجعي فور الإرسال' }}</LandingCopy></span>
                 </li>
               </ul>
             </div>
 
-            <div className="min-w-0 rounded-[2rem] border border-gray-200 bg-white p-5 shadow-[0_24px_70px_rgba(4,45,26,0.08)] dark:border-gray-700 dark:bg-slate-900 dark:shadow-[0_24px_70px_rgba(0,0,0,0.24)] sm:p-8 lg:p-10">
+            <div className="min-w-0 rounded-[2rem] border border-[#D4AF37]/20 bg-[#042D1A] p-5 shadow-[0_28px_80px_rgba(0,0,0,0.35)] ring-1 ring-white/[0.025] sm:p-8 lg:p-10">
               <SupportContactForm />
             </div>
           </div>

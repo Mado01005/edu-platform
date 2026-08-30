@@ -44,8 +44,8 @@ describe('SupportContactForm', () => {
 
     expect(screen.getByRole('img', { name: 'Egypt flag' }).textContent).toBe('🇪🇬');
     expect(
-      (screen.getByLabelText('Country code') as HTMLSelectElement).value,
-    ).toBe('EG');
+      screen.getByRole('button', { name: 'Country code +20 Egypt' }),
+    ).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
@@ -57,16 +57,25 @@ describe('SupportContactForm', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('updates the phone prefix and flag as one grouped field', () => {
+  it('searches worldwide calling codes and updates the grouped prefix and flag', () => {
     render(createElement(SupportContactForm));
 
-    fireEvent.change(screen.getByLabelText('Country code'), {
-      target: { value: 'SA' },
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Country code +20 Egypt' }),
+    );
+
+    expect(screen.getAllByRole('option').length).toBeGreaterThan(200);
+
+    fireEvent.change(screen.getByLabelText('Search country or code'), {
+      target: { value: 'Saudi' },
     });
+    fireEvent.click(screen.getByRole('option', { name: /Saudi Arabia.*\+966/ }));
 
     expect(
-      (screen.getByLabelText('Country code') as HTMLSelectElement).value,
-    ).toBe('SA');
+      screen.getByRole('button', {
+        name: 'Country code +966 Saudi Arabia',
+      }),
+    ).toBeTruthy();
     expect(
       screen.getByRole('img', { name: 'Saudi Arabia flag' }).textContent,
     ).toBe('🇸🇦');
