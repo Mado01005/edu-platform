@@ -193,7 +193,7 @@ function validate(
 
 function FieldError({ id, message }: { id: string; message?: string }) {
   return message ? (
-    <p className="mt-1.5 text-xs font-bold text-red-700" id={id} role="alert">
+    <p className="mt-1.5 text-xs font-bold text-red-700 dark:text-red-300" id={id} role="alert">
       {message}
     </p>
   ) : null;
@@ -208,13 +208,13 @@ function RequiredLabel({ children }: { children: string }) {
 }
 
 const baseInputClass =
-  'mt-2 min-h-13 w-full min-w-0 rounded-2xl border bg-white px-4 text-[15px] text-slate-900 shadow-sm outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-slate-400 hover:border-gray-400 focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100';
+  'mt-2 min-h-13 w-full min-w-0 rounded-2xl border bg-white px-4 text-[15px] text-slate-900 shadow-sm outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-slate-400 hover:border-gray-400 focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-gray-600 dark:focus:border-emerald-400 dark:focus:ring-emerald-950';
 
 function inputClass(hasError: boolean) {
   return `${baseInputClass} ${
     hasError
-      ? 'border-red-400 bg-red-50/30 focus:border-red-500 focus:ring-red-100'
-      : 'border-gray-300'
+      ? 'border-red-400 bg-red-50/30 focus:border-red-500 focus:ring-red-100 dark:border-red-500 dark:bg-red-950/20 dark:focus:border-red-400 dark:focus:ring-red-950'
+      : 'border-gray-300 dark:border-gray-700'
   }`;
 }
 
@@ -344,8 +344,8 @@ export function SupportContactForm() {
 
   return (
     <form className="min-w-0" noValidate onSubmit={handleSubmit}>
-      <div className="grid min-w-0 grid-cols-2 gap-x-3 gap-y-5 sm:gap-x-5">
-        <label className="min-w-0 text-sm font-black text-[#042D1A]">
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+        <label className="min-w-0 text-sm font-black text-[#042D1A] dark:text-slate-100">
           <RequiredLabel>{text(locale, copy.firstName)}</RequiredLabel>
           <input
             aria-describedby={errors.firstName ? 'support-first-name-error' : undefined}
@@ -362,7 +362,7 @@ export function SupportContactForm() {
           <FieldError id="support-first-name-error" message={errors.firstName} />
         </label>
 
-        <label className="min-w-0 text-sm font-black text-[#042D1A]">
+        <label className="min-w-0 text-sm font-black text-[#042D1A] dark:text-slate-100">
           <RequiredLabel>{text(locale, copy.lastName)}</RequiredLabel>
           <input
             aria-describedby={errors.lastName ? 'support-last-name-error' : undefined}
@@ -379,7 +379,7 @@ export function SupportContactForm() {
           <FieldError id="support-last-name-error" message={errors.lastName} />
         </label>
 
-        <label className="col-span-2 min-w-0 text-sm font-black text-[#042D1A]">
+        <label className="min-w-0 text-sm font-black text-[#042D1A] dark:text-slate-100 sm:col-span-2">
           <RequiredLabel>{text(locale, copy.email)}</RequiredLabel>
           <input
             aria-describedby={errors.email ? 'support-email-error' : undefined}
@@ -399,22 +399,22 @@ export function SupportContactForm() {
           <FieldError id="support-email-error" message={errors.email} />
         </label>
 
-        <div className="col-span-2 min-w-0 text-sm font-black text-[#042D1A]">
+        <div className="min-w-0 text-sm font-black text-[#042D1A] dark:text-slate-100 sm:col-span-2">
           <label htmlFor="support-phone">
             <RequiredLabel>{text(locale, copy.phone)}</RequiredLabel>
           </label>
           <div
-            className={`mt-2 flex min-h-13 w-full min-w-0 overflow-hidden rounded-2xl border bg-white shadow-sm transition-[border-color,box-shadow,background-color] duration-200 focus-within:ring-4 ${
+            className={`mt-2 flex min-h-13 w-full min-w-0 overflow-hidden rounded-2xl border bg-white shadow-sm transition-[border-color,box-shadow,background-color] duration-200 focus-within:ring-4 dark:bg-slate-950 ${
               errors.phone
-                ? 'border-red-400 bg-red-50/30 focus-within:border-red-500 focus-within:ring-red-100'
-                : 'border-gray-300 hover:border-gray-400 focus-within:border-[#084B2B] focus-within:ring-emerald-100'
+                ? 'border-red-400 bg-red-50/30 focus-within:border-red-500 focus-within:ring-red-100 dark:border-red-500 dark:bg-red-950/20 dark:focus-within:border-red-400 dark:focus-within:ring-red-950'
+                : 'border-gray-300 hover:border-gray-400 focus-within:border-[#084B2B] focus-within:ring-emerald-100 dark:border-gray-700 dark:hover:border-gray-600 dark:focus-within:border-emerald-400 dark:focus-within:ring-emerald-950'
             }`}
             dir="ltr"
           >
-            <div className="relative flex shrink-0 border-r border-gray-200 bg-gray-50/80">
+            <div className="relative flex shrink-0 border-r border-gray-200 bg-gray-50/80 dark:border-gray-700 dark:bg-slate-900">
               <select
                 aria-label={text(locale, copy.countryCode)}
-                className="min-h-13 appearance-none bg-transparent py-0 pl-4 pr-9 text-sm font-black text-[#084B2B] outline-none"
+                className="min-h-13 appearance-none bg-transparent py-0 pl-4 pr-9 text-sm font-black text-[#084B2B] outline-none dark:text-emerald-300"
                 onChange={(event) => updatePhoneCountry(event.target.value)}
                 value={phoneCountry}
               >
@@ -426,14 +426,14 @@ export function SupportContactForm() {
               </select>
               <ChevronDown
                 aria-hidden="true"
-                className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-500"
+                className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-500 dark:text-slate-400"
               />
             </div>
             <input
               aria-describedby={errors.phone ? 'support-phone-error' : undefined}
               aria-invalid={Boolean(errors.phone)}
               autoComplete="tel-national"
-              className="min-h-13 min-w-0 flex-1 bg-transparent px-3 text-[15px] font-medium text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-400 sm:px-4"
+              className="min-h-13 min-w-0 flex-1 bg-transparent px-3 text-[15px] font-medium text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 sm:px-4"
               id="support-phone"
               inputMode="tel"
               maxLength={24}
@@ -445,7 +445,7 @@ export function SupportContactForm() {
             />
             <span
               aria-label={`${text(locale, selectedCountry.name)} flag`}
-              className="flex min-h-13 min-w-13 shrink-0 items-center justify-center border-l border-gray-200 bg-gray-50/80 text-xl"
+              className="flex min-h-13 min-w-13 shrink-0 items-center justify-center border-l border-gray-200 bg-gray-50/80 text-xl dark:border-gray-700 dark:bg-slate-900"
               role="img"
             >
               {selectedCountry.flag}
@@ -454,7 +454,7 @@ export function SupportContactForm() {
           <FieldError id="support-phone-error" message={errors.phone} />
         </div>
 
-        <label className="col-span-2 min-w-0 text-sm font-black text-[#042D1A]">
+        <label className="min-w-0 text-sm font-black text-[#042D1A] dark:text-slate-100 sm:col-span-2">
           <RequiredLabel>{text(locale, copy.message)}</RequiredLabel>
           <textarea
             aria-describedby={errors.message ? 'support-message-error' : undefined}
@@ -472,7 +472,7 @@ export function SupportContactForm() {
               id="support-message-error"
               message={errors.message}
             />
-            <span className="ms-auto shrink-0 text-xs font-bold text-slate-400" dir="ltr">
+            <span className="ms-auto shrink-0 text-xs font-bold text-slate-400 dark:text-slate-500" dir="ltr">
               {values.message.length}/4000
             </span>
           </div>
@@ -482,7 +482,7 @@ export function SupportContactForm() {
       <input aria-hidden="true" autoComplete="off" className="hidden" name="website" tabIndex={-1} type="text" />
 
       {formError ? (
-        <p className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-bold leading-6 text-red-700" role="alert">
+        <p className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-bold leading-6 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300" role="alert">
           {formError}
         </p>
       ) : null}
@@ -499,7 +499,7 @@ export function SupportContactForm() {
         )}
         {text(locale, isSubmitting ? copy.sending : copy.send)}
       </button>
-      <p className="mx-auto mt-4 max-w-xl text-center text-xs font-medium leading-5 text-slate-500">
+      <p className="mx-auto mt-4 max-w-xl text-center text-xs font-medium leading-5 text-slate-500 dark:text-slate-400">
         {text(locale, copy.privacyLead)}{' '}
         <a
           className="font-bold text-[#084B2B] underline decoration-emerald-700/30 underline-offset-4 hover:text-[#0F6E41] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"

@@ -153,21 +153,21 @@ export default function PublicSupportPage() {
           <SupportChannels />
         </section>
 
-        <section className="border-y border-emerald-950/8 bg-white" id="contact-form">
+        <section className="border-y border-emerald-950/8 bg-white dark:border-gray-800 dark:bg-slate-950" id="contact-form">
           <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:px-8">
             <div className="min-w-0 lg:sticky lg:top-24">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8A6A16]">
                 <LandingCopy>{{ en: 'Detailed support request', ar: 'طلب دعم مفصل' }}</LandingCopy>
               </p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight text-[#042D1A] sm:text-5xl">
+              <h2 className="mt-3 text-4xl font-black tracking-tight text-[#042D1A] dark:text-white sm:text-5xl">
                 <LandingCopy>{{ en: 'Tell us what you need.', ar: 'أخبرنا بما تحتاج إليه.' }}</LandingCopy>
               </h2>
-              <LandingCopy as="p" className="mt-5 text-sm leading-7 text-slate-600 sm:text-base">{{
+              <LandingCopy as="p" className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">{{
                 en: 'Your message is stored securely for the Oqool support team. Required fields help us identify the right response channel.',
                 ar: 'تُحفظ رسالتك بأمان لفريق دعم عقول. تساعدنا الحقول المطلوبة في اختيار وسيلة الرد المناسبة.',
               }}</LandingCopy>
 
-              <ul className="mt-8 grid gap-4 text-sm text-slate-600">
+              <ul className="mt-8 grid gap-4 text-sm text-slate-600 dark:text-slate-300">
                 <li className="flex items-start gap-3">
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]"><ShieldCheck aria-hidden="true" className="size-4" /></span>
                   <span className="pt-1.5 font-bold"><LandingCopy>{{ en: 'Validated and rate-limited submission', ar: 'إرسال محمي بالتحقق وتحديد المعدل' }}</LandingCopy></span>
@@ -179,7 +179,7 @@ export default function PublicSupportPage() {
               </ul>
             </div>
 
-            <div className="min-w-0 rounded-[2rem] border border-gray-200 bg-white p-5 shadow-[0_24px_70px_rgba(4,45,26,0.08)] sm:p-8 lg:p-10">
+            <div className="min-w-0 rounded-[2rem] border border-gray-200 bg-white p-5 shadow-[0_24px_70px_rgba(4,45,26,0.08)] dark:border-gray-700 dark:bg-slate-900 dark:shadow-[0_24px_70px_rgba(0,0,0,0.24)] sm:p-8 lg:p-10">
               <SupportContactForm />
             </div>
           </div>
