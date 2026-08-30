@@ -4,6 +4,7 @@ import {
   createPublicSupportInquiry,
   publicSupportInquirySchema,
 } from '@/lib/support-inquiry';
+import { sendSupportInquiryEmail } from '@/lib/support-email';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -51,9 +52,26 @@ export async function POST(request: Request) {
 
   try {
     const inquiry = await createPublicSupportInquiry(parsed.data);
+    const reference = inquiry.id.slice(-8).toUpperCase();
+    const emailDelivery = await sendSupportInquiryEmail({
+      email: parsed.data.email,
+      firstName: parsed.data.firstName,
+      inquiryId: inquiry.id,
+      lastName: parsed.data.lastName,
+      locale: parsed.data.locale,
+      message: parsed.data.message,
+      phone: parsed.data.phone,
+      reference,
+    });
+    const emailWasSent = emailDelivery.status === 'sent';
+
     return noStoreJson(
-      { ok: true, reference: inquiry.id.slice(-8).toUpperCase() },
-      201,
+      {
+        emailDelivery: emailWasSent ? 'sent' : 'pending',
+        ok: true,
+        reference,
+      },
+      emailWasSent ? 201 : 202,
     );
   } catch (error) {
     console.error('[PUBLIC_SUPPORT_INQUIRY_CREATE]', error);

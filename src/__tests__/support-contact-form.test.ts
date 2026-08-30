@@ -11,8 +11,27 @@ jest.mock('@/components/i18n/language-provider', () => ({
 const fetchMock = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>();
 const originalFetch = global.fetch;
 
+function fillValidSupportForm() {
+  fireEvent.change(screen.getByLabelText('First name'), {
+    target: { value: 'Oqool' },
+  });
+  fireEvent.change(screen.getByLabelText('Last name'), {
+    target: { value: 'Support' },
+  });
+  fireEvent.change(screen.getByLabelText(/Phone number/), {
+    target: { value: '+201555920686' },
+  });
+  fireEvent.change(screen.getByLabelText('Email address'), {
+    target: { value: 'support-qa@example.com' },
+  });
+  fireEvent.change(screen.getByLabelText(/Message or questions/), {
+    target: { value: 'Please help with this support question.' },
+  });
+}
+
 describe('SupportContactForm', () => {
   beforeEach(() => {
+    fetchMock.mockReset();
     global.fetch = fetchMock;
   });
 
@@ -22,6 +41,10 @@ describe('SupportContactForm', () => {
 
   it('shows client-side errors without sending an invalid form', () => {
     render(createElement(SupportContactForm));
+
+    expect(
+      (screen.getByLabelText(/Phone number/) as HTMLInputElement).placeholder,
+    ).toBe('');
 
     fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
@@ -45,21 +68,7 @@ describe('SupportContactForm', () => {
     );
 
     render(createElement(SupportContactForm));
-    fireEvent.change(screen.getByLabelText('First name'), {
-      target: { value: 'Oqool' },
-    });
-    fireEvent.change(screen.getByLabelText('Last name'), {
-      target: { value: 'Support' },
-    });
-    fireEvent.change(screen.getByLabelText(/Phone number/), {
-      target: { value: '+201555920686' },
-    });
-    fireEvent.change(screen.getByLabelText('Email address'), {
-      target: { value: 'support-qa@example.com' },
-    });
-    fireEvent.change(screen.getByLabelText(/Message or questions/), {
-      target: { value: 'Please help with this support question.' },
-    });
+    fillValidSupportForm();
 
     fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
@@ -76,7 +85,11 @@ describe('SupportContactForm', () => {
     await act(async () => {
       resolveResponse?.(
         {
-          json: async () => ({ ok: true, reference: 'QA-LOCAL' }),
+          json: async () => ({
+            emailDelivery: 'sent',
+            ok: true,
+            reference: 'QA-LOCAL',
+          }),
           ok: true,
         } as Response,
       );
@@ -89,5 +102,25 @@ describe('SupportContactForm', () => {
     expect(
       screen.getByRole('button', { name: 'Send another message' }),
     ).toBeTruthy();
+  });
+
+  it('truthfully reports when the inquiry is saved but email is pending', async () => {
+    fetchMock.mockResolvedValueOnce({
+      json: async () => ({
+        emailDelivery: 'pending',
+        ok: true,
+        reference: 'QA-PENDING',
+      }),
+      ok: true,
+    } as Response);
+
+    render(createElement(SupportContactForm));
+    fillValidSupportForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+
+    expect(
+      await screen.findByText(/email notification is temporarily pending/i),
+    ).toBeTruthy();
+    expect(screen.getByText(/QA-PENDING/)).toBeTruthy();
   });
 });

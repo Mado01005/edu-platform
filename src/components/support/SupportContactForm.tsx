@@ -8,6 +8,10 @@ import type { Locale, LocalizedText } from '@/lib/landing/types';
 type FieldName = 'firstName' | 'lastName' | 'phone' | 'email' | 'message';
 type FormValues = Record<FieldName, string>;
 type FormErrors = Partial<Record<FieldName, true>>;
+type SubmissionReceipt = {
+  emailDelivery: 'pending' | 'sent';
+  reference: string;
+};
 
 const initialValues: FormValues = {
   email: '',
@@ -52,8 +56,12 @@ const copy = {
   send: { en: 'Send message', ar: 'إرسال الرسالة' },
   sending: { en: 'Sending securely…', ar: 'جارٍ الإرسال بأمان…' },
   successBody: {
-    en: 'Your message is now with the Oqool support team. We will respond using the contact details you provided.',
-    ar: 'وصلت رسالتك إلى فريق دعم عقول. سنتواصل معك عبر بيانات الاتصال التي أرسلتها.',
+    en: 'Your message was saved and emailed to the Oqool support team. We will respond using the contact details you provided.',
+    ar: 'تم حفظ رسالتك وإرسالها بالبريد الإلكتروني إلى فريق دعم عقول. سنتواصل معك عبر بيانات الاتصال التي أرسلتها.',
+  },
+  successBodyPending: {
+    en: 'Your request is saved, but the email notification is temporarily pending. The Oqool support team can still review it in the support portal.',
+    ar: 'تم حفظ طلبك، لكن إشعار البريد الإلكتروني قيد الانتظار مؤقتًا. لا يزال بإمكان فريق دعم عقول مراجعته في بوابة الدعم.',
   },
   successTitle: { en: 'Message received', ar: 'تم استلام رسالتك' },
 } satisfies Record<string, LocalizedText>;
@@ -100,7 +108,7 @@ export function SupportContactForm() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [reference, setReference] = useState('');
+  const [submission, setSubmission] = useState<SubmissionReceipt | null>(null);
 
   const updateField = (field: FieldName, value: string) => {
     setValues((current) => ({ ...current, [field]: value }));
@@ -139,12 +147,18 @@ export function SupportContactForm() {
         typeof Reflect.get(result, 'reference') === 'string'
           ? String(Reflect.get(result, 'reference'))
           : '';
+      const emailDelivery =
+        result &&
+        typeof result === 'object' &&
+        Reflect.get(result, 'emailDelivery') === 'sent'
+          ? 'sent'
+          : 'pending';
 
       if (!response.ok || !receivedReference) {
         throw new Error('Support inquiry submission failed.');
       }
 
-      setReference(receivedReference);
+      setSubmission({ emailDelivery, reference: receivedReference });
       setValues(initialValues);
       setErrors({});
     } catch {
@@ -154,7 +168,7 @@ export function SupportContactForm() {
     }
   };
 
-  if (reference) {
+  if (submission) {
     return (
       <div className="flex min-h-[34rem] flex-col items-center justify-center rounded-[2rem] border border-emerald-200 bg-emerald-50/80 p-6 text-center sm:p-10" role="status">
         <span className="flex size-16 items-center justify-center rounded-full bg-[#084B2B] text-white shadow-[0_16px_40px_rgba(8,75,43,0.2)]">
@@ -164,14 +178,19 @@ export function SupportContactForm() {
           {text(locale, copy.successTitle)}
         </h2>
         <p className="mt-3 max-w-md text-sm leading-7 text-slate-600 sm:text-base">
-          {text(locale, copy.successBody)}
+          {text(
+            locale,
+            submission.emailDelivery === 'sent'
+              ? copy.successBody
+              : copy.successBodyPending,
+          )}
         </p>
         <p className="mt-6 rounded-full border border-[#D4AF37]/40 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#8A6A16]">
-          {text(locale, copy.reference)}: <span dir="ltr">{reference}</span>
+          {text(locale, copy.reference)}: <span dir="ltr">{submission.reference}</span>
         </p>
         <button
           className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-emerald-950/10 bg-white px-5 text-sm font-black text-[#084B2B] outline-none hover:border-[#D4AF37] hover:bg-[#FBF6E2] focus-visible:ring-4 focus-visible:ring-emerald-200"
-          onClick={() => setReference('')}
+          onClick={() => setSubmission(null)}
           type="button"
         >
           <RotateCcw aria-hidden="true" className="size-4" />
@@ -237,7 +256,6 @@ export function SupportContactForm() {
             maxLength={32}
             name="phone"
             onChange={(event) => updateField('phone', event.target.value)}
-            placeholder="+966 59 689 9362"
             required
             value={values.phone}
           />
