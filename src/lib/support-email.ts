@@ -48,7 +48,7 @@ export async function sendSupportInquiryEmail(
 
   if (!apiKey) {
     console.warn('[SUPPORT_EMAIL_NOT_CONFIGURED]', {
-      recipient: siteConfig.support.email,
+      reason: 'missing_resend_api_key',
       reference: input.reference,
     });
     return { status: 'not_configured' };
@@ -72,18 +72,18 @@ export async function sendSupportInquiryEmail(
     );
 
     if (error || !data?.id) {
-      console.error('[SUPPORT_EMAIL_DISPATCH_FAILED]', {
+      console.warn('[SUPPORT_EMAIL_DISPATCH_PENDING]', {
         code: error?.name,
-        message: error?.message ?? 'Resend did not return a message ID.',
+        reason: error ? 'provider_rejected' : 'missing_provider_message_id',
         reference: input.reference,
       });
       return { status: 'failed' };
     }
 
     return { providerMessageId: data.id, status: 'sent' };
-  } catch (error) {
-    console.error('[SUPPORT_EMAIL_DISPATCH_FAILED]', {
-      message: error instanceof Error ? error.message : 'Unknown provider error.',
+  } catch {
+    console.warn('[SUPPORT_EMAIL_DISPATCH_PENDING]', {
+      reason: 'provider_exception',
       reference: input.reference,
     });
     return { status: 'failed' };

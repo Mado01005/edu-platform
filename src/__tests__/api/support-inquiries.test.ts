@@ -99,6 +99,23 @@ describe('public support inquiry API', () => {
     expect(mockSupportInquiryCreate).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps the stored inquiry successful when Resend rejects the sender', async () => {
+    mockSendSupportInquiryEmail.mockResolvedValueOnce({ status: 'failed' });
+
+    const response = await POST(supportRequest(validBody));
+
+    expect(response.status).toBe(202);
+    await expect(response.json()).resolves.toEqual({
+      emailDelivery: 'pending',
+      ok: true,
+      reference: 'ABCDEFGH',
+    });
+    expect(mockSupportInquiryCreate).toHaveBeenCalledTimes(1);
+    expect(mockSupportInquiryCreate.mock.invocationCallOrder[0]).toBeLessThan(
+      mockSendSupportInquiryEmail.mock.invocationCallOrder[0] ?? 0,
+    );
+  });
+
   it('rejects invalid fields without writing', async () => {
     const response = await POST(
       supportRequest({ ...validBody, email: 'not-an-email', message: 'short' }),

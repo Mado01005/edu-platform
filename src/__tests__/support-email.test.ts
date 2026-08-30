@@ -22,7 +22,6 @@ const emailInput = {
 describe('support inquiry email delivery', () => {
   const originalApiKey = process.env.RESEND_API_KEY;
   const originalFrom = process.env.SUPPORT_EMAIL_FROM;
-  let consoleError: jest.SpiedFunction<typeof console.error>;
   let consoleWarn: jest.SpiedFunction<typeof console.warn>;
 
   beforeEach(() => {
@@ -30,12 +29,10 @@ describe('support inquiry email delivery', () => {
     delete process.env.SUPPORT_EMAIL_FROM;
     mockResendConstructor.mockClear();
     mockResendSend.mockReset();
-    consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
-    consoleError.mockRestore();
     consoleWarn.mockRestore();
   });
 
@@ -56,7 +53,7 @@ describe('support inquiry email delivery', () => {
     expect(consoleWarn).toHaveBeenCalledWith(
       '[SUPPORT_EMAIL_NOT_CONFIGURED]',
       {
-        recipient: 'support@oqoolacademy.com',
+        reason: 'missing_resend_api_key',
         reference: 'ABCDEFGH',
       },
     );
@@ -64,8 +61,6 @@ describe('support inquiry email delivery', () => {
 
   it('sends every submitted detail to the fixed support recipient', async () => {
     process.env.RESEND_API_KEY = 're_test_key';
-    process.env.SUPPORT_EMAIL_FROM =
-      'Oqool Academy <notifications@oqoolacademy.com>';
     mockResendSend.mockResolvedValue({
       data: { id: 'email_123' },
       error: null,
@@ -79,7 +74,7 @@ describe('support inquiry email delivery', () => {
     expect(mockResendConstructor).toHaveBeenCalledWith('re_test_key');
     expect(mockResendSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: 'Oqool Academy <notifications@oqoolacademy.com>',
+        from: 'Oqool Academy Support <support@oqoolacademy.com>',
         replyTo: 'parent@example.com',
         subject: 'New Oqool support inquiry — ABCDEFGH',
         text: expect.stringContaining('Phone: +201555920686'),
@@ -104,9 +99,17 @@ describe('support inquiry email delivery', () => {
     await expect(sendSupportInquiryEmail(emailInput)).resolves.toEqual({
       status: 'failed',
     });
-    expect(consoleError).toHaveBeenCalledWith(
-      '[SUPPORT_EMAIL_DISPATCH_FAILED]',
-      expect.objectContaining({ reference: 'ABCDEFGH' }),
+    expect(consoleWarn).toHaveBeenCalledWith(
+      '[SUPPORT_EMAIL_DISPATCH_PENDING]',
+      {
+        code: 'validation_error',
+        reason: 'provider_rejected',
+        reference: 'ABCDEFGH',
+      },
     );
+    const serializedWarnings = JSON.stringify(consoleWarn.mock.calls);
+    expect(serializedWarnings).not.toContain(emailInput.email);
+    expect(serializedWarnings).not.toContain(emailInput.message);
+    expect(serializedWarnings).not.toContain(emailInput.phone);
   });
 });
