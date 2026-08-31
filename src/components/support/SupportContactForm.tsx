@@ -306,7 +306,11 @@ export function SupportContactForm() {
       ).find((field) => nextErrors[field]);
       if (firstInvalidField) {
         requestAnimationFrame(() => {
-          document.getElementById(`support-${firstInvalidField}`)?.focus();
+          const fieldId =
+            firstInvalidField === 'message'
+              ? 'support-message'
+              : firstInvalidField;
+          document.getElementById(fieldId)?.focus();
         });
       }
       return;
@@ -399,7 +403,7 @@ export function SupportContactForm() {
             aria-invalid={Boolean(errors.firstName)}
             autoComplete="given-name"
             className={inputClass(Boolean(errors.firstName))}
-            id="support-firstName"
+            id="firstName"
             maxLength={80}
             name="firstName"
             onChange={(event) => updateField('firstName', event.target.value)}
@@ -416,7 +420,7 @@ export function SupportContactForm() {
             aria-invalid={Boolean(errors.lastName)}
             autoComplete="family-name"
             className={inputClass(Boolean(errors.lastName))}
-            id="support-lastName"
+            id="lastName"
             maxLength={80}
             name="lastName"
             onChange={(event) => updateField('lastName', event.target.value)}
@@ -434,7 +438,7 @@ export function SupportContactForm() {
             autoComplete="email"
             className={inputClass(Boolean(errors.email))}
             dir="ltr"
-            id="support-email"
+            id="email"
             inputMode="email"
             maxLength={254}
             name="email"
@@ -447,7 +451,7 @@ export function SupportContactForm() {
         </label>
 
         <div className="min-w-0 text-sm font-black text-[#FBF6E2] sm:col-span-2">
-          <label htmlFor="support-phone">
+          <label htmlFor="phone">
             <RequiredLabel>{text(locale, copy.phone)}</RequiredLabel>
           </label>
           <div className="relative mt-2" ref={countryPickerRef}>
@@ -482,7 +486,7 @@ export function SupportContactForm() {
                 aria-invalid={Boolean(errors.phone)}
                 autoComplete="tel-national"
                 className="min-h-13 min-w-0 flex-1 bg-transparent px-3 text-[15px] font-medium text-[#FBF6E2] outline-none placeholder:font-normal placeholder:text-emerald-100/35 sm:px-4"
-                id="support-phone"
+                id="phone"
                 inputMode="tel"
                 maxLength={24}
                 name="phone"
