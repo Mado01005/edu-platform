@@ -49,14 +49,14 @@ export default function Navbar({
       width={36}
     />
   ) : (
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#084B2B] text-xs font-bold text-white">
+    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-base text-xs font-bold text-brand-white">
       {initials}
     </span>
   );
 
   return (
     <>
-      <header className="sticky top-0 z-50 h-16 w-full border-b border-emerald-950/10 bg-white px-4 shadow-sm">
+      <header className="sticky top-0 z-50 h-16 w-full border-b border-brand-rim bg-white px-4 shadow-sm">
         <div className="mx-auto flex h-full w-full max-w-7xl min-w-0 items-center justify-between gap-4">
           <Link
             className="group flex min-w-max shrink-0 items-center gap-3"
@@ -77,7 +77,7 @@ export default function Navbar({
           <div className="ml-auto flex min-w-0 shrink-0 items-center gap-2 whitespace-nowrap">
             {userName ? (
               <Link
-                className="hidden min-w-0 max-w-[13rem] items-center gap-2 rounded-xl border border-emerald-950/10 bg-white p-1.5 pr-2 transition hover:border-emerald-300 hover:bg-emerald-50 sm:flex"
+                className="hidden min-w-0 max-w-[13rem] items-center gap-2 rounded-xl border border-brand-rim bg-white p-1.5 pr-2 transition hover:border-brand-gold hover:bg-brand-gold/10 sm:flex"
                 href="/profile"
               >
                 {avatar}
@@ -85,7 +85,7 @@ export default function Navbar({
                   <span className="block max-w-28 truncate whitespace-nowrap text-xs font-semibold text-slate-900">
                     {userName}
                   </span>
-                  <span className="mt-0.5 block max-w-full truncate whitespace-nowrap text-[8px] font-semibold uppercase tracking-[0.12em] text-[#084B2B]">
+                  <span className="mt-0.5 block max-w-full truncate whitespace-nowrap text-[8px] font-semibold uppercase tracking-[0.12em] text-brand-base">
                     {visibleRole}
                   </span>
                 </span>
@@ -95,7 +95,7 @@ export default function Navbar({
 
             <button
               aria-label={loggingOut ? 'Signing out' : 'Sign out'}
-              className="hidden h-10 shrink-0 items-center gap-2 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 lg:flex"
+              className="hidden h-10 shrink-0 items-center gap-2 rounded-xl border border-brand-rim bg-white px-3 text-sm font-semibold text-slate-600 transition hover:border-brand-gold hover:bg-brand-gold/10 hover:text-brand-gold disabled:opacity-50 lg:flex"
               disabled={loggingOut}
               id="logout-btn"
               onClick={() => void handleLogout()}
@@ -110,7 +110,7 @@ export default function Navbar({
             <button
               aria-expanded={menuOpen}
               aria-label="Toggle account menu"
-              className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-950/10 bg-white text-slate-600 sm:hidden"
+              className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-brand-rim bg-white text-slate-600 transition hover:border-brand-gold hover:bg-brand-gold/10 hover:text-brand-gold sm:hidden"
               onClick={() => setMenuOpen((current) => !current)}
               type="button"
             >
@@ -121,10 +121,10 @@ export default function Navbar({
       </header>
 
       {menuOpen ? (
-        <div className="fixed inset-x-4 top-20 z-50 flex min-w-0 flex-col gap-2 rounded-2xl border border-emerald-950/10 bg-white p-3 shadow-md sm:hidden">
+        <div className="fixed inset-x-4 top-20 z-50 flex min-w-0 flex-col gap-2 rounded-2xl border border-brand-rim bg-white p-3 shadow-md sm:hidden">
           {userName ? (
             <Link
-              className="flex min-w-0 items-center gap-3 rounded-xl bg-[#F8FAF7] p-3"
+              className="flex min-w-0 items-center gap-3 rounded-xl bg-brand-gold/10 p-3"
               href="/profile"
               onClick={() => setMenuOpen(false)}
             >
@@ -133,18 +133,18 @@ export default function Navbar({
                 <span className="block truncate whitespace-nowrap text-sm font-semibold text-slate-900">
                   {userName}
                 </span>
-                <span className="block truncate whitespace-nowrap text-[9px] font-semibold uppercase tracking-wider text-[#084B2B]">
+                <span className="block truncate whitespace-nowrap text-[9px] font-semibold uppercase tracking-wider text-brand-base">
                   {visibleRole}
                 </span>
               </span>
             </Link>
           ) : null}
           {isAdmin ? (
-            <Link className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100" href="/admin" onClick={() => setMenuOpen(false)}>
+            <Link className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 hover:bg-brand-gold/10 hover:text-brand-gold" href="/admin" onClick={() => setMenuOpen(false)}>
               <GraduationCap className="size-4" aria-hidden="true" /> Admin home
             </Link>
           ) : null}
-          <Link className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100" href="/settings" onClick={() => setMenuOpen(false)}>
+          <Link className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 hover:bg-brand-gold/10 hover:text-brand-gold" href="/settings" onClick={() => setMenuOpen(false)}>
             <Settings className="size-4" aria-hidden="true" /> Settings
           </Link>
           <button

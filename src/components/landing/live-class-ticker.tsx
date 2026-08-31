@@ -34,18 +34,18 @@ export function LiveClassTicker({
     : '--:--:--';
 
   return (
-    <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border border-emerald-900/10 bg-white/80 px-3.5 py-2 text-[11px] font-extrabold text-[#1A2E22] shadow-sm shadow-emerald-950/5 backdrop-blur-sm sm:flex-nowrap sm:px-4">
+    <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border border-brand-rim bg-brand-surface px-3.5 py-2 text-[11px] font-extrabold text-brand-white shadow-sm shadow-black/20 backdrop-blur-sm sm:flex-nowrap sm:px-4">
       <span aria-hidden="true" className="relative flex size-2.5 shrink-0">
-        <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-50" />
-        <span className="relative inline-flex size-2.5 rounded-full bg-emerald-600" />
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-gold-hover opacity-50" />
+        <span className="relative inline-flex size-2.5 rounded-full bg-brand-gold" />
       </span>
       <span className="min-w-0 flex-1 leading-5 sm:truncate">
         Next Live Masterclass starting soon
-        <span className="mx-1.5 text-[#B18A18]">|</span>
+        <span className="mx-1.5 text-brand-gold">|</span>
         <span className="font-arabic" dir="rtl" lang="ar">بث مباشر قادم</span>
         {title ? <span className="hidden sm:inline"> · {title}</span> : null}
       </span>
-      <time className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 font-mono tabular-nums text-[#084B2B]" dateTime={startTime ?? undefined}>
+      <time className="shrink-0 rounded-full bg-brand-gold px-2 py-1 font-mono tabular-nums text-brand-base" dateTime={startTime ?? undefined}>
         {startTime ? countdown : 'SOON'}
       </time>
     </div>

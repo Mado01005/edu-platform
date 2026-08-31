@@ -51,7 +51,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
           }}
         />
       ) : null}
-      <header className="sticky top-0 z-50 h-16 w-full border-b border-emerald-950/10 bg-white px-4 shadow-sm shadow-emerald-950/5">
+      <header className="sticky top-0 z-50 h-16 w-full border-b border-brand-rim bg-white px-4 shadow-sm shadow-brand-base/5">
         <div className="mx-auto flex h-full w-full max-w-7xl min-w-0 items-center justify-between gap-4">
           {/* Left zone: brand */}
           <Link
@@ -78,7 +78,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
             >
               {navigation.map(({ href, icon: Icon, label }) => (
                 <Link
-                  className="flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-[#084B2B]"
+                  className="flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-brand-gold/10 hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
                   href={href}
                   key={href}
                 >

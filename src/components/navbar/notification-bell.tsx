@@ -72,28 +72,28 @@ function notificationPresentation(type: string) {
     return {
       Icon: CalendarCheck2,
       label: 'Attendance',
-      tone: 'bg-emerald-100 text-[#084B2B]',
+      tone: 'bg-brand-gold/15 text-brand-base',
     };
   }
   if (type === 'GRADE') {
     return {
       Icon: GraduationCap,
       label: 'Grade',
-      tone: 'bg-emerald-100 text-[#084B2B]',
+      tone: 'bg-brand-gold/15 text-brand-base',
     };
   }
   if (type === 'PAYMENT') {
     return {
       Icon: ReceiptText,
       label: 'Payment',
-      tone: 'bg-emerald-50 text-emerald-700',
+      tone: 'bg-brand-gold/10 text-brand-base',
     };
   }
   if (type === 'ANNOUNCEMENT') {
     return {
       Icon: Megaphone,
       label: 'Announcement',
-      tone: 'bg-amber-50 text-amber-700',
+      tone: 'bg-brand-gold/10 text-brand-gold',
     };
   }
 
@@ -414,12 +414,12 @@ export function NotificationBell() {
               ? `Notifications, ${unreadCount} unread`
               : 'Notifications'
           }
-          className="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-950/10 bg-white text-slate-600 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#084B2B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
+          className="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-brand-rim bg-white text-slate-600 transition hover:border-brand-gold hover:bg-brand-gold/10 hover:text-brand-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
           type="button"
         >
           <Bell className="size-4.5" aria-hidden="true" />
           {unreadCount ? (
-            <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-[#084B2B] px-1 text-[9px] font-bold leading-none text-white">
+            <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-brand-gold px-1 text-[9px] font-bold leading-none text-brand-base">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           ) : null}
@@ -430,7 +430,7 @@ export function NotificationBell() {
         className="w-80 max-w-[calc(100vw-2rem)] overflow-hidden p-0"
         collisionPadding={16}
       >
-        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-emerald-950/10 px-4 py-3">
+        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-brand-rim px-4 py-3">
           <span className="min-w-0">
             <span className="block text-sm font-semibold text-slate-900">
               Notifications
@@ -440,7 +440,7 @@ export function NotificationBell() {
             </span>
           </span>
           <button
-            className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[#084B2B] transition hover:bg-emerald-50 disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-brand-base transition hover:bg-brand-gold/10 hover:text-brand-gold disabled:opacity-40"
             disabled={!unreadCount || markingRead}
             onClick={() => void markAllRead()}
             type="button"
@@ -468,7 +468,7 @@ export function NotificationBell() {
               return (
                 <article
                   className={`relative flex min-w-0 gap-3 rounded-xl px-3 py-3 ${
-                    notification.isRead ? 'bg-transparent' : 'bg-emerald-50'
+                    notification.isRead ? 'bg-transparent' : 'bg-brand-gold/10'
                   }`}
                   key={notification.id}
                 >
@@ -485,7 +485,7 @@ export function NotificationBell() {
                       {!notification.isRead ? (
                         <span
                           aria-label="Unread"
-                          className="mt-1 size-2 shrink-0 rounded-full bg-[#084B2B]"
+                          className="mt-1 size-2 shrink-0 rounded-full bg-brand-gold"
                         />
                       ) : null}
                     </span>
@@ -513,7 +513,7 @@ export function NotificationBell() {
           )}
         </div>
 
-        <div className="border-t border-emerald-950/10 p-3">
+        <div className="border-t border-brand-rim p-3">
           {feedError ? (
             <p className="mb-2 break-words text-[11px] font-bold leading-5 text-red-300" role="alert">
               {feedError}

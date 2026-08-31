@@ -193,19 +193,19 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 function RequiredLabel({ children }: { children: string }) {
   return (
     <>
-      {children} <span className="text-[#E7CD78]" aria-hidden="true">*</span>
+      {children} <span className="text-brand-gold" aria-hidden="true">*</span>
     </>
   );
 }
 
 const baseInputClass =
-  'mt-2 min-h-13 w-full min-w-0 rounded-2xl border bg-[#063B25] px-4 text-[15px] text-[#FBF6E2] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-emerald-100/35 hover:border-white/25 focus:border-[#D4AF37]/80 focus:bg-[#07452B] focus:ring-4 focus:ring-[#D4AF37]/12';
+  'mt-2 min-h-13 w-full min-w-0 rounded-2xl border bg-brand-input px-4 text-[15px] text-brand-white shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-brand-muted/40 hover:border-brand-gold/40 focus:border-brand-gold focus:bg-brand-input focus:ring-4 focus:ring-brand-gold/15';
 
 function inputClass(hasError: boolean) {
   return `${baseInputClass} ${
     hasError
       ? 'border-red-400/90 bg-red-950/30 focus:border-red-300 focus:ring-red-500/15'
-      : 'border-white/15'
+      : 'border-brand-border'
   }`;
 }
 
@@ -363,14 +363,14 @@ export function SupportContactForm() {
 
   if (submission) {
     return (
-      <div className="flex min-h-[34rem] flex-col items-center justify-center rounded-[2rem] border border-[#D4AF37]/25 bg-[#063B25] p-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-10" role="status">
-        <span className="flex size-16 items-center justify-center rounded-full border border-[#D4AF37]/35 bg-[#0F6E41] text-[#FBF6E2] shadow-[0_16px_40px_rgba(0,0,0,0.24)]">
+      <div className="flex min-h-[34rem] flex-col items-center justify-center rounded-[2rem] border border-brand-rim bg-brand-input p-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-10" role="status">
+        <span className="flex size-16 items-center justify-center rounded-full border border-brand-gold/35 bg-brand-gold text-brand-base shadow-[0_16px_40px_rgba(0,0,0,0.24)]">
           <CheckCircle2 aria-hidden="true" className="size-8" />
         </span>
-        <h2 className="mt-6 text-3xl font-black tracking-tight text-[#FBF6E2]">
+        <h2 className="mt-6 text-3xl font-black tracking-tight text-brand-white">
           {text(locale, copy.successTitle)}
         </h2>
-        <p className="mt-3 max-w-md text-sm leading-7 text-emerald-100/70 sm:text-base">
+        <p className="mt-3 max-w-md text-sm leading-7 text-brand-muted/70 sm:text-base">
           {text(
             locale,
             submission.emailDelivery === 'sent'
@@ -378,11 +378,11 @@ export function SupportContactForm() {
               : copy.successBodyPending,
           )}
         </p>
-        <p className="mt-6 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#E7CD78]">
+        <p className="mt-6 rounded-full border border-brand-gold/40 bg-brand-surface px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-brand-gold">
           {text(locale, copy.reference)}: <span dir="ltr">{submission.reference}</span>
         </p>
         <button
-          className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/8 px-5 text-sm font-black text-[#FBF6E2] outline-none transition-colors hover:border-[#D4AF37]/60 hover:bg-white/12 focus-visible:ring-4 focus-visible:ring-[#D4AF37]/20"
+          className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-border bg-brand-surface px-5 text-sm font-black text-brand-white outline-none transition-colors hover:border-brand-gold hover:text-brand-gold-hover focus-visible:ring-4 focus-visible:ring-brand-gold/25"
           onClick={() => setSubmission(null)}
           type="button"
         >
@@ -396,7 +396,7 @@ export function SupportContactForm() {
   return (
     <form className="min-w-0" noValidate onSubmit={handleSubmit}>
       <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
-        <label className="min-w-0 text-sm font-black text-[#FBF6E2]">
+        <label className="min-w-0 text-sm font-black text-brand-white">
           <RequiredLabel>{text(locale, copy.firstName)}</RequiredLabel>
           <input
             aria-describedby={errors.firstName ? 'support-first-name-error' : undefined}
@@ -413,7 +413,7 @@ export function SupportContactForm() {
           <FieldError id="support-first-name-error" message={errors.firstName} />
         </label>
 
-        <label className="min-w-0 text-sm font-black text-[#FBF6E2]">
+        <label className="min-w-0 text-sm font-black text-brand-white">
           <RequiredLabel>{text(locale, copy.lastName)}</RequiredLabel>
           <input
             aria-describedby={errors.lastName ? 'support-last-name-error' : undefined}
@@ -430,7 +430,7 @@ export function SupportContactForm() {
           <FieldError id="support-last-name-error" message={errors.lastName} />
         </label>
 
-        <label className="min-w-0 text-sm font-black text-[#FBF6E2] sm:col-span-2">
+        <label className="min-w-0 text-sm font-black text-brand-white sm:col-span-2">
           <RequiredLabel>{text(locale, copy.email)}</RequiredLabel>
           <input
             aria-describedby={errors.email ? 'support-email-error' : undefined}
@@ -450,16 +450,16 @@ export function SupportContactForm() {
           <FieldError id="support-email-error" message={errors.email} />
         </label>
 
-        <div className="min-w-0 text-sm font-black text-[#FBF6E2] sm:col-span-2">
+        <div className="min-w-0 text-sm font-black text-brand-white sm:col-span-2">
           <label htmlFor="phone">
             <RequiredLabel>{text(locale, copy.phone)}</RequiredLabel>
           </label>
           <div className="relative mt-2" ref={countryPickerRef}>
             <div
-              className={`flex min-h-13 w-full min-w-0 rounded-2xl border bg-[#063B25] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:ring-4 ${
+              className={`flex min-h-13 w-full min-w-0 rounded-2xl border bg-brand-input shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:ring-4 ${
                 errors.phone
                   ? 'border-red-400/90 bg-red-950/30 focus-within:border-red-300 focus-within:ring-red-500/15'
-                  : 'border-white/15 hover:border-white/25 focus-within:border-[#D4AF37]/80 focus-within:bg-[#07452B] focus-within:ring-[#D4AF37]/12'
+                  : 'border-brand-border hover:border-brand-gold/40 focus-within:border-brand-gold focus-within:bg-brand-input focus-within:ring-brand-gold/15'
               }`}
               dir="ltr"
             >
@@ -468,7 +468,7 @@ export function SupportContactForm() {
                 aria-expanded={isCountryPickerOpen}
                 aria-haspopup="listbox"
                 aria-label={`${text(locale, copy.countryCode)} ${selectedCountry.dialCode} ${text(locale, selectedCountry.name)}`}
-                className="inline-flex min-h-13 min-w-[6.75rem] shrink-0 items-center justify-center gap-2 rounded-l-2xl border-r border-white/10 bg-white/[0.035] px-3 text-sm font-black text-[#E7CD78] outline-none transition-colors hover:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#D4AF37]/55"
+                className="inline-flex min-h-13 min-w-[6.75rem] shrink-0 items-center justify-center gap-2 rounded-l-2xl border-r border-brand-border bg-brand-surface px-3 text-sm font-black text-brand-gold outline-none transition-colors hover:text-brand-gold-hover focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-gold/55"
                 onClick={() => setIsCountryPickerOpen((current) => !current)}
                 ref={countryButtonRef}
                 type="button"
@@ -476,7 +476,7 @@ export function SupportContactForm() {
                 <span>{selectedCountry.dialCode}</span>
                 <ChevronDown
                   aria-hidden="true"
-                  className={`size-4 text-emerald-100/55 transition-transform ${
+                  className={`size-4 text-brand-muted/55 transition-transform ${
                     isCountryPickerOpen ? 'rotate-180' : ''
                   }`}
                 />
@@ -485,7 +485,7 @@ export function SupportContactForm() {
                 aria-describedby={errors.phone ? 'support-phone-error' : undefined}
                 aria-invalid={Boolean(errors.phone)}
                 autoComplete="tel-national"
-                className="min-h-13 min-w-0 flex-1 bg-transparent px-3 text-[15px] font-medium text-[#FBF6E2] outline-none placeholder:font-normal placeholder:text-emerald-100/35 sm:px-4"
+                className="min-h-13 min-w-0 flex-1 bg-transparent px-3 text-[15px] font-medium text-brand-white outline-none placeholder:font-normal placeholder:text-brand-muted/40 sm:px-4"
                 id="phone"
                 inputMode="tel"
                 maxLength={24}
@@ -497,7 +497,7 @@ export function SupportContactForm() {
               />
               <span
                 aria-label={`${text(locale, selectedCountry.name)} flag`}
-                className="flex min-h-13 min-w-13 shrink-0 items-center justify-center rounded-r-2xl border-l border-white/10 bg-white/[0.035] text-xl"
+                className="flex min-h-13 min-w-13 shrink-0 items-center justify-center rounded-r-2xl border-l border-brand-border bg-brand-surface text-xl"
                 role="img"
               >
                 {selectedCountry.flag}
@@ -506,21 +506,21 @@ export function SupportContactForm() {
 
             {isCountryPickerOpen ? (
               <div
-                className="absolute left-0 top-[calc(100%+0.5rem)] z-30 w-full min-w-0 overflow-hidden rounded-2xl border border-[#D4AF37]/25 bg-[#042D1A] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
+                className="absolute left-0 top-[calc(100%+0.5rem)] z-30 w-full min-w-0 overflow-hidden rounded-2xl border border-brand-rim bg-brand-base p-2 shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
                 dir={locale === 'ar' ? 'rtl' : 'ltr'}
               >
                 <label className="relative block">
                   <span className="sr-only">{text(locale, copy.countrySearch)}</span>
                   <Search
                     aria-hidden="true"
-                    className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-emerald-100/45"
+                    className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-brand-muted/45"
                   />
                   <input
                     aria-autocomplete="list"
                     aria-controls="support-country-options"
                     aria-expanded={isCountryPickerOpen}
                     aria-label={text(locale, copy.countrySearch)}
-                    className="min-h-11 w-full rounded-xl border border-white/15 bg-[#063B25] pe-3 ps-10 text-sm font-semibold text-[#FBF6E2] outline-none placeholder:text-emerald-100/35 focus:border-[#D4AF37]/70 focus:ring-4 focus:ring-[#D4AF37]/10"
+                    className="min-h-11 w-full rounded-xl border border-brand-border bg-brand-input pe-3 ps-10 text-sm font-semibold text-brand-white outline-none placeholder:text-brand-muted/40 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15"
                     onChange={(event) => setCountrySearch(event.target.value)}
                     placeholder={text(locale, copy.countrySearch)}
                     ref={countrySearchRef}
@@ -531,7 +531,7 @@ export function SupportContactForm() {
                 </label>
                 <div
                   aria-label={text(locale, copy.countryCode)}
-                  className="mt-2 max-h-60 scroll-smooth overflow-y-auto overscroll-contain rounded-xl [scrollbar-color:#D4AF37_#063B25] [scrollbar-width:thin]"
+                  className="mt-2 max-h-60 scroll-smooth overflow-y-auto overscroll-contain rounded-xl [scrollbar-color:#D4A345_#08281D] [scrollbar-width:thin]"
                   id="support-country-options"
                   role="listbox"
                 >
@@ -542,7 +542,7 @@ export function SupportContactForm() {
                         <button
                           aria-label={`${text(locale, country.name)} (${country.dialCode})`}
                           aria-selected={isSelected}
-                          className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-start text-sm text-emerald-50 outline-none transition-colors hover:bg-white/[0.07] focus-visible:bg-white/[0.09] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#D4AF37]/45"
+                          className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-start text-sm text-brand-white outline-none transition-colors hover:bg-brand-surface focus-visible:bg-brand-surface focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-gold/45"
                           key={country.code}
                           onClick={() => updatePhoneCountry(country.code)}
                           role="option"
@@ -555,7 +555,7 @@ export function SupportContactForm() {
                             {text(locale, country.name)}
                           </span>
                           <span
-                            className="shrink-0 font-black text-[#E7CD78]"
+                            className="shrink-0 font-black text-brand-gold"
                             dir="ltr"
                           >
                             ({country.dialCode})
@@ -563,14 +563,14 @@ export function SupportContactForm() {
                           {isSelected ? (
                             <Check
                               aria-hidden="true"
-                              className="size-4 shrink-0 text-[#E7CD78]"
+                              className="size-4 shrink-0 text-brand-gold"
                             />
                           ) : null}
                         </button>
                       );
                     })
                   ) : (
-                    <p className="px-3 py-8 text-center text-sm font-semibold text-emerald-100/55">
+                    <p className="px-3 py-8 text-center text-sm font-semibold text-brand-muted/55">
                       {text(locale, copy.noCountries)}
                     </p>
                   )}
@@ -581,7 +581,7 @@ export function SupportContactForm() {
           <FieldError id="support-phone-error" message={errors.phone} />
         </div>
 
-        <label className="min-w-0 text-sm font-black text-[#FBF6E2] sm:col-span-2">
+        <label className="min-w-0 text-sm font-black text-brand-white sm:col-span-2">
           <RequiredLabel>{text(locale, copy.message)}</RequiredLabel>
           <textarea
             aria-describedby={errors.message ? 'support-message-error' : undefined}
@@ -599,7 +599,7 @@ export function SupportContactForm() {
               id="support-message-error"
               message={errors.message}
             />
-            <span className="ms-auto shrink-0 text-xs font-bold text-emerald-100/40" dir="ltr">
+            <span className="ms-auto shrink-0 text-xs font-bold text-brand-muted/40" dir="ltr">
               {values.message.length}/4000
             </span>
           </div>
@@ -615,7 +615,7 @@ export function SupportContactForm() {
       ) : null}
 
       <button
-        className="mt-6 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-[#D4AF37]/35 bg-[#0F6E41] px-5 text-sm font-black text-white shadow-[0_14px_30px_rgba(0,0,0,0.24)] outline-none transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-[#13804D] hover:shadow-[0_18px_34px_rgba(0,0,0,0.28)] focus-visible:ring-4 focus-visible:ring-[#D4AF37]/20 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-65"
+        className="mt-6 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-brand-gold px-5 text-sm font-black text-brand-base shadow-[0_14px_30px_rgba(0,0,0,0.24)] outline-none transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-brand-gold-hover hover:shadow-[0_18px_34px_rgba(0,0,0,0.28)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-65"
         disabled={isSubmitting}
         type="submit"
       >
@@ -626,10 +626,10 @@ export function SupportContactForm() {
         )}
         {text(locale, isSubmitting ? copy.sending : copy.send)}
       </button>
-      <p className="mx-auto mt-4 max-w-xl text-center text-xs font-medium leading-5 text-emerald-100/55">
+      <p className="mx-auto mt-4 max-w-xl text-center text-xs font-medium leading-5 text-brand-muted/55">
         {text(locale, copy.privacyLead)}{' '}
         <a
-          className="font-bold text-[#E7CD78] underline decoration-[#D4AF37]/35 underline-offset-4 hover:text-[#F2DC94] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/35"
+          className="font-bold text-brand-gold underline decoration-brand-gold/35 underline-offset-4 hover:text-brand-gold-hover focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/35"
           href="/privacy"
         >
           {text(locale, copy.privacyLink)}

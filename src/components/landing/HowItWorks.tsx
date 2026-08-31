@@ -7,31 +7,31 @@ const icons = [ScanSearch, Compass, TrendingUp] as const;
 
 export function HowItWorks() {
   return (
-    <section className="bg-[#F1F5EF] py-20 md:py-28" aria-labelledby="how-title">
+    <section className="bg-brand-surface py-20 md:py-28" aria-labelledby="how-title">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <LandingCopy className="text-xs font-black uppercase tracking-[0.18em] text-[#0F6E41]">{landingContent.howItWorks.eyebrow}</LandingCopy>
-          <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-[#042D1A] sm:text-5xl">{landingContent.howItWorks.title}</LandingCopy>
+          <LandingCopy className="text-xs font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.howItWorks.eyebrow}</LandingCopy>
+          <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-brand-white sm:text-5xl">{landingContent.howItWorks.title}</LandingCopy>
         </div>
         <ol className="relative mt-12 grid gap-4 lg:grid-cols-3">
           {landingContent.howItWorks.steps.map((step, index) => {
             const Icon = icons[index];
             return (
-              <li className="landing-card relative min-w-0 rounded-3xl border border-emerald-500/15 bg-white/80 p-6 shadow-xl shadow-emerald-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-950/10 sm:p-8" key={step.label.en}>
+              <li className="landing-card relative min-w-0 rounded-3xl border border-brand-border bg-brand-base p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 hover:shadow-2xl hover:shadow-black/25 sm:p-8" key={step.label.en}>
                 <div className="flex items-center justify-between gap-4">
-                  <span className="flex size-12 items-center justify-center rounded-2xl bg-[#084B2B] text-[#E7CD78]"><Icon aria-hidden="true" className="size-5" /></span>
-                  <span className="text-5xl font-black text-emerald-950/5">0{index + 1}</span>
+                  <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-surface text-brand-gold"><Icon aria-hidden="true" className="size-5" /></span>
+                  <span className="text-5xl font-black text-brand-gold/15">0{index + 1}</span>
                 </div>
-                <LandingCopy className="mt-7 block text-[10px] font-black uppercase tracking-[0.16em] text-[#0F6E41]">{step.label}</LandingCopy>
-                <LandingCopy as="h3" className="mt-2 text-2xl font-black text-[#042D1A]">{step.title}</LandingCopy>
-                <LandingCopy as="p" className="mt-3 text-sm leading-7 text-slate-600">{step.description}</LandingCopy>
-                {index < 2 ? <span aria-hidden="true" className="absolute -bottom-3 left-1/2 z-10 flex size-7 -translate-x-1/2 items-center justify-center rounded-full border border-emerald-950/10 bg-[#FBF6E2] text-[#8A6A16] lg:-right-[1.05rem] lg:bottom-auto lg:left-auto lg:top-1/2 lg:translate-x-0 lg:-translate-y-1/2 lg:-rotate-90 rtl:lg:-left-[1.05rem] rtl:lg:right-auto"><ArrowDown className="size-3.5" /></span> : null}
+                <LandingCopy className="mt-7 block text-[10px] font-black uppercase tracking-[0.16em] text-brand-gold">{step.label}</LandingCopy>
+                <LandingCopy as="h3" className="mt-2 text-2xl font-black text-brand-white">{step.title}</LandingCopy>
+                <LandingCopy as="p" className="mt-3 text-sm leading-7 text-brand-muted/75">{step.description}</LandingCopy>
+                {index < 2 ? <span aria-hidden="true" className="absolute -bottom-3 left-1/2 z-10 flex size-7 -translate-x-1/2 items-center justify-center rounded-full border border-brand-rim bg-brand-gold text-brand-base lg:-right-[1.05rem] lg:bottom-auto lg:left-auto lg:top-1/2 lg:translate-x-0 lg:-translate-y-1/2 lg:-rotate-90 rtl:lg:-left-[1.05rem] rtl:lg:right-auto"><ArrowDown className="size-3.5" /></span> : null}
               </li>
             );
           })}
         </ol>
         <div className="mt-9 flex justify-center">
-          <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center rounded-full bg-[#084B2B] px-7 text-sm font-black text-white shadow-lg shadow-emerald-950/15 ring-1 ring-white/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-[#0F6E41] hover:shadow-[0_0_32px_rgba(16,185,129,0.28)] focus-visible:ring-4 focus-visible:ring-emerald-200" eventName="hero_diagnostic_click" intent="diagnostic" label="how_it_works">
+          <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center rounded-full bg-brand-gold px-7 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(229,184,92,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" intent="diagnostic" label="how_it_works">
             {landingContent.howItWorks.cta}
           </WhatsAppLink>
         </div>

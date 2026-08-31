@@ -65,7 +65,7 @@ export function CurriculumRoadmap() {
     <section aria-labelledby="roadmap-heading" id="roadmap">
       <div className="mx-auto max-w-3xl text-center">
         <h2
-          className="font-serif text-3xl font-semibold leading-tight tracking-tight text-[#042917] md:text-5xl"
+          className="font-serif text-3xl font-semibold leading-tight tracking-tight text-brand-white md:text-5xl"
           id="roadmap-heading"
         >
           <span className="block font-sans text-[0.88em] font-extrabold" dir="rtl" lang="ar">
@@ -73,7 +73,7 @@ export function CurriculumRoadmap() {
           </span>
           <span className="mt-2 block">Structured Academic Roadmap</span>
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
+        <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-brand-muted/80 md:text-base">
           Five connected milestones turn academic preparation into a clear,
           measurable journey from the first diagnostic to verified mastery.
         </p>
@@ -82,7 +82,7 @@ export function CurriculumRoadmap() {
       <div className="relative mt-12">
         <div
           aria-hidden="true"
-          className="absolute left-[10%] right-[10%] top-8 hidden h-0.5 bg-[#D4AF37] lg:block"
+          className="absolute left-[10%] right-[10%] top-8 hidden h-0.5 bg-brand-gold lg:block"
         />
 
         <div className="relative grid gap-4 lg:grid-cols-5">
@@ -95,10 +95,10 @@ export function CurriculumRoadmap() {
                 aria-describedby="roadmap-active-detail"
                 aria-pressed={isActive}
                 className={cn(
-                  'group relative flex min-h-56 w-full min-w-0 flex-col items-start rounded-2xl border p-5 text-left outline-none transition duration-200 focus-visible:ring-4 focus-visible:ring-[#D4AF37]/30 lg:items-center lg:text-center',
+                  'group relative flex min-h-56 w-full min-w-0 flex-col items-start rounded-2xl border p-5 text-left outline-none transition duration-200 focus-visible:ring-4 focus-visible:ring-brand-gold/30 lg:items-center lg:text-center',
                   isActive
-                    ? 'border-[#D4AF37] bg-[#084B2B] text-white shadow-[0_18px_45px_rgba(4,41,23,0.2)]'
-                    : 'border-emerald-950/10 bg-white text-[#042917] shadow-sm hover:-translate-y-1 hover:border-[#D4AF37]/70 hover:shadow-lg',
+                    ? 'border-brand-gold bg-brand-base text-brand-white shadow-[0_18px_45px_rgba(0,0,0,0.28)]'
+                    : 'border-brand-border bg-brand-surface text-brand-white shadow-sm hover:-translate-y-1 hover:border-brand-gold/70 hover:shadow-lg',
                 )}
                 key={step.titleEn}
                 onClick={() => setActiveStepIndex(index)}
@@ -110,8 +110,8 @@ export function CurriculumRoadmap() {
                   className={cn(
                     'absolute -top-3 flex size-7 items-center justify-center rounded-full border text-xs font-black shadow-sm lg:left-1/2 lg:-translate-x-1/2',
                     isActive
-                      ? 'border-[#D4AF37] bg-[#D4AF37] text-[#042917]'
-                      : 'border-[#D4AF37] bg-[#FDF8E8] text-[#8C6B1B]',
+                      ? 'border-brand-gold bg-brand-gold text-brand-base'
+                      : 'border-brand-gold bg-brand-surface text-brand-gold',
                   )}
                 >
                   {index + 1}
@@ -120,8 +120,8 @@ export function CurriculumRoadmap() {
                   className={cn(
                     'mt-3 flex size-12 items-center justify-center rounded-xl border',
                     isActive
-                      ? 'border-[#D4AF37]/50 bg-[#063B22] text-[#D4AF37]'
-                      : 'border-emerald-200/80 bg-emerald-50 text-[#084B2B]',
+                      ? 'border-brand-gold/50 bg-brand-surface text-brand-gold'
+                      : 'border-brand-border bg-brand-base text-brand-gold',
                   )}
                 >
                   <Icon aria-hidden="true" className="size-6" strokeWidth={1.8} />
@@ -136,7 +136,7 @@ export function CurriculumRoadmap() {
                 <span
                   className={cn(
                     'mt-1 text-xs font-bold uppercase leading-5 tracking-[0.08em]',
-                    isActive ? 'text-[#FDF8E8]' : 'text-[#084B2B]',
+                    isActive ? 'text-brand-white' : 'text-brand-gold',
                   )}
                 >
                   {step.titleEn}
@@ -144,7 +144,7 @@ export function CurriculumRoadmap() {
                 <span
                   className={cn(
                     'mt-3 text-xs leading-5',
-                    isActive ? 'text-emerald-100/80' : 'text-slate-500',
+                    isActive ? 'text-brand-muted/80' : 'text-brand-muted/65',
                   )}
                 >
                   {step.summary}
@@ -156,22 +156,22 @@ export function CurriculumRoadmap() {
 
         <div
           aria-live="polite"
-          className="relative mt-5 overflow-hidden rounded-2xl border border-[#D4AF37]/35 bg-[#042917] px-6 py-5 text-white shadow-lg md:px-8"
+          className="relative mt-5 overflow-hidden rounded-2xl border border-brand-gold/35 bg-brand-base px-6 py-5 text-brand-white shadow-lg md:px-8"
           id="roadmap-active-detail"
         >
           <span
             aria-hidden="true"
-            className="absolute inset-y-0 left-0 w-1 bg-[#D4AF37]"
+            className="absolute inset-y-0 left-0 w-1 bg-brand-gold"
           />
           <div className="grid gap-3 md:grid-cols-[0.8fr_1.2fr] md:items-center">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-[#D4AF37]">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-gold">
                 Step {activeStepIndex + 1} of {ROADMAP_STEPS.length}
               </p>
               <p className="mt-2 text-lg font-bold">{activeStep.titleEn}</p>
             </div>
             <p
-              className="text-sm font-semibold leading-7 text-emerald-50/90 md:text-right"
+              className="text-sm font-semibold leading-7 text-brand-muted/90 md:text-right"
               dir="rtl"
               lang="ar"
             >

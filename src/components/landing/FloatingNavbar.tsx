@@ -39,14 +39,14 @@ export function FloatingNavbar() {
       <div
         className={`mx-auto w-full max-w-7xl rounded-[1.4rem] border px-3 py-2 backdrop-blur-xl transition-colors sm:px-4 ${
           scrolled
-            ? 'border-emerald-950/15 bg-white/95 shadow-[0_8px_28px_rgba(4,45,26,0.08)]'
-            : 'border-emerald-950/10 bg-white/82'
+            ? 'border-brand-rim bg-brand-surface/95 shadow-[0_8px_28px_rgba(0,0,0,0.24)]'
+            : 'border-brand-border bg-brand-surface/90'
         }`}
       >
         <div className="flex min-h-12 items-center justify-between gap-2">
           <Link
             aria-label={siteConfig.title}
-            className="flex min-h-11 min-w-11 shrink-0 items-center gap-2 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"
+            className="flex min-h-11 min-w-11 shrink-0 items-center gap-2 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30"
             href={siteConfig.routes.home}
           >
             <Image
@@ -58,15 +58,15 @@ export function FloatingNavbar() {
               width={48}
             />
             <span className="hidden leading-tight sm:block">
-              <span className="block text-sm font-black text-[#084B2B]">Oqool Academy</span>
-              <span className="block font-arabic text-[11px] font-bold text-[#8A6A16]" dir="rtl" lang="ar">أكاديمية عقول</span>
+              <span className="block text-sm font-black text-brand-white">Oqool Academy</span>
+              <span className="block font-arabic text-[11px] font-bold text-brand-gold" dir="rtl" lang="ar">أكاديمية عقول</span>
             </span>
           </Link>
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-0.5 lg:flex">
             {landingContent.navigation.map((item) => (
               <a
-                className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-slate-600 outline-none hover:bg-[#F2F6F1] hover:text-[#084B2B] focus-visible:ring-4 focus-visible:ring-emerald-100"
+                className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-brand-muted/80 outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
                 href={item.href}
                 key={item.href}
               >
@@ -74,7 +74,7 @@ export function FloatingNavbar() {
               </a>
             ))}
             <Link
-              className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-slate-600 outline-none hover:bg-[#F2F6F1] hover:text-[#084B2B] focus-visible:ring-4 focus-visible:ring-emerald-100"
+              className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-brand-muted/80 outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
               href="/support"
             >
               <LandingCopy>{contactUsLabel}</LandingCopy>
@@ -84,14 +84,14 @@ export function FloatingNavbar() {
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               aria-label={locale === 'en' ? 'Switch to Arabic' : 'Switch to English'}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-emerald-950/10 bg-white px-2.5 text-xs font-black text-[#084B2B] outline-none hover:border-[#D4AF37] hover:bg-[#FBF6E2] focus-visible:ring-4 focus-visible:ring-emerald-200 sm:px-3"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-brand-border bg-brand-base px-2.5 text-xs font-black text-brand-gold outline-none hover:border-brand-gold hover:text-brand-gold-hover focus-visible:ring-4 focus-visible:ring-brand-gold/30 sm:px-3"
               onClick={changeLanguage}
               type="button"
             >
               {locale === 'en' ? 'العربية' : 'EN'}
             </button>
             <ConversionLink
-              className="landing-cta hidden min-h-11 items-center justify-center gap-2 rounded-full bg-[#084B2B] px-4 text-xs font-black text-white shadow-lg shadow-emerald-950/15 ring-1 ring-white/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-[#0F6E41] hover:shadow-[0_0_28px_rgba(16,185,129,0.24)] focus-visible:ring-4 focus-visible:ring-emerald-200 md:inline-flex"
+              className="landing-cta hidden min-h-11 items-center justify-center gap-2 rounded-full bg-brand-gold px-4 text-xs font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(229,184,92,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:inline-flex"
               eventName="navbar_diagnostic_click"
               href={getWhatsAppUrl('diagnostic', locale)}
               label="navbar"
@@ -105,7 +105,7 @@ export function FloatingNavbar() {
               aria-controls="landing-mobile-menu"
               aria-expanded={menuOpen}
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="inline-flex size-11 items-center justify-center rounded-full border border-emerald-950/10 bg-white text-[#084B2B] outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 lg:hidden"
+              className="inline-flex size-11 items-center justify-center rounded-full border border-brand-border bg-brand-base text-brand-gold outline-none hover:border-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25 lg:hidden"
               onClick={() => setMenuOpen((open) => !open)}
               type="button"
             >
@@ -117,12 +117,12 @@ export function FloatingNavbar() {
         {menuOpen ? (
           <nav
             aria-label="Mobile navigation"
-            className="mt-2 grid gap-1 border-t border-emerald-950/10 pt-2 lg:hidden"
+            className="mt-2 grid gap-1 border-t border-brand-border pt-2 lg:hidden"
             id="landing-mobile-menu"
           >
             {landingContent.navigation.map((item) => (
               <a
-                className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-slate-700 outline-none hover:bg-[#F2F6F1] focus-visible:ring-4 focus-visible:ring-emerald-100"
+                className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-brand-muted outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
                 href={item.href}
                 key={item.href}
                 onClick={() => setMenuOpen(false)}
@@ -131,14 +131,14 @@ export function FloatingNavbar() {
               </a>
             ))}
             <Link
-              className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-slate-700 outline-none hover:bg-[#F2F6F1] focus-visible:ring-4 focus-visible:ring-emerald-100"
+              className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-brand-muted outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
               href="/support"
               onClick={() => setMenuOpen(false)}
             >
               <LandingCopy>{contactUsLabel}</LandingCopy>
             </Link>
             <ConversionLink
-              className="landing-cta mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-black text-white shadow-lg shadow-emerald-950/15 ring-1 ring-white/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-[#0F6E41] hover:shadow-[0_0_28px_rgba(16,185,129,0.24)] focus-visible:ring-4 focus-visible:ring-emerald-200 md:hidden"
+              className="landing-cta mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-gold px-4 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(229,184,92,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:hidden"
               eventName="navbar_diagnostic_click"
               href={getWhatsAppUrl('diagnostic', locale)}
               label="mobile_menu"

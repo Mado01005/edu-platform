@@ -123,7 +123,7 @@ export function UserNav({ user }: UserNavProps) {
       <DropdownMenuTrigger asChild>
         <button
           aria-label={`Open account menu for ${displayName}`}
-          className="flex min-w-0 max-w-[11rem] items-center gap-2 whitespace-nowrap rounded-xl border border-emerald-950/10 bg-white p-1.5 pr-2 text-left transition hover:border-emerald-300 hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B] sm:max-w-[13rem]"
+          className="flex min-w-0 max-w-[11rem] items-center gap-2 whitespace-nowrap rounded-xl border border-brand-rim bg-white p-1.5 pr-2 text-left transition hover:border-brand-gold hover:bg-brand-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold sm:max-w-[13rem]"
           type="button"
         >
           <Avatar>

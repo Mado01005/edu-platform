@@ -74,7 +74,7 @@ export function MobileDock({ role }: { role: Role }) {
   return (
     <nav
       aria-label="Mobile quick navigation"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-emerald-950/10 bg-white px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-sm shadow-emerald-950/5 md:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-brand-rim bg-white px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-sm shadow-brand-base/5 md:hidden"
     >
       <div className="mx-auto grid w-full max-w-md grid-cols-4 gap-1">
         {items.map(({ href, icon: Icon, label }) => {
@@ -90,8 +90,8 @@ export function MobileDock({ role }: { role: Role }) {
               className={cn(
                 'flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-transparent px-1 py-2 text-[10px] font-semibold transition-all duration-200 ease-in-out',
                 active
-                  ? 'border-emerald-200/60 bg-emerald-50 text-[#084B2B] shadow-sm'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900',
+                  ? 'border-brand-gold bg-brand-gold/10 text-brand-base shadow-sm'
+                  : 'text-slate-500 hover:bg-brand-gold/10 hover:text-brand-gold',
               )}
               href={href}
               key={label}

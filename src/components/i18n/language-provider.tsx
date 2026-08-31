@@ -83,7 +83,7 @@ export function LanguageToggle({ className }: { className?: string }) {
     <button
       aria-label={locale === 'en' ? 'Switch to Arabic' : 'Switch to English'}
       className={cn(
-        'inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-emerald-950/10 bg-white px-3 text-xs font-extrabold text-[#084B2B] outline-none hover:border-[#D4AF37] hover:bg-[#FBF6E2] focus-visible:ring-4 focus-visible:ring-emerald-200',
+        'inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-base px-3 text-xs font-extrabold text-brand-gold outline-none hover:border-brand-gold hover:text-brand-gold-hover focus-visible:ring-4 focus-visible:ring-brand-gold/30',
         className,
       )}
       onClick={toggleLocale}

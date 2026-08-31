@@ -27,7 +27,7 @@ export default function MobileNav({ isAdmin }: MobileNavProps) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden">
-      <div className="bg-[#0A0A0F]/95 backdrop-blur-xl border-t border-white/10 px-2 pb-[env(safe-area-inset-bottom)]">
+      <div className="border-t border-brand-rim bg-brand-base/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
         <div className="flex justify-around items-center h-16">
           {tabs.map(tab => {
             const isActive = pathname === tab.href || (tab.href !== '/dashboard' && pathname?.startsWith(tab.href));
@@ -37,14 +37,14 @@ export default function MobileNav({ isAdmin }: MobileNavProps) {
                 href={tab.href}
                 className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-300 ${
                   isActive
-                    ? 'text-emerald-400 scale-110'
-                    : 'text-gray-500 hover:text-gray-300 active:scale-95'
+                    ? 'scale-110 text-brand-gold'
+                    : 'text-brand-muted/60 hover:text-brand-gold active:scale-95'
                 }`}
               >
-                <div className={`relative ${isActive ? 'drop-shadow-[0_0_8px_rgba(129,140,248,0.6)]' : ''}`}>
+                <div className={`relative ${isActive ? 'drop-shadow-[0_0_8px_rgba(212,163,69,0.6)]' : ''}`}>
                   {tab.icon}
                   {isActive && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(129,140,248,0.8)]"></span>
+                    <span className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand-gold shadow-[0_0_6px_rgba(212,163,69,0.8)]"></span>
                   )}
                 </div>
                 <span className="text-[10px] font-bold tracking-wide">{tab.label}</span>

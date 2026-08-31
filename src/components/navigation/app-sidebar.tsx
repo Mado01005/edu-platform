@@ -116,8 +116,8 @@ function NavigationLink({
         'group flex min-w-0 items-center rounded-xl border-l-4 px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out',
         collapsed && !mobile ? 'justify-center gap-0' : 'gap-3',
         active
-          ? 'border-[#084B2B] bg-emerald-50 font-semibold text-[#084B2B]'
-          : 'border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+          ? 'border-brand-gold bg-brand-gold/10 font-semibold text-brand-base'
+          : 'border-transparent text-slate-600 hover:bg-brand-gold/10 hover:text-brand-gold',
       )}
       href={item.href}
       title={collapsed && !mobile ? item.label : item.description}
@@ -225,13 +225,13 @@ export function AppSidebar({ role }: AppSidebarProps) {
     <>
       <aside
         className={cn(
-          'sticky top-20 hidden h-[calc(100vh-6rem)] min-w-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5 transition-[width] duration-200 ease-in-out md:flex',
+          'sticky top-20 hidden h-[calc(100vh-6rem)] min-w-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-brand-rim bg-white shadow-sm shadow-brand-base/5 transition-[width] duration-200 ease-in-out md:flex',
           collapsed ? 'w-20' : 'w-72',
         )}
       >
         <div
           className={cn(
-            'flex min-w-0 items-center border-b border-emerald-950/10 p-3',
+            'flex min-w-0 items-center border-b border-brand-rim p-3',
             collapsed ? 'flex-col justify-center gap-2' : 'justify-between gap-3',
           )}
         >
@@ -247,7 +247,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
           <button
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-pressed={collapsed}
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-950/10 bg-white text-slate-500 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-900 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-brand-rim bg-white text-slate-500 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-brand-gold hover:bg-brand-gold/10 hover:text-brand-gold hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
             onClick={() => setCollapsed((value) => !value)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             type="button"
@@ -274,7 +274,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
 
         <div
           className={cn(
-            'border-t border-emerald-950/10 p-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400',
+            'border-t border-brand-rim p-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400',
             collapsed ? 'text-center' : 'truncate px-5',
           )}
           title={role}
@@ -287,7 +287,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
         <SheetTrigger asChild>
           <button
             aria-label="Open portal navigation"
-            className="fixed bottom-24 left-4 z-40 flex h-11 items-center gap-2 rounded-full border border-[#084B2B] bg-[#084B2B] px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#063B22] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B] focus-visible:ring-offset-2 md:hidden"
+            className="fixed bottom-24 left-4 z-40 flex h-11 items-center gap-2 rounded-full border border-brand-gold bg-brand-base px-4 text-sm font-semibold text-brand-gold shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-surface hover:text-brand-gold-hover hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 md:hidden"
             type="button"
           >
             <Menu aria-hidden="true" className="size-4" />
@@ -295,7 +295,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
           </button>
         </SheetTrigger>
         <SheetContent>
-          <SheetHeader className="border-b border-emerald-950/10 p-5">
+          <SheetHeader className="border-b border-brand-rim p-5">
             <SheetTitle className="flex items-center gap-3 text-left">
               <OqoolEmblem className="size-9" decorative />
               <OqoolWordmark />
