@@ -91,7 +91,7 @@ export function FloatingNavbar() {
               {locale === 'en' ? 'العربية' : 'EN'}
             </button>
             <ConversionLink
-              className="hidden min-h-11 items-center justify-center gap-2 rounded-full bg-[#084B2B] px-4 text-xs font-black text-white outline-none hover:bg-[#0F6E41] focus-visible:ring-4 focus-visible:ring-emerald-200 md:inline-flex"
+              className="landing-cta hidden min-h-11 items-center justify-center gap-2 rounded-full bg-[#084B2B] px-4 text-xs font-black text-white shadow-lg shadow-emerald-950/15 ring-1 ring-white/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-[#0F6E41] hover:shadow-[0_0_28px_rgba(16,185,129,0.24)] focus-visible:ring-4 focus-visible:ring-emerald-200 md:inline-flex"
               eventName="navbar_diagnostic_click"
               href={getWhatsAppUrl('diagnostic', locale)}
               label="navbar"
@@ -138,7 +138,7 @@ export function FloatingNavbar() {
               <LandingCopy>{contactUsLabel}</LandingCopy>
             </Link>
             <ConversionLink
-              className="mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-black text-white outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 md:hidden"
+              className="landing-cta mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-black text-white shadow-lg shadow-emerald-950/15 ring-1 ring-white/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-[#0F6E41] hover:shadow-[0_0_28px_rgba(16,185,129,0.24)] focus-visible:ring-4 focus-visible:ring-emerald-200 md:hidden"
               eventName="navbar_diagnostic_click"
               href={getWhatsAppUrl('diagnostic', locale)}
               label="mobile_menu"

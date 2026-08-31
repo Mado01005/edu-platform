@@ -85,6 +85,7 @@ html[data-locale='ar'] [data-language-copy='en'] {
 
 html[data-locale='ar'] [data-language-copy='ar'] {
   display: revert;
+  line-height: 1.625;
 }
 
 html[data-locale='en'] [data-language-copy='en'] {
@@ -143,6 +144,12 @@ html[data-locale='en'] [data-language-copy='en'] {
 }
 
 .landing-card {
+  transition-duration: 300ms !important;
+  transition-property: transform, box-shadow, border-color, background-color !important;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.landing-cta {
   transition-duration: 300ms !important;
   transition-property: transform, box-shadow, border-color, background-color !important;
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;

@@ -60,7 +60,7 @@ const educationalOrganization = {
 
 export default function RootPage() {
   return (
-    <div className="min-h-dvh w-full min-w-0 max-w-full overflow-x-hidden bg-[#FAFAF7] text-[#1A2E22]">
+    <div className="min-h-dvh w-full min-w-0 max-w-full overflow-x-hidden bg-[linear-gradient(180deg,#FAFAF7_0%,#F4F8F4_100%)] text-[#1A2E22]">
       <a className="sr-only z-[100] rounded-lg bg-white px-4 py-3 text-[#084B2B] focus:not-sr-only focus:fixed focus:left-4 focus:top-4" href="#main-content">
         Skip to main content
       </a>

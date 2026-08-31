@@ -7,7 +7,7 @@ const icons = [ScanSearch, Compass, TrendingUp] as const;
 
 export function HowItWorks() {
   return (
-    <section className="bg-[#F1F5EF] py-20 sm:py-28" aria-labelledby="how-title">
+    <section className="bg-[#F1F5EF] py-20 md:py-28" aria-labelledby="how-title">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <LandingCopy className="text-xs font-black uppercase tracking-[0.18em] text-[#0F6E41]">{landingContent.howItWorks.eyebrow}</LandingCopy>
@@ -17,7 +17,7 @@ export function HowItWorks() {
           {landingContent.howItWorks.steps.map((step, index) => {
             const Icon = icons[index];
             return (
-              <li className="relative min-w-0 rounded-3xl border border-emerald-950/10 bg-white p-6 sm:p-8" key={step.label.en}>
+              <li className="landing-card relative min-w-0 rounded-3xl border border-emerald-500/15 bg-white/80 p-6 shadow-xl shadow-emerald-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-950/10 sm:p-8" key={step.label.en}>
                 <div className="flex items-center justify-between gap-4">
                   <span className="flex size-12 items-center justify-center rounded-2xl bg-[#084B2B] text-[#E7CD78]"><Icon aria-hidden="true" className="size-5" /></span>
                   <span className="text-5xl font-black text-emerald-950/5">0{index + 1}</span>
@@ -31,7 +31,7 @@ export function HowItWorks() {
           })}
         </ol>
         <div className="mt-9 flex justify-center">
-          <WhatsAppLink className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#084B2B] px-7 text-sm font-black text-white outline-none hover:-translate-y-0.5 hover:bg-[#0F6E41] focus-visible:ring-4 focus-visible:ring-emerald-200" eventName="hero_diagnostic_click" intent="diagnostic" label="how_it_works">
+          <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center rounded-full bg-[#084B2B] px-7 text-sm font-black text-white shadow-lg shadow-emerald-950/15 ring-1 ring-white/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-[#0F6E41] hover:shadow-[0_0_32px_rgba(16,185,129,0.28)] focus-visible:ring-4 focus-visible:ring-emerald-200" eventName="hero_diagnostic_click" intent="diagnostic" label="how_it_works">
             {landingContent.howItWorks.cta}
           </WhatsAppLink>
         </div>

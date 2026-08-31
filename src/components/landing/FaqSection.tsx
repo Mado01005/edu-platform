@@ -11,7 +11,7 @@ export function FAQSection() {
   const idPrefix = useId();
 
   return (
-    <section className="scroll-mt-28 py-20 sm:py-28" id="faq">
+    <section className="scroll-mt-28 py-20 md:py-28" id="faq">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.72fr_1.28fr] lg:px-8">
         <div className="max-w-lg">
           <span className="flex size-12 items-center justify-center rounded-2xl bg-[#FBF6E2] text-[#8A6A16]"><HelpCircle aria-hidden="true" className="size-5" /></span>
@@ -25,7 +25,7 @@ export function FAQSection() {
             const buttonId = `${idPrefix}-button-${index}`;
             const panelId = `${idPrefix}-panel-${index}`;
             return (
-              <article className={`overflow-hidden rounded-3xl border bg-white ${open ? 'border-[#D4AF37]/55' : 'border-emerald-950/10'}`} key={question.en}>
+              <article className={`landing-card overflow-hidden rounded-3xl border bg-white/80 shadow-xl shadow-emerald-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-950/10 ${open ? 'border-[#D4AF37]/55' : 'border-emerald-500/15'}`} key={question.en}>
                 <h3>
                   <button aria-controls={panelId} aria-expanded={open} className="flex min-h-16 w-full items-center justify-between gap-4 px-5 py-4 text-start font-black text-[#042D1A] outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-emerald-100 sm:px-6" id={buttonId} onClick={() => { const next = open ? null : index; setOpenIndex(next); if (next !== null) trackLandingEvent('faq_open', { question: question.en }); }} type="button">
                     <span className="flex min-w-0 items-center gap-3"><span className="text-[10px] font-black text-[#A67C00]">0{index + 1}</span><LandingCopy>{question}</LandingCopy></span>
