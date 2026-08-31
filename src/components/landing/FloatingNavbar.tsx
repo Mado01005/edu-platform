@@ -11,6 +11,11 @@ import { trackLandingEvent } from '@/lib/landing/analytics';
 import { landingContent } from '@/lib/landing/content';
 import { getWhatsAppUrl, siteConfig } from '@/lib/siteConfig';
 
+const contactUsLabel = {
+  en: 'Contact Us',
+  ar: 'تواصل معنا',
+} as const;
+
 export function FloatingNavbar() {
   const { locale, setLocale } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -68,6 +73,12 @@ export function FloatingNavbar() {
                 <LandingCopy>{item.label}</LandingCopy>
               </a>
             ))}
+            <Link
+              className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-slate-600 outline-none hover:bg-[#F2F6F1] hover:text-[#084B2B] focus-visible:ring-4 focus-visible:ring-emerald-100"
+              href="/support"
+            >
+              <LandingCopy>{contactUsLabel}</LandingCopy>
+            </Link>
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
@@ -119,6 +130,13 @@ export function FloatingNavbar() {
                 <LandingCopy>{item.label}</LandingCopy>
               </a>
             ))}
+            <Link
+              className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-slate-700 outline-none hover:bg-[#F2F6F1] focus-visible:ring-4 focus-visible:ring-emerald-100"
+              href="/support"
+              onClick={() => setMenuOpen(false)}
+            >
+              <LandingCopy>{contactUsLabel}</LandingCopy>
+            </Link>
             <ConversionLink
               className="mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 text-sm font-black text-white outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 md:hidden"
               eventName="navbar_diagnostic_click"
