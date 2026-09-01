@@ -7,24 +7,24 @@ const icons = [ScanSearch, Compass, TrendingUp] as const;
 
 export function HowItWorks() {
   return (
-    <section className="bg-brand-surface py-20 md:py-28" aria-labelledby="how-title">
+    <section className="bg-brand-ivory-alt py-20 text-brand-base md:py-28" aria-labelledby="how-title">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <LandingCopy className="text-xs font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.howItWorks.eyebrow}</LandingCopy>
-          <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-brand-white sm:text-5xl">{landingContent.howItWorks.title}</LandingCopy>
+          <LandingCopy className="text-xs font-black uppercase tracking-[0.18em] text-brand-base underline decoration-brand-gold decoration-2 underline-offset-4">{landingContent.howItWorks.eyebrow}</LandingCopy>
+          <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-brand-base sm:text-5xl">{landingContent.howItWorks.title}</LandingCopy>
         </div>
         <ol className="relative mt-12 grid gap-4 lg:grid-cols-3">
           {landingContent.howItWorks.steps.map((step, index) => {
             const Icon = icons[index];
             return (
-              <li className="landing-card relative min-w-0 rounded-3xl border border-brand-border bg-brand-base p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 hover:shadow-2xl hover:shadow-black/25 sm:p-8" key={step.label.en}>
+              <li className="landing-card relative min-w-0 rounded-3xl border border-brand-base/10 bg-white p-6 shadow-xl shadow-brand-base/8 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 hover:shadow-2xl hover:shadow-brand-base/10 sm:p-8" key={step.label.en}>
                 <div className="flex items-center justify-between gap-4">
-                  <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-surface text-brand-gold"><Icon aria-hidden="true" className="size-5" /></span>
-                  <span className="text-5xl font-black text-brand-gold/15">0{index + 1}</span>
+                  <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-base text-brand-gold"><Icon aria-hidden="true" className="size-5" /></span>
+                  <span className="text-5xl font-black text-brand-base/5">0{index + 1}</span>
                 </div>
                 <LandingCopy className="mt-7 block text-[10px] font-black uppercase tracking-[0.16em] text-brand-gold">{step.label}</LandingCopy>
-                <LandingCopy as="h3" className="mt-2 text-2xl font-black text-brand-white">{step.title}</LandingCopy>
-                <LandingCopy as="p" className="mt-3 text-sm leading-7 text-brand-muted/75">{step.description}</LandingCopy>
+                <LandingCopy as="h3" className="mt-2 text-2xl font-black text-brand-base">{step.title}</LandingCopy>
+                <LandingCopy as="p" className="mt-3 text-sm leading-7 text-brand-surface/75">{step.description}</LandingCopy>
                 {index < 2 ? <span aria-hidden="true" className="absolute -bottom-3 left-1/2 z-10 flex size-7 -translate-x-1/2 items-center justify-center rounded-full border border-brand-rim bg-brand-gold text-brand-base lg:-right-[1.05rem] lg:bottom-auto lg:left-auto lg:top-1/2 lg:translate-x-0 lg:-translate-y-1/2 lg:-rotate-90 rtl:lg:-left-[1.05rem] rtl:lg:right-auto"><ArrowDown className="size-3.5" /></span> : null}
               </li>
             );

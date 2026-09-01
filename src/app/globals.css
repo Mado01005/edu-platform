@@ -28,6 +28,8 @@
   --color-brand-border: var(--oqool-border);
   --color-brand-gold: var(--oqool-gold);
   --color-brand-gold-hover: var(--oqool-gold-hover);
+  --color-brand-ivory: var(--oqool-ivory);
+  --color-brand-ivory-alt: var(--oqool-ivory-alt);
   --color-brand-white: var(--oqool-white);
   --color-brand-muted: var(--oqool-muted);
   --color-brand-rim: var(--oqool-gold-rim);
@@ -44,6 +46,8 @@
   --oqool-border: #17583f;
   --oqool-gold: #d4a345;
   --oqool-gold-hover: #e5b85c;
+  --oqool-ivory: #f9faf6;
+  --oqool-ivory-alt: #f4f6f0;
   --oqool-white: #ffffff;
   --oqool-muted: #e2e8f0;
   --oqool-gold-rim: rgba(212, 163, 69, 0.2);

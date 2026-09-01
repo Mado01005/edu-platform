@@ -5,7 +5,7 @@ import { landingContent } from '@/lib/landing/content';
 
 export function FinalCTASection() {
   return (
-    <section className="relative isolate overflow-hidden px-4 py-20 text-brand-white sm:px-6 md:py-28 lg:px-8">
+    <section className="relative isolate overflow-hidden bg-brand-base px-4 py-20 text-brand-white sm:px-6 md:py-28 lg:px-8">
       <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_50%_50%,rgba(23,88,63,0.52),transparent_38%),radial-gradient(circle_at_82%_22%,rgba(212,163,69,0.18),transparent_26%)]" />
       <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center overflow-hidden rounded-3xl border border-brand-rim bg-brand-surface px-5 py-14 text-center shadow-2xl shadow-black/30 backdrop-blur-md sm:px-10 sm:py-20">
         <div aria-hidden="true" className="absolute -left-20 -top-20 size-64 rounded-full border-[52px] border-brand-border/35" />

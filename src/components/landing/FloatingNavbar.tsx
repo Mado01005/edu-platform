@@ -39,8 +39,8 @@ export function FloatingNavbar() {
       <div
         className={`mx-auto w-full max-w-7xl rounded-[1.4rem] border px-3 py-2 backdrop-blur-xl transition-colors sm:px-4 ${
           scrolled
-            ? 'border-brand-rim bg-brand-surface/95 shadow-[0_8px_28px_rgba(0,0,0,0.24)]'
-            : 'border-brand-border bg-brand-surface/90'
+            ? 'border-brand-base/10 bg-white/95 shadow-[0_8px_28px_rgba(10,52,37,0.12)]'
+            : 'border-brand-base/10 bg-brand-ivory/92'
         }`}
       >
         <div className="flex min-h-12 items-center justify-between gap-2">
@@ -58,7 +58,7 @@ export function FloatingNavbar() {
               width={48}
             />
             <span className="hidden leading-tight sm:block">
-              <span className="block text-sm font-black text-brand-white">Oqool Academy</span>
+              <span className="block text-sm font-black text-brand-base">Oqool Academy</span>
               <span className="block font-arabic text-[11px] font-bold text-brand-gold" dir="rtl" lang="ar">أكاديمية عقول</span>
             </span>
           </Link>
@@ -66,7 +66,7 @@ export function FloatingNavbar() {
           <nav aria-label="Primary navigation" className="hidden items-center gap-0.5 lg:flex">
             {landingContent.navigation.map((item) => (
               <a
-                className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-brand-muted/80 outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
+                className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-brand-surface/80 outline-none hover:bg-brand-gold/10 hover:text-brand-base focus-visible:ring-4 focus-visible:ring-brand-gold/25"
                 href={item.href}
                 key={item.href}
               >
@@ -74,7 +74,7 @@ export function FloatingNavbar() {
               </a>
             ))}
             <Link
-              className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-brand-muted/80 outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
+              className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-brand-surface/80 outline-none hover:bg-brand-gold/10 hover:text-brand-base focus-visible:ring-4 focus-visible:ring-brand-gold/25"
               href="/support"
             >
               <LandingCopy>{contactUsLabel}</LandingCopy>
@@ -84,7 +84,7 @@ export function FloatingNavbar() {
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               aria-label={locale === 'en' ? 'Switch to Arabic' : 'Switch to English'}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-brand-border bg-brand-base px-2.5 text-xs font-black text-brand-gold outline-none hover:border-brand-gold hover:text-brand-gold-hover focus-visible:ring-4 focus-visible:ring-brand-gold/30 sm:px-3"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-brand-base/10 bg-white px-2.5 text-xs font-black text-brand-base outline-none hover:border-brand-gold hover:bg-brand-gold/10 focus-visible:ring-4 focus-visible:ring-brand-gold/30 sm:px-3"
               onClick={changeLanguage}
               type="button"
             >
@@ -105,7 +105,7 @@ export function FloatingNavbar() {
               aria-controls="landing-mobile-menu"
               aria-expanded={menuOpen}
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="inline-flex size-11 items-center justify-center rounded-full border border-brand-border bg-brand-base text-brand-gold outline-none hover:border-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25 lg:hidden"
+              className="inline-flex size-11 items-center justify-center rounded-full border border-brand-base/10 bg-white text-brand-base outline-none hover:border-brand-gold hover:bg-brand-gold/10 focus-visible:ring-4 focus-visible:ring-brand-gold/25 lg:hidden"
               onClick={() => setMenuOpen((open) => !open)}
               type="button"
             >
@@ -117,12 +117,12 @@ export function FloatingNavbar() {
         {menuOpen ? (
           <nav
             aria-label="Mobile navigation"
-            className="mt-2 grid gap-1 border-t border-brand-border pt-2 lg:hidden"
+            className="mt-2 grid gap-1 border-t border-brand-base/10 pt-2 lg:hidden"
             id="landing-mobile-menu"
           >
             {landingContent.navigation.map((item) => (
               <a
-                className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-brand-muted outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
+                className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-brand-surface outline-none hover:bg-brand-gold/10 hover:text-brand-base focus-visible:ring-4 focus-visible:ring-brand-gold/25"
                 href={item.href}
                 key={item.href}
                 onClick={() => setMenuOpen(false)}
@@ -131,7 +131,7 @@ export function FloatingNavbar() {
               </a>
             ))}
             <Link
-              className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-brand-muted outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
+              className="flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-brand-surface outline-none hover:bg-brand-gold/10 hover:text-brand-base focus-visible:ring-4 focus-visible:ring-brand-gold/25"
               href="/support"
               onClick={() => setMenuOpen(false)}
             >

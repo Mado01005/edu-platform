@@ -26,7 +26,7 @@ export function CurriculumExplorer() {
   };
 
   return (
-    <section className="scroll-mt-28 py-20 md:py-28" id="curriculum">
+    <section className="scroll-mt-28 bg-brand-base py-20 text-brand-white md:py-28" id="curriculum">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-9 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
           <div className="max-w-xl">

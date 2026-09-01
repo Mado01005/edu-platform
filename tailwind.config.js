@@ -14,6 +14,8 @@ module.exports = {
           border: '#17583F',
           gold: '#D4A345',
           'gold-hover': '#E5B85C',
+          ivory: '#F9FAF6',
+          'ivory-alt': '#F4F6F0',
           white: '#FFFFFF',
           muted: '#E2E8F0',
           rim: 'rgba(212, 163, 69, 0.2)',
