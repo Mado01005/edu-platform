@@ -29,9 +29,9 @@ describe('landing locale and contact configuration', () => {
 
   test('provides all three requested support lines with localized messages', () => {
     expect(siteConfig.whatsapp.supportLines.map((line) => line.number)).toEqual([
+      '966596899362',
       '201555920686',
       '201024991857',
-      '966596899362',
     ]);
 
     for (const line of siteConfig.whatsapp.supportLines) {

@@ -32,6 +32,12 @@ export const siteConfig = {
     number: configuredWhatsAppNumber || FALLBACK_WHATSAPP_NUMBER,
     supportLines: [
       {
+        id: 'saudi',
+        number: '966596899362',
+        displayNumber: '+966 59 689 9362',
+        label: { en: 'Saudi Arabia support', ar: 'الدعم في السعودية' },
+      },
+      {
         id: 'egypt-primary',
         number: '201555920686',
         displayNumber: '+20 155 592 0686',
@@ -42,12 +48,6 @@ export const siteConfig = {
         number: '201024991857',
         displayNumber: '+20 102 499 1857',
         label: { en: 'Egypt support line 2', ar: 'خط الدعم في مصر ٢' },
-      },
-      {
-        id: 'saudi',
-        number: '966596899362',
-        displayNumber: '+966 59 689 9362',
-        label: { en: 'Saudi Arabia support', ar: 'الدعم في السعودية' },
       },
     ],
     messages: {

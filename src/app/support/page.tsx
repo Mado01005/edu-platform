@@ -53,7 +53,7 @@ const contactPageSchema = {
 
 export default function PublicSupportPage() {
   return (
-    <div className="min-h-dvh w-full min-w-0 max-w-full overflow-x-hidden bg-brand-base text-brand-white">
+    <div className="min-h-dvh w-full min-w-0 max-w-full overflow-x-clip bg-brand-base text-brand-white">
       <a className="sr-only z-[100] rounded-lg bg-brand-gold px-4 py-3 font-bold text-brand-base focus:not-sr-only focus:fixed focus:left-4 focus:top-4" href="#support-content">
         Skip to support content
       </a>
@@ -64,8 +64,8 @@ export default function PublicSupportPage() {
         type="application/ld+json"
       />
 
-      <header className="sticky top-0 z-50 border-b border-brand-rim bg-brand-surface/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
-        <div className="mx-auto flex min-h-18 w-full max-w-7xl items-center justify-between gap-3">
+      <header className="sticky top-3 z-50 mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex min-h-18 w-full items-center justify-between gap-3 rounded-full border border-gray-200/50 bg-white/90 px-3 shadow-md shadow-black/5 backdrop-blur-md transition-all duration-300 dark:border-emerald-500/15 dark:bg-[#0A3425]/90 sm:px-4">
           <Link
             aria-label="Oqool Academy home"
             className="flex min-h-11 min-w-0 items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30"
@@ -80,14 +80,14 @@ export default function PublicSupportPage() {
               width={44}
             />
             <span className="min-w-0 leading-tight">
-              <span className="block truncate text-sm font-black text-brand-white">Oqool Academy</span>
+              <span className="block truncate text-sm font-black text-brand-base dark:text-brand-white">Oqool Academy</span>
               <span className="block truncate font-arabic text-[11px] font-bold text-brand-gold" dir="rtl" lang="ar">أكاديمية عقول</span>
             </span>
           </Link>
 
           <div className="flex shrink-0 items-center gap-2">
             <Link
-              className="hidden min-h-11 items-center gap-2 rounded-full px-3 text-xs font-black text-brand-muted/80 outline-none hover:bg-brand-base hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25 sm:inline-flex"
+              className="hidden min-h-11 items-center gap-2 rounded-full px-3 text-xs font-black text-brand-surface/80 outline-none hover:bg-brand-gold/10 hover:text-brand-base focus-visible:ring-4 focus-visible:ring-brand-gold/25 dark:text-brand-muted/80 dark:hover:text-brand-gold sm:inline-flex"
               href={siteConfig.routes.home}
             >
               <ArrowLeft aria-hidden="true" className="size-4 rtl:-scale-x-100" />
