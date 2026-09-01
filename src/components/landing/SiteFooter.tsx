@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Mail } from 'lucide-react';
 import { LandingCopy } from '@/components/landing/LandingCopy';
+import { SocialLinks } from '@/components/social/SocialLinks';
 import { landingContent } from '@/lib/landing/content';
 import { siteConfig } from '@/lib/siteConfig';
 
@@ -18,6 +19,7 @@ export function SiteFooter() {
             </span>
           </div>
           <LandingCopy as="p" className="mt-5 max-w-md text-sm leading-7 text-brand-muted/70">{landingContent.footer.description}</LandingCopy>
+          <SocialLinks className="mt-5" />
           <a
             className="mt-5 inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-brand-border bg-brand-surface px-3.5 py-2 text-sm text-brand-muted outline-none hover:border-brand-gold hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold"
             href={`mailto:${siteConfig.support.email}`}

@@ -12,6 +12,7 @@ import {
 import { LanguageToggle } from '@/components/i18n/language-provider';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { SiteFooter } from '@/components/landing/SiteFooter';
+import { SocialLinks } from '@/components/social/SocialLinks';
 import { SupportChannels } from '@/components/support/SupportChannels';
 import { SupportContactForm } from '@/components/support/SupportContactForm';
 import { siteConfig } from '@/lib/siteConfig';
@@ -151,6 +152,23 @@ export default function PublicSupportPage() {
             </p>
           </div>
           <SupportChannels />
+
+          <div className="mt-10 flex min-w-0 flex-col gap-6 rounded-[2rem] border border-brand-rim bg-brand-surface p-6 shadow-[0_20px_60px_rgba(0,0,0,0.22)] sm:flex-row sm:items-center sm:justify-between sm:p-8">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gold">
+                <LandingCopy>{{ en: 'Follow our community', ar: 'تابع مجتمعنا' }}</LandingCopy>
+              </p>
+              <LandingCopy as="h3" className="mt-2 text-2xl font-black tracking-tight text-brand-white">{{
+                en: 'Stay connected beyond support.',
+                ar: 'ابقَ على تواصل معنا بعد الدعم.',
+              }}</LandingCopy>
+              <LandingCopy as="p" className="mt-2 max-w-2xl text-sm leading-7 text-brand-muted/70">{{
+                en: 'Follow Oqool Academy for learning guidance, academy updates, and community highlights.',
+                ar: 'تابع أكاديمية عقول للحصول على إرشادات تعليمية، وآخر أخبار الأكاديمية، وأبرز أنشطة المجتمع.',
+              }}</LandingCopy>
+            </div>
+            <SocialLinks className="shrink-0 sm:justify-end" />
+          </div>
         </section>
 
         <section className="relative isolate overflow-hidden border-y border-brand-rim bg-brand-base" id="contact-form">

@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ConversionLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { useLanguage } from '@/components/i18n/language-provider';
+import { SocialLinks } from '@/components/social/SocialLinks';
 import { trackLandingEvent } from '@/lib/landing/analytics';
 import { landingContent } from '@/lib/landing/content';
 import { getWhatsAppUrl, siteConfig } from '@/lib/siteConfig';
@@ -188,6 +189,13 @@ export function FloatingNavbar() {
               <MessageCircle aria-hidden="true" className="size-4" />
               <LandingCopy>{landingContent.hero.primary}</LandingCopy>
             </ConversionLink>
+            <div className="mt-3 border-t border-brand-base/10 pt-3 dark:border-white/10">
+              <LandingCopy className="block text-center text-[10px] font-black uppercase tracking-[0.16em] text-brand-surface/60 dark:text-brand-muted/65">{{
+                en: 'Follow Oqool Academy',
+                ar: 'تابع أكاديمية عقول',
+              }}</LandingCopy>
+              <SocialLinks className="mt-2 justify-center" />
+            </div>
           </nav>
         ) : null}
       </div>
