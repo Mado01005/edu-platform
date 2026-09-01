@@ -89,6 +89,12 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.oqool-auto-hide-navbar {
+  transition-duration: 400ms !important;
+  transition-property: all !important;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -201,6 +207,10 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .oqool-auto-hide-navbar {
+    transition-duration: 0.01ms !important;
   }
 
   .oqool-feature-ticker {

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, MessageCircle, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ConversionLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { useLanguage } from '@/components/i18n/language-provider';
@@ -16,9 +16,59 @@ const contactUsLabel = {
   ar: 'تواصل معنا',
 } as const;
 
+const TOP_SCROLL_THRESHOLD = 20;
+const DIRECTION_SCROLL_THRESHOLD = 8;
+
 export function FloatingNavbar() {
   const { locale, setLocale } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navbarVisible, setNavbarVisible] = useState(true);
+  const lastScrollYRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    lastScrollYRef.current = Math.max(window.scrollY, 0);
+
+    const updateNavbarVisibility = () => {
+      animationFrameRef.current = null;
+      const currentScrollY = Math.max(window.scrollY, 0);
+
+      if (currentScrollY < TOP_SCROLL_THRESHOLD) {
+        setNavbarVisible(true);
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      const scrollDelta = currentScrollY - lastScrollYRef.current;
+
+      if (Math.abs(scrollDelta) < DIRECTION_SCROLL_THRESHOLD) {
+        return;
+      }
+
+      setNavbarVisible(scrollDelta < 0);
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    const handleScroll = () => {
+      if (animationFrameRef.current !== null) {
+        return;
+      }
+
+      animationFrameRef.current = window.requestAnimationFrame(
+        updateNavbarVisibility,
+      );
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+
+      if (animationFrameRef.current !== null) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
 
   const changeLanguage = () => {
     const nextLocale = locale === 'en' ? 'ar' : 'en';
@@ -27,7 +77,9 @@ export function FloatingNavbar() {
   };
 
   return (
-    <header className="sticky top-3 z-50 mx-auto max-w-7xl px-4 sm:px-6">
+    <header
+      className={`oqool-auto-hide-navbar sticky top-3 z-50 mx-auto max-w-7xl transform-gpu px-4 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform sm:px-6 ${navbarVisible ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0'}`}
+    >
       <div
         className={`w-full border border-gray-200/50 bg-white/90 px-3 py-2 shadow-md shadow-black/5 backdrop-blur-md transition-all duration-300 dark:border-emerald-500/15 dark:bg-[#0A3425]/90 sm:px-4 ${menuOpen ? 'rounded-[1.4rem]' : 'rounded-full'}`}
       >
