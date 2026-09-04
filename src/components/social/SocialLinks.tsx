@@ -11,6 +11,16 @@ type SocialIconProps = Readonly<{
 }>;
 
 function SocialIcon({ icon }: SocialIconProps) {
+  if (icon === 'instagram') {
+    return (
+      <svg aria-hidden="true" className="size-[1.1rem]" fill="none" viewBox="0 0 24 24">
+        <rect height="18" rx="5" stroke="currentColor" strokeWidth="2" width="18" x="3" y="3" />
+        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
+        <circle cx="17.4" cy="6.6" fill="currentColor" r="1.1" />
+      </svg>
+    );
+  }
+
   if (icon === 'tiktok') {
     return (
       <svg aria-hidden="true" className="size-[1.05rem]" fill="currentColor" viewBox="0 0 24 24">
@@ -41,6 +51,14 @@ function SocialIcon({ icon }: SocialIconProps) {
     );
   }
 
+  if (icon === 'linkedin') {
+    return (
+      <svg aria-hidden="true" className="size-[1.05rem]" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V8.98h3.42v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.29ZM5.32 7.41a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12Zm1.78 13.04H3.54V8.98H7.1v11.47Z" />
+      </svg>
+    );
+  }
+
   return (
     <svg aria-hidden="true" className="size-[1.05rem]" fill="currentColor" viewBox="0 0 24 24">
       <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.414c0-3.025 1.79-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.972h-1.513c-1.49 0-1.956.931-1.956 1.887v2.261h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073Z" />
@@ -55,9 +73,10 @@ export function SocialLinks({ className }: SocialLinksProps) {
         <li className="flex" key={social.name}>
           <a
             aria-label={social.ariaLabel}
-            className="relative flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-900/60 text-white/80 transition-all duration-200 before:absolute before:-inset-1 before:content-[''] hover:scale-105 hover:border-[#D4A345]/50 hover:text-[#D4A345] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D4A345]/30"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0E4632] text-white/80 transition-all duration-200 before:absolute before:-inset-1 before:content-[''] hover:scale-110 hover:border-[#D4A345]/60 hover:text-[#D4A345] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D4A345]/30 motion-reduce:transform-none motion-reduce:transition-none"
             href={social.url}
             rel="noopener noreferrer"
+            style={{ transitionProperty: 'all' }}
             target="_blank"
             title={social.name}
           >

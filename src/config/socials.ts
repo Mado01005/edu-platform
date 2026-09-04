@@ -1,6 +1,8 @@
 export const SOCIAL_ICON_NAMES = [
+  'instagram',
   'tiktok',
   'snapchat',
+  'linkedin',
   'x',
   'facebook',
 ] as const;
@@ -16,6 +18,12 @@ export type SocialLink = Readonly<{
 
 export const SOCIAL_LINKS = [
   {
+    name: 'Instagram',
+    url: 'https://www.instagram.com/oqoolacademy',
+    icon: 'instagram',
+    ariaLabel: 'Follow Oqool Academy on Instagram',
+  },
+  {
     name: 'TikTok',
     url: 'https://www.tiktok.com/@oqool.academy',
     icon: 'tiktok',
@@ -26,6 +34,12 @@ export const SOCIAL_LINKS = [
     url: 'https://www.snapchat.com/@oqoolacademy',
     icon: 'snapchat',
     ariaLabel: 'Follow Oqool Academy on Snapchat',
+  },
+  {
+    name: 'LinkedIn',
+    url: 'https://www.linkedin.com/company/oqoolacademy',
+    icon: 'linkedin',
+    ariaLabel: 'Connect with Oqool Academy on LinkedIn',
   },
   {
     name: 'X',
