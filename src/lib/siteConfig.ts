@@ -41,13 +41,7 @@ export const siteConfig = {
         id: 'egypt-primary',
         number: '201555920686',
         displayNumber: '+20 155 592 0686',
-        label: { en: 'Egypt support line 1', ar: 'خط الدعم في مصر ١' },
-      },
-      {
-        id: 'egypt-secondary',
-        number: '201024991857',
-        displayNumber: '+20 102 499 1857',
-        label: { en: 'Egypt support line 2', ar: 'خط الدعم في مصر ٢' },
+        label: { en: 'Egypt support line', ar: 'خط دعم مصر' },
       },
     ],
     messages: {

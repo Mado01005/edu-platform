@@ -106,7 +106,7 @@ export default function PublicSupportPage() {
             <div className="min-w-0">
               <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-brand-rim bg-brand-surface px-4 text-xs font-black uppercase tracking-[0.14em] text-brand-gold">
                 <Headphones aria-hidden="true" className="size-4" />
-                <LandingCopy>{{ en: 'Human support, three direct lines', ar: 'دعم مباشر عبر ثلاثة خطوط' }}</LandingCopy>
+                <LandingCopy>{{ en: 'Human support, two direct lines', ar: 'دعم مباشر عبر خطين' }}</LandingCopy>
               </p>
               <h1 className="mt-6 max-w-3xl text-5xl font-black leading-[0.98] tracking-[-0.045em] text-brand-white sm:text-6xl lg:text-7xl">
                 <LandingCopy>{{ en: 'Support Center', ar: 'مركز الدعم' }}</LandingCopy>

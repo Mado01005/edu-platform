@@ -11,10 +11,10 @@ export function SupportChannels() {
   const { locale } = useLanguage();
 
   return (
-    <ol className="relative grid min-w-0 gap-4 lg:grid-cols-3">
+    <ol className="relative min-w-0 grid grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto gap-6">
       <span
         aria-hidden="true"
-        className="absolute left-[16.66%] right-[16.66%] top-7 hidden h-px bg-gradient-to-r from-transparent via-brand-gold/55 to-transparent lg:block"
+        className="absolute left-1/4 right-1/4 top-7 hidden h-px bg-gradient-to-r from-transparent via-brand-gold/55 to-transparent md:block"
       />
       {siteConfig.whatsapp.supportLines.map((line, index) => (
         <li className="relative min-w-0" key={line.id}>
