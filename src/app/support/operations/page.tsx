@@ -136,11 +136,11 @@ export default async function SupportOperationsPage({
   return (
     <PortalShell user={operator}>
       <div className="box-border flex w-full max-w-md min-w-0 flex-col gap-4">
-          <header className="w-full min-w-0 rounded-3xl border border-[#D4AF37]/40 bg-[#FDF8E8] p-5 shadow-sm shadow-emerald-950/5">
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-[#084B2B] text-white shadow-sm">
+          <header className="w-full min-w-0 rounded-3xl border border-[#D8A84E]/40 bg-[#F4F7F4] p-5 shadow-sm shadow-emerald-950/5">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-[#063A2F] text-white shadow-sm">
               <Headphones className="size-5" aria-hidden="true" />
             </span>
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#8C6B1B]">
+            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#805C1D]">
               Customer support
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-tight">
@@ -175,7 +175,7 @@ export default async function SupportOperationsPage({
           <Card className="scroll-mt-28" id="public-inquiries">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Inbox className="size-5 text-[#084B2B]" aria-hidden="true" />
+                <Inbox className="size-5 text-[#063A2F]" aria-hidden="true" />
                 Public support inquiries
               </CardTitle>
               <CardDescription>
@@ -186,7 +186,7 @@ export default async function SupportOperationsPage({
               {publicInquiries.length ? (
                 publicInquiries.map((inquiry) => (
                   <article
-                    className="min-w-0 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4"
+                    className="min-w-0 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4"
                     key={inquiry.id}
                   >
                     <div className="flex min-w-0 items-start justify-between gap-3">
@@ -205,7 +205,7 @@ export default async function SupportOperationsPage({
                     <p className="mt-3 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
                       {inquiry.message}
                     </p>
-                    <div className="mt-3 grid min-w-0 gap-1 text-xs font-bold text-[#084B2B]">
+                    <div className="mt-3 grid min-w-0 gap-1 text-xs font-bold text-[#063A2F]">
                       <a className="min-w-0 break-all hover:underline" href={`mailto:${inquiry.email}`}>
                         {inquiry.email}
                       </a>
@@ -226,7 +226,7 @@ export default async function SupportOperationsPage({
           <Card className="scroll-mt-28" id="student-lookup">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Search className="size-5 text-[#084B2B]" aria-hidden="true" />
+                <Search className="size-5 text-[#063A2F]" aria-hidden="true" />
                 Find a student
               </CardTitle>
               <CardDescription>
@@ -276,14 +276,14 @@ export default async function SupportOperationsPage({
                       <Link
                         className={`flex min-w-0 items-start gap-3 rounded-2xl border p-4 transition ${
                           selected
-                            ? 'border-[#084B2B] bg-emerald-50'
+                            ? 'border-[#063A2F] bg-emerald-50'
                             : 'border-emerald-950/10 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'
                         }`}
                         href={supportStudentHref(query, student.id)}
                         key={student.id}
                         prefetch={false}
                       >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#063A2F]">
                           <User className="size-5" aria-hidden="true" />
                         </span>
                         <span className="min-w-0 flex-1">
@@ -327,7 +327,7 @@ export default async function SupportOperationsPage({
               <Card>
                 <CardHeader>
                   <div className="flex min-w-0 items-start justify-between gap-3">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#084B2B] text-white">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#063A2F] text-white">
                       <ShieldCheck className="size-5" aria-hidden="true" />
                     </span>
                     <Badge
@@ -348,12 +348,12 @@ export default async function SupportOperationsPage({
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3 pb-5 pt-4">
-                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-[#F8FAF7] p-3 text-sm text-slate-700">
-                    <Mail className="mt-0.5 size-4 shrink-0 text-[#084B2B]" aria-hidden="true" />
+                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-[#F4F7F4] p-3 text-sm text-slate-700">
+                    <Mail className="mt-0.5 size-4 shrink-0 text-[#063A2F]" aria-hidden="true" />
                     <span className="min-w-0 break-all">{selectedStudent.email}</span>
                   </p>
-                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-[#F8FAF7] p-3 text-sm text-slate-700">
-                    <Phone className="mt-0.5 size-4 shrink-0 text-[#084B2B]" aria-hidden="true" />
+                  <p className="flex min-w-0 items-start gap-3 rounded-xl bg-[#F4F7F4] p-3 text-sm text-slate-700">
+                    <Phone className="mt-0.5 size-4 shrink-0 text-[#063A2F]" aria-hidden="true" />
                     <span className="min-w-0 break-all">
                       {selectedStudent.phoneNumber || 'No phone number on file'}
                     </span>
@@ -364,7 +364,7 @@ export default async function SupportOperationsPage({
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="size-5 text-[#084B2B]" aria-hidden="true" />
+                    <BookOpen className="size-5 text-[#063A2F]" aria-hidden="true" />
                     Course enrollment status
                   </CardTitle>
                   <CardDescription>
@@ -375,7 +375,7 @@ export default async function SupportOperationsPage({
                   {selectedStudent.enrollments.length ? (
                     selectedStudent.enrollments.map((enrollment) => (
                       <div
-                        className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4"
+                        className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4"
                         key={enrollment.id}
                       >
                         <span className="min-w-0">
@@ -409,7 +409,7 @@ export default async function SupportOperationsPage({
               <Card className="scroll-mt-28" id="credential-resets">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <KeyRound className="size-5 text-[#8C6B1B]" aria-hidden="true" />
+                    <KeyRound className="size-5 text-[#805C1D]" aria-hidden="true" />
                     Temporary password reset
                   </CardTitle>
                   <CardDescription>
@@ -446,7 +446,7 @@ export default async function SupportOperationsPage({
                       required
                       type="password"
                     />
-                    <label className="flex min-w-0 items-start gap-3 rounded-2xl border border-[#D4AF37]/40 bg-[#FDF8E8] p-4 text-sm leading-6 text-[#8C6B1B]">
+                    <label className="flex min-w-0 items-start gap-3 rounded-2xl border border-[#D8A84E]/40 bg-[#F4F7F4] p-4 text-sm leading-6 text-[#805C1D]">
                       <input
                         className="mt-1 size-4 shrink-0 accent-emerald-700"
                         name="confirmation"
@@ -461,7 +461,7 @@ export default async function SupportOperationsPage({
                     <ActionSubmitButton
                       className={cn(
                         buttonVariants(),
-                        'w-full bg-[#084B2B] text-white hover:bg-[#063B22]',
+                        'w-full bg-[#063A2F] text-white hover:bg-[#0A4235]',
                       )}
                       pendingLabel="Resetting…"
                     >
@@ -475,7 +475,7 @@ export default async function SupportOperationsPage({
               <Card className="scroll-mt-28" id="support-tickets">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Bell className="size-5 text-[#084B2B]" aria-hidden="true" />
+                    <Bell className="size-5 text-[#063A2F]" aria-hidden="true" />
                     Resend a recent notice
                   </CardTitle>
                   <CardDescription>
@@ -491,7 +491,7 @@ export default async function SupportOperationsPage({
                         Recent notification
                       </label>
                       <select
-                        className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
+                        className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100"
                         id="notification-to-resend"
                         name="notificationId"
                         required
@@ -525,7 +525,7 @@ export default async function SupportOperationsPage({
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Send className="size-5 text-[#084B2B]" aria-hidden="true" />
+                    <Send className="size-5 text-[#063A2F]" aria-hidden="true" />
                     Create support notice
                   </CardTitle>
                   <CardDescription>
@@ -580,7 +580,7 @@ export default async function SupportOperationsPage({
               </CardHeader>
               <CardContent className="pb-5 pt-4">
                 <Link
-                  className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#084B2B] px-4 text-sm font-black text-white transition hover:bg-[#063B22]"
+                  className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#063A2F] px-4 text-sm font-black text-white transition hover:bg-[#0A4235]"
                   href={query ? `/support/operations?q=${encodeURIComponent(query)}` : '/support/operations'}
                 >
                   Back to search

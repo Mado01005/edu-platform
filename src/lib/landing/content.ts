@@ -27,7 +27,7 @@ export const landingContent = {
       'أكثر من مجرد دروس خصوصية… رحلة تعلم متكاملة مصممة حول احتياجات ابنك.',
     ),
     description: text(
-      "Oqool identifies your child's learning gaps, creates a personalized learning plan, connects them with the right teacher, and continuously tracks their academic progress.",
+      "Nodrek identifies your child's learning gaps, creates a personalized learning plan, connects them with the right teacher, and continuously tracks their academic progress.",
       'نحدد الفجوات التعليمية، ونبني خطة تعلم مخصصة، ونختار المعلم المناسب، ثم نتابع التقدم الأكاديمي باستمرار.',
     ),
     qualifier: text(
@@ -92,8 +92,8 @@ export const landingContent = {
     ),
   },
   solution: {
-    eyebrow: text('The Oqool managed-learning framework', 'منهج عقول لإدارة رحلة التعلم'),
-    title: text('That’s Why Oqool Starts With Understanding.', 'لهذا تبدأ عقول بالفهم أولًا.'),
+    eyebrow: text('The Nodrek managed-learning framework', 'منهج نُدرك لإدارة رحلة التعلم'),
+    title: text('That’s Why Nodrek Starts With Understanding.', 'لهذا تبدأ نُدرك بالفهم أولًا.'),
     description: text(
       'We don’t just teach lessons. We identify gaps, build a learning plan, and continuously measure progress.',
       'لا نكتفي بتقديم الحصص؛ نحدد الفجوات، ونبني خطة واضحة، ونقيس التقدم باستمرار.',
@@ -164,12 +164,12 @@ export const landingContent = {
       {
         label: text('Plan & Match', 'التخطيط والاختيار'),
         title: text('Build the Right Path', 'ابنِ المسار المناسب'),
-        description: text('Oqool creates a learning recommendation and matches the student with the appropriate teacher and format.', 'تبني عقول توصية تعليمية وتختار للطالب المعلم ونمط التعلم الأنسب.'),
+        description: text('Nodrek creates a learning recommendation and matches the student with the appropriate teacher and format.', 'تبني نُدرك توصية تعليمية وتختار للطالب المعلم ونمط التعلم الأنسب.'),
       },
       {
         label: text('Learn & Measure', 'التعلم والقياس'),
         title: text('Teach. Assess. Improve.', 'تعلّم، قيّم، وتقدّم.'),
-        description: text('Students learn through live instruction while Oqool tracks progress and keeps parents informed.', 'يتعلم الطالب في حصص مباشرة بينما تتابع عقول التقدم وتبقي ولي الأمر على اطلاع.'),
+        description: text('Students learn through live instruction while Nodrek tracks progress and keeps parents informed.', 'يتعلم الطالب في حصص مباشرة بينما تتابع نُدرك التقدم وتبقي ولي الأمر على اطلاع.'),
       },
     ],
     cta: text('Start With a Free Assessment', 'ابدأ بتقييم مجاني'),
@@ -185,7 +185,7 @@ export const landingContent = {
   outcomes: {
     eyebrow: text('Progress you can see', 'تقدم يمكنك رؤيته'),
     title: text('Know How Your Child Is Really Progressing.', 'اعرف كيف يتقدم ابنك فعليًا.'),
-    description: text('When verified family stories are available with consent, they can appear here. Until then, Oqool shows exactly how progress is measured—without fabricated testimonials.', 'عندما تتوفر قصص موثقة بموافقة أصحابها يمكن عرضها هنا. وحتى ذلك الحين، نوضح كيف تقيس عقول التقدم من دون شهادات مصطنعة.'),
+    description: text('When verified family stories are available with consent, they can appear here. Until then, Nodrek shows exactly how progress is measured—without fabricated testimonials.', 'عندما تتوفر قصص موثقة بموافقة أصحابها يمكن عرضها هنا. وحتى ذلك الحين، نوضح كيف تقيس نُدرك التقدم من دون شهادات مصطنعة.'),
     sampleLabel: text('Sample Parent Progress View', 'نموذج توضيحي لمتابعة ولي الأمر'),
     sequence: [
       text('Baseline Assessment', 'التقييم المبدئي'),
@@ -196,7 +196,7 @@ export const landingContent = {
     ],
     teacherTitle: text('The Right Teacher Matters. So We Don’t Leave Teacher Quality to Chance.', 'المعلم المناسب يصنع فرقًا؛ لذلك لا نترك جودة الاختيار للصدفة.'),
     teacherDescription: text('Selection → Academic Evaluation → Demo Lesson → Training → Probation → Performance Monitoring → Student Progress Review → Continuous Improvement', 'الاختيار ← التقييم الأكاديمي ← حصة تجريبية ← التدريب ← فترة التجربة ← متابعة الأداء ← مراجعة تقدم الطالب ← التحسين المستمر'),
-    intervention: text('If expected progress is not happening, Oqool reviews the situation and adjusts the learning approach.', 'إذا لم يتحقق التقدم المتوقع، تراجع عقول الحالة وتعدّل النهج التعليمي.'),
+    intervention: text('If expected progress is not happening, Nodrek reviews the situation and adjusts the learning approach.', 'إذا لم يتحقق التقدم المتوقع، تراجع نُدرك الحالة وتعدّل النهج التعليمي.'),
   },
   pricing: {
     title: text('Every Student’s Learning Needs Are Different.', 'احتياجات التعلم تختلف من طالب لآخر.'),
@@ -207,10 +207,10 @@ export const landingContent = {
     eyebrow: text('Questions parents ask first', 'أسئلة يطرحها أولياء الأمور'),
     title: text('Clear answers before you begin.', 'إجابات واضحة قبل أن تبدأ.'),
     items: [
-      [text('What is the free diagnostic assessment?', 'ما هو التقييم التشخيصي المجاني؟'), text('It is the first step in understanding the student’s current level, strengths, and learning gaps. Oqool uses it to guide the academic recommendation instead of starting with a generic package.', 'هو الخطوة الأولى لفهم مستوى الطالب الحالي ونقاط قوته والفجوات التعليمية. تستخدم عقول النتيجة لتوجيه التوصية الأكاديمية بدل البدء بباقة عامة.')],
-      [text('Is the first lesson really free?', 'هل الحصة الأولى مجانية فعلًا؟'), text('Yes. After the initial assessment and teacher matching process, eligible new students can experience their first Oqool lesson before moving into the recommended learning plan.', 'نعم. بعد التقييم الأولي واختيار المعلم، يمكن للطلاب الجدد المؤهلين تجربة أول حصة في عقول قبل الانتقال إلى خطة التعلم الموصى بها.')],
-      [text('How much does Oqool cost?', 'كم تبلغ تكلفة الدراسة في عقول؟'), text('Oqool offers different learning formats based on academic needs, curriculum, subject, and preferred format. After diagnosis, the academic advisor recommends the most suitable option and explains the available packages.', 'تقدم عقول أنماطًا مختلفة بحسب الاحتياج الأكاديمي والمنهج والمادة ونمط التعلم. بعد التشخيص، يوصي المستشار الأكاديمي بالخيار الأنسب ويشرح الباقات المتاحة.')],
-      [text('How will I know whether my child is progressing?', 'كيف أعرف أن ابني يحقق تقدمًا؟'), text('Oqool combines live teaching with assessment and progress monitoring to give parents clear visibility into strengths, support needs, academic movement, and recommended next steps.', 'تجمع عقول بين التدريس المباشر والتقييم والمتابعة لتمنح ولي الأمر رؤية واضحة لنقاط القوة والاحتياجات والتقدم والخطوات التالية.')],
+      [text('What is the free diagnostic assessment?', 'ما هو التقييم التشخيصي المجاني؟'), text('It is the first step in understanding the student’s current level, strengths, and learning gaps. Nodrek uses it to guide the academic recommendation instead of starting with a generic package.', 'هو الخطوة الأولى لفهم مستوى الطالب الحالي ونقاط قوته والفجوات التعليمية. تستخدم نُدرك النتيجة لتوجيه التوصية الأكاديمية بدل البدء بباقة عامة.')],
+      [text('Is the first lesson really free?', 'هل الحصة الأولى مجانية فعلًا؟'), text('Yes. After the initial assessment and teacher matching process, eligible new students can experience their first Nodrek lesson before moving into the recommended learning plan.', 'نعم. بعد التقييم الأولي واختيار المعلم، يمكن للطلاب الجدد المؤهلين تجربة أول حصة في نُدرك قبل الانتقال إلى خطة التعلم الموصى بها.')],
+      [text('How much does Nodrek cost?', 'كم تبلغ تكلفة الدراسة في نُدرك؟'), text('Nodrek offers different learning formats based on academic needs, curriculum, subject, and preferred format. After diagnosis, the academic advisor recommends the most suitable option and explains the available packages.', 'تقدم نُدرك أنماطًا مختلفة بحسب الاحتياج الأكاديمي والمنهج والمادة ونمط التعلم. بعد التشخيص، يوصي المستشار الأكاديمي بالخيار الأنسب ويشرح الباقات المتاحة.')],
+      [text('How will I know whether my child is progressing?', 'كيف أعرف أن ابني يحقق تقدمًا؟'), text('Nodrek combines live teaching with assessment and progress monitoring to give parents clear visibility into strengths, support needs, academic movement, and recommended next steps.', 'تجمع نُدرك بين التدريس المباشر والتقييم والمتابعة لتمنح ولي الأمر رؤية واضحة لنقاط القوة والاحتياجات والتقدم والخطوات التالية.')],
     ],
   },
   finalCta: {

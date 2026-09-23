@@ -32,7 +32,7 @@ export function AdminStorageWidget({
       ? 'bg-red-400'
       : percent >= 70
         ? 'bg-amber-300'
-        : 'bg-[#084B2B]';
+        : 'bg-[#063A2F]';
   const statusTone =
     percent >= 90
       ? 'text-red-700'
@@ -46,18 +46,18 @@ export function AdminStorageWidget({
       href="/admin/storage"
     >
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#063A2F]">
           <Database className="size-5" aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-xs font-black uppercase tracking-[0.18em] text-[#084B2B]">
+          <span className="block text-xs font-black uppercase tracking-[0.18em] text-[#063A2F]">
             R2 storage
           </span>
           <span className="mt-1 block truncate text-lg font-black">
             {formatBytes(totalBytes)} used
           </span>
         </span>
-        <ArrowRight className="size-5 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#084B2B]" />
+        <ArrowRight className="size-5 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#063A2F]" />
       </div>
       <div>
         <div className="h-2 overflow-hidden rounded-full bg-slate-100">

@@ -33,7 +33,7 @@ export function CourseSidebar({
   return (
     <aside className="min-w-0 border-t border-emerald-950/10 bg-white lg:min-h-[calc(100vh-73px)] lg:border-l lg:border-t-0">
       <div className="flex items-center gap-2 border-b border-emerald-950/10 p-4 font-bold text-slate-900">
-        <ListTree aria-hidden="true" className="size-4 text-[#084B2B]" />
+        <ListTree aria-hidden="true" className="size-4 text-[#063A2F]" />
         Course content
         <span className="ml-auto text-xs font-medium text-slate-500">
           {lessonCount} lessons
@@ -52,7 +52,7 @@ export function CourseSidebar({
               key={courseModule.id}
               open={containsActiveLesson}
             >
-              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 bg-[#F8FAF7] px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-emerald-50 group-open:text-[#084B2B]">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 bg-[#F4F7F4] px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-emerald-50 group-open:text-[#063A2F]">
                 <span className="min-w-0 flex-1 break-words">
                   {courseModule.title}
                 </span>
@@ -70,10 +70,10 @@ export function CourseSidebar({
                       aria-current={active ? 'page' : undefined}
                       className={`flex min-w-0 items-start gap-3 border-l-4 px-3 py-3 text-sm transition ${
                         active
-                          ? 'border-[#084B2B] bg-emerald-50 font-medium text-[#084B2B]'
+                          ? 'border-[#063A2F] bg-emerald-50 font-medium text-[#063A2F]'
                           : lesson.locked
                             ? 'pointer-events-none border-transparent bg-slate-50 text-slate-400'
-                          : 'border-transparent text-slate-600 hover:bg-[#F8FAF7] hover:text-slate-900'
+                          : 'border-transparent text-slate-600 hover:bg-[#F4F7F4] hover:text-slate-900'
                       }`}
                       href={`/courses/${courseId}/learn/lessons/${lesson.id}${previewSuffix}`}
                       key={lesson.id}

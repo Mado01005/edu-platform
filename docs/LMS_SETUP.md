@@ -1,6 +1,6 @@
 # Role-Based LMS Setup
 
-The LMS is additive to the existing EduPortal application. Existing NextAuth
+The LMS is additive to the existing Nodrek Learning Hub application. Existing NextAuth
 routes continue to work, while the new course catalog, teacher studio, lesson
 player, and live-class routes use Supabase Auth cookies and Prisma.
 

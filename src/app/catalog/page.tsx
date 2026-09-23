@@ -1,3 +1,4 @@
+import { siteConfig as brandConfig } from '@/lib/siteConfig';
 import Image from 'next/image';
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
@@ -224,7 +225,7 @@ export default async function CatalogPage({
         );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F8FAF7] text-slate-900">
+    <div className="min-h-screen overflow-x-hidden bg-[#F4F7F4] text-slate-900">
       <LmsHeader user={user} />
 
       <main className="mx-auto flex w-full max-w-[92rem] min-w-0 flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:gap-10">
@@ -275,7 +276,7 @@ export default async function CatalogPage({
         <section className="grid min-w-0 gap-4 rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5 sm:grid-cols-3 sm:p-6">
           {featureMetrics.map(({ icon: Icon, label, value }) => (
             <div className="flex min-w-0 items-center gap-3 sm:border-r sm:border-emerald-950/10 sm:last:border-r-0" key={label}>
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#063A2F]">
                 <Icon className="size-5" aria-hidden="true" />
               </span>
               <span className="min-w-0">
@@ -292,7 +293,7 @@ export default async function CatalogPage({
         >
           <div className="mb-6 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
-              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#084B2B]">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#063A2F]">
                 <BookOpen className="size-4" aria-hidden="true" />
                 Course catalog
               </p>
@@ -313,7 +314,7 @@ export default async function CatalogPage({
                 aria-hidden="true"
               />
               <Input
-                className="h-12 border-transparent bg-transparent pl-11 focus:border-[#084B2B]"
+                className="h-12 border-transparent bg-transparent pl-11 focus:border-[#063A2F]"
                 defaultValue={query}
                 name="q"
                 placeholder="Search courses, skills, or instructors"
@@ -342,8 +343,8 @@ export default async function CatalogPage({
                   className={cn(
                     'inline-flex min-w-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-medium transition-colors',
                     active
-                      ? 'border-emerald-200 bg-emerald-100 text-[#084B2B]'
-                      : 'border-emerald-950/10 bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#084B2B]',
+                      ? 'border-emerald-200 bg-emerald-100 text-[#063A2F]'
+                      : 'border-emerald-950/10 bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#063A2F]',
                   )}
                   href={categoryHref(courseCategory.id, query)}
                   key={courseCategory.id}
@@ -377,7 +378,7 @@ export default async function CatalogPage({
             </div>
           ) : (
             <Card className="mt-7 items-center border-dashed p-10 text-center sm:p-14">
-              <span className="flex size-12 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
+              <span className="flex size-12 items-center justify-center rounded-xl bg-emerald-100 text-[#063A2F]">
                 <Search className="size-5" aria-hidden="true" />
               </span>
               <h3 className="mt-4 text-lg font-semibold">No matching courses</h3>
@@ -398,13 +399,13 @@ export default async function CatalogPage({
         </section>
       </main>
 
-      <footer className="mt-10 border-t border-[#D4AF37]/25 bg-[#042917] text-white">
+      <footer className="mt-10 border-t border-[#D8A84E]/25 bg-[#063A2F] text-white">
         <div className="mx-auto flex w-full max-w-[92rem] flex-col gap-4 px-4 py-7 text-sm text-emerald-100/75 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} Oqool Academy. Structured learning, clearly protected.</p>
+          <p>{brandConfig.copyright}</p>
           <nav aria-label="Legal and support links" className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link className="hover:text-white" href="/privacy">Privacy</Link>
             <Link className="hover:text-white" href="/terms">Terms</Link>
-            <a className="hover:text-white" href="mailto:support@oqoolacademy.com">Support</a>
+            <a className="hover:text-white" href={`mailto:${brandConfig.support.email}`}>Support</a>
           </nav>
         </div>
       </footer>

@@ -71,8 +71,8 @@ describe('Supabase page auth proxy', () => {
     const urls = [
       'https://www.edu-platform.me/',
       'https://www.edu-platform.me/preview',
-      'https://www.edu-platform.me/brand/oqool-logo.png',
-      'https://www.edu-platform.me/brand/oqool-banner.png',
+      'https://www.edu-platform.me/brand/nodrek-logo.png',
+      'https://www.edu-platform.me/brand/nodrek-banner.jpeg',
     ];
 
     for (const url of urls) {

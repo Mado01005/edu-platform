@@ -236,14 +236,14 @@ export default async function LessonPlayerPage({
   }));
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F8FAF7] text-slate-900">
+    <div className="min-h-screen overflow-x-hidden bg-[#F4F7F4] text-slate-900">
       <LmsHeader user={user} />
       <ProtectedContentShell>
       <main className="mx-auto grid w-full max-w-[1500px] min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px]">
         <article className="flex min-w-0 flex-col gap-5 px-4 py-6 sm:px-8 lg:px-10">
           <Breadcrumbs items={breadcrumbs} role={user.role} />
           {isPreview ? (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-[#084B2B]">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-[#063A2F]">
               <span aria-hidden="true">👁️ </span>
               STUDENT PREVIEW MODE — Editing controls are hidden. You are viewing this course as a student.
             </div>
@@ -275,7 +275,7 @@ export default async function LessonPlayerPage({
               preferredQuality={user.defaultVideoQuality}
               qualitySources={qualitySources}
               title={lesson.title}
-              watermark={`${user.name ?? 'Oqool Student'} — ${user.email}`}
+              watermark={`${user.name ?? 'Nodrek Student'} — ${user.email}`}
             />
           </div> : null}
 
@@ -285,7 +285,7 @@ export default async function LessonPlayerPage({
           >
             {previous ? (
               <Link
-                className="flex min-h-10 min-w-0 items-center gap-1 rounded-lg bg-[#084B2B] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#063B22]"
+                className="flex min-h-10 min-w-0 items-center gap-1 rounded-lg bg-[#063A2F] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#0A4235]"
                 href={`/courses/${courseId}/learn/lessons/${previous.id}${previewSuffix}`}
               >
                 <ChevronLeft aria-hidden="true" className="size-4 shrink-0" />
@@ -302,7 +302,7 @@ export default async function LessonPlayerPage({
             )}
             {next && (user.role !== 'STUDENT' || isPreview || completed) ? (
               <Link
-                className="flex min-h-10 min-w-0 items-center justify-end gap-1 rounded-lg bg-[#084B2B] px-3 py-2 text-right text-sm font-semibold text-white transition hover:bg-[#063B22]"
+                className="flex min-h-10 min-w-0 items-center justify-end gap-1 rounded-lg bg-[#063A2F] px-3 py-2 text-right text-sm font-semibold text-white transition hover:bg-[#0A4235]"
                 href={`/courses/${courseId}/learn/lessons/${next.id}${previewSuffix}`}
               >
                 <span className="truncate">Next Lesson</span>
@@ -339,7 +339,7 @@ export default async function LessonPlayerPage({
 
           <LessonResources
             materials={resourceMaterials}
-            watermark={`${user.name ?? 'Oqool Student'} — ${user.email}`}
+            watermark={`${user.name ?? 'Nodrek Student'} — ${user.email}`}
           />
 
           {lesson.contentType === 'QUIZ' && lesson.assignment && user.role === 'STUDENT' && !isPreview ? (

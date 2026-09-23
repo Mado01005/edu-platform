@@ -83,7 +83,7 @@ export async function renderAdminPage(requestedTab?: string) {
 
       <section className="min-w-0 rounded-3xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5 sm:p-6">
         <div className="mb-5">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#084B2B]">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#063A2F]">
             Learning overview
           </p>
           <h2 className="mt-2 text-2xl font-bold text-slate-900">
@@ -103,7 +103,7 @@ export async function renderAdminPage(requestedTab?: string) {
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F8FAF7] text-slate-900 transition-colors duration-200 ease-in-out">
+    <div className="min-h-screen overflow-x-hidden bg-[#F4F7F4] text-slate-900 transition-colors duration-200 ease-in-out">
       <div>
         <Navbar
           userName={session?.user?.name ?? undefined}

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Cairo, Inter } from 'next/font/google';
 import { cookies } from 'next/headers';
 import Script from 'next/script';
@@ -10,41 +10,42 @@ import 'katex/dist/katex.min.css';
 import { auth } from '@/auth';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { LanguageProvider } from '@/components/i18n/language-provider';
+import { siteConfig } from '@/lib/siteConfig';
 import { LANGUAGE_PREFERENCE_KEY, resolveLocale } from '@/lib/i18n';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-english' });
 const cairo = Cairo({ subsets: ['arabic'], display: 'swap', variable: '--font-arabic' });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
-  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.edu-platform.me');
+  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : siteConfig.url);
 
 export const metadata: Metadata = {
-  title: 'Oqool Academy | أكاديمية عقول',
-  description: 'Grow Minds. Shape the Future. نُنَمِّي العقول... ونصنع المستقبل',
+  title: siteConfig.title,
+  description: siteConfig.description,
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/brand/oqool-logo.png', sizes: '1254x1254', type: 'image/png' },
+      { url: '/brand/nodrek-logo.png', sizes: '512x512', type: 'image/png' },
     ],
     shortcut: [
-      { url: '/brand/oqool-logo.png', sizes: '1254x1254', type: 'image/png' },
+      { url: '/brand/nodrek-logo.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/brand/oqool-logo.png', sizes: '1254x1254', type: 'image/png' },
+      { url: '/brand/nodrek-logo.png', sizes: '512x512', type: 'image/png' },
     ],
   },
   openGraph: {
-    title: 'Oqool Academy | أكاديمية عقول',
-    description: 'Grow Minds. Shape the Future. نُنَمِّي العقول... ونصنع المستقبل',
+    title: siteConfig.title,
+    description: siteConfig.description,
     url: SITE_URL,
-    siteName: 'Oqool Academy',
+    siteName: siteConfig.name,
     images: [
       {
-        url: '/brand/oqool-banner.png',
-        width: 1942,
-        height: 809,
-        alt: 'Oqool Academy — Grow Minds. Shape the Future.',
+        url: siteConfig.brand.banner,
+        width: siteConfig.brand.bannerWidth,
+        height: siteConfig.brand.bannerHeight,
+        alt: 'Nodrek Learning Hub — LEARN • GROW • ACHIEVE',
       },
     ],
     locale: 'ar_SA',
@@ -53,9 +54,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Oqool Academy | أكاديمية عقول',
-    description: 'Grow Minds. Shape the Future.',
-    images: ['/brand/oqool-banner.png'],
+    title: siteConfig.title,
+    description: siteConfig.description,
+    images: [siteConfig.brand.banner],
   },
   alternates: {
     canonical: '/',
@@ -63,9 +64,11 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Oqool Academy',
+    title: siteConfig.name,
   },
 };
+
+export const viewport: Viewport = { themeColor: '#063A2F' };
 
 export default async function RootLayout({
   children,

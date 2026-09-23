@@ -22,7 +22,7 @@ export function StudentDashboardPreview() {
       <div aria-hidden="true" className="absolute bottom-8 left-3 size-24 rounded-full border border-brand-border bg-brand-base/60 sm:left-8" />
 
       <div aria-hidden="true" className="absolute inset-x-5 top-6 z-0 h-44 -rotate-3 overflow-hidden rounded-[2rem] border border-brand-gold/25 bg-brand-base opacity-35 shadow-lg sm:inset-x-10 sm:top-8">
-        <Image alt="" className="object-cover" fill sizes="(max-width: 1024px) 90vw, 38rem" src="/brand/oqool-banner.png" />
+        <Image alt="" className="object-cover" fill sizes="(max-width: 1024px) 90vw, 38rem" src="/brand/nodrek-banner.jpeg" />
       </div>
 
       <div className="landing-float relative z-10 min-w-0 rounded-[2rem] border border-brand-rim bg-brand-surface p-4 shadow-[0_28px_80px_rgba(0,0,0,0.28)] sm:p-6">
@@ -66,7 +66,7 @@ export function StudentDashboardPreview() {
             </div>
             <p className="mt-5 font-mono text-lg font-black tracking-tight text-brand-gold-hover">∫ 2x dx = x² + C</p>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-brand-border">
-              <div className="h-full w-[86%] origin-left rounded-full bg-brand-gold motion-safe:animate-[oqool-progress_1.2s_ease-out_both]" />
+              <div className="h-full w-[86%] origin-left rounded-full bg-brand-gold motion-safe:animate-[nodrek-progress_1.2s_ease-out_both]" />
             </div>
             <div className="mt-2 flex justify-between text-[10px] font-bold text-brand-muted/65"><span>12 of 14 steps</span><span className="text-brand-gold">86%</span></div>
           </section>

@@ -20,12 +20,11 @@ export type SupportEmailInput = {
   reference: string;
 };
 
-const DEFAULT_SUPPORT_FROM =
-  'Oqool Academy Support <support@oqoolacademy.com>';
+const DEFAULT_SUPPORT_FROM = siteConfig.support.sender;
 
 function supportEmailText(input: SupportEmailInput) {
   return [
-    'A new support inquiry was submitted through Oqool Academy.',
+    'A new support inquiry was submitted through Nodrek Learning Hub.',
     '',
     `Reference: ${input.reference}`,
     `Submitted language: ${input.locale}`,
@@ -60,7 +59,7 @@ export async function sendSupportInquiryEmail(
       {
         from: process.env.SUPPORT_EMAIL_FROM?.trim() || DEFAULT_SUPPORT_FROM,
         replyTo: input.email,
-        subject: `New Oqool support inquiry — ${input.reference}`,
+        subject: `New Nodrek support inquiry — ${input.reference}`,
         tags: [
           { name: 'source', value: 'public-support-form' },
           { name: 'locale', value: input.locale },

@@ -137,7 +137,7 @@ function AuthField({
         <span>{label}</span>
         {labelAction}
       </span>
-      <span className="flex min-w-0 items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 transition focus-within:border-[#084B2B] focus-within:ring-2 focus-within:ring-emerald-100">
+      <span className="flex min-w-0 items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 transition focus-within:border-[#063A2F] focus-within:ring-2 focus-within:ring-emerald-100">
         <Icon className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
         <input
           className="h-12 min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
@@ -613,7 +613,7 @@ export function LmsAuthExperience({
   const passwordToggle = (
     <button
       aria-label={showPassword ? 'Hide password' : 'Show password'}
-      className="text-slate-500 transition hover:text-[#084B2B]"
+      className="text-slate-500 transition hover:text-[#063A2F]"
       onClick={() => setShowPassword((value) => !value)}
       type="button"
     >
@@ -626,29 +626,29 @@ export function LmsAuthExperience({
   );
 
   return (
-    <main className="grid min-h-screen w-full grid-cols-1 overflow-x-hidden bg-white text-slate-900 lg:grid-cols-2">
+    <main className="grid min-h-dvh w-full grid-cols-1 overflow-x-hidden bg-white text-slate-900 lg:grid-cols-2">
       <section className="relative hidden min-w-0 overflow-hidden border-r border-emerald-950/10 bg-emerald-50 p-10 lg:flex lg:flex-col lg:justify-between xl:p-16">
 
         <Link className="relative flex w-fit items-center gap-3" href="/catalog">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-[#084B2B] text-white shadow-sm">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-[#063A2F] text-white shadow-sm">
             <GraduationCap className="size-6" aria-hidden="true" />
           </span>
           <span>
-            <span className="block text-base font-black">Oqool Academy</span>
-            <span className="block text-[9px] font-bold uppercase tracking-[0.24em] text-[#084B2B]">
-              Learn. Build. Progress.
+            <span className="block text-base font-black">Nodrek Learning Hub</span>
+            <span className="block text-[9px] font-bold uppercase tracking-[0.24em] text-[#063A2F]">
+              LEARN • GROW • ACHIEVE
             </span>
           </span>
         </Link>
 
         <div className="relative max-w-xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[#084B2B]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[#063A2F]">
             <Sparkles className="size-3.5" aria-hidden="true" />
             Your learning space
           </span>
           <h1 className="mt-6 text-5xl font-black leading-[1.02] tracking-[-0.045em] xl:text-6xl">
             Welcome back to your{' '}
-            <span className="text-[#084B2B]">
+            <span className="text-[#063A2F]">
               learning space.
             </span>
           </h1>
@@ -659,8 +659,8 @@ export function LmsAuthExperience({
         </div>
 
         <div className="relative grid min-w-0 grid-cols-2 gap-3 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-sm">
-          <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-[#F8FAF7] p-4">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
+          <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-[#F4F7F4] p-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#063A2F]">
               <UsersRound className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
@@ -670,7 +670,7 @@ export function LmsAuthExperience({
               </span>
             </span>
           </div>
-          <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-[#F8FAF7] p-4">
+          <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-[#F4F7F4] p-4">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
               <Radio className="size-5" aria-hidden="true" />
             </span>
@@ -687,7 +687,7 @@ export function LmsAuthExperience({
       <section className="relative flex min-w-0 items-center justify-center overflow-hidden px-4 py-10 sm:px-8 lg:px-12">
         <div className="relative flex w-full max-w-md min-w-0 flex-col">
           <Link
-            className="mb-8 flex w-fit items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-[#084B2B] lg:hidden"
+            className="mb-8 flex w-fit items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-[#063A2F] lg:hidden"
             href="/catalog"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
@@ -696,11 +696,11 @@ export function LmsAuthExperience({
 
           {verificationEmail ? (
             <div className="flex min-w-0 flex-col items-center rounded-2xl border border-emerald-950/10 bg-white p-6 text-center shadow-sm sm:p-8">
-              <span className="relative flex size-20 items-center justify-center rounded-2xl bg-emerald-100 text-[#084B2B]">
+              <span className="relative flex size-20 items-center justify-center rounded-2xl bg-emerald-100 text-[#063A2F]">
                 <Mail className="size-9 animate-bounce" aria-hidden="true" />
                 <span className="absolute right-1 top-1 size-3 rounded-full bg-emerald-300 shadow-lg shadow-emerald-400/50" />
               </span>
-              <p className="mt-6 text-[10px] font-black uppercase tracking-[0.22em] text-[#084B2B]">
+              <p className="mt-6 text-[10px] font-black uppercase tracking-[0.22em] text-[#063A2F]">
                 One last step
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight">
@@ -743,7 +743,7 @@ export function LmsAuthExperience({
                   : 'Resend confirmation email'}
               </button>
               <button
-                className="mt-3 text-sm font-bold text-slate-500 transition hover:text-[#084B2B]"
+                className="mt-3 text-sm font-bold text-slate-500 transition hover:text-[#063A2F]"
                 onClick={() => {
                   setVerificationEmail('');
                   switchMode('signin');
@@ -756,10 +756,10 @@ export function LmsAuthExperience({
           ) : (
             <>
               <div className="mb-7">
-                <span className="flex size-12 items-center justify-center rounded-2xl bg-[#084B2B] text-white shadow-sm lg:hidden">
+                <span className="flex size-12 items-center justify-center rounded-2xl bg-[#063A2F] text-white shadow-sm lg:hidden">
                   <GraduationCap className="size-6" aria-hidden="true" />
                 </span>
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.22em] text-[#084B2B]">
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[0.22em] text-[#063A2F]">
                   {mode === 'signup'
                     ? 'Start learning today'
                     : mode === 'phone'
@@ -783,7 +783,7 @@ export function LmsAuthExperience({
                           ? 'Reset your password.'
                           : mode === 'recovery'
                             ? 'Secure your account.'
-                            : 'Sign in to Oqool Academy.'}
+                            : 'Sign in to Nodrek Learning Hub.'}
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   {mode === 'signup'
@@ -822,8 +822,8 @@ export function LmsAuthExperience({
                         className={cn(
                           'h-10 rounded-xl text-sm font-black transition',
                           active
-                            ? 'bg-white text-[#084B2B] shadow-sm'
-                            : 'text-slate-500 hover:text-[#084B2B]',
+                            ? 'bg-white text-[#063A2F] shadow-sm'
+                            : 'text-slate-500 hover:text-[#063A2F]',
                         )}
                         key={tab}
                         onClick={() => switchMode(tab)}
@@ -886,7 +886,7 @@ export function LmsAuthExperience({
                   <label className="flex min-w-0 flex-col gap-2 text-sm font-bold">
                     Grade Level
                     <select
-                      className="h-12 w-full min-w-0 rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
+                      className="h-12 w-full min-w-0 rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[#063A2F] focus:ring-2 focus:ring-emerald-100"
                       onChange={(event) => setGradeLevel(event.target.value)}
                       required
                       value={gradeLevel}
@@ -928,8 +928,8 @@ export function LmsAuthExperience({
                             className={cn(
                               'flex h-11 cursor-pointer items-center justify-center rounded-xl border text-sm font-black transition',
                               otpChannel === channel
-                                ? 'border-[#084B2B] bg-[#084B2B] text-white'
-                                : 'border-slate-300 bg-white text-slate-600 hover:border-emerald-300 hover:text-[#084B2B]',
+                                ? 'border-[#063A2F] bg-[#063A2F] text-white'
+                                : 'border-slate-300 bg-white text-slate-600 hover:border-emerald-300 hover:text-[#063A2F]',
                             )}
                             key={channel}
                           >
@@ -1007,7 +1007,7 @@ export function LmsAuthExperience({
                     labelAction={
                       mode === 'signin' ? (
                         <button
-                          className="text-xs font-bold text-[#084B2B] transition hover:text-[#084B2B]"
+                          className="text-xs font-bold text-[#063A2F] transition hover:text-[#063A2F]"
                           onClick={() => switchMode('forgot')}
                           type="button"
                         >
@@ -1039,7 +1039,7 @@ export function LmsAuthExperience({
                             ? 'Hide confirmation password'
                             : 'Show confirmation password'
                         }
-                        className="text-slate-500 transition hover:text-[#084B2B]"
+                        className="text-slate-500 transition hover:text-[#063A2F]"
                         onClick={() =>
                           setShowConfirmPassword((value) => !value)
                         }
@@ -1093,7 +1093,7 @@ export function LmsAuthExperience({
                 ) : null}
 
                 <button
-                  className="mt-1 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-[#084B2B] px-4 text-sm font-black text-white shadow-sm transition hover:bg-[#063B22] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-1 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-[#063A2F] px-4 text-sm font-black text-white shadow-sm transition hover:bg-[#0A4235] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={pending}
                   type="submit"
                 >
@@ -1121,7 +1121,7 @@ export function LmsAuthExperience({
 
               {mode === 'signin' && phoneAuthEnabled ? (
                 <button
-                  className="mt-3 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-[#084B2B] transition hover:border-emerald-300 hover:bg-emerald-100"
+                  className="mt-3 flex h-12 w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-[#063A2F] transition hover:border-emerald-300 hover:bg-emerald-100"
                   onClick={() => switchMode('phone')}
                   type="button"
                 >
@@ -1130,7 +1130,7 @@ export function LmsAuthExperience({
                 </button>
               ) : mode === 'phone' ? (
                 <button
-                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 text-sm font-bold text-slate-500 transition hover:text-[#084B2B]"
+                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 text-sm font-bold text-slate-500 transition hover:text-[#063A2F]"
                   onClick={() => switchMode('signin')}
                   type="button"
                 >
@@ -1140,14 +1140,14 @@ export function LmsAuthExperience({
               ) : mode === 'otp' ? (
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <button
-                    className="h-11 rounded-xl border border-slate-300 text-xs font-black text-slate-600 transition hover:bg-[#F8FAF7] hover:text-[#084B2B]"
+                    className="h-11 rounded-xl border border-slate-300 text-xs font-black text-slate-600 transition hover:bg-[#F4F7F4] hover:text-[#063A2F]"
                     onClick={() => switchMode('phone')}
                     type="button"
                   >
                     Change number
                   </button>
                   <button
-                    className="h-11 rounded-xl border border-slate-300 text-xs font-black text-[#084B2B] transition hover:bg-emerald-50 disabled:opacity-50"
+                    className="h-11 rounded-xl border border-slate-300 text-xs font-black text-[#063A2F] transition hover:bg-emerald-50 disabled:opacity-50"
                     disabled={pending || cooldown > 0}
                     onClick={() => void handlePhoneResend()}
                     type="button"
@@ -1167,7 +1167,7 @@ export function LmsAuthExperience({
                     <span className="h-px flex-1 bg-slate-200" />
                   </div>
                   <button
-                    className="flex h-12 w-full min-w-0 items-center justify-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-emerald-300 hover:bg-[#F8FAF7] disabled:opacity-60"
+                    className="flex h-12 w-full min-w-0 items-center justify-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-emerald-300 hover:bg-[#F4F7F4] disabled:opacity-60"
                     disabled={pending}
                     onClick={() => void handleGoogleSignIn()}
                     type="button"
@@ -1178,7 +1178,7 @@ export function LmsAuthExperience({
                 </>
               ) : mode === 'forgot' || mode === 'recovery' ? (
                 <button
-                  className="mt-5 flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-[#084B2B]"
+                  className="mt-5 flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-[#063A2F]"
                   onClick={() => switchMode('signin')}
                   type="button"
                 >

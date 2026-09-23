@@ -35,7 +35,7 @@ export function LessonResources({
   return (
     <section className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex min-w-0 items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#084B2B]">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#063A2F]">
           <Paperclip aria-hidden="true" className="size-5" />
         </span>
         <span className="min-w-0 flex-1">
@@ -49,11 +49,11 @@ export function LessonResources({
       <ul className="mt-4 flex min-w-0 flex-col gap-2">
         {materials.map((material) => (
           <li
-            className="flex min-w-0 flex-col gap-3 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-3 text-[#084B2B] shadow-sm transition-all hover:border-[#084B2B] sm:flex-row sm:items-center sm:justify-between"
+            className="flex min-w-0 flex-col gap-3 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-3 text-[#063A2F] shadow-sm transition-all hover:border-[#063A2F] sm:flex-row sm:items-center sm:justify-between"
             key={material.id}
           >
             <div className="flex min-w-0 items-center gap-3">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-[#084B2B]">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-[#063A2F]">
                 <MaterialIcon fileType={material.fileType} />
               </span>
               <div className="min-w-0">
@@ -66,7 +66,7 @@ export function LessonResources({
               </div>
             </div>
             <button
-              className="min-h-9 shrink-0 rounded-lg bg-[#084B2B] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#063B22] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B] focus-visible:ring-offset-2"
+              className="min-h-9 shrink-0 rounded-lg bg-[#063A2F] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#0A4235] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#063A2F] focus-visible:ring-offset-2"
               onClick={() => setPreviewing(material)}
               type="button"
             >

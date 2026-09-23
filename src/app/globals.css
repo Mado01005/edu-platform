@@ -1,7 +1,18 @@
 @import "tailwindcss";
-@config "../../tailwind.config.js";
+@config "../../tailwind.config.ts";
 
 @theme inline {
+  --color-emerald-50: #F4F7F4;
+  --color-emerald-100: #E5EEE7;
+  --color-emerald-200: #B2CDBC;
+  --color-emerald-300: #95B8A3;
+  --color-emerald-400: #6B9D82;
+  --color-emerald-500: #3D7A5F;
+  --color-emerald-600: #24644D;
+  --color-emerald-700: #18513F;
+  --color-emerald-800: #0A4235;
+  --color-emerald-900: #063A2F;
+  --color-emerald-950: #042B23;
   --color-background: var(--background);
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-muted: var(--surface-muted);
@@ -22,17 +33,18 @@
   --color-brand-accent: var(--brand-accent);
   --color-brand-accent-hover: var(--brand-accent-hover);
   --color-brand-accent-light: var(--brand-accent-light);
-  --color-brand-base: var(--oqool-base);
-  --color-brand-surface: var(--oqool-surface);
-  --color-brand-input: var(--oqool-input);
-  --color-brand-border: var(--oqool-border);
-  --color-brand-gold: var(--oqool-gold);
-  --color-brand-gold-hover: var(--oqool-gold-hover);
-  --color-brand-ivory: var(--oqool-ivory);
-  --color-brand-ivory-alt: var(--oqool-ivory-alt);
-  --color-brand-white: var(--oqool-white);
-  --color-brand-muted: var(--oqool-muted);
-  --color-brand-rim: var(--oqool-gold-rim);
+  --color-brand-base: var(--nodrek-base);
+  --color-brand-surface: var(--nodrek-surface);
+  --color-brand-input: var(--nodrek-input);
+  --color-brand-border: var(--nodrek-border);
+  --color-brand-gold: var(--nodrek-gold);
+  --color-brand-gold-hover: var(--nodrek-gold-hover);
+  --color-brand-ivory: var(--nodrek-ivory);
+  --color-brand-ivory-alt: var(--nodrek-ivory-alt);
+  --color-brand-white: var(--nodrek-white);
+  --color-brand-muted: var(--nodrek-muted);
+  --color-brand-sage: var(--nodrek-sage);
+  --color-brand-rim: var(--nodrek-gold-rim);
   --color-surface-canvas: var(--surface-canvas);
   --color-surface-card: var(--surface-card);
   --color-surface-border: var(--surface-border);
@@ -40,35 +52,36 @@
 
 :root {
   color-scheme: light;
-  --oqool-base: #0a3425;
-  --oqool-surface: #0e4632;
-  --oqool-input: #08281d;
-  --oqool-border: #17583f;
-  --oqool-gold: #d4a345;
-  --oqool-gold-hover: #e5b85c;
-  --oqool-ivory: #f9faf6;
-  --oqool-ivory-alt: #f4f6f0;
-  --oqool-white: #ffffff;
-  --oqool-muted: #e2e8f0;
-  --oqool-gold-rim: rgba(212, 163, 69, 0.2);
-  --brand-50: var(--oqool-white);
-  --brand-100: var(--oqool-muted);
-  --brand-200: var(--oqool-border);
-  --brand-500: var(--oqool-base);
-  --brand-600: var(--oqool-surface);
-  --brand-700: var(--oqool-base);
-  --brand-accent: var(--oqool-gold);
-  --brand-accent-hover: var(--oqool-gold-hover);
-  --brand-accent-light: var(--oqool-muted);
-  --surface-canvas: var(--oqool-white);
+  --nodrek-base: #063A2F;
+  --nodrek-surface: #0A4235;
+  --nodrek-input: #063A2F;
+  --nodrek-border: #B2CDBC;
+  --nodrek-sage: #B2CDBC;
+  --nodrek-gold: #D8A84E;
+  --nodrek-gold-hover: #E5C06E;
+  --nodrek-ivory: #F4F7F4;
+  --nodrek-ivory-alt: #E5EEE7;
+  --nodrek-white: #ffffff;
+  --nodrek-muted: #e2e8f0;
+  --nodrek-gold-rim: rgba(216,168,78, 0.2);
+  --brand-50: var(--nodrek-white);
+  --brand-100: var(--nodrek-sage);
+  --brand-200: var(--nodrek-border);
+  --brand-500: var(--nodrek-base);
+  --brand-600: var(--nodrek-surface);
+  --brand-700: var(--nodrek-base);
+  --brand-accent: var(--nodrek-gold);
+  --brand-accent-hover: var(--nodrek-gold-hover);
+  --brand-accent-light: var(--nodrek-sage);
+  --surface-canvas: var(--nodrek-ivory);
   --surface-card: #ffffff;
-  --surface-border: var(--oqool-gold-rim);
+  --surface-border: var(--nodrek-gold-rim);
   --background: var(--surface-canvas);
   --surface-subtle: var(--surface-canvas);
   --surface-muted: var(--brand-50);
   --border: var(--surface-border);
-  --foreground: var(--oqool-base);
-  --muted-foreground: var(--oqool-surface);
+  --foreground: var(--nodrek-base);
+  --muted-foreground: var(--nodrek-surface);
   --primary: var(--brand-500);
   --primary-soft: var(--brand-50);
   --primary-bright: var(--brand-accent);
@@ -89,7 +102,7 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.oqool-auto-hide-navbar {
+.nodrek-auto-hide-navbar {
   transition-duration: 400ms !important;
   transition-property: all !important;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -124,50 +137,50 @@ html[data-locale='en'] [data-language-copy='en'] {
   font-family: var(--font-arabic), sans-serif;
 }
 
-.oqool-orbit {
+.nodrek-orbit {
   background-image:
-    radial-gradient(circle at 88% 22%, transparent 0 84px, rgba(212, 163, 69, 0.18) 85px 86px, transparent 87px 128px, rgba(23, 88, 63, 0.34) 129px 130px, transparent 131px),
-    linear-gradient(90deg, rgba(229, 184, 92, 0.055) 1px, transparent 1px),
-    linear-gradient(rgba(229, 184, 92, 0.055) 1px, transparent 1px);
+    radial-gradient(circle at 88% 22%, transparent 0 84px, rgba(216,168,78, 0.18) 85px 86px, transparent 87px 128px, rgba(178,205,188, 0.34) 129px 130px, transparent 131px),
+    linear-gradient(90deg, rgba(229,192,110, 0.055) 1px, transparent 1px),
+    linear-gradient(rgba(229,192,110, 0.055) 1px, transparent 1px);
   background-size: auto, 48px 48px, 48px 48px;
   mask-image: linear-gradient(to left, black, transparent 72%);
 }
 
-.oqool-hero-grid {
+.nodrek-hero-grid {
   background-image:
-    linear-gradient(rgba(229, 184, 92, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(229, 184, 92, 0.055) 1px, transparent 1px);
+    linear-gradient(rgba(229,192,110, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(229,192,110, 0.055) 1px, transparent 1px);
   background-position: center;
   background-size: 44px 44px;
   mask-image: linear-gradient(to bottom, black, transparent 88%);
 }
 
-@keyframes oqool-progress {
+@keyframes nodrek-progress {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
 
-@keyframes oqool-float {
+@keyframes nodrek-float {
   0%, 100% { transform: translateY(0) rotate(-0.35deg); }
   50% { transform: translateY(-7px) rotate(0.35deg); }
 }
 
-@keyframes oqool-badge-float {
+@keyframes nodrek-badge-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
 
-@keyframes oqool-feature-ticker-right {
+@keyframes nodrek-feature-ticker-right {
   from { transform: translate3d(-50%, 0, 0); }
   to { transform: translate3d(0, 0, 0); }
 }
 
-.oqool-feature-ticker-track {
-  animation: oqool-feature-ticker-right 30s linear infinite;
+.nodrek-feature-ticker-track {
+  animation: nodrek-feature-ticker-right 30s linear infinite;
   will-change: transform;
 }
 
-.oqool-feature-ticker:hover .oqool-feature-ticker-track {
+.nodrek-feature-ticker:hover .nodrek-feature-ticker-track {
   animation-play-state: paused;
 }
 
@@ -184,11 +197,11 @@ html[data-locale='en'] [data-language-copy='en'] {
 }
 
 .landing-float {
-  animation: oqool-float 7s ease-in-out infinite;
+  animation: nodrek-float 7s ease-in-out infinite;
 }
 
 .landing-badge-float {
-  animation: oqool-badge-float 4.5s ease-in-out infinite;
+  animation: nodrek-badge-float 4.5s ease-in-out infinite;
 }
 
 body {
@@ -209,15 +222,15 @@ body {
     scroll-behavior: auto !important;
   }
 
-  .oqool-auto-hide-navbar {
+  .nodrek-auto-hide-navbar {
     transition-duration: 0.01ms !important;
   }
 
-  .oqool-feature-ticker {
+  .nodrek-feature-ticker {
     overflow: visible;
   }
 
-  .oqool-feature-ticker-track {
+  .nodrek-feature-ticker-track {
     width: 100%;
     flex-wrap: wrap;
     justify-content: center;
@@ -226,14 +239,14 @@ body {
     will-change: auto;
   }
 
-  .oqool-feature-ticker-sequence {
+  .nodrek-feature-ticker-sequence {
     flex: 1 1 100%;
     flex-wrap: wrap;
     justify-content: center;
     padding-inline-end: 0;
   }
 
-  .oqool-feature-ticker-copy {
+  .nodrek-feature-ticker-copy {
     display: none;
   }
 }

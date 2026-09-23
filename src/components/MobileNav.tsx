@@ -41,10 +41,10 @@ export default function MobileNav({ isAdmin }: MobileNavProps) {
                     : 'text-brand-muted/60 hover:text-brand-gold active:scale-95'
                 }`}
               >
-                <div className={`relative ${isActive ? 'drop-shadow-[0_0_8px_rgba(212,163,69,0.6)]' : ''}`}>
+                <div className={`relative ${isActive ? 'drop-shadow-[0_0_8px_rgba(216,168,78,0.6)]' : ''}`}>
                   {tab.icon}
                   {isActive && (
-                    <span className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand-gold shadow-[0_0_6px_rgba(212,163,69,0.8)]"></span>
+                    <span className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand-gold shadow-[0_0_6px_rgba(216,168,78,0.8)]"></span>
                   )}
                 </div>
                 <span className="text-[10px] font-bold tracking-wide">{tab.label}</span>

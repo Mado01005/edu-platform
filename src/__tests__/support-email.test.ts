@@ -15,7 +15,7 @@ const emailInput = {
   lastName: 'Hassan',
   locale: 'ar' as const,
   message: 'I need help choosing the right learning plan.',
-  phone: '+201555920686',
+  phone: '+201554225979',
   reference: 'ABCDEFGH',
 };
 
@@ -74,11 +74,11 @@ describe('support inquiry email delivery', () => {
     expect(mockResendConstructor).toHaveBeenCalledWith('re_test_key');
     expect(mockResendSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: 'Oqool Academy Support <support@oqoolacademy.com>',
+        from: 'Nodrek Support <Support@nodrekhub.com>',
         replyTo: 'parent@example.com',
-        subject: 'New Oqool support inquiry — ABCDEFGH',
-        text: expect.stringContaining('Phone: +201555920686'),
-        to: ['support@oqoolacademy.com'],
+        subject: 'New Nodrek support inquiry — ABCDEFGH',
+        text: expect.stringContaining('Phone: +201554225979'),
+        to: ['Support@nodrekhub.com'],
       }),
       { idempotencyKey: 'support-inquiry/cm12345678ABCDEFGH' },
     );

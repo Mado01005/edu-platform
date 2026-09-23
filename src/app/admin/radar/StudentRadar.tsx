@@ -170,8 +170,8 @@ export function StudentRadar({
     <div className="flex w-full min-w-0 flex-col gap-4">
       <section className="grid min-w-0 grid-cols-3 gap-2" aria-label="Radar metrics">
         {[
-          { badge: 'bg-emerald-50', icon: Activity, label: 'Active', tone: 'text-[#084B2B]', value: totalStudents },
-          { badge: 'border border-[#D4AF37]/40 bg-[#FDF8E8]', icon: CheckCircle2, label: 'Healthy', tone: 'text-[#8C6B1B]', value: healthyCount },
+          { badge: 'bg-emerald-50', icon: Activity, label: 'Active', tone: 'text-[#063A2F]', value: totalStudents },
+          { badge: 'border border-[#D8A84E]/40 bg-[#F4F7F4]', icon: CheckCircle2, label: 'Healthy', tone: 'text-[#805C1D]', value: healthyCount },
           { badge: 'bg-red-50', icon: ShieldAlert, label: 'At-Risk', tone: 'text-red-700', value: atRiskCount },
         ].map(({ badge, icon: Icon, label, tone, value }) => (
           <article
@@ -211,7 +211,7 @@ export function StudentRadar({
         <div className="grid min-w-0 grid-cols-2 gap-2">
           <select
             aria-label="Filter by grade level"
-            className="h-11 min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
+            className="h-11 min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100"
             defaultValue={filters.grade}
             name="grade"
           >
@@ -225,7 +225,7 @@ export function StudentRadar({
           </select>
           <select
             aria-label="Filter by engagement status"
-            className="h-11 min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-[#084B2B] focus:ring-4 focus:ring-emerald-100"
+            className="h-11 min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-bold text-slate-900 outline-none focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100"
             defaultValue={filters.status}
             name="status"
           >
@@ -277,7 +277,7 @@ export function StudentRadar({
               </span>
               <div className="min-w-0 flex-1">
                 <button
-                  className="block max-w-full truncate text-left font-black text-slate-900 transition hover:text-[#084B2B] focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
+                  className="block max-w-full truncate text-left font-black text-slate-900 transition hover:text-[#063A2F] focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#063A2F]"
                   onClick={() => setEditingStudent(student)}
                   type="button"
                 >
@@ -305,7 +305,7 @@ export function StudentRadar({
                 ['Video', student.videoCompletion],
                 ['Work', student.assignmentScore],
               ].map(([label, value]) => (
-                <div className="min-w-0 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-2" key={label}>
+                <div className="min-w-0 rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-2" key={label}>
                   <p className="text-sm font-black text-slate-900">{Math.round(Number(value))}%</p>
                   <p className="truncate text-[9px] font-bold uppercase text-slate-600">
                     {label}
@@ -339,7 +339,7 @@ export function StudentRadar({
             ) : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Button
-                className="border-emerald-200 bg-emerald-50 text-[#084B2B] hover:bg-emerald-100"
+                className="border-emerald-200 bg-emerald-50 text-[#063A2F] hover:bg-emerald-100"
                 onClick={() => setEditingStudent(student)}
                 size="sm"
                 type="button"
@@ -362,7 +362,7 @@ export function StudentRadar({
         ))}
 
         {!filteredCount ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-[#F8FAF7] p-8 text-center text-sm text-slate-600">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-[#F4F7F4] p-8 text-center text-sm text-slate-600">
             No students match these filters.
           </div>
         ) : null}

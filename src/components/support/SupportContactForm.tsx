@@ -131,12 +131,12 @@ const copy = {
   send: { en: 'Send message', ar: 'إرسال الرسالة' },
   sending: { en: 'Sending securely…', ar: 'جارٍ الإرسال بأمان…' },
   successBody: {
-    en: 'Your message was saved and emailed to the Oqool support team. We will respond using the contact details you provided.',
-    ar: 'تم حفظ رسالتك وإرسالها بالبريد الإلكتروني إلى فريق دعم عقول. سنتواصل معك عبر بيانات الاتصال التي أرسلتها.',
+    en: 'Your message was saved and emailed to the Nodrek support team. We will respond using the contact details you provided.',
+    ar: 'تم حفظ رسالتك وإرسالها بالبريد الإلكتروني إلى فريق دعم نُدرك. سنتواصل معك عبر بيانات الاتصال التي أرسلتها.',
   },
   successBodyPending: {
-    en: 'Your request is saved, but the email notification is temporarily pending. The Oqool support team can still review it in the support portal.',
-    ar: 'تم حفظ طلبك، لكن إشعار البريد الإلكتروني قيد الانتظار مؤقتًا. لا يزال بإمكان فريق دعم عقول مراجعته في بوابة الدعم.',
+    en: 'Your request is saved, but the email notification is temporarily pending. The Nodrek support team can still review it in the support portal.',
+    ar: 'تم حفظ طلبك، لكن إشعار البريد الإلكتروني قيد الانتظار مؤقتًا. لا يزال بإمكان فريق دعم نُدرك مراجعته في بوابة الدعم.',
   },
   successTitle: { en: 'Message received', ar: 'تم استلام رسالتك' },
 } satisfies Record<string, LocalizedText>;
@@ -531,7 +531,7 @@ export function SupportContactForm() {
                 </label>
                 <div
                   aria-label={text(locale, copy.countryCode)}
-                  className="mt-2 max-h-60 scroll-smooth overflow-y-auto overscroll-contain rounded-xl [scrollbar-color:#D4A345_#08281D] [scrollbar-width:thin]"
+                  className="mt-2 max-h-60 scroll-smooth overflow-y-auto overscroll-contain rounded-xl [scrollbar-color:#D4A345_#063A2F] [scrollbar-width:thin]"
                   id="support-country-options"
                   role="listbox"
                 >

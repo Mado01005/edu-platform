@@ -15,22 +15,21 @@ import { SolutionFramework } from '@/components/landing/SolutionFramework';
 import { TrustBar } from '@/components/landing/TrustBar';
 import { siteConfig } from '@/lib/siteConfig';
 
-const description =
-  'Oqool Academy provides structured live online learning for students in Saudi Arabia and the UAE through diagnostic assessment, personalized learning plans, carefully selected teachers, and continuous progress tracking.';
+const description = siteConfig.description;
 
 export const metadata: Metadata = {
-  title: 'Oqool Academy | Personalized Online Learning for Grades 1–12',
+  title: siteConfig.title,
   description,
   alternates: { canonical: `${siteConfig.url}/` },
   openGraph: {
-    title: 'Oqool Academy | A Learning Journey Built Around Your Child',
+    title: siteConfig.title,
     description,
     images: [
       {
         url: `${siteConfig.url}${siteConfig.brand.banner}`,
-        width: 1942,
-        height: 809,
-        alt: 'Oqool Academy official banner',
+        width: siteConfig.brand.bannerWidth,
+        height: siteConfig.brand.bannerHeight,
+        alt: 'Nodrek Learning Hub official banner',
       },
     ],
     locale: 'ar_SA',
@@ -41,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Oqool Academy | Personalized Online Learning for Grades 1–12',
+    title: siteConfig.title,
     description,
     images: [`${siteConfig.url}${siteConfig.brand.banner}`],
   },

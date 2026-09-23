@@ -18,14 +18,14 @@ import { SupportContactForm } from '@/components/support/SupportContactForm';
 import { siteConfig } from '@/lib/siteConfig';
 
 const description =
-  'Contact Oqool Academy support through WhatsApp, email, or a secure in-page support form.';
+  'Contact Nodrek Learning Hub support through WhatsApp, email, or a secure in-page support form.';
 
 export const metadata: Metadata = {
-  title: 'Support Center | Oqool Academy',
+  title: 'Support Center | Nodrek Learning Hub',
   description,
   alternates: { canonical: `${siteConfig.url}${siteConfig.routes.support}` },
   openGraph: {
-    title: 'Support Center | مركز الدعم — Oqool Academy',
+    title: 'Support Center | مركز الدعم — Nodrek Learning Hub',
     description,
     locale: 'ar_SA',
     alternateLocale: ['en_US'],
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 const contactPageSchema = {
   '@context': 'https://schema.org',
   '@type': 'ContactPage',
-  name: 'Oqool Academy Support Center',
+  name: 'Nodrek Learning Hub Support Center',
   url: `${siteConfig.url}${siteConfig.routes.support}`,
   mainEntity: {
     '@type': 'EducationalOrganization',
@@ -66,14 +66,14 @@ export default function PublicSupportPage() {
       />
 
       <header className="sticky top-3 z-50 mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex min-h-18 w-full items-center justify-between gap-3 rounded-full border border-gray-200/50 bg-white/90 px-3 shadow-md shadow-black/5 backdrop-blur-md transition-all duration-300 dark:border-emerald-500/15 dark:bg-[#0A3425]/90 sm:px-4">
+        <div className="flex min-h-18 w-full items-center justify-between gap-3 rounded-full border border-gray-200/50 bg-white/90 px-3 shadow-md shadow-black/5 backdrop-blur-md transition-all duration-300 dark:border-emerald-500/15 dark:bg-[#063A2F]/90 sm:px-4">
           <Link
-            aria-label="Oqool Academy home"
+            aria-label="Nodrek Learning Hub home"
             className="flex min-h-11 min-w-0 items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30"
             href={siteConfig.routes.home}
           >
             <Image
-              alt="Oqool Academy official crest"
+              alt="Nodrek Learning Hub official crest"
               className="size-11 shrink-0 rounded-xl object-cover"
               height={44}
               priority
@@ -81,8 +81,8 @@ export default function PublicSupportPage() {
               width={44}
             />
             <span className="min-w-0 leading-tight">
-              <span className="block truncate text-sm font-black text-brand-base dark:text-brand-white">Oqool Academy</span>
-              <span className="block truncate font-arabic text-[11px] font-bold text-brand-gold" dir="rtl" lang="ar">أكاديمية عقول</span>
+              <span className="block truncate text-sm font-black text-brand-base dark:text-brand-white">{siteConfig.name}</span>
+              <span className="block truncate font-arabic text-[11px] font-bold text-brand-gold" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
             </span>
           </Link>
 
@@ -101,7 +101,7 @@ export default function PublicSupportPage() {
 
       <main id="support-content">
         <section className="relative isolate overflow-hidden border-b border-brand-rim">
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_18%,rgba(23,88,63,0.52),transparent_28%),radial-gradient(circle_at_88%_12%,rgba(212,163,69,0.18),transparent_24%),linear-gradient(rgba(229,184,92,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(229,184,92,0.055)_1px,transparent_1px)] bg-[size:auto,auto,44px_44px,44px_44px]" />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_18%,rgba(178,205,188,0.52),transparent_28%),radial-gradient(circle_at_88%_12%,rgba(216,168,78,0.18),transparent_24%),linear-gradient(rgba(229,192,110,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(229,192,110,0.055)_1px,transparent_1px)] bg-[size:auto,auto,44px_44px,44px_44px]" />
           <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:px-8 lg:py-24">
             <div className="min-w-0">
               <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-brand-rim bg-brand-surface px-4 text-xs font-black uppercase tracking-[0.14em] text-brand-gold">
@@ -163,8 +163,8 @@ export default function PublicSupportPage() {
                 ar: 'ابقَ على تواصل معنا بعد الدعم.',
               }}</LandingCopy>
               <LandingCopy as="p" className="mt-2 max-w-2xl text-sm leading-7 text-brand-muted/70">{{
-                en: 'Follow Oqool Academy for learning guidance, academy updates, and community highlights.',
-                ar: 'تابع أكاديمية عقول للحصول على إرشادات تعليمية، وآخر أخبار الأكاديمية، وأبرز أنشطة المجتمع.',
+                en: 'Follow Nodrek Learning Hub for learning guidance, academy updates, and community highlights.',
+                ar: 'تابع نُدرك للتعليم المتكامل للحصول على إرشادات تعليمية، وآخر أخبار الأكاديمية، وأبرز أنشطة المجتمع.',
               }}</LandingCopy>
             </div>
             <SocialLinks className="shrink-0 sm:justify-end" />
@@ -172,7 +172,7 @@ export default function PublicSupportPage() {
         </section>
 
         <section className="relative isolate overflow-hidden border-y border-brand-rim bg-brand-base" id="contact-form">
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(23,88,63,0.52),transparent_28%),radial-gradient(circle_at_88%_86%,rgba(212,163,69,0.12),transparent_24%),linear-gradient(rgba(229,184,92,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(229,184,92,0.04)_1px,transparent_1px)] bg-[size:auto,auto,48px_48px,48px_48px]" />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(178,205,188,0.52),transparent_28%),radial-gradient(circle_at_88%_86%,rgba(216,168,78,0.12),transparent_24%),linear-gradient(rgba(229,192,110,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(229,192,110,0.04)_1px,transparent_1px)] bg-[size:auto,auto,48px_48px,48px_48px]" />
           <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:px-8">
             <div className="min-w-0 lg:sticky lg:top-24">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gold">
@@ -182,8 +182,8 @@ export default function PublicSupportPage() {
                 <LandingCopy>{{ en: 'Tell us what you need.', ar: 'أخبرنا بما تحتاج إليه.' }}</LandingCopy>
               </h2>
               <LandingCopy as="p" className="mt-5 text-sm leading-7 text-brand-muted/70 sm:text-base">{{
-                en: 'Your message is stored securely for the Oqool support team. Required fields help us identify the right response channel.',
-                ar: 'تُحفظ رسالتك بأمان لفريق دعم عقول. تساعدنا الحقول المطلوبة في اختيار وسيلة الرد المناسبة.',
+                en: 'Your message is stored securely for the Nodrek support team. Required fields help us identify the right response channel.',
+                ar: 'تُحفظ رسالتك بأمان لفريق دعم نُدرك. تساعدنا الحقول المطلوبة في اختيار وسيلة الرد المناسبة.',
               }}</LandingCopy>
 
               <ul className="mt-8 grid gap-4 text-sm text-brand-muted/75">

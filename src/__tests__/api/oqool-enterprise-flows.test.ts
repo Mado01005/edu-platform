@@ -68,7 +68,7 @@ function jsonRequest(url: string, body: unknown) {
   });
 }
 
-describe('Oqool enterprise API contracts', () => {
+describe('Nodrek enterprise API contracts', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequireLmsRole.mockResolvedValue({ id: 'student-1', role: 'STUDENT' });

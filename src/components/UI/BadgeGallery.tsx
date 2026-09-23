@@ -59,12 +59,12 @@ export default function BadgeGallery() {
             {ach.icon}
           </div>
 
-          <h4 className="mb-2 break-words text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-900 transition-colors group-hover:text-[#084B2B]">{ach.name}</h4>
+          <h4 className="mb-2 break-words text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-900 transition-colors group-hover:text-[#063A2F]">{ach.name}</h4>
           <p className="text-[10px] font-medium leading-relaxed text-slate-500">{ach.description}</p>
           
           {ach.isUnlocked && (
              <div className="mt-4 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1">
-               <span className="text-[8px] font-semibold uppercase tracking-wider text-[#084B2B]">Achieved</span>
+               <span className="text-[8px] font-semibold uppercase tracking-wider text-[#063A2F]">Achieved</span>
              </div>
           )}
         </div>

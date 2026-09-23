@@ -247,7 +247,7 @@ export default function ChatTutor() {
       <div className="px-6 py-4 border-b border-white/10 bg-white/5 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]'}`} />
-          <h2 className="text-sm font-bold text-white tracking-widest uppercase">Oqool Academy AI Tutor</h2>
+          <h2 className="text-sm font-bold text-white tracking-widest uppercase">Nodrek Learning Hub AI Tutor</h2>
         </div>
         <div className="flex items-center gap-3">
           {isLoading && (
@@ -333,7 +333,7 @@ export default function ChatTutor() {
         {selectedFile && (
           <div className="mb-3 relative inline-block">
             {selectedFile.type === 'image' ? (
-              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-emerald-500 shadow-[0_0_15px_rgba(8,75,43,0.4)]">
+              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-emerald-500 shadow-[0_0_15px_rgba(6,58,47,0.4)]">
                 <img src={selectedFile.data} alt="Preview" className="w-full h-full object-cover" />
               </div>
             ) : (
@@ -384,7 +384,7 @@ export default function ChatTutor() {
             <button
               type="submit"
               disabled={isLoading || (!input.trim() && !selectedFile)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-white transition-all shadow-[0_0_15px_rgba(8,75,43,0.4)] z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-white transition-all shadow-[0_0_15px_rgba(6,58,47,0.4)] z-10"
               aria-label="Send message"
             >
               {isLoading ? (

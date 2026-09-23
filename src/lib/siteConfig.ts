@@ -7,13 +7,18 @@ function digitsOnly(value: string) {
 }
 
 const configuredWhatsAppNumber = digitsOnly(
-  process.env.NEXT_PUBLIC_OQOOL_WHATSAPP_NUMBER ?? FALLBACK_WHATSAPP_NUMBER,
+  process.env.NEXT_PUBLIC_NODREK_WHATSAPP_NUMBER
+    ?? process.env.NEXT_PUBLIC_OQOOL_WHATSAPP_NUMBER
+    ?? FALLBACK_WHATSAPP_NUMBER,
 );
 
 export const siteConfig = {
-  name: 'Oqool Academy',
-  arabicName: 'أكاديمية عقول',
-  title: 'Oqool Academy | أكاديمية عقول',
+  name: 'Nodrek Learning Hub',
+  arabicName: 'نُدرك للتعليم المتكامل',
+  title: 'Nodrek Learning Hub | نُدرك للتعليم المتكامل',
+  description: 'Managed learning, diagnostic assessments, and personalized education for grades 1–12.',
+  tagline: { en: 'LEARN • GROW • ACHIEVE', ar: 'نتعلم • ننمو • ننجز' },
+  copyright: '© 2026 Nodrek Learning Hub | نُدرك للتعليم المتكامل. All rights reserved.',
   url: 'https://oqoolacademy.com',
   routes: {
     home: '/',
@@ -22,11 +27,14 @@ export const siteConfig = {
     terms: '/terms',
   },
   support: {
-    email: 'support@oqoolacademy.com',
+    email: 'Support@nodrekhub.com',
+    sender: 'Nodrek Support <Support@nodrekhub.com>',
   },
   brand: {
-    logo: '/brand/oqool-logo.png',
-    banner: '/brand/oqool-banner.png',
+    logo: '/brand/nodrek-logo.png',
+    banner: '/brand/nodrek-banner.jpeg',
+    bannerWidth: 1126,
+    bannerHeight: 496,
   },
   whatsapp: {
     number: configuredWhatsAppNumber || FALLBACK_WHATSAPP_NUMBER,
@@ -35,31 +43,32 @@ export const siteConfig = {
         id: 'saudi',
         number: '966596899362',
         displayNumber: '+966 59 689 9362',
-        label: { en: 'Saudi Arabia support', ar: 'الدعم في السعودية' },
+        label: { en: 'Saudi Arabia Support', ar: 'الدعم في السعودية' },
       },
       {
         id: 'egypt-primary',
-        number: '201555920686',
-        displayNumber: '+20 155 592 0686',
-        label: { en: 'Egypt support line', ar: 'خط دعم مصر' },
+        number: '201554225979',
+        displayNumber: '+20 155 422 5979',
+        internationalNumber: '00201554225979',
+        label: { en: 'Egypt Support', ar: 'خط دعم مصر' },
       },
     ],
     messages: {
       diagnostic: {
-        en: 'Hello Oqool Academy, I would like to book a free diagnostic assessment for my child.',
-        ar: 'مرحبًا أكاديمية عقول، أود حجز تقييم تشخيصي مجاني لابني.',
+        en: 'Hello Nodrek Learning Hub, I would like to book a free diagnostic assessment for my child.',
+        ar: 'مرحبًا نُدرك للتعليم المتكامل، أود حجز تقييم تشخيصي مجاني لابني.',
       },
       freeLesson: {
-        en: "Hello Oqool Academy, I would like to arrange my child’s free first lesson.",
-        ar: 'مرحبًا أكاديمية عقول، أود ترتيب الحصة الأولى المجانية لابني.',
+        en: "Hello Nodrek Learning Hub, I would like to arrange my child’s free first lesson.",
+        ar: 'مرحبًا نُدرك للتعليم المتكامل، أود ترتيب الحصة الأولى المجانية لابني.',
       },
       recommendation: {
-        en: 'Hello Oqool Academy, I would like a personalized learning recommendation for my child.',
-        ar: 'مرحبًا أكاديمية عقول، أود الحصول على توصية تعليمية مخصصة لابني.',
+        en: 'Hello Nodrek Learning Hub, I would like a personalized learning recommendation for my child.',
+        ar: 'مرحبًا نُدرك للتعليم المتكامل، أود الحصول على توصية تعليمية مخصصة لابني.',
       },
       support: {
-        en: 'Hello Oqool Academy, I need help and would like to speak with your support team.',
-        ar: 'مرحبًا أكاديمية عقول، أحتاج إلى المساعدة وأود التواصل مع فريق الدعم.',
+        en: 'Hello Nodrek Learning Hub, I need help and would like to speak with your support team.',
+        ar: 'مرحبًا نُدرك للتعليم المتكامل، أحتاج إلى المساعدة وأود التواصل مع فريق الدعم.',
       },
     },
   },

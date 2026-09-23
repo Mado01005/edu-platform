@@ -30,7 +30,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { OqoolEmblem, OqoolWordmark } from '@/components/branding/OqoolBrand';
+import { NodrekEmblem, NodrekWordmark } from '@/components/branding/NodrekBrand';
 import {
   Sheet,
   SheetClose,
@@ -236,9 +236,9 @@ export function AppSidebar({ role }: AppSidebarProps) {
           )}
         >
           <div className={cn('flex min-w-0 items-center gap-2', collapsed && 'justify-center')}>
-            <OqoolEmblem className="size-9" decorative />
+            <NodrekEmblem className="size-9" decorative />
             <div className={cn('min-w-0', collapsed && 'sr-only')}>
-              <OqoolWordmark />
+              <NodrekWordmark />
               <p className="sr-only">
                 {isAdminRole(role) ? 'Full platform navigation' : 'Your navigation'}
               </p>
@@ -297,9 +297,9 @@ export function AppSidebar({ role }: AppSidebarProps) {
         <SheetContent>
           <SheetHeader className="border-b border-brand-rim p-5">
             <SheetTitle className="flex items-center gap-3 text-left">
-              <OqoolEmblem className="size-9" decorative />
-              <OqoolWordmark />
-              <span className="sr-only">Oqool Academy navigation</span>
+              <NodrekEmblem className="size-9" decorative />
+              <NodrekWordmark />
+              <span className="sr-only">Nodrek Learning Hub navigation</span>
             </SheetTitle>
             <SheetDescription>
               Only the tools available to your role are shown.

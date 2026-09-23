@@ -62,7 +62,7 @@ function DropdownMenuItem({
   return (
     <DropdownMenuPrimitive.Item
       className={cn(
-        'relative flex cursor-default select-none items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 outline-none transition focus:bg-emerald-50 focus:text-[#084B2B] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+        'relative flex cursor-default select-none items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 outline-none transition focus:bg-emerald-50 focus:text-[#063A2F] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
         className,
       )}
       data-slot="dropdown-menu-item"

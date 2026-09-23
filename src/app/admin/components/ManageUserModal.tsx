@@ -62,7 +62,7 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
           </div>
           <button
             aria-label="Close user account settings"
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-950/10 text-slate-500 transition hover:bg-[#F8FAF7] hover:text-slate-900"
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-950/10 text-slate-500 transition hover:bg-[#F4F7F4] hover:text-slate-900"
             onClick={onClose}
             type="button"
           >
@@ -77,7 +77,7 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
             </label>
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
               <input
-                className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 font-semibold text-slate-900 outline-none focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
+                className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 font-semibold text-slate-900 outline-none focus:border-[#063A2F] focus:ring-2 focus:ring-emerald-100"
                 id="activity-streak"
                 min="0"
                 onChange={(event) => setStreak(event.target.value)}
@@ -85,7 +85,7 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
                 value={streak}
               />
               <button
-                className="rounded-xl bg-[#084B2B] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#063B22] disabled:opacity-50"
+                className="rounded-xl bg-[#063A2F] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#0A4235] disabled:opacity-50"
                 disabled={isSaving}
                 onClick={() => handleAction('UPDATE_STREAK', streak)}
                 type="button"
@@ -100,14 +100,14 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
               Private Admin Notes
             </label>
             <textarea
-              className="min-h-32 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
+              className="min-h-32 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#063A2F] focus:ring-2 focus:ring-emerald-100"
               id="admin-notes"
               onChange={(event) => setNotes(event.target.value)}
               placeholder="Add notes for other administrators."
               value={notes}
             />
             <button
-              className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-[#084B2B] transition hover:bg-emerald-100 disabled:opacity-50"
+              className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-[#063A2F] transition hover:bg-emerald-100 disabled:opacity-50"
               disabled={isSaving}
               onClick={() => handleAction('UPDATE_NOTES', notes)}
               type="button"
@@ -116,7 +116,7 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
             </button>
           </div>
 
-          <div className="space-y-2 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4">
+          <div className="space-y-2 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4">
             <p className="text-sm font-bold text-slate-900">Password Reset</p>
             <button
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-400"
@@ -132,7 +132,7 @@ export default function ManageUserModal({ user, onClose, onUpdate }: ManageUserM
           </div>
 
           {message ? (
-            <p aria-live="polite" className="text-center text-sm font-bold text-[#084B2B]">
+            <p aria-live="polite" className="text-center text-sm font-bold text-[#063A2F]">
               {message}
             </p>
           ) : null}

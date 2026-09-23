@@ -49,7 +49,7 @@ export function OutcomesSection() {
             <CheckCircle2 aria-hidden="true" className="size-9 text-brand-gold" />
             <LandingCopy as="h3" className="mt-6 text-2xl font-black text-brand-base">{landingContent.pricing.title}</LandingCopy>
             <LandingCopy as="p" className="mt-4 text-sm leading-7 text-brand-surface/80">{landingContent.pricing.description}</LandingCopy>
-            <WhatsAppLink className="landing-cta mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-brand-gold px-5 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(229,184,92,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="whatsapp_click" intent="recommendation" label="pricing_recommendation">
+            <WhatsAppLink className="landing-cta mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-brand-gold px-5 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(229,192,110,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="whatsapp_click" intent="recommendation" label="pricing_recommendation">
               {landingContent.pricing.cta}
             </WhatsAppLink>
           </article>

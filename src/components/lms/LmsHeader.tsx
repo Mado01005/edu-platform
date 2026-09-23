@@ -7,7 +7,7 @@ import {
   LayoutDashboard,
   UserPlus,
 } from 'lucide-react';
-import { OqoolEmblem, OqoolWordmark } from '@/components/branding/OqoolBrand';
+import { NodrekEmblem, NodrekWordmark } from '@/components/branding/NodrekBrand';
 import { buttonVariants } from '@/components/UI/button';
 import { NotificationBell } from '@/components/navbar/notification-bell';
 import { UserNav } from '@/components/navbar/user-nav';
@@ -55,15 +55,15 @@ export function LmsHeader({ user }: LmsHeaderProps) {
         <div className="mx-auto flex h-full w-full max-w-7xl min-w-0 items-center justify-between gap-4">
           {/* Left zone: brand */}
           <Link
-            aria-label="Oqool Academy catalog"
+            aria-label="Nodrek Learning Hub catalog"
             className="group flex min-w-max shrink-0 items-center gap-3 font-bold"
             href="/catalog"
           >
-            <OqoolEmblem
+            <NodrekEmblem
               className="shadow-sm transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:shadow-md"
               decorative
             />
-            <OqoolWordmark className="hidden max-w-40 sm:block" />
+            <NodrekWordmark className="hidden max-w-40 sm:block" />
           </Link>
 
           {/* Center zone: global command search for signed-in users. */}

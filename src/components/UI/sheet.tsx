@@ -42,7 +42,7 @@ function SheetContent({
         {children}
         <SheetPrimitive.Close
           aria-label="Close navigation menu"
-          className="absolute right-3 top-3 rounded-xl border border-emerald-950/10 bg-white p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084B2B]"
+          className="absolute right-3 top-3 rounded-xl border border-emerald-950/10 bg-white p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#063A2F]"
         >
           <X className="size-4" aria-hidden="true" />
         </SheetPrimitive.Close>

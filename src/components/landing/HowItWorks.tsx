@@ -31,7 +31,7 @@ export function HowItWorks() {
           })}
         </ol>
         <div className="mt-9 flex justify-center">
-          <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center rounded-full bg-brand-gold px-7 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(229,184,92,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" intent="diagnostic" label="how_it_works">
+          <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center rounded-full bg-brand-gold px-7 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(229,192,110,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" intent="diagnostic" label="how_it_works">
             {landingContent.howItWorks.cta}
           </WhatsAppLink>
         </div>

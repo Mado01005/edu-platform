@@ -21,7 +21,7 @@ const validBody = {
   lastName: 'Hassan',
   locale: 'ar',
   message: 'I need help choosing the right learning plan.',
-  phone: '+20 155 592 0686',
+  phone: '+20 155 422 5979',
   website: '',
 };
 
@@ -67,7 +67,7 @@ describe('public support inquiry API', () => {
         lastName: 'Hassan',
         locale: 'ar',
         message: 'I need help choosing the right learning plan.',
-        phone: '+201555920686',
+        phone: '+201554225979',
       },
       select: { id: true },
     });
@@ -78,7 +78,7 @@ describe('public support inquiry API', () => {
       lastName: 'Hassan',
       locale: 'ar',
       message: 'I need help choosing the right learning plan.',
-      phone: '+201555920686',
+      phone: '+201554225979',
       reference: 'ABCDEFGH',
     });
   });

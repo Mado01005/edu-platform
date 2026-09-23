@@ -68,12 +68,12 @@ function SocialIcon({ icon }: SocialIconProps) {
 
 export function SocialLinks({ className }: SocialLinksProps) {
   return (
-    <ul aria-label="Oqool Academy social media" className={cn('flex flex-wrap items-center gap-3', className)}>
+    <ul aria-label="Nodrek Learning Hub social media" className={cn('flex flex-wrap items-center gap-3', className)}>
       {SOCIAL_LINKS.map((social) => (
         <li className="flex" key={social.name}>
           <a
             aria-label={social.ariaLabel}
-            className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0E4632] text-white/80 transition-all duration-200 before:absolute before:-inset-1 before:content-[''] hover:scale-110 hover:border-[#D4A345]/60 hover:text-[#D4A345] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D4A345]/30 motion-reduce:transform-none motion-reduce:transition-none"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0A4235] text-white/80 transition-all duration-200 before:absolute before:-inset-1 before:content-[''] hover:scale-110 hover:border-[#D8A84E]/60 hover:text-[#D8A84E] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D8A84E]/30 motion-reduce:transform-none motion-reduce:transition-none"
             href={social.url}
             rel="noopener noreferrer"
             style={{ transitionProperty: 'all' }}

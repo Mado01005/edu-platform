@@ -265,7 +265,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     variants={itemVariants}
                     key={folder.name || `folder-${idx}`}
                     onClick={() => handleFolderClick(folder)}
-                    className="group flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/30 rounded-2xl p-4 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(8,75,43,0.2)] text-left"
+                    className="group flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/30 rounded-2xl p-4 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(6,58,47,0.2)] text-left"
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -427,7 +427,7 @@ export default function FolderExplorer({ content, subject, lesson }: FolderExplo
                     <motion.div variants={itemVariants} key={`docview-${uniqueKey}`} className="flex flex-col gap-4 relative group">
                       <div className="flex items-center justify-between ml-1">
                         <div className="flex items-center gap-3">
-                          <span className={`w-8 h-8 rounded-lg ${isPPT ? 'bg-orange-500/20 border-orange-500/30' : 'bg-[#084B2B]/20 border-[#084B2B]/30'} border flex items-center justify-center text-sm shadow-inner`}>
+                          <span className={`w-8 h-8 rounded-lg ${isPPT ? 'bg-orange-500/20 border-orange-500/30' : 'bg-[#063A2F]/20 border-[#063A2F]/30'} border flex items-center justify-center text-sm shadow-inner`}>
                             {isPPT ? '📊' : '📝'}
                           </span>
                           <span className={`text-sm font-bold ${isPPT ? 'text-orange-400' : 'text-emerald-400'} tracking-wide uppercase truncate max-w-[200px] md:max-w-md`}>{node.name}</span>

@@ -43,7 +43,7 @@ const ACADEMIC_METRICS: readonly AcademicMetric[] = [
 export function StatsRibbon() {
   return (
     <section
-      aria-label="Oqool Academy academic impact"
+      aria-label="Nodrek Learning Hub academic impact"
       className="relative overflow-hidden rounded-2xl border-y border-brand-gold/30 bg-brand-base px-6 py-10 text-brand-white shadow-xl"
       style={{
         backgroundImage:

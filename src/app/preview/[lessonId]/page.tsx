@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, LockKeyhole } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { OqoolEmblem, OqoolWordmark } from '@/components/branding/OqoolBrand';
+import { NodrekEmblem, NodrekWordmark } from '@/components/branding/NodrekBrand';
 import { CoursePlayer } from '@/components/course/course-player';
 import { LanguageToggle } from '@/components/i18n/language-provider';
 import { mergeCoursePlayerMaterials, resolvePrimaryLessonContent } from '@/lib/lms/course-player';
@@ -67,26 +67,26 @@ export default async function GuestLessonPreviewPage({
   });
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-[#F8FAF8] text-[#1A2E22]">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#F4F7F4] text-[#063A2F]">
       <header className="border-b border-emerald-950/10 bg-white">
         <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link className="flex min-w-0 items-center gap-3" href="/">
-            <OqoolEmblem className="size-10" />
-            <OqoolWordmark className="hidden sm:block" />
+            <NodrekEmblem className="size-10" />
+            <NodrekWordmark className="hidden sm:block" />
           </Link>
           <div className="flex items-center gap-2">
             <LanguageToggle className="hidden sm:inline-flex" />
-            <Link className="inline-flex min-h-10 items-center rounded-xl bg-[#084B2B] px-4 text-xs font-extrabold text-white hover:bg-[#0F6E41]" href="/lms/login?mode=signup">Join Oqool Academy</Link>
+            <Link className="inline-flex min-h-10 items-center rounded-xl bg-[#063A2F] px-4 text-xs font-extrabold text-white hover:bg-[#0A4235]" href="/lms/login?mode=signup">Join Nodrek Learning Hub</Link>
           </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:py-12">
-        <Link className="inline-flex items-center gap-2 text-sm font-extrabold text-[#084B2B]" href="/#curriculum"><ArrowLeft aria-hidden="true" className="size-4" /> Back to curriculum</Link>
-        <div className="mt-6 rounded-2xl border border-[#D4AF37]/40 bg-[#FBF6E2] p-4 text-sm text-[#1A2E22]">
-          <p className="flex items-center gap-2 font-extrabold"><LockKeyhole aria-hidden="true" className="size-4 text-[#084B2B]" /> Free guest lesson · no account required</p>
+        <Link className="inline-flex items-center gap-2 text-sm font-extrabold text-[#063A2F]" href="/#curriculum"><ArrowLeft aria-hidden="true" className="size-4" /> Back to curriculum</Link>
+        <div className="mt-6 rounded-2xl border border-[#D8A84E]/40 bg-[#F4F7F4] p-4 text-sm text-[#063A2F]">
+          <p className="flex items-center gap-2 font-extrabold"><LockKeyhole aria-hidden="true" className="size-4 text-[#063A2F]" /> Free guest lesson · no account required</p>
           <p className="mt-1 text-xs text-slate-600">Progress, discussions, homework, and the next lesson unlock after sign-in and enrollment.</p>
         </div>
-        <p className="mt-8 text-xs font-black uppercase tracking-[0.16em] text-[#0F6E41]">{lesson.module.course.title} · {lesson.module.title}</p>
+        <p className="mt-8 text-xs font-black uppercase tracking-[0.16em] text-[#0A4235]">{lesson.module.course.title} · {lesson.module.title}</p>
         <h1 className="mt-2 break-words text-3xl font-black tracking-tight sm:text-4xl">{lesson.title}</h1>
         <div className="mt-6 min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-2">
           <CoursePlayer
@@ -96,7 +96,7 @@ export default async function GuestLessonPreviewPage({
             preferredQuality="AUTO"
             qualitySources={qualitySources}
             title={lesson.title}
-            watermark="Oqool Academy — Guest Preview"
+            watermark="Nodrek Learning Hub — Guest Preview"
           />
         </div>
         {lesson.contentType === 'TEXT' && lesson.textContent ? <article className="mt-6 whitespace-pre-wrap rounded-2xl border border-emerald-950/10 bg-white p-5 text-sm leading-7 text-slate-700">{lesson.textContent}</article> : null}

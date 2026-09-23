@@ -121,35 +121,35 @@ export function ExamRunner({
   );
 
   return (
-    <section className="min-w-0 rounded-2xl border border-[#D4AF37]/40 bg-white p-4 shadow-sm sm:p-5">
+    <section className="min-w-0 rounded-2xl border border-[#D8A84E]/40 bg-white p-4 shadow-sm sm:p-5">
       <header className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8C6B1B]">Timed LaTeX exam</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#805C1D]">Timed LaTeX exam</p>
           <h2 className="mt-1 break-words text-xl font-black text-slate-900">{title}</h2>
           <p className="mt-1 text-xs text-slate-500">{durationMin} minutes · {maxAttempts} attempts · highest score recorded</p>
         </div>
-        {attempt && !result ? <span className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 font-mono text-sm font-black ${remaining < 60_000 ? 'bg-red-100 text-red-700' : 'bg-[#FBF6E2] text-[#8C6B1B]'}`}><Clock3 className="size-4" /> {timeLabel(remaining)}</span> : null}
+        {attempt && !result ? <span className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 font-mono text-sm font-black ${remaining < 60_000 ? 'bg-red-100 text-red-700' : 'bg-[#F4F7F4] text-[#805C1D]'}`}><Clock3 className="size-4" /> {timeLabel(remaining)}</span> : null}
       </header>
 
       {!attempt ? (
-        <div className="mt-4 rounded-xl border border-emerald-950/10 bg-[#F8FAF8] p-4 text-sm text-slate-600">
+        <div className="mt-4 rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-4 text-sm text-slate-600">
           <p>{highestScore === null ? 'No attempt submitted yet.' : `Current highest score: ${highestScore.toFixed(1)}%.`}</p>
           <p className="mt-1">Attempts used: {attemptsUsed} / {maxAttempts}</p>
-          <button className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 font-black text-white hover:bg-[#0F6E41] disabled:opacity-50" disabled={pending || attemptsUsed >= maxAttempts} onClick={() => void start()} type="button">{pending ? <Loader2 className="size-4 animate-spin" /> : <Clock3 className="size-4" />} Start exam</button>
+          <button className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 font-black text-white hover:bg-[#0A4235] disabled:opacity-50" disabled={pending || attemptsUsed >= maxAttempts} onClick={() => void start()} type="button">{pending ? <Loader2 className="size-4 animate-spin" /> : <Clock3 className="size-4" />} Start exam</button>
         </div>
       ) : null}
 
       {attempt && !result ? (
         <div className="mt-5 flex min-w-0 flex-col gap-4">
           {attempt.questions.map((question, questionIndex) => (
-            <article className="min-w-0 rounded-2xl border border-emerald-950/10 bg-[#F8FAF8] p-4" key={question.id}>
-              <p className="text-xs font-black uppercase tracking-wide text-[#084B2B]">Question {questionIndex + 1} of {attempt.questions.length}</p>
+            <article className="min-w-0 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4" key={question.id}>
+              <p className="text-xs font-black uppercase tracking-wide text-[#063A2F]">Question {questionIndex + 1} of {attempt.questions.length}</p>
               <MathText className="mt-3 block whitespace-pre-wrap text-base font-bold leading-7 text-slate-900" value={question.prompt} />
               {question.diagramUrl ? <img alt={`Diagram for question ${questionIndex + 1}`} className="mt-3 max-h-80 w-full rounded-xl border border-emerald-950/10 object-contain" src={question.diagramUrl} /> : null}
               <fieldset className="mt-4 flex min-w-0 flex-col gap-2">
                 <legend className="sr-only">Choose one answer</legend>
                 {question.options.map((option) => (
-                  <label className={`flex min-w-0 cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition ${answers[question.id] === option.key ? 'border-[#D4AF37] bg-[#FBF6E2]' : 'border-emerald-950/10 bg-white hover:border-emerald-300'}`} key={option.key}>
+                  <label className={`flex min-w-0 cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition ${answers[question.id] === option.key ? 'border-[#D8A84E] bg-[#F4F7F4]' : 'border-emerald-950/10 bg-white hover:border-emerald-300'}`} key={option.key}>
                     <input checked={answers[question.id] === option.key} className="mt-1" name={`question-${question.id}`} onChange={() => setAnswers((current) => ({ ...current, [question.id]: option.key }))} type="radio" />
                     <MathText className="min-w-0 flex-1 leading-6" value={option.text} />
                   </label>
@@ -157,7 +157,7 @@ export function ExamRunner({
               </fieldset>
             </article>
           ))}
-          <button className="sticky bottom-20 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 font-black text-white shadow-lg hover:bg-[#0F6E41] disabled:opacity-50 md:bottom-4" disabled={pending} onClick={() => void submit()} type="button">{pending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />} Submit exam · {answeredCount}/{attempt.questions.length} answered</button>
+          <button className="sticky bottom-20 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 font-black text-white shadow-lg hover:bg-[#0A4235] disabled:opacity-50 md:bottom-4" disabled={pending} onClick={() => void submit()} type="button">{pending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />} Submit exam · {answeredCount}/{attempt.questions.length} answered</button>
         </div>
       ) : null}
 
@@ -166,15 +166,15 @@ export function ExamRunner({
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center"><CheckCircle2 className="mx-auto size-8 text-emerald-600" /><p className="mt-2 text-xl font-black text-emerald-900">{scoreSummary}</p><p className="mt-1 text-xs text-emerald-700">Attempt {result.attemptNumber} submitted. Worked solutions are available below.</p></div>
           <div className="mt-4 flex min-w-0 flex-col gap-3">
             {result.review.map((question, index) => (
-              <article className="rounded-xl border border-emerald-950/10 bg-[#F8FAF8] p-4" key={question.id}>
-                <p className="text-xs font-black text-[#084B2B]">Question {index + 1}</p>
+              <article className="rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-4" key={question.id}>
+                <p className="text-xs font-black text-[#063A2F]">Question {index + 1}</p>
                 <MathText className="mt-2 block font-bold" value={question.prompt} />
                 <p className={`mt-3 text-sm font-black ${question.selectedOptionKey === question.correctOptionKey ? 'text-emerald-700' : 'text-red-700'}`}>Your answer: {question.selectedOptionKey ?? 'Not answered'} · Correct: {question.correctOptionKey}</p>
-                <div className="mt-3 rounded-xl border border-[#D4AF37]/40 bg-[#FBF6E2] p-3"><p className="text-xs font-black uppercase tracking-wide text-[#8C6B1B]">Worked solution</p><MathText className="mt-2 block whitespace-pre-wrap text-sm leading-6 text-slate-700" value={question.workedSolution} /></div>
+                <div className="mt-3 rounded-xl border border-[#D8A84E]/40 bg-[#F4F7F4] p-3"><p className="text-xs font-black uppercase tracking-wide text-[#805C1D]">Worked solution</p><MathText className="mt-2 block whitespace-pre-wrap text-sm leading-6 text-slate-700" value={question.workedSolution} /></div>
               </article>
             ))}
           </div>
-          {remainingAttempts > 0 ? <button className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#084B2B] px-4 font-black text-[#084B2B] hover:bg-emerald-50" onClick={() => { setAttempt(null); setResult(null); }} type="button"><RotateCcw className="size-4" /> Start retake · {remainingAttempts} remaining</button> : null}
+          {remainingAttempts > 0 ? <button className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#063A2F] px-4 font-black text-[#063A2F] hover:bg-emerald-50" onClick={() => { setAttempt(null); setResult(null); }} type="button"><RotateCcw className="size-4" /> Start retake · {remainingAttempts} remaining</button> : null}
         </div>
       ) : null}
       {error ? <p aria-live="polite" className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p> : null}

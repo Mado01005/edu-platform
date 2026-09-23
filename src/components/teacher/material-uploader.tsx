@@ -242,8 +242,8 @@ export function MaterialUploader({
         className={cn(
           'flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-dashed p-4 transition',
           dragging
-            ? 'border-[#084B2B] bg-emerald-50'
-            : 'border-emerald-300 bg-[#F8FAF7] hover:border-[#084B2B]',
+            ? 'border-[#063A2F] bg-emerald-50'
+            : 'border-emerald-300 bg-[#F4F7F4] hover:border-[#063A2F]',
           pendingFile && 'pointer-events-none opacity-70',
         )}
         onDragEnter={() => setDragging(true)}
@@ -258,7 +258,7 @@ export function MaterialUploader({
           if (file) void upload(file);
         }}
       >
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#084B2B]">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#063A2F]">
           {pendingFile ? (
             <Loader2 className="size-5 animate-spin" aria-hidden="true" />
           ) : (
@@ -272,7 +272,7 @@ export function MaterialUploader({
           <span className="mt-1 block text-xs text-slate-500">
             {pendingFile ? `${uploadProgress}% uploaded` : 'Secure direct upload to Cloudflare R2'}
           </span>
-          {pendingFile ? <span className="mt-2 block h-2 overflow-hidden rounded-full bg-slate-200"><span className="block h-full rounded-full bg-[#084B2B] transition-[width]" style={{ width: `${uploadProgress}%` }} /></span> : null}
+          {pendingFile ? <span className="mt-2 block h-2 overflow-hidden rounded-full bg-slate-200"><span className="block h-full rounded-full bg-[#063A2F] transition-[width]" style={{ width: `${uploadProgress}%` }} /></span> : null}
         </span>
         <input
           ref={inputRef}
@@ -300,7 +300,7 @@ export function MaterialUploader({
               className="flex min-w-0 flex-col gap-3 rounded-xl border border-emerald-950/10 bg-white p-3 sm:flex-row sm:items-center"
               key={material.id}
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-[#084B2B]">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-[#063A2F]">
                 <MaterialIcon fileType={material.fileType} />
               </span>
               <span className="min-w-0 flex-1">
@@ -314,7 +314,7 @@ export function MaterialUploader({
               <span className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-5">
                 <button
                   aria-label={`Preview ${material.title}`}
-                  className="flex size-9 items-center justify-center rounded-lg border border-emerald-950/10 text-slate-500 hover:bg-[#F8FAF7] hover:text-[#084B2B]"
+                  className="flex size-9 items-center justify-center rounded-lg border border-emerald-950/10 text-slate-500 hover:bg-[#F4F7F4] hover:text-[#063A2F]"
                   onClick={() => setPreviewing(material)}
                   type="button"
                 >
@@ -322,21 +322,21 @@ export function MaterialUploader({
                 </button>
                 <a
                   aria-label={`Download ${material.title}`}
-                  className="flex size-9 items-center justify-center rounded-lg border border-emerald-950/10 text-slate-500 hover:bg-[#F8FAF7] hover:text-[#084B2B]"
+                  className="flex size-9 items-center justify-center rounded-lg border border-emerald-950/10 text-slate-500 hover:bg-[#F4F7F4] hover:text-[#063A2F]"
                   href={`/api/lms/materials/${material.id}/download`}
                 >
                   <Download className="size-4" aria-hidden="true" />
                 </a>
                 <button
                   aria-pressed={material.isDownloadable}
-                  className={`flex min-h-9 items-center justify-center rounded-lg border px-2 text-[10px] font-black ${material.isDownloadable ? 'border-[#D4AF37] bg-[#FBF6E2] text-[#8C6B1B]' : 'border-emerald-950/10 text-slate-500'}`}
+                  className={`flex min-h-9 items-center justify-center rounded-lg border px-2 text-[10px] font-black ${material.isDownloadable ? 'border-[#D8A84E] bg-[#F4F7F4] text-[#805C1D]' : 'border-emerald-950/10 text-slate-500'}`}
                   onClick={() => void toggleDownloadable(material)}
                   type="button"
                 >
                   {material.isDownloadable ? 'Worksheet DL on' : 'No student DL'}
                 </button>
                 <button
-                  className="flex min-h-9 items-center justify-center gap-1 rounded-lg border border-emerald-950/10 px-2 text-xs font-bold text-slate-600 hover:bg-[#F8FAF7]"
+                  className="flex min-h-9 items-center justify-center gap-1 rounded-lg border border-emerald-950/10 px-2 text-xs font-bold text-slate-600 hover:bg-[#F4F7F4]"
                   onClick={() => { setRenaming(material); setRenameTitle(material.title); }}
                   type="button"
                 >
@@ -383,7 +383,7 @@ export function MaterialUploader({
             ) : (
               <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">This file type opens in its native viewer.</div>
             )}
-            <a className="flex items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 py-3 text-sm font-bold text-white hover:bg-[#063B22]" href={previewing.fileUrl} rel="noopener noreferrer" target="_blank"><ExternalLink className="size-4" /> Open in new tab</a>
+            <a className="flex items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 py-3 text-sm font-bold text-white hover:bg-[#0A4235]" href={previewing.fileUrl} rel="noopener noreferrer" target="_blank"><ExternalLink className="size-4" /> Open in new tab</a>
           </DialogContent>
         ) : null}
       </Dialog>
@@ -393,7 +393,7 @@ export function MaterialUploader({
           <DialogContent className="max-w-md">
             <DialogHeader><DialogTitle>Rename file</DialogTitle><DialogDescription>Change the title shown to students. The R2 object key stays protected.</DialogDescription></DialogHeader>
             <label className="text-sm font-bold text-slate-700">File title<input autoFocus className="mt-2 w-full rounded-xl border border-slate-300 px-3 py-3" maxLength={200} onChange={(event) => setRenameTitle(event.target.value)} value={renameTitle} /></label>
-            <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#084B2B] px-4 font-bold text-white disabled:opacity-50" disabled={renamingPending || !renameTitle.trim()} onClick={() => void rename()} type="button">{renamingPending ? <Loader2 className="size-4 animate-spin" /> : <Pencil className="size-4" />} Save name</button>
+            <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 font-bold text-white disabled:opacity-50" disabled={renamingPending || !renameTitle.trim()} onClick={() => void rename()} type="button">{renamingPending ? <Loader2 className="size-4 animate-spin" /> : <Pencil className="size-4" />} Save name</button>
           </DialogContent>
         ) : null}
       </Dialog>

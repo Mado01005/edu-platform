@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!lesson) return { title: 'Lesson Not Found' };
   
   return {
-    title: `${lesson.title} - Oqool Academy`,
-    description: `Study ${lesson.title} on Oqool Academy. Includes video lessons, PDF materials, and interactive content.`,
+    title: `${lesson.title} - Nodrek Learning Hub`,
+    description: `Study ${lesson.title} on Nodrek Learning Hub. Includes video lessons, PDF materials, and interactive content.`,
     openGraph: {
       title: `${lesson.title} — Learning Module`,
       description: `Study ${lesson.title} and master the curriculum.`,

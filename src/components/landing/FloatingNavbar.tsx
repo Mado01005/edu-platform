@@ -79,10 +79,10 @@ export function FloatingNavbar() {
 
   return (
     <header
-      className={`oqool-auto-hide-navbar sticky top-3 z-50 mx-auto max-w-7xl transform-gpu px-4 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform sm:px-6 ${navbarVisible ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0'}`}
+      className={`nodrek-auto-hide-navbar sticky top-3 z-50 mx-auto max-w-7xl transform-gpu px-4 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform sm:px-6 ${navbarVisible ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0'}`}
     >
       <div
-        className={`w-full border border-gray-200/50 bg-white/90 px-3 py-2 shadow-md shadow-black/5 backdrop-blur-md transition-all duration-300 dark:border-emerald-500/15 dark:bg-[#0A3425]/90 sm:px-4 ${menuOpen ? 'rounded-[1.4rem]' : 'rounded-full'}`}
+        className={`w-full border border-gray-200/50 bg-white/90 px-3 py-2 shadow-md shadow-black/5 backdrop-blur-md transition-all duration-300 dark:border-emerald-500/15 dark:bg-[#063A2F]/90 sm:px-4 ${menuOpen ? 'rounded-[1.4rem]' : 'rounded-full'}`}
       >
         <div className="flex min-h-12 items-center justify-between gap-2">
           <Link
@@ -91,16 +91,16 @@ export function FloatingNavbar() {
             href={siteConfig.routes.home}
           >
             <Image
-              alt="Oqool Academy official crest"
+              alt="Nodrek Learning Hub official crest"
               className="size-10 rounded-xl object-cover"
               height={48}
               priority
               src={siteConfig.brand.logo}
               width={48}
             />
-            <span className="hidden leading-tight sm:block">
-              <span className="block text-sm font-black text-brand-base dark:text-brand-white">Oqool Academy</span>
-              <span className="block font-arabic text-[11px] font-bold text-brand-gold" dir="rtl" lang="ar">أكاديمية عقول</span>
+            <span className="min-w-0 leading-tight">
+              <span className="block text-sm font-black text-brand-base dark:text-brand-white">{siteConfig.name}</span>
+              <span className="block font-arabic text-[11px] font-bold text-brand-gold" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
             </span>
           </Link>
 
@@ -132,7 +132,7 @@ export function FloatingNavbar() {
               {locale === 'en' ? 'العربية' : 'EN'}
             </button>
             <ConversionLink
-              className="landing-cta hidden min-h-11 items-center justify-center gap-2 rounded-full bg-brand-gold px-4 text-xs font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(229,184,92,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:inline-flex"
+              className="landing-cta hidden min-h-11 items-center justify-center gap-2 rounded-full bg-brand-gold px-4 text-xs font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(229,192,110,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:inline-flex"
               eventName="navbar_diagnostic_click"
               href={getWhatsAppUrl('diagnostic', locale)}
               label="navbar"
@@ -179,7 +179,7 @@ export function FloatingNavbar() {
               <LandingCopy>{contactUsLabel}</LandingCopy>
             </Link>
             <ConversionLink
-              className="landing-cta mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-gold px-4 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(229,184,92,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:hidden"
+              className="landing-cta mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-gold px-4 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(229,192,110,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:hidden"
               eventName="navbar_diagnostic_click"
               href={getWhatsAppUrl('diagnostic', locale)}
               label="mobile_menu"
@@ -191,8 +191,8 @@ export function FloatingNavbar() {
             </ConversionLink>
             <div className="mt-3 border-t border-brand-base/10 pt-3 dark:border-white/10">
               <LandingCopy className="block text-center text-[10px] font-black uppercase tracking-[0.16em] text-brand-surface/60 dark:text-brand-muted/65">{{
-                en: 'Follow Oqool Academy',
-                ar: 'تابع أكاديمية عقول',
+                en: 'Follow Nodrek Learning Hub',
+                ar: 'تابع نُدرك للتعليم المتكامل',
               }}</LandingCopy>
               <SocialLinks className="mt-2 justify-center" />
             </div>

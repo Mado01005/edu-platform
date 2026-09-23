@@ -166,7 +166,7 @@ export async function loginParentWithVerifiedPhone(
       : await tx.user.create({
           data: {
             email: `parent+${emailHash}@parents.oqool.local`,
-            name: 'Oqool Parent',
+            name: 'Nodrek Parent',
             phoneNumber: phone,
             phoneVerified: true,
             role: 'PARENT',

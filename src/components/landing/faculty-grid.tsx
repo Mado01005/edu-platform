@@ -36,7 +36,7 @@ export function FacultyGrid({ faculty }: { faculty: LandingFaculty[] }) {
                 <span className="min-w-0 flex-1">
                   <span className="flex min-w-0 items-center gap-1.5 font-extrabold text-brand-white">
                     <span className="truncate">{teacher.name}</span>
-                    <BadgeCheck aria-label="Verified Oqool faculty" className="size-4 shrink-0 text-brand-gold" />
+                    <BadgeCheck aria-label="Verified Nodrek faculty" className="size-4 shrink-0 text-brand-gold" />
                   </span>
                   <span className="mt-1 block text-xs leading-5 text-brand-muted/75">{teacher.credential}</span>
                 </span>

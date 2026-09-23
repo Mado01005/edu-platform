@@ -22,8 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!subject) return { title: 'Subject Not Found' };
   
   return {
-    title: `${subject.title} - Oqool Academy`,
-    description: `Explore the ${subject.title} curriculum on Oqool Academy featuring ${subject.lessons.length} active modules.`,
+    title: `${subject.title} - Nodrek Learning Hub`,
+    description: `Explore the ${subject.title} curriculum on Nodrek Learning Hub featuring ${subject.lessons.length} active modules.`,
     openGraph: {
       title: `${subject.title} Curriculum`,
       description: `Access specialized content for ${subject.title}.`,

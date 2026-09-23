@@ -11,13 +11,13 @@ import { LandingCopy } from '@/components/landing/LandingCopy';
 const cards = [
   { icon: ClipboardCheck, label: { en: 'Diagnostic', ar: 'التقييم التشخيصي' }, value: { en: 'Baseline Ready', ar: 'تم تحديد خط البداية' }, tone: 'bg-brand-gold text-brand-base' },
   { icon: Target, label: { en: 'Learning Gap', ar: 'الفجوة التعليمية' }, value: { en: 'Fractions & Reasoning', ar: 'الكسور والاستدلال' }, tone: 'bg-brand-base text-brand-gold' },
-  { icon: BookOpenCheck, label: { en: 'Personalized Plan', ar: 'الخطة المخصصة' }, value: { en: '4 Focus Milestones', ar: '4 محطات تركيز' }, tone: 'bg-brand-border text-brand-white' },
+  { icon: BookOpenCheck, label: { en: 'Personalized Plan', ar: 'الخطة المخصصة' }, value: { en: '4 Focus Milestones', ar: '4 محطات تركيز' }, tone: 'bg-brand-sage text-brand-base' },
 ] as const;
 
 export function HeroLearningMockup() {
   return (
     <div className="relative mx-auto w-full max-w-[42rem]" aria-label="Sample progress view">
-      <div aria-hidden="true" className="absolute -inset-8 -z-10 rounded-[3rem] bg-[radial-gradient(circle,rgba(23,88,63,0.16),rgba(212,163,69,0.14)_38%,transparent_68%)] blur-2xl" />
+      <div aria-hidden="true" className="absolute -inset-8 -z-10 rounded-[3rem] bg-[radial-gradient(circle,rgba(178,205,188,0.16),rgba(216,168,78,0.14)_38%,transparent_68%)] blur-2xl" />
       <div className="overflow-hidden rounded-3xl border border-brand-base/10 bg-white p-3 shadow-2xl shadow-brand-base/15 backdrop-blur-md sm:p-5">
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-brand-border bg-brand-base px-4 py-3 text-brand-white shadow-lg shadow-black/20 backdrop-blur-md sm:px-5">
           <div>
@@ -63,7 +63,7 @@ export function HeroLearningMockup() {
               <div className="mt-3 flex items-center gap-2">
                 <span aria-hidden="true" className="relative flex size-2.5 shrink-0">
                   <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-gold-hover opacity-60" />
-                  <span className="relative inline-flex size-2.5 rounded-full bg-brand-gold shadow-[0_0_12px_rgba(229,184,92,0.9)]" />
+                  <span className="relative inline-flex size-2.5 rounded-full bg-brand-gold shadow-[0_0_12px_rgba(229,192,110,0.9)]" />
                 </span>
                 <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.12em] text-brand-surface/60">{{ en: 'Next live lesson', ar: 'الحصة المباشرة القادمة' }}</LandingCopy>
               </div>

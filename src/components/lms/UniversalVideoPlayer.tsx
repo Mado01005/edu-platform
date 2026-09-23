@@ -807,8 +807,8 @@ export function UniversalVideoPlayer({
 
   if (!url) {
     return (
-      <div className="flex min-h-28 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-semibold text-[#084B2B]">
-        <FileText aria-hidden="true" className="size-5 shrink-0 text-[#084B2B]" />
+      <div className="flex min-h-28 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-semibold text-[#063A2F]">
+        <FileText aria-hidden="true" className="size-5 shrink-0 text-[#063A2F]" />
         <span>Text Lesson / Notes</span>
       </div>
     );

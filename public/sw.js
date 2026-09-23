@@ -1,5 +1,5 @@
-const CACHE_NAME = 'wayground-pwa-v9';
-const STATIC_ASSETS_CACHE = 'wayground-static-v9';
+const CACHE_NAME = 'nodrek-pwa-v10';
+const STATIC_ASSETS_CACHE = 'nodrek-static-v10';
 
 const PRECACHE_ASSETS = [
   '/manifest.json',
@@ -52,7 +52,7 @@ self.addEventListener('push', (event) => {
   const title =
     typeof payload.title === 'string' && payload.title.trim()
       ? payload.title.trim().slice(0, 120)
-      : 'Way Ground update';
+      : 'Nodrek update';
   const message =
     typeof payload.message === 'string'
       ? payload.message.trim().slice(0, 1000)
@@ -60,7 +60,7 @@ self.addEventListener('push', (event) => {
   const tag =
     typeof payload.tag === 'string' && /^[A-Za-z0-9_-]{1,32}$/.test(payload.tag)
       ? payload.tag
-      : 'wayground-update';
+      : 'nodrek-update';
   const targetUrl = safeNotificationTarget(payload.url);
 
   event.waitUntil(

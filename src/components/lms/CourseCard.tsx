@@ -61,7 +61,7 @@ function gradeLabel(grade: GradeLevel | null) {
 }
 
 function instructorInitials(name: string | null) {
-  const value = name?.trim() || 'Oqool Academy';
+  const value = name?.trim() || 'Nodrek Learning Hub';
   return value
     .split(/\s+/)
     .filter(Boolean)
@@ -109,7 +109,7 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
             aria-hidden="true"
             className="absolute inset-0 bg-emerald-100"
           >
-            <BookOpen className="absolute bottom-5 left-5 size-12 text-[#084B2B] transition duration-300 group-hover:-rotate-3" />
+            <BookOpen className="absolute bottom-5 left-5 size-12 text-[#063A2F] transition duration-300 group-hover:-rotate-3" />
           </div>
         )}
         <Badge className="absolute right-3 top-3 border-emerald-950/10 bg-white text-slate-700 shadow-sm">
@@ -148,17 +148,17 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
 
       <CardContent className="mt-5">
         <div className="grid min-w-0 grid-cols-2 gap-2">
-          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-[#F8FAF7] px-3 py-2 text-xs text-slate-600">
-            <Layers3 className="size-3.5 shrink-0 text-[#084B2B]" aria-hidden="true" />
+          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-[#F4F7F4] px-3 py-2 text-xs text-slate-600">
+            <Layers3 className="size-3.5 shrink-0 text-[#063A2F]" aria-hidden="true" />
             <span className="truncate">
               {course.modules.length} {course.modules.length === 1 ? 'Module' : 'Modules'}
             </span>
           </span>
-          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-[#F8FAF7] px-3 py-2 text-xs text-slate-600">
+          <span className="flex min-w-0 items-center gap-2 rounded-xl bg-[#F4F7F4] px-3 py-2 text-xs text-slate-600">
             {lessonTypes.has('PDF') ? (
-              <FileText className="size-3.5 shrink-0 text-[#084B2B]" aria-hidden="true" />
+              <FileText className="size-3.5 shrink-0 text-[#063A2F]" aria-hidden="true" />
             ) : (
-              <PlayCircle className="size-3.5 shrink-0 text-[#084B2B]" aria-hidden="true" />
+              <PlayCircle className="size-3.5 shrink-0 text-[#063A2F]" aria-hidden="true" />
             )}
             <span className="truncate">{contentLabel(lessonTypes)}</span>
           </span>
@@ -167,7 +167,7 @@ export function CourseCard({ channels, course, enrolled, user }: CourseCardProps
           {course._count.zoomSessions > 0 ? (
             <Radio className="size-3 text-emerald-600" aria-hidden="true" />
           ) : (
-            <BookOpen className="size-3 text-[#084B2B]" aria-hidden="true" />
+            <BookOpen className="size-3 text-[#063A2F]" aria-hidden="true" />
           )}
           {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
           {course._count.zoomSessions > 0

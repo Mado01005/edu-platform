@@ -13,13 +13,13 @@ const originalFetch = global.fetch;
 
 function fillValidSupportForm() {
   fireEvent.change(screen.getByLabelText(/First name/), {
-    target: { value: 'Oqool' },
+    target: { value: 'Nodrek' },
   });
   fireEvent.change(screen.getByLabelText(/Last name/), {
     target: { value: 'Support' },
   });
   fireEvent.change(screen.getByLabelText(/Phone/), {
-    target: { value: '155 592 0686' },
+    target: { value: '155 422 5979' },
   });
   fireEvent.change(screen.getByLabelText(/Email/), {
     target: { value: 'support-qa@example.com' },
@@ -126,10 +126,10 @@ describe('SupportContactForm', () => {
     const requestInit = fetchMock.mock.calls[0]?.[1];
     expect(JSON.parse(String(requestInit?.body))).toMatchObject({
       email: 'support-qa@example.com',
-      firstName: 'Oqool',
+      firstName: 'Nodrek',
       lastName: 'Support',
       message: 'Please help with this support question.',
-      phone: '+201555920686',
+      phone: '+201554225979',
     });
 
     await act(async () => {

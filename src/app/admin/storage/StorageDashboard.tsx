@@ -76,7 +76,7 @@ function formatBytes(bytes: number) {
 function categoryTone(category: AssetCategory) {
   if (category === 'VIDEO') return 'bg-emerald-50 text-emerald-700';
   if (category === 'PDF') return 'bg-amber-50 text-amber-700';
-  if (category === 'IMAGE') return 'bg-emerald-50 text-[#084B2B]';
+  if (category === 'IMAGE') return 'bg-emerald-50 text-[#063A2F]';
   return 'bg-slate-100 text-slate-600';
 }
 
@@ -103,7 +103,7 @@ function storageHealth(percent: number) {
     };
   }
   return {
-    bar: 'bg-[#084B2B]',
+    bar: 'bg-[#063A2F]',
     label: 'Healthy free-tier usage',
     text: 'text-emerald-700',
   };
@@ -358,10 +358,10 @@ export function StorageDashboard({
           averages.
         </p>
         <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-          <span className="rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-slate-600">
+          <span className="rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3 text-slate-600">
             Images <b className="block text-slate-900">{formatBytes(snapshot.imageBytes)}</b>
           </span>
-          <span className="rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-slate-600">
+          <span className="rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3 text-slate-600">
             Other <b className="block text-slate-900">{formatBytes(snapshot.otherBytes)}</b>
           </span>
         </div>
@@ -414,7 +414,7 @@ export function StorageDashboard({
           ))}
         </div>
 
-        <label className="flex items-center gap-3 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 text-xs font-black text-slate-700">
+        <label className="flex items-center gap-3 rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3 text-xs font-black text-slate-700">
           <input
             aria-label="Select all visible R2 assets"
             checked={allVisibleSelected}
@@ -462,7 +462,7 @@ export function StorageDashboard({
                       </span>
                       <span className="min-w-0 flex-1" role="cell">
                         <a
-                          className="block truncate text-sm font-black text-slate-900 hover:text-[#084B2B] hover:underline"
+                          className="block truncate text-sm font-black text-slate-900 hover:text-[#063A2F] hover:underline"
                           href={asset.publicUrl}
                           rel="noopener noreferrer"
                           target="_blank"
@@ -489,7 +489,7 @@ export function StorageDashboard({
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
                       <span
-                        className="rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3"
+                        className="rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3"
                         role="cell"
                       >
                         <span className="block text-slate-500">Type</span>
@@ -498,7 +498,7 @@ export function StorageDashboard({
                         </span>
                       </span>
                       <span
-                        className="rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3"
+                        className="rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3"
                         role="cell"
                       >
                         <span className="block text-slate-500">Size</span>
@@ -507,7 +507,7 @@ export function StorageDashboard({
                         </span>
                       </span>
                       <span
-                        className="col-span-2 rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3"
+                        className="col-span-2 rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3"
                         role="cell"
                       >
                         <span className="block text-slate-500">Uploaded</span>
@@ -525,7 +525,7 @@ export function StorageDashboard({
                 );
               })
             ) : (
-              <p className="rounded-2xl border border-dashed border-slate-300 bg-[#F8FAF7] p-6 text-center text-sm text-slate-500">
+              <p className="rounded-2xl border border-dashed border-slate-300 bg-[#F4F7F4] p-6 text-center text-sm text-slate-500">
                 No recent assets match this filter.
               </p>
             )}
@@ -562,7 +562,7 @@ export function StorageDashboard({
                 : 'This asset will be permanently removed.'}
             </DialogDescription>
           </DialogHeader>
-          <p className="break-all rounded-xl border border-emerald-950/10 bg-[#F8FAF7] p-3 font-mono text-[11px] leading-5 text-slate-600">
+          <p className="break-all rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3 font-mono text-[11px] leading-5 text-slate-600">
             {deleteTarget?.key}
           </p>
           <DialogFooter>

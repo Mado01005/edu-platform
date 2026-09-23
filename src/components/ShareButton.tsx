@@ -11,8 +11,8 @@ export default function ShareButton({ title }: ShareButtonProps) {
 
   const handleShare = async () => {
     const shareData = {
-      title: `${title} - Oqool Academy`,
-      text: `Check out this lesson on Oqool Academy: ${title}`,
+      title: `${title} - Nodrek Learning Hub`,
+      text: `Check out this lesson on Nodrek Learning Hub: ${title}`,
       url: window.location.href,
     };
 
@@ -47,7 +47,7 @@ export default function ShareButton({ title }: ShareButtonProps) {
       className={`relative inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold uppercase tracking-widest text-[10px] md:text-sm transition-all duration-300 ${
         copied 
           ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]'
-          : 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(8,75,43,0.2)] hover:shadow-[0_0_30px_rgba(8,75,43,0.4)] hover:-translate-y-1'
+          : 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(6,58,47,0.2)] hover:shadow-[0_0_30px_rgba(6,58,47,0.4)] hover:-translate-y-1'
       }`}
     >
       <div className={`absolute inset-0 rounded-full border border-white/20 transition-all duration-500`}></div>

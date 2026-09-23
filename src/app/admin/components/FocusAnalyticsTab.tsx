@@ -62,7 +62,7 @@ export default function FocusAnalyticsTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="size-8 animate-spin rounded-full border-2 border-[#084B2B] border-t-transparent" />
+        <div className="size-8 animate-spin rounded-full border-2 border-[#063A2F] border-t-transparent" />
       </div>
     );
   }
@@ -85,7 +85,7 @@ export default function FocusAnalyticsTab() {
     <div className="space-y-8 fade-in">
       <div className="space-y-2 max-w-2xl text-center md:text-left mx-auto md:mx-0">
         <h2 className="text-5xl font-black uppercase leading-none tracking-tighter text-slate-900">Productivity Pulse</h2>
-        <p className="text-sm font-bold uppercase leading-relaxed tracking-widest text-[#084B2B]">Focus Overview</p>
+        <p className="text-sm font-bold uppercase leading-relaxed tracking-widest text-[#063A2F]">Focus Overview</p>
       </div>
 
       {/* Top Metrics */}
@@ -110,7 +110,7 @@ export default function FocusAnalyticsTab() {
             <span className="text-5xl font-black tabular-nums text-slate-900">
               {data.globalCompletionRate.toFixed(1)}
             </span>
-            <span className="text-3xl font-bold text-[#084B2B]">%</span>
+            <span className="text-3xl font-bold text-[#063A2F]">%</span>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function FocusAnalyticsTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-emerald-950/10 bg-[#F8FAF7] text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+              <tr className="border-b border-emerald-950/10 bg-[#F4F7F4] text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
                 <th className="p-6">Rank</th>
                 <th className="p-6">Lesson Name</th>
                 <th className="p-6 bg-red-950/20 text-red-500">Interrupts</th>
@@ -142,7 +142,7 @@ export default function FocusAnalyticsTab() {
                     const failRate = total > 0 ? (item.interrupted / total) * 100 : 0;
                     
                     return (
-                      <tr key={item.lesson_id} className="transition-colors hover:bg-[#F8FAF7]">
+                      <tr key={item.lesson_id} className="transition-colors hover:bg-[#F4F7F4]">
                         <td className="p-6 flex items-center gap-2">
                           <span className={`flex size-8 items-center justify-center rounded-full text-xs font-bold ${idx < 3 ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-600'}`}>
                             {idx + 1}
@@ -218,7 +218,7 @@ export default function FocusAnalyticsTab() {
                         <div className="flex items-center gap-2 text-xs font-bold tabular-nums">
                           <span className="text-slate-900">{item.duration}m</span>
                           <span className="text-slate-400">/</span>
-                          <span className="text-[#084B2B]">{item.global_average}m</span>
+                          <span className="text-[#063A2F]">{item.global_average}m</span>
                         </div>
                       </td>
                     </tr>

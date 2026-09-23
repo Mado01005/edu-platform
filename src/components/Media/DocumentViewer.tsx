@@ -101,7 +101,7 @@ export default function DocumentViewer({ fileUrl, title }: DocumentViewerProps) 
               download
               target="_blank" 
               rel="noopener noreferrer"
-              className="w-full sm:w-auto px-8 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-emerald-400 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(8,75,43,0.15)]"
+              className="w-full sm:w-auto px-8 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-emerald-400 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(6,58,47,0.15)]"
             >
               Download Secure File
             </a>

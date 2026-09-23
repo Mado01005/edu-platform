@@ -69,7 +69,7 @@ export function JoinLiveClassButton({ startTime, zoomSessionId }: { startTime: s
   const countdown = Math.max(0, Math.ceil((opensAt - now) / 60_000));
   return (
     <div className="shrink-0">
-      <button className="w-full rounded-xl bg-[#084B2B] px-4 py-3 text-center text-sm font-black text-white transition hover:bg-[#0F6E41] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600" disabled={joining || !enabled} onClick={() => void join()} type="button">
+      <button className="w-full rounded-xl bg-[#063A2F] px-4 py-3 text-center text-sm font-black text-white transition hover:bg-[#0A4235] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600" disabled={joining || !enabled} onClick={() => void join()} type="button">
         {joining ? 'Recording attendance…' : tracking ? '🔴 Live attendance active' : enabled ? 'Join Live Lecture' : `Opens in ${countdown} min`}
       </button>
       {error ? <p aria-live="polite" className="mt-2 max-w-56 text-xs font-bold text-red-700">{error}</p> : null}

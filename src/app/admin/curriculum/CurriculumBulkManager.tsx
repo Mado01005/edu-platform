@@ -123,7 +123,7 @@ export function CurriculumBulkManager({
           {error}
         </p>
       ) : null}
-      <label className="flex items-center gap-3 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4 text-sm font-black text-slate-800">
+      <label className="flex items-center gap-3 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4 text-sm font-black text-slate-800">
         <input
           checked={allSelected}
           className="size-5 accent-emerald-600"
@@ -140,7 +140,7 @@ export function CurriculumBulkManager({
       <section className="flex min-w-0 flex-col gap-4">
         <div className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm">
           <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
-            <BookOpenCheck className="size-5 text-[#084B2B]" aria-hidden="true" />
+            <BookOpenCheck className="size-5 text-[#063A2F]" aria-hidden="true" />
             Subjects
           </h2>
           <ul className="mt-4 flex flex-col gap-2">
@@ -168,7 +168,7 @@ export function CurriculumBulkManager({
               );
             })}
             {!subjects.length ? (
-              <li className="rounded-xl border border-dashed border-slate-300 bg-[#F8FAF7] p-5 text-center text-sm text-slate-600">
+              <li className="rounded-xl border border-dashed border-slate-300 bg-[#F4F7F4] p-5 text-center text-sm text-slate-600">
                 No subjects created yet.
               </li>
             ) : null}
@@ -196,7 +196,7 @@ export function CurriculumBulkManager({
                       type="checkbox"
                     />
                     <Link
-                      className="min-w-0 flex-1 truncate text-sm font-black text-slate-900 hover:text-[#084B2B]"
+                      className="min-w-0 flex-1 truncate text-sm font-black text-slate-900 hover:text-[#063A2F]"
                       href={`/teacher/courses/${course.id}`}
                     >
                       {course.title}
@@ -217,7 +217,7 @@ export function CurriculumBulkManager({
                         };
                         return (
                           <li
-                            className="flex min-w-0 items-center gap-3 rounded-lg bg-[#F8FAF7] p-2.5"
+                            className="flex min-w-0 items-center gap-3 rounded-lg bg-[#F4F7F4] p-2.5"
                             key={courseModule.id}
                           >
                             <input
@@ -242,7 +242,7 @@ export function CurriculumBulkManager({
               );
             })}
             {!courses.length ? (
-              <li className="rounded-xl border border-dashed border-slate-300 bg-[#F8FAF7] p-5 text-center text-sm text-slate-600">
+              <li className="rounded-xl border border-dashed border-slate-300 bg-[#F4F7F4] p-5 text-center text-sm text-slate-600">
                 No courses created yet.
               </li>
             ) : null}

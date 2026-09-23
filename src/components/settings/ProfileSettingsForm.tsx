@@ -214,7 +214,7 @@ export function ProfileSettingsForm({
     <>
       <Card>
         <CardHeader>
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#084B2B]">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#063A2F]">
             <UserRound className="size-5" aria-hidden="true" />
           </span>
           <CardTitle className="mt-2 text-xl">Profile &amp; public bio</CardTitle>
@@ -224,7 +224,7 @@ export function ProfileSettingsForm({
         </CardHeader>
         <CardContent className="pb-5 pt-6">
           <form className="flex min-w-0 flex-col gap-5" onSubmit={handleSubmit}>
-            <div className="flex min-w-0 flex-col gap-4 rounded-2xl border border-emerald-950/10 bg-[#F8FAF7] p-4 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 flex-col gap-4 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4 sm:flex-row sm:items-center">
               <Avatar className="size-20 border-emerald-200">
                 <AvatarImage
                   alt={`${name || initialUser.email} avatar`}
@@ -376,7 +376,7 @@ export function ProfileSettingsForm({
             <label className="min-w-0 text-sm font-bold">
               Timezone
               <select
-                className="mt-2 h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#084B2B] focus:ring-2 focus:ring-emerald-100"
+                className="mt-2 h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#063A2F] focus:ring-2 focus:ring-emerald-100"
                 onChange={(event) => setTimezone(event.target.value)}
                 value={timezone}
               >

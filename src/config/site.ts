@@ -1,20 +1,22 @@
+import { siteConfig as brandConfig } from '@/lib/siteConfig';
+
 export const siteConfig = {
-  platformName: 'Oqool Academy | أكاديمية عقول',
-  name: 'Oqool Academy',
-  nameArabic: 'أكاديمية عقول',
-  title: 'Oqool Academy | أكاديمية عقول',
-  slogan: 'Grow Minds. Shape the Future.',
-  sloganArabic: 'نُنَمِّي العقول... ونصنع المستقبل',
-  mottoRibbon: '🌐 Learn Smarter  |  ⭐ Think Bigger  |  🎯 Achieve More',
+  platformName: brandConfig.title,
+  name: brandConfig.name,
+  nameArabic: brandConfig.arabicName,
+  title: brandConfig.title,
+  slogan: brandConfig.tagline.en,
+  sloganArabic: brandConfig.tagline.ar,
+  mottoRibbon: brandConfig.tagline.en,
   motto: [
-    { icon: '🌐', label: 'Learn Smarter', labelArabic: 'تعلّم بذكاء' },
-    { icon: '⭐', label: 'Think Bigger', labelArabic: 'فكّر بطموح' },
-    { icon: '🎯', label: 'Achieve More', labelArabic: 'أنجز أكثر' },
+    { icon: '🌐', label: 'LEARN', labelArabic: 'نتعلم' },
+    { icon: '⭐', label: 'GROW', labelArabic: 'ننمو' },
+    { icon: '🎯', label: 'ACHIEVE', labelArabic: 'ننجز' },
   ],
   support: {
-    email: 'support@oqoolacademy.com',
-    phone: '+966596899362',
-    whatsappUrl: 'https://wa.me/966596899362',
+    email: brandConfig.support.email,
+    phone: `+${brandConfig.whatsapp.supportLines[0].number}`,
+    whatsappUrl: `https://wa.me/${brandConfig.whatsapp.supportLines[0].number}`,
   },
   values: [
     {

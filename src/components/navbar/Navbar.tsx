@@ -13,7 +13,7 @@ import {
   Settings,
   X,
 } from 'lucide-react';
-import { OqoolEmblem, OqoolWordmark } from '@/components/branding/OqoolBrand';
+import { NodrekEmblem, NodrekWordmark } from '@/components/branding/NodrekBrand';
 import { CommandMenu } from '@/components/navigation/command-menu';
 
 interface NavbarProps {
@@ -63,11 +63,11 @@ export default function Navbar({
             href="/dashboard"
             id="nav-logo"
           >
-            <OqoolEmblem
+            <NodrekEmblem
               className="transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md"
               decorative
             />
-            <OqoolWordmark className="hidden max-w-40 sm:block" />
+            <NodrekWordmark className="hidden max-w-40 sm:block" />
           </Link>
 
           <div className="ml-auto w-10 min-w-0 sm:w-full sm:max-w-md lg:ml-0">
