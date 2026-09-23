@@ -17,12 +17,12 @@ const cards = [
 export function HeroLearningMockup() {
   return (
     <div className="relative mx-auto w-full max-w-[42rem]" aria-label="Sample progress view">
-      <div aria-hidden="true" className="absolute -inset-8 -z-10 rounded-[3rem] bg-[radial-gradient(circle,rgba(178,205,188,0.16),rgba(216,168,78,0.14)_38%,transparent_68%)] blur-2xl" />
-      <div className="overflow-hidden rounded-3xl border border-brand-base/10 bg-white p-3 shadow-2xl shadow-brand-base/15 backdrop-blur-md sm:p-5">
+      <div aria-hidden="true" className="absolute -inset-8 -z-10 rounded-[3rem] bg-[radial-gradient(circle,rgba(167,194,177,0.16),rgba(216,166,73,0.14)_38%,transparent_68%)] blur-2xl" />
+      <div className="overflow-hidden rounded-3xl border border-brand-mint-border bg-white p-3 shadow-xl ring-1 ring-brand-mint-border/50 sm:p-5">
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-brand-border bg-brand-base px-4 py-3 text-brand-white shadow-lg shadow-black/20 backdrop-blur-md sm:px-5">
           <div>
-            <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.18em] text-brand-gold">{{ en: 'Sample Progress View', ar: 'نموذج توضيحي للتقدم' }}</LandingCopy>
-            <LandingCopy className="mt-1 block text-sm font-black sm:text-base">{{ en: 'Your child’s learning journey', ar: 'رحلة تعلم ابنك' }}</LandingCopy>
+            <LandingCopy as="p" className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-gold">{{ en: 'Sample Progress View', ar: 'نموذج توضيحي للتقدم' }}</LandingCopy>
+            <LandingCopy as="p" className="mt-1 text-sm font-black sm:text-base">{{ en: 'Your child’s learning journey', ar: 'رحلة تعلم ابنك' }}</LandingCopy>
           </div>
           <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-surface text-brand-gold"><ChartNoAxesColumnIncreasing aria-hidden="true" className="size-5" /></span>
         </div>
@@ -31,7 +31,7 @@ export function HeroLearningMockup() {
           {cards.map((card) => {
             const Icon = card.icon;
             return (
-              <article className="landing-card flex min-w-0 flex-col items-start rounded-2xl border border-brand-base/10 bg-white p-4 shadow-lg shadow-brand-base/8 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45" key={card.label.en}>
+              <article className="landing-card flex min-w-0 flex-col items-start rounded-2xl border border-brand-mint-border bg-white p-4 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45" key={card.label.en}>
                 <span className={`flex size-9 items-center justify-center rounded-xl ${card.tone}`}><Icon aria-hidden="true" className="size-4" /></span>
                 <div className="mt-4 flex w-full min-w-0 flex-col gap-1.5">
                   <LandingCopy className="block w-full break-normal text-xs font-extrabold uppercase leading-4 tracking-[0.12em] text-brand-surface/60">{card.label}</LandingCopy>
@@ -43,7 +43,7 @@ export function HeroLearningMockup() {
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
-          <article className="landing-card rounded-2xl border border-brand-base/10 bg-white p-4 shadow-lg shadow-brand-base/8 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 sm:p-5">
+          <article className="landing-card rounded-2xl border border-brand-mint-border bg-white p-4 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 sm:p-5">
             <div className="flex items-center justify-between gap-3">
               <LandingCopy className="text-xs font-black text-brand-base">{{ en: 'Weekly progress', ar: 'التقدم الأسبوعي' }}</LandingCopy>
               <span className="rounded-full bg-brand-gold px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-brand-base">Sample</span>
@@ -58,12 +58,12 @@ export function HeroLearningMockup() {
           </article>
 
           <div className="grid gap-3">
-            <article className="landing-card rounded-2xl border border-brand-base/10 bg-white p-4 shadow-lg shadow-brand-base/8 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45">
+            <article className="landing-card rounded-2xl border border-brand-mint-border bg-white p-4 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45">
               <CalendarClock aria-hidden="true" className="size-5 text-brand-gold" />
               <div className="mt-3 flex items-center gap-2">
                 <span aria-hidden="true" className="relative flex size-2.5 shrink-0">
                   <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-gold-hover opacity-60" />
-                  <span className="relative inline-flex size-2.5 rounded-full bg-brand-gold shadow-[0_0_12px_rgba(229,192,110,0.9)]" />
+                  <span className="relative inline-flex size-2.5 rounded-full bg-brand-gold shadow-[0_0_12px_rgba(232,190,95,0.9)]" />
                 </span>
                 <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.12em] text-brand-surface/60">{{ en: 'Next live lesson', ar: 'الحصة المباشرة القادمة' }}</LandingCopy>
               </div>

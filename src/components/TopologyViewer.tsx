@@ -28,8 +28,8 @@ export default function TopologyViewer() {
          let borderColor = '#333';
          
          if (n.data.type === 'subject') {
-           bg = '#063A2F'; // indigo
-           borderColor = '#063A2F';
+           bg = '#052F26'; // indigo
+           borderColor = '#052F26';
          } else if (n.data.type === 'folder') {
            bg = '#1f2937'; // gray
            borderColor = '#374151';
@@ -142,7 +142,7 @@ export default function TopologyViewer() {
          <Controls className="bg-black border border-white/10 fill-white" />
          <MiniMap 
            nodeStrokeColor={(n) => {
-             if (n.data.type === 'subject') return '#063A2F';
+             if (n.data.type === 'subject') return '#052F26';
              if (n.data.type === 'folder') return '#374151';
              return '#111';
            }}

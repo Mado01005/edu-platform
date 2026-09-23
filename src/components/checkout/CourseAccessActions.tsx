@@ -31,7 +31,7 @@ export function CourseAccessActions({
   if (enrolled || (!paid && !hasStandaloneChapters)) {
     return (
       <form action={enroll} className="w-full">
-        <ActionSubmitButton className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#0A4235]" pendingLabel={enrolled ? 'Opening…' : 'Enrolling…'}>
+        <ActionSubmitButton className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[#052F26] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#093F33]" pendingLabel={enrolled ? 'Opening…' : 'Enrolling…'}>
           {enrolled || hasChapterAccess ? 'Continue course' : 'Start free course'}
           <ArrowRight className="size-4" aria-hidden="true" />
         </ActionSubmitButton>
@@ -41,8 +41,8 @@ export function CourseAccessActions({
 
   return (
     <>
-      {hasChapterAccess ? <form action={enroll} className="mb-2 w-full"><ActionSubmitButton className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#063A2F] px-4 text-sm font-semibold text-[#063A2F]" pendingLabel="Opening…">Continue purchased chapter <ArrowRight className="size-4" /></ActionSubmitButton></form> : null}
-      <button className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#0A4235]" onClick={() => setCheckoutOpen(true)} type="button">
+      {hasChapterAccess ? <form action={enroll} className="mb-2 w-full"><ActionSubmitButton className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#052F26] px-4 text-sm font-semibold text-[#052F26]" pendingLabel="Opening…">Continue purchased chapter <ArrowRight className="size-4" /></ActionSubmitButton></form> : null}
+      <button className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[#052F26] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#093F33]" onClick={() => setCheckoutOpen(true)} type="button">
         Buy term or chapter
         <ArrowRight className="size-4" aria-hidden="true" />
       </button>

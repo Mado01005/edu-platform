@@ -45,23 +45,23 @@ export default function ManageTab({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {localSubjects.map(subject => (
           <div key={subject.id} className="card-hover overflow-hidden rounded-[3rem] border border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5">
-            <div className="flex items-center justify-between border-b border-emerald-950/10 bg-[#F4F7F4] p-8">
+            <div className="flex items-center justify-between border-b border-emerald-950/10 bg-[#EEF5F1] p-8">
               <h3 className="flex items-center gap-3 text-lg font-black tracking-tight text-slate-900">{subject.icon} {subject.title}</h3>
               <div className="flex gap-2">
-                 <button onClick={() => handleRename('subject', subject.id ?? '', subject.title)} className="rounded-2xl p-3 text-slate-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-emerald-50 hover:text-[#063A2F] hover:shadow-md">✏️</button>
+                 <button onClick={() => handleRename('subject', subject.id ?? '', subject.title)} className="rounded-2xl p-3 text-slate-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-emerald-50 hover:text-[#052F26] hover:shadow-md">✏️</button>
                  <button onClick={() => handleDelete('subject', subject.id ?? '', subject.title)} className="p-3 hover:bg-red-500/10 rounded-2xl transition text-red-500">🗑️</button>
               </div>
             </div>
             <div className="divide-y divide-emerald-950/10">
               {(subject.lessons as LessonMeta[]).map((lesson: LessonMeta) => (
                 <div key={lesson.id} className="p-8 pb-10 group">
-                  <div className={`flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-all duration-200 ease-in-out ${expandedLessons.has(lesson.id!) ? 'mb-6 bg-emerald-50' : 'hover:bg-[#F4F7F4]'}`} onClick={() => toggleLesson(lesson.id!)}>
+                  <div className={`flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-all duration-200 ease-in-out ${expandedLessons.has(lesson.id!) ? 'mb-6 bg-emerald-50' : 'hover:bg-[#EEF5F1]'}`} onClick={() => toggleLesson(lesson.id!)}>
                     <div className="flex items-center gap-4">
                       <span className={`text-xs transition-transform duration-300 ${expandedLessons.has(lesson.id!) ? 'rotate-90' : 'rotate-0'}`}>▶</span>
-                      <h4 className={`text-md font-bold uppercase tracking-widest transition-colors ${expandedLessons.has(lesson.id!) ? 'text-[#063A2F]' : 'text-slate-600'}`}>📂 {lesson.title}</h4>
+                      <h4 className={`text-md font-bold uppercase tracking-widest transition-colors ${expandedLessons.has(lesson.id!) ? 'text-[#052F26]' : 'text-slate-600'}`}>📂 {lesson.title}</h4>
                     </div>
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => handleMove('lesson', lesson.id ?? '', lesson.title)} className="rounded-lg border border-emerald-200/60 bg-emerald-50 px-3 py-1.5 text-[8px] font-black uppercase tracking-widest text-[#063A2F] transition hover:bg-emerald-100">Move</button>
+                      <button onClick={() => handleMove('lesson', lesson.id ?? '', lesson.title)} className="rounded-lg border border-emerald-200/60 bg-emerald-50 px-3 py-1.5 text-[8px] font-black uppercase tracking-widest text-[#052F26] transition hover:bg-emerald-100">Move</button>
                       <button onClick={() => handleRename('lesson', lesson.id ?? '', lesson.title)} className="rounded-lg border border-emerald-950/10 bg-white px-3 py-1.5 text-[8px] font-black uppercase tracking-widest text-slate-600 transition hover:bg-slate-100">Rename</button>
                       <button onClick={() => handleDelete('lesson', lesson.id ?? '', lesson.title)} className="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 bg-red-500/5 text-red-500 border border-red-500/10 rounded-lg hover:bg-red-500/10 transition">Delete</button>
                     </div>
@@ -89,10 +89,10 @@ export default function ManageTab({
                                 <span className="font-bold text-slate-700">{item.name}</span>
                                 <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-md border ${
                                   item.type === 'folder' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
-                                  item.type === 'vimeo' || item.fileType === 'video' ? 'bg-emerald-50 border-emerald-200/60 text-[#063A2F]' :
+                                  item.type === 'vimeo' || item.fileType === 'video' ? 'bg-emerald-50 border-emerald-200/60 text-[#052F26]' :
                                   item.fileType === 'pdf' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
-                                  item.name.toLowerCase().includes('.doc') ? 'bg-[#063A2F]/10 border-[#063A2F]/20 text-emerald-400' :
-                                  'bg-[#F4F7F4] border-emerald-950/10 text-slate-600'
+                                  item.name.toLowerCase().includes('.doc') ? 'bg-[#052F26]/10 border-[#052F26]/20 text-emerald-400' :
+                                  'bg-[#EEF5F1] border-emerald-950/10 text-slate-600'
                                 }`}>
                                   {item.type === 'folder' ? 'FOLDER' : item.type === 'vimeo' ? 'VIMEO' : (item.fileType || 'FILE').toUpperCase()}
                                 </span>
@@ -103,7 +103,7 @@ export default function ManageTab({
                             </div>
                           </div>
                           <div className="flex gap-3 opacity-0 group-hover/item:opacity-100 transition-all">
-                            <button onClick={() => handleMove('item', item.id ?? '', item.name ?? '')} className="text-[7px] font-black uppercase tracking-widest text-[#063A2F] transition hover:text-[#063A2F]">Move</button>
+                            <button onClick={() => handleMove('item', item.id ?? '', item.name ?? '')} className="text-[7px] font-black uppercase tracking-widest text-[#052F26] transition hover:text-[#052F26]">Move</button>
                             <button onClick={() => handleRename('item', item.id ?? '', item.name ?? '')} className="text-[7px] font-black uppercase tracking-widest text-slate-500 transition hover:text-slate-900">Rename</button>
                             <button onClick={() => handleDelete('item', item.id ?? '', item.name ?? '')} className="text-red-500 hover:scale-125 transition">🗑️</button>
                           </div>

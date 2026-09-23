@@ -23,7 +23,7 @@ export default function SubjectCard({ slug, title, icon, lessonCount, completedC
         {icon}
       </div>
 
-      <h2 className="relative z-10 mb-1.5 text-xl font-semibold text-slate-900 transition-colors group-hover:text-[#063A2F]">
+      <h2 className="relative z-10 mb-1.5 text-xl font-semibold text-slate-900 transition-colors group-hover:text-[#052F26]">
         {title}
       </h2>
 
@@ -43,7 +43,7 @@ export default function SubjectCard({ slug, title, icon, lessonCount, completedC
       )}
 
       {/* Action Prompt */}
-      <div className={`relative z-10 flex items-center gap-2 ${completedCount !== undefined ? 'mt-5' : 'mt-6'} text-sm font-semibold text-[#063A2F] transition`}>
+      <div className={`relative z-10 flex items-center gap-2 ${completedCount !== undefined ? 'mt-5' : 'mt-6'} text-sm font-semibold text-[#052F26] transition`}>
         <span>Open Course</span>
         <svg className="w-4 h-4 translate-x-0 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />

@@ -333,7 +333,7 @@ export default function ChatTutor() {
         {selectedFile && (
           <div className="mb-3 relative inline-block">
             {selectedFile.type === 'image' ? (
-              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-emerald-500 shadow-[0_0_15px_rgba(6,58,47,0.4)]">
+              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-emerald-500 shadow-[0_0_15px_rgba(5,47,38,0.4)]">
                 <img src={selectedFile.data} alt="Preview" className="w-full h-full object-cover" />
               </div>
             ) : (
@@ -384,7 +384,7 @@ export default function ChatTutor() {
             <button
               type="submit"
               disabled={isLoading || (!input.trim() && !selectedFile)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-white transition-all shadow-[0_0_15px_rgba(6,58,47,0.4)] z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 text-white transition-all shadow-[0_0_15px_rgba(5,47,38,0.4)] z-10"
               aria-label="Send message"
             >
               {isLoading ? (

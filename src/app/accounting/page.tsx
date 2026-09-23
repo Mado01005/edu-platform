@@ -89,7 +89,7 @@ export default async function AccountingPage() {
             className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-3 text-center shadow-sm shadow-emerald-950/5"
             key={label}
           >
-            <span className={`mx-auto flex size-8 items-center justify-center rounded-xl ${label === 'Pending' ? 'border border-[#D8A84E]/40 bg-[#F4F7F4] text-[#805C1D]' : 'border border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
+            <span className={`mx-auto flex size-8 items-center justify-center rounded-xl ${label === 'Pending' ? 'border border-[#D8A649]/40 bg-[#EEF5F1] text-[#805C1D]' : 'border border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
               <Icon className="size-4" aria-hidden="true" />
             </span>
             <p className="mt-2 text-xl font-black text-slate-900">{value}</p>

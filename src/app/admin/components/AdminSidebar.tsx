@@ -77,8 +77,8 @@ export default function AdminSidebar<TabId extends string>({
             onClick={() => setActiveTab(tab.id)}
             className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border border-l-4 px-2 py-3 text-center text-xs font-black transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md ${
               activeTab === tab.id 
-                ? 'border-emerald-200/60 border-l-emerald-500 bg-emerald-50 text-[#063A2F] shadow-sm'
-                : 'border-emerald-950/10 border-l-transparent bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#063A2F]'
+                ? 'border-emerald-200/60 border-l-emerald-500 bg-emerald-50 text-[#052F26] shadow-sm'
+                : 'border-emerald-950/10 border-l-transparent bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#052F26]'
             }`}
           >
             <span className="text-lg" aria-hidden="true">{tab.icon}</span>
@@ -88,8 +88,8 @@ export default function AdminSidebar<TabId extends string>({
       </div>
 
       {storageStats && (
-        <details className="rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4">
-          <summary className="cursor-pointer text-xs font-black text-[#063A2F]">File storage details</summary>
+        <details className="rounded-2xl border border-emerald-950/10 bg-[#EEF5F1] p-4">
+          <summary className="cursor-pointer text-xs font-black text-[#052F26]">File storage details</summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
                <div className="flex justify-between items-center text-[10px]">
@@ -106,7 +106,7 @@ export default function AdminSidebar<TabId extends string>({
                   <span className="font-black text-slate-900">{storageStats.supabase.estimatedMB}MB</span>
                </div>
                <div className="h-1 overflow-hidden rounded-full bg-slate-200">
-                  <div className="h-full bg-[#063A2F] transition-all duration-300 ease-in-out" style={{ width: `${storageStats.supabase.percentUsed}%` }}></div>
+                  <div className="h-full bg-[#052F26] transition-all duration-300 ease-in-out" style={{ width: `${storageStats.supabase.percentUsed}%` }}></div>
                </div>
             </div>
           </div>

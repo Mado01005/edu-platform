@@ -66,12 +66,12 @@ export default function AdminActionBar({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="size-2 rounded-full bg-[#063A2F]"></span>
-              <h3 className="text-sm font-black uppercase tracking-widest text-[#063A2F]">Contextual Management</h3>
+              <span className="size-2 rounded-full bg-[#052F26]"></span>
+              <h3 className="text-sm font-black uppercase tracking-widest text-[#052F26]">Contextual Management</h3>
             </div>
             <p className="text-[10px] font-bold uppercase tracking-tight text-slate-500">
               Scope: <span className="text-slate-600">{lesson ? `${subject.slug} / ${lesson.slug}` : subject.slug}</span>
-              {currentPath && <span className="ml-2 text-[#063A2F]">→ {currentPath}</span>}
+              {currentPath && <span className="ml-2 text-[#052F26]">→ {currentPath}</span>}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -79,8 +79,8 @@ export default function AdminActionBar({
               onClick={() => setShowUploader(!showUploader)}
               className={`rounded-2xl border px-6 py-3 text-[10px] font-black uppercase tracking-widest shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md ${
                 showUploader 
-                  ? 'border-emerald-200/60 bg-emerald-50 text-[#063A2F]'
-                  : 'border-[#063A2F] bg-[#063A2F] text-white hover:bg-[#0A4235] active:translate-y-0'
+                  ? 'border-emerald-200/60 bg-emerald-50 text-[#052F26]'
+                  : 'border-[#052F26] bg-[#052F26] text-white hover:bg-[#093F33] active:translate-y-0'
               }`}
             >
               {showUploader ? 'Close Uploader' : '↑ Upload Content'}
@@ -130,7 +130,7 @@ export default function AdminActionBar({
               className="overflow-hidden"
             >
               <div className="mt-6 border-t border-emerald-950/10 pt-6">
-                <div className="flex items-center gap-3 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-950/10 bg-[#EEF5F1] p-4">
                   <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-xl">📁</div>
                   <input 
                     autoFocus
@@ -144,7 +144,7 @@ export default function AdminActionBar({
                     <button 
                       onClick={handleCreateFolder}
                       disabled={isSubmitting}
-                      className="rounded-xl bg-[#063A2F] px-5 py-2.5 text-[10px] font-black uppercase text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#0A4235] hover:shadow-md disabled:translate-y-0 disabled:opacity-50"
+                      className="rounded-xl bg-[#052F26] px-5 py-2.5 text-[10px] font-black uppercase text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#093F33] hover:shadow-md disabled:translate-y-0 disabled:opacity-50"
                     >
                       {isSubmitting ? '...' : 'Create'}
                     </button>

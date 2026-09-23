@@ -6,12 +6,12 @@ import { landingFeatureFlags } from '@/lib/landing/featureFlags';
 
 const visuals = { diagnostic: ClipboardCheck, assessment: Calculator, resources: BookMarked, devices: Laptop2, parents: MessageSquareText, live: Radio } as const;
 const cardClasses = [
-  'md:col-span-7 border-brand-base/10 bg-white text-brand-base shadow-brand-base/8',
-  'md:col-span-5 border-brand-base/10 bg-white text-brand-base shadow-brand-base/8',
-  'md:col-span-5 border-brand-base/10 bg-white text-brand-base shadow-brand-base/8',
-  'md:col-span-7 border-brand-base/10 bg-white text-brand-base shadow-brand-base/8',
-  'md:col-span-7 border-brand-base/10 bg-white text-brand-base shadow-brand-base/8',
-  'md:col-span-5 border-brand-base/10 bg-white text-brand-base shadow-brand-base/8',
+  'md:col-span-7 border-brand-mint-border bg-white text-brand-base shadow-brand-base/8',
+  'md:col-span-5 border-brand-mint-border bg-white text-brand-base shadow-brand-base/8',
+  'md:col-span-5 border-brand-mint-border bg-white text-brand-base shadow-brand-base/8',
+  'md:col-span-7 border-brand-mint-border bg-white text-brand-base shadow-brand-base/8',
+  'md:col-span-7 border-brand-mint-border bg-white text-brand-base shadow-brand-base/8',
+  'md:col-span-5 border-brand-mint-border bg-white text-brand-base shadow-brand-base/8',
 ] as const;
 
 export function LearningExperienceBento() {
@@ -39,7 +39,7 @@ export function LearningExperienceBento() {
                       <span className="inline-flex items-center gap-2 rounded-full border border-brand-gold/35 px-3 py-1 text-[9px] font-black uppercase tracking-wide">
                         <span aria-hidden="true" className="relative flex size-2 shrink-0">
                           <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-gold-hover opacity-60" />
-                          <span className="relative inline-flex size-2 rounded-full bg-brand-gold shadow-[0_0_12px_rgba(229,192,110,0.9)]" />
+                          <span className="relative inline-flex size-2 rounded-full bg-brand-gold shadow-[0_0_12px_rgba(232,190,95,0.9)]" />
                         </span>
                         <LandingCopy className="text-brand-base">{{ en: 'Available', ar: 'متاح' }}</LandingCopy>
                       </span>

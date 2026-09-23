@@ -331,7 +331,7 @@ const MusicPlayerContent = () => {
                           onTouchEnd={() => commitVolume(localVolume)}
                           className="midnight-volume-slider"
                           style={{
-                            background: `linear-gradient(to right, rgba(6,58,47,0.9) 0%, rgba(6,58,47,0.5) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) 100%)`
+                            background: `linear-gradient(to right, rgba(5,47,38,0.9) 0%, rgba(5,47,38,0.5) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) ${isMuted ? 0 : localVolume * 100}%, rgba(255,255,255,0.06) 100%)`
                           }}
                         />
                       </div>

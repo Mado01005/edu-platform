@@ -26,7 +26,7 @@ export default function StreakBadge({ count }: StreakBadgeProps) {
     return (
       <div className="flex cursor-default items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5" title={`${count} day streak - Plasma Prestige`}>
         <span className="text-base">☄️</span>
-        <span className="text-xs font-semibold text-[#063A2F]">
+        <span className="text-xs font-semibold text-[#052F26]">
           {count} DAY STREAK
         </span>
       </div>

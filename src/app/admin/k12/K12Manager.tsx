@@ -248,7 +248,7 @@ export function K12Manager({
     <div className="flex w-full min-w-0 flex-col gap-4">
       <section className="flex w-full min-w-0 flex-col gap-4">
         <header className="rounded-3xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#063A2F]">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#052F26]">
             <BookOpenCheck className="size-4" aria-hidden="true" />
             Grade and subject manager
           </div>
@@ -297,7 +297,7 @@ export function K12Manager({
                     {gradeCard.label}
                   </h3>
                 </div>
-                <span className="shrink-0 rounded-full border border-emerald-200/60 bg-emerald-50/80 px-3 py-1 text-[10px] font-black text-[#063A2F]">
+                <span className="shrink-0 rounded-full border border-emerald-200/60 bg-emerald-50/80 px-3 py-1 text-[10px] font-black text-[#052F26]">
                   4 subjects
                 </span>
               </div>
@@ -326,7 +326,7 @@ export function K12Manager({
                       <span className="relative block w-full min-w-0">
                         <select
                           aria-label={`Primary teacher for ${subject.name} in ${gradeCard.label}`}
-                          className="h-11 w-full min-w-0 appearance-none rounded-xl border border-emerald-950/10 bg-white px-3 pr-10 text-sm font-bold text-slate-900 outline-none transition-all duration-200 ease-in-out focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60"
+                          className="h-11 w-full min-w-0 appearance-none rounded-xl border border-emerald-950/10 bg-white px-3 pr-10 text-sm font-bold text-slate-900 outline-none transition-all duration-200 ease-in-out focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60"
                           disabled={isPending || !teachers.length}
                           onChange={(event) =>
                             void assignTeacher(
@@ -346,7 +346,7 @@ export function K12Manager({
                         </select>
                         {isPending ? (
                           <Loader2
-                            className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-[#063A2F]"
+                            className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-[#052F26]"
                             aria-hidden="true"
                           />
                         ) : null}
@@ -362,7 +362,7 @@ export function K12Manager({
 
       <section className="flex w-full min-w-0 flex-col gap-4 rounded-3xl border border-emerald-950/10 bg-white p-4 shadow-sm shadow-emerald-950/5">
         <header className="min-w-0">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#063A2F]">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#052F26]">
             <Users className="size-4" aria-hidden="true" />
             Student grade enrollment
           </div>
@@ -399,7 +399,7 @@ export function K12Manager({
             aria-hidden="true"
           />
           <input
-            className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition-all duration-200 ease-in-out placeholder:text-slate-400 focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100"
+            className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition-all duration-200 ease-in-out placeholder:text-slate-400 focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100"
             onChange={(event) => setStudentQuery(event.target.value)}
             placeholder="Search name or phone"
             type="search"
@@ -411,7 +411,7 @@ export function K12Manager({
           <label className="min-w-0">
             <span className="sr-only">Target grade</span>
             <select
-              className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-bold text-slate-900 outline-none transition-all duration-200 ease-in-out focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100"
+              className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-bold text-slate-900 outline-none transition-all duration-200 ease-in-out focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100"
               onChange={(event) =>
                 setTargetGrade(event.target.value as GradeLevel | '')
               }
@@ -426,7 +426,7 @@ export function K12Manager({
             </select>
           </label>
           <button
-            className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-black text-slate-700 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#063A2F] hover:shadow-md disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-50"
+            className="h-12 w-full min-w-0 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-black text-slate-700 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50 hover:text-[#052F26] hover:shadow-md disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-50"
             disabled={!filteredStudents.length}
             onClick={toggleVisibleStudents}
             type="button"
@@ -457,12 +457,12 @@ export function K12Manager({
                   {student.phoneNumber || 'No phone provided'}
                 </span>
                 <span className="mt-2 flex min-w-0 flex-wrap gap-2 text-[10px] font-bold text-slate-600">
-                  <span className="rounded-full border border-emerald-200/60 bg-emerald-50/80 px-2 py-1 text-[#063A2F]">
+                  <span className="rounded-full border border-emerald-200/60 bg-emerald-50/80 px-2 py-1 text-[#052F26]">
                     {student.gradeLevel
                       ? gradeLabels.get(student.gradeLevel)
                       : 'Grade unassigned'}
                   </span>
-                  <span className="rounded-full border border-emerald-950/10 bg-[#F4F7F4] px-2 py-1">
+                  <span className="rounded-full border border-emerald-950/10 bg-[#EEF5F1] px-2 py-1">
                     {student.enrolledCourses}{' '}
                     {student.enrolledCourses === 1 ? 'course' : 'courses'}
                   </span>
@@ -472,14 +472,14 @@ export function K12Manager({
           ))}
 
           {!filteredStudents.length ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-[#F4F7F4] px-4 py-10 text-center text-sm text-slate-500">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-[#EEF5F1] px-4 py-10 text-center text-sm text-slate-500">
               No student accounts match this search.
             </div>
           ) : null}
         </div>
 
         <button
-          className="flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 py-3 text-sm font-black text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#0A4235] hover:shadow-md disabled:cursor-not-allowed disabled:translate-y-0 disabled:bg-slate-200 disabled:text-slate-500"
+          className="flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[#052F26] px-4 py-3 text-sm font-black text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#093F33] hover:shadow-md disabled:cursor-not-allowed disabled:translate-y-0 disabled:bg-slate-200 disabled:text-slate-500"
           disabled={
             bulkPending || !targetGrade || selectedStudentIds.length === 0
           }

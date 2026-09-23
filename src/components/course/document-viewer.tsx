@@ -81,7 +81,7 @@ function PdfPage({
       <canvas className="block h-auto w-full" ref={canvasRef} />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 grid select-none grid-rows-4 overflow-hidden opacity-[0.12]">
         {Array.from({ length: 4 }, (_, index) => (
-          <span className="flex -rotate-[24deg] items-center justify-center whitespace-nowrap text-[clamp(10px,2vw,18px)] font-black tracking-wide text-[#063A2F]" key={index}>
+          <span className="flex -rotate-[24deg] items-center justify-center whitespace-nowrap text-[clamp(10px,2vw,18px)] font-black tracking-wide text-[#052F26]" key={index}>
             {watermark}
           </span>
         ))}
@@ -144,24 +144,24 @@ function ProtectedPdfViewer({
 
   return (
     <section
-      className="protected-document overflow-hidden rounded-xl border border-emerald-950/10 bg-[#F4F7F4] shadow-sm print:hidden"
+      className="protected-document overflow-hidden rounded-xl border border-emerald-950/10 bg-[#EEF5F1] shadow-sm print:hidden"
       onContextMenu={(event) => event.preventDefault()}
     >
       <header className="flex min-w-0 items-center gap-3 border-b border-emerald-950/10 bg-white px-3 py-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#063A2F]"><ShieldCheck className="size-4" /></span>
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#052F26]"><ShieldCheck className="size-4" /></span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-black text-slate-900">{title}</span>
           <span className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Canvas protected · personalized watermark</span>
         </span>
         {downloadHref ? (
-          <a className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-[#063A2F] px-3 text-xs font-black text-white hover:bg-[#0A4235]" href={downloadHref}>
+          <a className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-[#052F26] px-3 text-xs font-black text-white hover:bg-[#093F33]" href={downloadHref}>
             <Download className="size-4" /> <span className="hidden sm:inline">Download worksheet</span>
           </a>
         ) : null}
       </header>
       {error ? <p aria-live="polite" className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
       {!document && !error ? (
-        <div className="flex min-h-64 items-center justify-center gap-2 text-sm font-bold text-[#063A2F]"><Loader2 className="size-5 animate-spin" /> Rendering protected document…</div>
+        <div className="flex min-h-64 items-center justify-center gap-2 text-sm font-bold text-[#052F26]"><Loader2 className="size-5 animate-spin" /> Rendering protected document…</div>
       ) : null}
       {document ? (
         <div className="flex max-h-[75dvh] select-none flex-col gap-4 overflow-y-auto p-2 sm:p-4" style={{ WebkitUserSelect: 'none' }}>
@@ -206,13 +206,13 @@ export function DocumentViewer({
     ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(documentUrl)}`
     : null;
   if (!viewerUrl) {
-    return <div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-[#F4F7F4] p-6 text-center text-sm text-slate-600"><FileText className="size-8 text-[#063A2F]" />This file type does not have a protected in-app preview.</div>;
+    return <div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-[#EEF5F1] p-6 text-center text-sm text-slate-600"><FileText className="size-8 text-[#052F26]" />This file type does not have a protected in-app preview.</div>;
   }
 
   return (
     <div className="overflow-hidden rounded-xl border border-emerald-950/10 bg-white shadow-sm">
       <iframe className="w-full border-0 bg-white" loading="lazy" referrerPolicy="no-referrer" src={viewerUrl} style={{ height: '70dvh', minHeight: '28rem' }} title={`Document viewer: ${title}`} />
-      <p className="border-t border-emerald-950/10 bg-[#F4F7F4] px-3 py-2 text-center text-xs text-slate-500">Protected in-app reading view</p>
+      <p className="border-t border-emerald-950/10 bg-[#EEF5F1] px-3 py-2 text-center text-xs text-slate-500">Protected in-app reading view</p>
     </div>
   );
 }

@@ -67,7 +67,7 @@ export default async function ProfilePage() {
     if (intensity < 0.25) return 'bg-emerald-900/60';
     if (intensity < 0.5) return 'bg-emerald-700/70';
     if (intensity < 0.75) return 'bg-emerald-500/80';
-    return 'bg-emerald-400 shadow-[0_0_6px_rgba(6,58,47,0.5)]';
+    return 'bg-emerald-400 shadow-[0_0_6px_rgba(5,47,38,0.5)]';
   }
 
   // Recent activity (last 10)
@@ -88,7 +88,7 @@ export default async function ProfilePage() {
           
           {/* Profile Header */}
           <div className="text-center mb-12 fade-in">
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-3xl font-black text-white shadow-[0_0_40px_rgba(6,58,47,0.3)] border-2 border-white/20 mb-5">
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-3xl font-black text-white shadow-[0_0_40px_rgba(5,47,38,0.3)] border-2 border-white/20 mb-5">
               {userName.charAt(0).toUpperCase()}
             </div>
             <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500 tracking-tight mb-2">
@@ -110,7 +110,7 @@ export default async function ProfilePage() {
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Completion</p>
             </div>
             <div className="bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl px-5 py-5 text-center relative overflow-hidden group">
-              <div className="absolute -top-4 -right-4 w-16 h-16 bg-[#063A2F]/10 rounded-full blur-xl group-hover:bg-[#0A4235]/20 transition"></div>
+              <div className="absolute -top-4 -right-4 w-16 h-16 bg-[#052F26]/10 rounded-full blur-xl group-hover:bg-[#093F33]/20 transition"></div>
               <p className="text-3xl font-black text-white mb-1">{totalHoursWatched}h</p>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Video Time</p>
             </div>
@@ -125,7 +125,7 @@ export default async function ProfilePage() {
           <div className="bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl p-6 mb-12 fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(6,58,47,0.8)]"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(5,47,38,0.8)]"></span>
                 Activity Heatmap
               </h2>
               <p className="text-xs text-gray-500 font-medium">Last 12 weeks</p>
@@ -176,7 +176,7 @@ export default async function ProfilePage() {
                 {recentActivity.map((log, i) => (
                   <div key={i} className="flex items-start gap-4 p-3 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.05] transition-colors">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0 ${
-                      log.action === 'WATCHED_VIDEO' ? 'bg-[#063A2F]/20 text-emerald-400' :
+                      log.action === 'WATCHED_VIDEO' ? 'bg-[#052F26]/20 text-emerald-400' :
                       log.action === 'READ_PDF' ? 'bg-amber-500/20 text-amber-400' :
                       log.action === 'Completed Lesson' ? 'bg-emerald-500/20 text-emerald-400' :
                       'bg-white/10 text-gray-400'

@@ -25,7 +25,7 @@ export default async function TeacherCoursesPage() {
   return (
     <>
       <section className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#063A2F]">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#052F26]">
           Course workspace
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">Your courses</h1>
@@ -48,7 +48,7 @@ export default async function TeacherCoursesPage() {
                 href={`/teacher/courses/${course.id}`}
               >
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
-                  <Layers3 className="size-5 text-[#063A2F]" />
+                  <Layers3 className="size-5 text-[#052F26]" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-black">{course.title}</span>
@@ -58,10 +58,10 @@ export default async function TeacherCoursesPage() {
                     students
                   </span>
                 </span>
-                <ArrowRight className="size-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#063A2F]" />
+                <ArrowRight className="size-4 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#052F26]" />
               </Link>
               <Link
-                className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-emerald-200 px-3 text-xs font-bold text-[#063A2F] transition hover:bg-emerald-50"
+                className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-emerald-200 px-3 text-xs font-bold text-[#052F26] transition hover:bg-emerald-50"
                 href={`/teacher/courses/${course.id}?tab=zoom`}
               >
                 <CalendarPlus aria-hidden="true" className="size-4" />

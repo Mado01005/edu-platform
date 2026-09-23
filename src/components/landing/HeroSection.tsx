@@ -7,9 +7,9 @@ import { landingContent } from '@/lib/landing/content';
 
 export function HeroSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-brand-ivory py-20 text-brand-base md:py-28" id="top">
+    <section className="relative isolate overflow-hidden bg-gradient-to-b from-brand-ivory-alt via-brand-ivory to-brand-hero-end py-20 text-brand-base md:py-28" id="top">
       <div aria-hidden="true" className="nodrek-hero-grid absolute inset-0 -z-30" />
-      <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_16%_24%,rgba(178,205,188,0.12),transparent_34%),radial-gradient(circle_at_84%_34%,rgba(216,168,78,0.16),transparent_30%)]" />
+      <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_16%_24%,rgba(167,194,177,0.12),transparent_34%),radial-gradient(circle_at_84%_34%,rgba(216,166,73,0.16),transparent_30%)]" />
 
       <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10 lg:px-8">
         <div className="min-w-0 max-w-2xl text-center lg:text-start">
@@ -27,10 +27,10 @@ export function HeroSection() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-start">
-            <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand-gold px-6 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(229,192,110,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" intent="diagnostic" label="hero_diagnostic">
+            <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand-gold px-6 text-sm font-bold text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(232,190,95,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" intent="diagnostic" label="hero_diagnostic">
               {landingContent.hero.primary}
             </WhatsAppLink>
-            <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-brand-base/10 bg-white px-6 text-sm font-black text-brand-base shadow-md shadow-brand-base/10 ring-1 ring-white outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold hover:bg-brand-gold/10 hover:shadow-xl hover:shadow-brand-base/10 focus-visible:ring-4 focus-visible:ring-brand-gold/25" eventName="hero_free_lesson_click" intent="freeLesson" label="hero_free_lesson">
+            <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-base bg-white px-6 text-sm font-bold text-brand-base shadow-sm outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-brand-base/5 hover:shadow-md focus-visible:ring-4 focus-visible:ring-brand-gold/25" eventName="hero_free_lesson_click" intent="freeLesson" label="hero_free_lesson">
               {landingContent.hero.secondary}
             </WhatsAppLink>
             <ConversionLink className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-black text-brand-base underline decoration-brand-gold decoration-2 underline-offset-4 outline-none hover:text-brand-surface focus-visible:ring-4 focus-visible:ring-brand-gold/25" eventName="curriculum_anchor_click" href="#curriculum" label="hero">
@@ -48,9 +48,9 @@ export function HeroSection() {
         <HeroLearningMockup />
       </div>
 
-      <div className="mx-auto mt-12 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="nodrek-feature-ticker overflow-hidden rounded-3xl border border-brand-rim bg-brand-base p-2 shadow-xl shadow-brand-base/20 backdrop-blur-md sm:p-3 lg:rounded-full" aria-label="Nodrek learning services">
-          <div className="nodrek-feature-ticker-track flex w-max text-[10px] font-black uppercase tracking-[0.1em] text-brand-muted lg:text-[11px]" dir="ltr">
+      <div className="mt-12 w-full bg-brand-base px-4 py-4 sm:px-6 lg:px-8">
+        <div className="nodrek-feature-ticker mx-auto max-w-7xl overflow-hidden rounded-3xl border border-brand-border bg-brand-base p-2 sm:p-3 lg:rounded-full" aria-label="Nodrek learning services">
+          <div className="nodrek-feature-ticker-track flex w-max text-[10px] font-black uppercase tracking-[0.1em] text-brand-white lg:text-[11px]" dir="ltr">
             {[false, true].map((duplicate) => (
               <ul
                 aria-hidden={duplicate || undefined}

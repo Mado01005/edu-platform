@@ -30,7 +30,7 @@ export default async function LiveClassesPage() {
 
   return (
     <PortalShell user={user}>
-        <header className="rounded-3xl border border-[#D8A84E]/40 bg-[#F4F7F4] p-6 shadow-sm shadow-emerald-950/5 sm:p-8">
+        <header className="rounded-3xl border border-[#D8A649]/40 bg-[#EEF5F1] p-6 shadow-sm shadow-emerald-950/5 sm:p-8">
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#805C1D]">
             <Radio className="size-4" /> Live learning
           </div>
@@ -46,11 +46,11 @@ export default async function LiveClassesPage() {
               className="flex min-w-0 flex-col gap-4 rounded-2xl border border-emerald-400 bg-emerald-50 p-5 shadow-sm shadow-emerald-950/5 sm:flex-row sm:items-center"
               key={session.id}
             >
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#063A2F] text-white">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#052F26] text-white">
                 <Video className="size-5" />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-black uppercase tracking-wider text-[#063A2F]">
+                <p className="truncate text-xs font-black uppercase tracking-wider text-[#052F26]">
                   {session.course.title}
                 </p>
                 <h2 className="mt-1 break-words text-lg font-black">{session.title}</h2>
@@ -68,7 +68,7 @@ export default async function LiveClassesPage() {
               {user.role === 'STUDENT' ? (
                 <JoinLiveClassButton startTime={session.startTime.toISOString()} zoomSessionId={session.id} />
               ) : (
-                <a className="shrink-0 rounded-xl bg-[#063A2F] px-4 py-3 text-center text-sm font-black text-white transition hover:bg-[#0A4235]" href={session.meetingUrl} rel="noopener noreferrer" target="_blank">Join meeting</a>
+                <a className="shrink-0 rounded-xl bg-[#052F26] px-4 py-3 text-center text-sm font-black text-white transition hover:bg-[#093F33]" href={session.meetingUrl} rel="noopener noreferrer" target="_blank">Join meeting</a>
               )}
             </article>
           ))}

@@ -66,7 +66,7 @@ export default function PublicSupportPage() {
       />
 
       <header className="sticky top-3 z-50 mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex min-h-18 w-full items-center justify-between gap-3 rounded-full border border-gray-200/50 bg-white/90 px-3 shadow-md shadow-black/5 backdrop-blur-md transition-all duration-300 dark:border-emerald-500/15 dark:bg-[#063A2F]/90 sm:px-4">
+        <div className="flex min-h-18 w-full items-center justify-between gap-3 rounded-full border border-brand-mint-border/60 bg-white/90 px-3 shadow-sm backdrop-blur-md transition-all duration-300 sm:px-4">
           <Link
             aria-label="Nodrek Learning Hub home"
             className="flex min-h-11 min-w-0 items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30"
@@ -74,21 +74,21 @@ export default function PublicSupportPage() {
           >
             <Image
               alt="Nodrek Learning Hub official crest"
-              className="size-11 shrink-0 rounded-xl object-cover"
+              className="size-11 shrink-0 object-contain"
               height={44}
               priority
               src={siteConfig.brand.logo}
               width={44}
             />
             <span className="min-w-0 leading-tight">
-              <span className="block truncate text-sm font-black text-brand-base dark:text-brand-white">{siteConfig.name}</span>
-              <span className="block truncate font-arabic text-[11px] font-bold text-brand-gold" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
+              <span className="block truncate text-sm font-black text-brand-base">{siteConfig.name}</span>
+              <span className="block truncate font-arabic text-[11px] font-bold text-brand-base" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
             </span>
           </Link>
 
           <div className="flex shrink-0 items-center gap-2">
             <Link
-              className="hidden min-h-11 items-center gap-2 rounded-full px-3 text-xs font-black text-brand-surface/80 outline-none hover:bg-brand-gold/10 hover:text-brand-base focus-visible:ring-4 focus-visible:ring-brand-gold/25 dark:text-brand-muted/80 dark:hover:text-brand-gold sm:inline-flex"
+              className="hidden min-h-11 items-center gap-2 rounded-full px-3 text-xs font-black text-brand-surface/80 outline-none hover:bg-brand-gold/10 hover:text-brand-base focus-visible:ring-4 focus-visible:ring-brand-gold/25 sm:inline-flex"
               href={siteConfig.routes.home}
             >
               <ArrowLeft aria-hidden="true" className="size-4 rtl:-scale-x-100" />
@@ -101,7 +101,7 @@ export default function PublicSupportPage() {
 
       <main id="support-content">
         <section className="relative isolate overflow-hidden border-b border-brand-rim">
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_18%,rgba(178,205,188,0.52),transparent_28%),radial-gradient(circle_at_88%_12%,rgba(216,168,78,0.18),transparent_24%),linear-gradient(rgba(229,192,110,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(229,192,110,0.055)_1px,transparent_1px)] bg-[size:auto,auto,44px_44px,44px_44px]" />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_18%,rgba(167,194,177,0.52),transparent_28%),radial-gradient(circle_at_88%_12%,rgba(216,166,73,0.18),transparent_24%),linear-gradient(rgba(232,190,95,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(232,190,95,0.055)_1px,transparent_1px)] bg-[size:auto,auto,44px_44px,44px_44px]" />
           <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:px-8 lg:py-24">
             <div className="min-w-0">
               <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-brand-rim bg-brand-surface px-4 text-xs font-black uppercase tracking-[0.14em] text-brand-gold">
@@ -172,7 +172,7 @@ export default function PublicSupportPage() {
         </section>
 
         <section className="relative isolate overflow-hidden border-y border-brand-rim bg-brand-base" id="contact-form">
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(178,205,188,0.52),transparent_28%),radial-gradient(circle_at_88%_86%,rgba(216,168,78,0.12),transparent_24%),linear-gradient(rgba(229,192,110,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(229,192,110,0.04)_1px,transparent_1px)] bg-[size:auto,auto,48px_48px,48px_48px]" />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(167,194,177,0.52),transparent_28%),radial-gradient(circle_at_88%_86%,rgba(216,166,73,0.12),transparent_24%),linear-gradient(rgba(232,190,95,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(232,190,95,0.04)_1px,transparent_1px)] bg-[size:auto,auto,48px_48px,48px_48px]" />
           <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:px-8">
             <div className="min-w-0 lg:sticky lg:top-24">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gold">

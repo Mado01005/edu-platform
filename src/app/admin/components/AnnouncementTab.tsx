@@ -43,9 +43,9 @@ export default function AnnouncementTab() {
             <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">Global Announcement</h2>
             <p className="text-sm font-medium text-slate-600">Broadcast a real-time notification directly to all active student dashboards.</p>
           </div>
-          <input id="announcement-msg" type="text" placeholder="Draft your global post..." className="w-full rounded-[2rem] border border-emerald-950/10 bg-white px-8 py-6 text-center text-sm font-bold text-slate-900 shadow-sm outline-none transition-all duration-200 ease-in-out placeholder:text-slate-400 focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100" />
+          <input id="announcement-msg" type="text" placeholder="Draft your global post..." className="w-full rounded-[2rem] border border-emerald-950/10 bg-white px-8 py-6 text-center text-sm font-bold text-slate-900 shadow-sm outline-none transition-all duration-200 ease-in-out placeholder:text-slate-400 focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100" />
           <div className="flex gap-4">
-            <button onClick={handlePostAnnouncement} className="flex-1 rounded-3xl bg-[#063A2F] py-6 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#0A4235] hover:shadow-md active:translate-y-0">Post Announcement</button>
+            <button onClick={handlePostAnnouncement} className="flex-1 rounded-3xl bg-[#052F26] py-6 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#093F33] hover:shadow-md active:translate-y-0">Post Announcement</button>
             <button onClick={clearAnnouncement} className="flex-1 rounded-3xl border border-emerald-950/10 bg-white py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-900 hover:shadow-md">Clear Banner</button>
           </div>
        </div>

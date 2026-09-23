@@ -38,7 +38,7 @@ export function CoursePriceForm({
       </div>
       {state.error ? <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{state.error}</p> : null}
       {state.success ? <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">Prices saved.</p> : null}
-      <ActionSubmitButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 py-3 font-bold text-white" pendingLabel="Saving prices…">
+      <ActionSubmitButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#052F26] px-4 py-3 font-bold text-white" pendingLabel="Saving prices…">
         <Save className="size-4" /> Save prices
       </ActionSubmitButton>
     </form>

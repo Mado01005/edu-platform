@@ -208,7 +208,7 @@ export function EditStudentModal({
       <DialogContent className="max-h-[92dvh] max-w-2xl overflow-y-auto border-emerald-950/10 bg-white text-slate-900">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-slate-900">
-            <PencilLine className="size-5 text-[#063A2F]" aria-hidden="true" />
+            <PencilLine className="size-5 text-[#052F26]" aria-hidden="true" />
             Edit student information
           </DialogTitle>
           <DialogDescription className="text-slate-600">
@@ -245,7 +245,7 @@ export function EditStudentModal({
           <label className="space-y-2 text-sm font-bold text-slate-700">
             Assigned grade level
             <select
-              className="h-11 w-full rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-semibold text-slate-900 outline-none focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100"
+              className="h-11 w-full rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-semibold text-slate-900 outline-none focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100"
               disabled={role !== 'STUDENT'}
               onChange={(event) => setGradeLevel(event.target.value as GradeLevel | '')}
               value={gradeLevel}
@@ -259,7 +259,7 @@ export function EditStudentModal({
           <label className="space-y-2 text-sm font-bold text-slate-700">
             Account role
             <select
-              className="h-11 w-full rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-semibold text-slate-900 outline-none focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100"
+              className="h-11 w-full rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-semibold text-slate-900 outline-none focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100"
               disabled={isSelf}
               onChange={(event) => setRole(event.target.value as Role)}
               value={role}
@@ -272,7 +272,7 @@ export function EditStudentModal({
           <label className="space-y-2 text-sm font-bold text-slate-700 sm:col-span-2">
             Account status
             <select
-              className="h-11 w-full rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-semibold text-slate-900 outline-none focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100"
+              className="h-11 w-full rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-semibold text-slate-900 outline-none focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100"
               disabled={isSelf}
               onChange={(event) => setStatus(event.target.value as AccountStatus)}
               value={status}
@@ -284,7 +284,7 @@ export function EditStudentModal({
         </div>
 
         {role === 'STUDENT' ? (
-          <section className="space-y-3 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4">
+          <section className="space-y-3 rounded-2xl border border-emerald-950/10 bg-[#EEF5F1] p-4">
             <div>
               <h3 className="font-black text-slate-900">Course access &amp; payment</h3>
               <p className="text-xs text-slate-600">Access and payment records are managed separately for each course.</p>
@@ -297,7 +297,7 @@ export function EditStudentModal({
                   <label className="flex items-center gap-3 font-bold text-slate-900">
                     <input
                       checked={draft.hasAccess}
-                      className="size-4 rounded border-slate-300 text-[#063A2F] focus:ring-[#063A2F]"
+                      className="size-4 rounded border-slate-300 text-[#052F26] focus:ring-[#052F26]"
                       onChange={(event) => updateCourse(course.id, { hasAccess: event.target.checked })}
                       type="checkbox"
                     />

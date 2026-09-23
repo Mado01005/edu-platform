@@ -102,7 +102,7 @@ function timeAgo(value: string) {
 }
 
 function actionClass(action: string) {
-  if (action.includes('LOGIN')) return 'border-emerald-200 bg-emerald-50 text-[#063A2F]';
+  if (action.includes('LOGIN')) return 'border-emerald-200 bg-emerald-50 text-[#052F26]';
   if (action.includes('Completed')) return 'border-emerald-200 bg-emerald-50 text-emerald-700';
   if (action.includes('PDF')) return 'border-amber-200 bg-amber-50 text-amber-700';
   if (action.includes('VIDEO')) return 'border-emerald-200 bg-emerald-50 text-emerald-700';
@@ -256,7 +256,7 @@ export default function LiveActivityFeed({
       <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-xl font-black text-slate-900">
-            <Activity className="size-5 text-[#063A2F]" aria-hidden="true" />
+            <Activity className="size-5 text-[#052F26]" aria-hidden="true" />
             Admin activity
           </h2>
           <button
@@ -275,7 +275,7 @@ export default function LiveActivityFeed({
             ['audit', 'Audit'],
           ] as const).map(([value, label]) => (
             <button
-              className={`rounded-lg px-3 py-2 text-xs font-bold transition ${tab === value ? 'bg-[#063A2F] text-white shadow-sm' : 'text-slate-700 hover:bg-white'}`}
+              className={`rounded-lg px-3 py-2 text-xs font-bold transition ${tab === value ? 'bg-[#052F26] text-white shadow-sm' : 'text-slate-700 hover:bg-white'}`}
               key={value}
               onClick={() => setTab(value)}
               type="button"
@@ -287,7 +287,7 @@ export default function LiveActivityFeed({
       </div>
 
       {showStream ? (
-        <div className="max-h-40 overflow-y-auto rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-4 text-xs text-slate-700">
+        <div className="max-h-40 overflow-y-auto rounded-xl border border-emerald-950/10 bg-[#EEF5F1] p-4 text-xs text-slate-700">
           <p className="mb-2 font-black uppercase tracking-wider text-slate-500">Recent event stream</p>
           {logs.slice(0, 5).map((log, index) => (
             <p className="border-t border-emerald-950/10 py-2" key={log.id ?? index}>
@@ -304,7 +304,7 @@ export default function LiveActivityFeed({
           { icon: Activity, label: 'Interactions', value: logs.length },
         ].map(({ icon: Icon, label, value }) => (
           <article className="min-w-0 rounded-xl border border-emerald-950/10 bg-white p-3 shadow-sm sm:p-4" key={label}>
-            <Icon className="size-4 text-[#063A2F]" aria-hidden="true" />
+            <Icon className="size-4 text-[#052F26]" aria-hidden="true" />
             <p className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">{value}</p>
             <p className="truncate text-[9px] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs">{label}</p>
           </article>
@@ -320,7 +320,7 @@ export default function LiveActivityFeed({
               onClick={() => setSelectedStudent(log.user_email)}
               type="button"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 font-black text-[#063A2F]">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 font-black text-[#052F26]">
                 {displayName(log.user_name, log.user_email).charAt(0).toUpperCase()}
               </span>
               <span className="min-w-0 flex-1">
@@ -360,7 +360,7 @@ export default function LiveActivityFeed({
               type="button"
             >
               <div className="flex items-center gap-3">
-                <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-50 font-black text-[#063A2F]">{student.displayName.charAt(0).toUpperCase()}</span>
+                <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-50 font-black text-[#052F26]">{student.displayName.charAt(0).toUpperCase()}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-bold text-slate-900">{student.displayName}</span>
                   <span className="block text-xs text-slate-500">{timeAgo(student.lastSeen)}</span>
@@ -383,21 +383,21 @@ export default function LiveActivityFeed({
           <div className="flex flex-col gap-2 rounded-xl border border-emerald-950/10 bg-white p-3 shadow-sm sm:flex-row">
             <label className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-              <input className="h-11 w-full rounded-xl border border-emerald-950/10 bg-white pl-10 pr-3 text-sm text-slate-900 outline-none focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100" onChange={(event) => setAuditSearch(event.target.value)} placeholder="Search student or action" value={auditSearch} />
+              <input className="h-11 w-full rounded-xl border border-emerald-950/10 bg-white pl-10 pr-3 text-sm text-slate-900 outline-none focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100" onChange={(event) => setAuditSearch(event.target.value)} placeholder="Search student or action" value={auditSearch} />
             </label>
             <select className="h-11 rounded-xl border border-emerald-950/10 bg-white px-3 text-sm font-semibold text-slate-900" onChange={(event) => setAuditAction(event.target.value)} value={auditAction}>
               <option value="">All actions</option>
               {actions.map((action) => <option key={action} value={action}>{actionLabel(action)}</option>)}
             </select>
-            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-bold text-[#063A2F] hover:bg-emerald-100" onClick={exportCsv} type="button"><Download className="size-4" /> Export</button>
+            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-bold text-[#052F26] hover:bg-emerald-100" onClick={exportCsv} type="button"><Download className="size-4" /> Export</button>
           </div>
           <div className="overflow-hidden rounded-xl border border-emerald-950/10 bg-white shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-xs text-slate-700">
-                <thead className="bg-[#F4F7F4] text-[10px] uppercase tracking-wider text-slate-500"><tr><th className="p-3">Time</th><th className="p-3">Student name</th><th className="p-3">Action summary</th><th className="p-3">Page</th></tr></thead>
+                <thead className="bg-[#EEF5F1] text-[10px] uppercase tracking-wider text-slate-500"><tr><th className="p-3">Time</th><th className="p-3">Student name</th><th className="p-3">Action summary</th><th className="p-3">Page</th></tr></thead>
                 <tbody className="divide-y divide-emerald-950/10">
                   {filteredLogs.slice(0, 100).map((log, index) => (
-                    <tr className="hover:bg-[#F4F7F4]" key={log.id ?? index}>
+                    <tr className="hover:bg-[#EEF5F1]" key={log.id ?? index}>
                       <td className="whitespace-nowrap p-3 text-slate-500">{new Date(log.created_at).toLocaleString()}</td>
                       <td className="p-3 font-bold text-slate-900">{displayName(log.user_name, log.user_email)}</td>
                       <td className="p-3">{actionLabel(log.action)}</td>
@@ -415,11 +415,11 @@ export default function LiveActivityFeed({
         <div className="fixed inset-0 z-[200] flex justify-end bg-slate-950/30" onClick={() => setSelectedStudent(null)}>
           <aside className="h-full w-full max-w-md overflow-y-auto border-l border-emerald-950/10 bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-center justify-between gap-3">
-              <h3 className="flex items-center gap-2 text-lg font-black text-slate-900"><CircleUserRound className="size-5 text-[#063A2F]" /> Student activity</h3>
+              <h3 className="flex items-center gap-2 text-lg font-black text-slate-900"><CircleUserRound className="size-5 text-[#052F26]" /> Student activity</h3>
               <button aria-label="Close student activity" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" onClick={() => setSelectedStudent(null)} type="button"><X className="size-5" /></button>
             </div>
-            <div className="mt-6 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-4 text-center">
-              <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-emerald-100 text-xl font-black text-[#063A2F]">{selected.displayName.charAt(0).toUpperCase()}</span>
+            <div className="mt-6 rounded-2xl border border-emerald-950/10 bg-[#EEF5F1] p-4 text-center">
+              <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-emerald-100 text-xl font-black text-[#052F26]">{selected.displayName.charAt(0).toUpperCase()}</span>
               <h4 className="mt-3 font-black text-slate-900">{selected.displayName}</h4>
               <p className="mt-1 text-xs text-slate-600">{selected.city}, {selected.country}</p>
             </div>
@@ -443,7 +443,7 @@ export default function LiveActivityFeed({
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="col-span-full rounded-xl border border-dashed border-slate-300 bg-[#F4F7F4] p-8 text-center text-sm text-slate-600">
+    <div className="col-span-full rounded-xl border border-dashed border-slate-300 bg-[#EEF5F1] p-8 text-center text-sm text-slate-600">
       {label}
     </div>
   );

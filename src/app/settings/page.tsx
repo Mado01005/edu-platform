@@ -27,10 +27,10 @@ export default async function SettingsPage() {
     <PortalShell user={user}>
       <div className="flex w-full min-w-0 flex-col gap-6">
           <header className="w-full rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm sm:p-7">
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#063A2F]">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#052F26]">
               <Settings2 className="size-5" aria-hidden="true" />
             </span>
-            <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-[#063A2F]">
+            <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-[#052F26]">
               Personal control center
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">

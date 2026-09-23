@@ -19,7 +19,7 @@ const AdminGlobalOverlay = () => {
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]">
       <div className="flex items-center gap-3 rounded-xl border border-emerald-950/10 bg-white p-4 shadow-xl">
-        <div className="size-5 animate-spin rounded-full border-2 border-[#063A2F] border-t-transparent" />
+        <div className="size-5 animate-spin rounded-full border-2 border-[#052F26] border-t-transparent" />
         <span className="text-sm font-medium text-slate-900">Processing...</span>
       </div>
     </div>
@@ -27,7 +27,7 @@ const AdminGlobalOverlay = () => {
 };
 
 // Lazy loaded — only fetched when the admin clicks the tab
-const TabLoader = () => <div className="flex items-center justify-center py-20"><div className="size-8 animate-spin rounded-full border-2 border-[#063A2F] border-t-transparent" /></div>;
+const TabLoader = () => <div className="flex items-center justify-center py-20"><div className="size-8 animate-spin rounded-full border-2 border-[#052F26] border-t-transparent" /></div>;
 const TelemetryTab = dynamic(() => import('./components/TelemetryTab'), { loading: TabLoader, ssr: false });
 const AnnouncementTab = dynamic(() => import('./components/AnnouncementTab'), { loading: TabLoader, ssr: false });
 
@@ -115,7 +115,7 @@ export default function AdminClient({ subjects, initialRoles, userEmail, initial
           storageStats={storageStats} 
         />
         <AdminGlobalOverlay />
-        <div className="relative min-w-0 rounded-2xl bg-[#F4F7F4] p-1 sm:p-3">
+        <div className="relative min-w-0 rounded-2xl bg-[#EEF5F1] p-1 sm:p-3">
           <AdminErrorBoundary>
             {activeTab === 'upload' && (
               <UploadTab

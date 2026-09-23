@@ -14,7 +14,7 @@ export default async function TeacherGradingPage() {
     orderBy: [{ status: 'asc' }, { createdAt: 'asc' }],
   });
   return <>
-    <header className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#063A2F]"><ClipboardCheck className="size-4" /> Assignment Desk</p><h1 className="mt-2 text-3xl font-black">Submission grading</h1><p className="mt-2 text-sm leading-6 text-slate-600">Review student work, record a grade, and send feedback instantly.</p></header>
+    <header className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#052F26]"><ClipboardCheck className="size-4" /> Assignment Desk</p><h1 className="mt-2 text-3xl font-black">Submission grading</h1><p className="mt-2 text-sm leading-6 text-slate-600">Review student work, record a grade, and send feedback instantly.</p></header>
     <GradingDesk submissions={submissions.map((submission) => ({
       assignmentTitle: submission.assignment.title,
       attachmentUrls: Array.isArray(submission.attachmentUrls)

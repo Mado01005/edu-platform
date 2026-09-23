@@ -114,12 +114,12 @@ export function PhoneInput({
 
   return (
     <div className={cn('relative min-w-0', className)} ref={rootRef}>
-      <div className="flex h-12 min-w-0 items-center rounded-xl border border-slate-300 bg-white transition focus-within:border-[#063A2F] focus-within:ring-4 focus-within:ring-emerald-100">
+      <div className="flex h-12 min-w-0 items-center rounded-xl border border-slate-300 bg-white transition focus-within:border-[#052F26] focus-within:ring-4 focus-within:ring-emerald-100">
         <button
           aria-expanded={open}
           aria-haspopup="listbox"
           aria-label="Choose phone country code"
-          className="flex h-full shrink-0 items-center gap-2 border-r border-emerald-950/10 px-3 text-sm font-medium text-slate-700 transition hover:bg-[#F4F7F4] disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-full shrink-0 items-center gap-2 border-r border-emerald-950/10 px-3 text-sm font-medium text-slate-700 transition hover:bg-[#EEF5F1] disabled:cursor-not-allowed disabled:opacity-50"
           disabled={disabled}
           onClick={() => setOpen((current) => !current)}
           type="button"
@@ -156,7 +156,7 @@ export function PhoneInput({
 
       {open ? (
         <div className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 min-w-0 overflow-hidden rounded-2xl border border-emerald-950/10 bg-white p-2 shadow-sm">
-          <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-emerald-950/10 bg-[#F4F7F4] px-3">
+          <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-emerald-950/10 bg-[#EEF5F1] px-3">
             <Search className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
             <span className="sr-only">Search countries</span>
             <input
@@ -190,7 +190,7 @@ export function PhoneInput({
                   +{option.callingCode}
                 </span>
                 {option.code === country ? (
-                  <Check className="size-4 shrink-0 text-[#063A2F]" />
+                  <Check className="size-4 shrink-0 text-[#052F26]" />
                 ) : null}
               </button>
             ))}

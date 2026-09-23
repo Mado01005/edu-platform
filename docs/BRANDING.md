@@ -19,20 +19,28 @@ Support inquiry notifications default to `Nodrek Support <Support@nodrekhub.com>
 
 | Token | Color | Use |
 | --- | --- | --- |
-| Forest / base | `#063A2F` | Main text, headers, contrast containers |
-| Emerald / surface | `#0A4235` | Dark cards, surfaces, hover states |
-| Gold | `#D8A84E` | CTAs, accents, stars |
-| Gold highlight | `#E5C06E` | Gold hover and highlights |
-| Sage | `#B2CDBC` | Light accents and borders |
-| Backdrop | `#F4F7F4` | Page canvas |
+| Deep teal / base | `#052F26` | Headlines, wordmark, contrast canvas |
+| Dark card / surface | `#093F33` | Dark cards and badges |
+| Dark border | `#145B4A` | Dividers on teal surfaces |
+| Champagne gold | `#D8A649` | Primary CTAs, stars and accents |
+| Gold highlight | `#E8BE5F` | Hover and highlights |
+| Gold glow | `rgba(216, 166, 73, 0.25)` | Subtle rings and borders |
+| Sage canvas | `#EEF5F1` | Light page background |
+| Mint card border | `#C2DCCE` | White-card outline |
+| Sage accent | `#A7C2B1` | Light badges and vignettes |
+| Deep sage | `#88A996` | Secondary sage details |
+| Foliage emerald | `#13644E` | Leaf and progress accents |
+| Footer ivory | `#E2ECE5` | Text on dark teal |
+
+The hero blends `#E2EFE7` through `#EEF5F1` to `#F5F8F6`. White card surfaces remain `#FFFFFF`.
 
 `src/app/globals.css` supplies CSS tokens and the emerald utility scale. `tailwind.config.ts` supplies matching brand aliases. English uses Inter; Arabic uses Cairo with RTL support.
 
 ## Artwork
 
 - `public/brand/nodrek-banner.jpeg` is the supplied Nodrek artwork, unchanged (1126 × 496).
-- `public/brand/nodrek-logo.png` is a square icon adaptation (512 × 512), with matching 192- and 512-pixel PWA icons.
-- The icon was created with the built-in imagegen tool from the supplied artwork. Prompt: isolate the existing book, scholar, graduation cap, leaves, and gold star; preserve their design, proportions, colors, and shading; remove lettering and the lower diacritic; center on pale sage with safe margins, no additional objects, border, or corner clipping. It is an adaptation, not a pixel-identical crop.
+- `public/brand/nodrek-emblem.png` is the transparent header emblem (512 × 512); `public/brand/nodrek-logo.png` is the square app icon (512 × 512), with matching 192- and 512-pixel PWA icons.
+- The app icon was created with the built-in imagegen tool from the supplied artwork. Prompt: isolate the existing book, scholar, graduation cap, leaves, and gold star; preserve their design, proportions, colors, and shading; remove lettering and the lower diacritic; center on pale sage with safe margins, no additional objects, border, or corner clipping. The header emblem was edited from that icon with the built-in imagegen tool to remove the sage background and preserve transparent alpha. These are adaptations, not pixel-identical crops.
 - Service-worker cache version 10 replaces cached legacy app icons.
 
 ## Compatibility boundaries

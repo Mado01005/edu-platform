@@ -28,31 +28,31 @@ function GradeDialog({ submission }: { submission: GradingSubmission }) {
   const [state, action] = useActionState(gradeAssignmentSubmissionAction.bind(null, submission.id), initialState);
   return (
     <Dialog>
-      <DialogTrigger asChild><button className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-3 py-2 text-xs font-bold text-white hover:bg-[#0A4235] sm:w-auto" type="button"><FileCheck2 className="size-4" /> Review & Grade</button></DialogTrigger>
+      <DialogTrigger asChild><button className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#052F26] px-3 py-2 text-xs font-bold text-white hover:bg-[#093F33] sm:w-auto" type="button"><FileCheck2 className="size-4" /> Review & Grade</button></DialogTrigger>
       <DialogContent className="custom-scrollbar max-h-[90dvh] max-w-2xl overflow-y-auto">
         <DialogHeader><DialogTitle>{submission.assignmentTitle}</DialogTitle><DialogDescription>{submission.studentName ?? submission.studentEmail} · {submission.courseTitle} · {submission.lessonTitle}</DialogDescription></DialogHeader>
-        {submission.textSolution ? <div className="whitespace-pre-wrap rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-4 text-sm leading-6 text-slate-700">{submission.textSolution}</div> : null}
+        {submission.textSolution ? <div className="whitespace-pre-wrap rounded-xl border border-emerald-950/10 bg-[#EEF5F1] p-4 text-sm leading-6 text-slate-700">{submission.textSolution}</div> : null}
         {submission.attachmentUrls.length ? (
           <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
             {submission.attachmentUrls.map((url, index) => (
               <a className="group overflow-hidden rounded-xl border border-emerald-950/10 bg-white" href={url} key={url} rel="noopener noreferrer" target="_blank">
-                {submission.fileType === 'PDF' && index === 0 ? <span className="flex min-h-40 items-center justify-center gap-2 text-sm font-bold text-[#063A2F]"><ExternalLink className="size-4" /> Open PDF submission</span> : <img alt={`Notebook page ${index + 1} from ${submission.studentName ?? submission.studentEmail}`} className="max-h-72 w-full object-contain" src={url} />}
+                {submission.fileType === 'PDF' && index === 0 ? <span className="flex min-h-40 items-center justify-center gap-2 text-sm font-bold text-[#052F26]"><ExternalLink className="size-4" /> Open PDF submission</span> : <img alt={`Notebook page ${index + 1} from ${submission.studentName ?? submission.studentEmail}`} className="max-h-72 w-full object-contain" src={url} />}
               </a>
             ))}
           </div>
         ) : null}
         <form action={action} className="flex min-w-0 flex-col gap-3">
-          <label className="text-sm font-bold text-slate-700">Score (out of 10)<input className="mt-2 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-900 outline-none focus:border-[#063A2F]" defaultValue={submission.grade ?? ''} max="10" min="0" name="grade" required step="0.5" type="number" /></label>
-          <fieldset className="rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3">
+          <label className="text-sm font-bold text-slate-700">Score (out of 10)<input className="mt-2 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-900 outline-none focus:border-[#052F26]" defaultValue={submission.grade ?? ''} max="10" min="0" name="grade" required step="0.5" type="number" /></label>
+          <fieldset className="rounded-xl border border-emerald-950/10 bg-[#EEF5F1] p-3">
             <legend className="px-1 text-sm font-bold text-slate-700">Rubric</legend>
             <div className="mt-1 grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2">
               {['Method shown', 'Accurate reasoning', 'Clear presentation', 'Complete answer'].map((item) => <label className="flex items-center gap-2 text-xs font-bold text-slate-600" key={item}><input name="rubric" type="checkbox" value={item} /> {item}</label>)}
             </div>
           </fieldset>
-          <label className="text-sm font-bold text-slate-700">Teacher Feedback<textarea className="mt-2 min-h-28 w-full min-w-0 resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-900 outline-none focus:border-[#063A2F]" defaultValue={submission.feedback ?? ''} name="feedback" placeholder="Give the student clear, encouraging next steps." /></label>
+          <label className="text-sm font-bold text-slate-700">Teacher Feedback<textarea className="mt-2 min-h-28 w-full min-w-0 resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-900 outline-none focus:border-[#052F26]" defaultValue={submission.feedback ?? ''} name="feedback" placeholder="Give the student clear, encouraging next steps." /></label>
           {state.error ? <p aria-live="polite" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{state.error}</p> : null}
           {state.success ? <p aria-live="polite" className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">Grade saved and notification sent.</p> : null}
-          <ActionSubmitButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#063A2F] px-4 py-3 font-bold text-white hover:bg-[#0A4235]" pendingLabel="Saving grade…"><Save className="size-4" /> Save Grade & Notify Student</ActionSubmitButton>
+          <ActionSubmitButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#052F26] px-4 py-3 font-bold text-white hover:bg-[#093F33]" pendingLabel="Saving grade…"><Save className="size-4" /> Save Grade & Notify Student</ActionSubmitButton>
         </form>
       </DialogContent>
     </Dialog>

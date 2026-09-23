@@ -15,7 +15,7 @@ export function NodrekEmblem({
     <Image
       alt={decorative ? '' : `${siteConfig.name} emblem`}
       aria-hidden={decorative || undefined}
-      className={cn('size-10 shrink-0 rounded-xl object-cover', className)}
+      className={cn('size-10 shrink-0 object-contain', className)}
       height={64}
       src={siteConfig.brand.logo}
       width={64}

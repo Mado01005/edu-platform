@@ -7,7 +7,7 @@ const icons = [ScanSearch, Compass, TrendingUp] as const;
 
 export function HowItWorks() {
   return (
-    <section className="bg-brand-ivory-alt py-20 text-brand-base md:py-28" aria-labelledby="how-title">
+    <section className="bg-brand-ivory py-20 text-brand-base md:py-28" aria-labelledby="how-title">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <LandingCopy className="text-xs font-black uppercase tracking-[0.18em] text-brand-base underline decoration-brand-gold decoration-2 underline-offset-4">{landingContent.howItWorks.eyebrow}</LandingCopy>
@@ -17,10 +17,10 @@ export function HowItWorks() {
           {landingContent.howItWorks.steps.map((step, index) => {
             const Icon = icons[index];
             return (
-              <li className="landing-card relative min-w-0 rounded-3xl border border-brand-base/10 bg-white p-6 shadow-xl shadow-brand-base/8 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 hover:shadow-2xl hover:shadow-brand-base/10 sm:p-8" key={step.label.en}>
+              <li className="landing-card relative min-w-0 rounded-3xl border border-brand-mint-border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 hover:shadow-md sm:p-8" key={step.label.en}>
                 <div className="flex items-center justify-between gap-4">
-                  <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-base text-brand-gold"><Icon aria-hidden="true" className="size-5" /></span>
-                  <span className="text-5xl font-black text-brand-base/5">0{index + 1}</span>
+                  <span className="flex size-12 items-center justify-center rounded-full bg-brand-gold text-brand-base"><Icon aria-hidden="true" className="size-5" /></span>
+                  <span className="flex size-10 items-center justify-center rounded-full bg-brand-sage text-sm font-black text-brand-base">0{index + 1}</span>
                 </div>
                 <LandingCopy className="mt-7 block text-[10px] font-black uppercase tracking-[0.16em] text-brand-gold">{step.label}</LandingCopy>
                 <LandingCopy as="h3" className="mt-2 text-2xl font-black text-brand-base">{step.title}</LandingCopy>
@@ -31,7 +31,7 @@ export function HowItWorks() {
           })}
         </ol>
         <div className="mt-9 flex justify-center">
-          <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center rounded-full bg-brand-gold px-7 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(229,192,110,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" intent="diagnostic" label="how_it_works">
+          <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center rounded-full bg-brand-gold px-7 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(232,190,95,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" intent="diagnostic" label="how_it_works">
             {landingContent.howItWorks.cta}
           </WhatsAppLink>
         </div>

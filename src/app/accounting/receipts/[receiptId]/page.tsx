@@ -32,7 +32,7 @@ export default async function AccountingReceiptPage({
   return (
     <PortalShell user={user}>
       <Link
-        className="flex w-fit items-center gap-2 text-sm font-bold text-[#063A2F] hover:text-[#0A4235]"
+        className="flex w-fit items-center gap-2 text-sm font-bold text-[#052F26] hover:text-[#093F33]"
         href="/accounting"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
@@ -40,9 +40,9 @@ export default async function AccountingReceiptPage({
       </Link>
 
       <article className="overflow-hidden rounded-3xl border border-emerald-950/10 bg-white shadow-sm shadow-emerald-950/5">
-        <header className="border-b border-[#D8A84E]/40 bg-[#F4F7F4] p-5">
+        <header className="border-b border-[#D8A649]/40 bg-[#EEF5F1] p-5">
           <div className="flex items-center justify-between gap-3">
-            <span className="flex size-12 items-center justify-center rounded-2xl bg-[#063A2F] text-white">
+            <span className="flex size-12 items-center justify-center rounded-2xl bg-[#052F26] text-white">
               <ReceiptText className="size-6" aria-hidden="true" />
             </span>
             <span className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800">
@@ -98,7 +98,7 @@ export default async function AccountingReceiptPage({
 
         {receipt.receiptUrl ? (
           <a
-            className="m-5 flex min-h-11 items-center justify-center rounded-xl bg-[#063A2F] px-4 text-sm font-black text-white transition hover:bg-[#0A4235]"
+            className="m-5 flex min-h-11 items-center justify-center rounded-xl bg-[#052F26] px-4 text-sm font-black text-white transition hover:bg-[#093F33]"
             href={receipt.receiptUrl}
             rel="noopener noreferrer"
             target="_blank"

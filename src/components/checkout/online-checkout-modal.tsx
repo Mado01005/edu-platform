@@ -112,7 +112,7 @@ export function OnlineCheckoutModal({
       <div className="flex max-h-[92vh] w-full max-w-md min-w-0 flex-col overflow-y-auto rounded-2xl border border-emerald-950/10 bg-white p-4 text-slate-900 shadow-sm">
         <div className="flex min-w-0 items-start gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#063A2F]">Online checkout</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#052F26]">Online checkout</p>
             <h2 className="mt-1 break-words text-xl font-bold">{course.title}</h2>
           </div>
           <button aria-label="Close checkout" className="rounded-xl border border-emerald-950/10 p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900" onClick={onClose} type="button"><X className="size-4" /></button>
@@ -123,19 +123,19 @@ export function OnlineCheckoutModal({
             <CheckCircle2 className="mx-auto size-9 text-emerald-600" />
             <p className="mt-3 font-semibold text-slate-900">Receipt submitted</p>
             <p className="mt-1 text-sm leading-6 text-slate-600">Accounting will review it and notify you when course access is active.</p>
-            <button className="mt-4 w-full rounded-xl bg-[#063A2F] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#0A4235]" onClick={onClose} type="button">Done</button>
+            <button className="mt-4 w-full rounded-xl bg-[#052F26] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#093F33]" onClick={onClose} type="button">Done</button>
           </div>
         ) : (
           <>
-            <fieldset className="mt-5 rounded-xl border border-emerald-950/10 bg-[#F4F7F4] p-3">
-              <legend className="px-1 text-xs font-black uppercase tracking-wide text-[#063A2F]">Choose access</legend>
-              <label className={`mt-1 flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 text-sm ${moduleId === null ? 'border-[#D8A84E] bg-[#F4F7F4]' : 'border-emerald-950/10 bg-white'}`}><span className="font-black">Complete term package</span><span className="shrink-0 font-black">{course.priceEGP} EGP</span><input checked={moduleId === null} className="sr-only" name="purchase-target" onChange={() => setModuleId(null)} type="radio" /></label>
-              {course.modules.filter((module) => Number(module.priceEGP) > 0).map((module) => <label className={`mt-2 flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 text-sm ${moduleId === module.id ? 'border-[#D8A84E] bg-[#F4F7F4]' : 'border-emerald-950/10 bg-white'} ${module.purchased ? 'cursor-not-allowed opacity-50' : ''}`} key={module.id}><span className="min-w-0 truncate font-bold">{module.title}</span><span className="shrink-0 font-black">{module.priceEGP} EGP</span><input checked={moduleId === module.id} className="sr-only" disabled={module.purchased} name="purchase-target" onChange={() => { setModuleId(module.id); const egpChannel = available.find((channel) => channel.currency === 'EGP'); if (egpChannel) setMethod(egpChannel.method); }} type="radio" /></label>)}
+            <fieldset className="mt-5 rounded-xl border border-emerald-950/10 bg-[#EEF5F1] p-3">
+              <legend className="px-1 text-xs font-black uppercase tracking-wide text-[#052F26]">Choose access</legend>
+              <label className={`mt-1 flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 text-sm ${moduleId === null ? 'border-[#D8A649] bg-[#EEF5F1]' : 'border-emerald-950/10 bg-white'}`}><span className="font-black">Complete term package</span><span className="shrink-0 font-black">{course.priceEGP} EGP</span><input checked={moduleId === null} className="sr-only" name="purchase-target" onChange={() => setModuleId(null)} type="radio" /></label>
+              {course.modules.filter((module) => Number(module.priceEGP) > 0).map((module) => <label className={`mt-2 flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 text-sm ${moduleId === module.id ? 'border-[#D8A649] bg-[#EEF5F1]' : 'border-emerald-950/10 bg-white'} ${module.purchased ? 'cursor-not-allowed opacity-50' : ''}`} key={module.id}><span className="min-w-0 truncate font-bold">{module.title}</span><span className="shrink-0 font-black">{module.priceEGP} EGP</span><input checked={moduleId === module.id} className="sr-only" disabled={module.purchased} name="purchase-target" onChange={() => { setModuleId(module.id); const egpChannel = available.find((channel) => channel.currency === 'EGP'); if (egpChannel) setMethod(egpChannel.method); }} type="radio" /></label>)}
             </fieldset>
             <div className="mt-3 grid min-w-0 grid-cols-2 gap-2">
               {eligibleChannels.map((channel) => (
                 <button
-                  className={`min-w-0 rounded-xl border p-3 text-left text-xs ${selected?.method === channel.method ? 'border-emerald-300 bg-emerald-50 text-[#063A2F]' : 'border-emerald-950/10 text-slate-600 hover:bg-[#F4F7F4]'}`}
+                  className={`min-w-0 rounded-xl border p-3 text-left text-xs ${selected?.method === channel.method ? 'border-emerald-300 bg-emerald-50 text-[#052F26]' : 'border-emerald-950/10 text-slate-600 hover:bg-[#EEF5F1]'}`}
                   key={channel.method}
                   onClick={() => setMethod(channel.method)}
                   type="button"
@@ -146,10 +146,10 @@ export function OnlineCheckoutModal({
               ))}
             </div>
             {selected ? (
-              <div className="mt-3 rounded-2xl border border-emerald-950/10 bg-[#F4F7F4] p-3">
+              <div className="mt-3 rounded-2xl border border-emerald-950/10 bg-[#EEF5F1] p-3">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Send exactly {amount} {selected.currency} to</p>
                 <div className="mt-2 flex min-w-0 items-center gap-2">
-                  <code className="min-w-0 flex-1 break-all text-sm text-[#063A2F]">{selected.accountValue}</code>
+                  <code className="min-w-0 flex-1 break-all text-sm text-[#052F26]">{selected.accountValue}</code>
                   <button aria-label="Copy payment account" className="shrink-0 rounded-lg border border-emerald-950/10 bg-white p-2 text-slate-600 hover:bg-slate-100" onClick={() => void navigator.clipboard.writeText(selected.accountValue)} type="button"><Copy className="size-4" /></button>
                 </div>
                 {selected.instructions ? <p className="mt-2 text-xs leading-5 text-slate-500">{selected.instructions}</p> : null}
@@ -158,15 +158,15 @@ export function OnlineCheckoutModal({
               <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">Online payment channels are not available yet.</p>
             )}
             <label className="mt-3 text-xs font-medium text-slate-700">Transaction reference (optional)
-              <input className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-[#063A2F] focus:ring-4 focus:ring-emerald-100" maxLength={120} onChange={(event) => setReference(event.target.value)} value={reference} />
+              <input className="mt-1 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-[#052F26] focus:ring-4 focus:ring-emerald-100" maxLength={120} onChange={(event) => setReference(event.target.value)} value={reference} />
             </label>
             <label className="mt-3 flex min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-300 p-3 text-sm text-slate-600 hover:border-emerald-300 hover:bg-emerald-50">
-              <Upload className="size-4 shrink-0 text-[#063A2F]" />
+              <Upload className="size-4 shrink-0 text-[#052F26]" />
               <span className="min-w-0 flex-1 truncate">{file?.name ?? 'Upload receipt screenshot'}</span>
               <input accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => setFile(event.target.files?.[0] ?? null)} type="file" />
             </label>
             {error ? <p aria-live="polite" className="mt-3 text-xs text-red-600">{error}</p> : null}
-            <button className="mt-4 w-full rounded-xl bg-[#063A2F] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#0A4235] disabled:opacity-50" disabled={!selected || status === 'saving'} onClick={() => void submit()} type="button">
+            <button className="mt-4 w-full rounded-xl bg-[#052F26] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#093F33] disabled:opacity-50" disabled={!selected || status === 'saving'} onClick={() => void submit()} type="button">
               {status === 'saving' ? 'Uploading securely…' : 'Submit for approval'}
             </button>
           </>

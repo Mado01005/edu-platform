@@ -12,10 +12,10 @@ export default async function AdminCoursePricingPage() {
   });
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center overflow-x-hidden bg-[#F4F7F4] px-4 py-8 text-slate-900">
+    <main className="flex min-h-screen w-full flex-col items-center overflow-x-hidden bg-[#EEF5F1] px-4 py-8 text-slate-900">
       <div className="flex w-full max-w-md min-w-0 flex-col gap-4">
         <header>
-          <p className="text-xs font-black uppercase tracking-wider text-[#063A2F]">Super Admin only</p>
+          <p className="text-xs font-black uppercase tracking-wider text-[#052F26]">Super Admin only</p>
           <h1 className="mt-1 text-3xl font-black">Course pricing</h1>
           <p className="mt-2 text-sm text-slate-600">Teachers cannot view or edit these commercial settings.</p>
         </header>

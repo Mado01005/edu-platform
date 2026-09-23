@@ -69,7 +69,7 @@ export default function ActiveSessionsFeed() {
       {/* Modern Connected Clients Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {sessions.length === 0 && (
-          <div className="col-span-full py-10 text-center text-slate-600 italic bg-[#F4F7F4] rounded-xl border border-emerald-950/10">No users connected.</div>
+          <div className="col-span-full py-10 text-center text-slate-600 italic bg-[#EEF5F1] rounded-xl border border-emerald-950/10">No users connected.</div>
         )}
         {sessions.map(session => (
           <div key={session.id} className="relative bg-white border border-emerald-950/10 rounded-2xl p-5 shadow-sm hover:border-emerald-300 transition duration-300 overflow-hidden group">

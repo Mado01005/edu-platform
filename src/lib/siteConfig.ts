@@ -31,7 +31,8 @@ export const siteConfig = {
     sender: 'Nodrek Support <Support@nodrekhub.com>',
   },
   brand: {
-    logo: '/brand/nodrek-logo.png',
+    logo: '/brand/nodrek-emblem.png',
+    appIcon: '/brand/nodrek-logo.png',
     banner: '/brand/nodrek-banner.jpeg',
     bannerWidth: 1126,
     bannerHeight: 496,

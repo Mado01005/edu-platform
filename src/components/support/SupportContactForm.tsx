@@ -531,7 +531,7 @@ export function SupportContactForm() {
                 </label>
                 <div
                   aria-label={text(locale, copy.countryCode)}
-                  className="mt-2 max-h-60 scroll-smooth overflow-y-auto overscroll-contain rounded-xl [scrollbar-color:#D4A345_#063A2F] [scrollbar-width:thin]"
+                  className="mt-2 max-h-60 scroll-smooth overflow-y-auto overscroll-contain rounded-xl [scrollbar-color:#D8A649_#052F26] [scrollbar-width:thin]"
                   id="support-country-options"
                   role="listbox"
                 >

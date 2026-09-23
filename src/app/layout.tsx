@@ -26,13 +26,13 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/brand/nodrek-logo.png', sizes: '512x512', type: 'image/png' },
+      { url: siteConfig.brand.appIcon, sizes: '512x512', type: 'image/png' },
     ],
     shortcut: [
-      { url: '/brand/nodrek-logo.png', sizes: '512x512', type: 'image/png' },
+      { url: siteConfig.brand.appIcon, sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/brand/nodrek-logo.png', sizes: '512x512', type: 'image/png' },
+      { url: siteConfig.brand.appIcon, sizes: '512x512', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { themeColor: '#063A2F' };
+export const viewport: Viewport = { themeColor: '#052F26' };
 
 export default async function RootLayout({
   children,

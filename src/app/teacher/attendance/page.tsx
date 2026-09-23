@@ -27,10 +27,10 @@ export default async function TeacherAttendancePage() {
   return (
     <>
       <header className="rounded-2xl border border-emerald-950/10 bg-white p-5 shadow-sm shadow-emerald-950/5 sm:p-6">
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#063A2F]">
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-[#052F26]">
           <CalendarCheck2 className="size-5" aria-hidden="true" />
         </span>
-        <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-[#063A2F]">
+        <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-[#052F26]">
           Digital attendance
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">
@@ -48,7 +48,7 @@ export default async function TeacherAttendancePage() {
           { icon: MonitorPlay, label: 'All records', value: attendance.length },
         ].map(({ icon: Icon, label, value }) => (
           <div className="min-w-0 rounded-2xl border border-emerald-950/10 bg-white p-3 text-center shadow-sm shadow-emerald-950/5" key={label}>
-            <Icon className="mx-auto size-4 text-[#063A2F]" aria-hidden="true" />
+            <Icon className="mx-auto size-4 text-[#052F26]" aria-hidden="true" />
             <p className="mt-2 text-xl font-black">{value}</p>
             <p className="truncate text-[9px] font-bold uppercase tracking-wider text-slate-500">
               {label}
@@ -65,7 +65,7 @@ export default async function TeacherAttendancePage() {
         <div className="divide-y divide-slate-100">
           {attendance.map((record) => (
             <article className="flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center sm:p-5" key={record.id}>
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#063A2F]">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#052F26]">
                 {record.type === 'LIVE_ZOOM' ? (
                   <Radio className="size-4" aria-hidden="true" />
                 ) : (

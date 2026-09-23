@@ -95,7 +95,7 @@ export default function ForgeSnippets({ lessonId }: ForgeSnippetsProps) {
 
       <div className="space-y-8">
         {snippets.map((snippet) => (
-          <div key={snippet.id} className="group bg-black/40 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm transition-all hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(6,58,47,0.15)] animate-in fade-in slide-in-from-top-4 duration-500">
+          <div key={snippet.id} className="group bg-black/40 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm transition-all hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(5,47,38,0.15)] animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="flex justify-between items-center px-4 py-3 border-b border-white/5 bg-white-[0.02]">
                <div className="flex items-center gap-3">
                  <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded">

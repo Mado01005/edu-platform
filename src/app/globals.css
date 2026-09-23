@@ -2,17 +2,17 @@
 @config "../../tailwind.config.ts";
 
 @theme inline {
-  --color-emerald-50: #F4F7F4;
-  --color-emerald-100: #E5EEE7;
-  --color-emerald-200: #B2CDBC;
-  --color-emerald-300: #95B8A3;
-  --color-emerald-400: #6B9D82;
-  --color-emerald-500: #3D7A5F;
-  --color-emerald-600: #24644D;
-  --color-emerald-700: #18513F;
-  --color-emerald-800: #0A4235;
-  --color-emerald-900: #063A2F;
-  --color-emerald-950: #042B23;
+  --color-emerald-50: #EEF5F1;
+  --color-emerald-100: #E2EFE7;
+  --color-emerald-200: #C2DCCE;
+  --color-emerald-300: #A7C2B1;
+  --color-emerald-400: #88A996;
+  --color-emerald-500: #13644E;
+  --color-emerald-600: #145B4A;
+  --color-emerald-700: #093F33;
+  --color-emerald-800: #093F33;
+  --color-emerald-900: #052F26;
+  --color-emerald-950: #052F26;
   --color-background: var(--background);
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-muted: var(--surface-muted);
@@ -44,6 +44,10 @@
   --color-brand-white: var(--nodrek-white);
   --color-brand-muted: var(--nodrek-muted);
   --color-brand-sage: var(--nodrek-sage);
+  --color-brand-sage-deep: var(--nodrek-sage-deep);
+  --color-brand-mint-border: var(--nodrek-mint-border);
+  --color-brand-leaf: var(--nodrek-leaf);
+  --color-brand-hero-end: var(--nodrek-hero-end);
   --color-brand-rim: var(--nodrek-gold-rim);
   --color-surface-canvas: var(--surface-canvas);
   --color-surface-card: var(--surface-card);
@@ -52,21 +56,25 @@
 
 :root {
   color-scheme: light;
-  --nodrek-base: #063A2F;
-  --nodrek-surface: #0A4235;
-  --nodrek-input: #063A2F;
-  --nodrek-border: #B2CDBC;
-  --nodrek-sage: #B2CDBC;
-  --nodrek-gold: #D8A84E;
-  --nodrek-gold-hover: #E5C06E;
-  --nodrek-ivory: #F4F7F4;
-  --nodrek-ivory-alt: #E5EEE7;
+  --nodrek-base: #052F26;
+  --nodrek-surface: #093F33;
+  --nodrek-input: #052F26;
+  --nodrek-border: #145B4A;
+  --nodrek-mint-border: #C2DCCE;
+  --nodrek-sage: #A7C2B1;
+  --nodrek-sage-deep: #88A996;
+  --nodrek-leaf: #13644E;
+  --nodrek-gold: #D8A649;
+  --nodrek-gold-hover: #E8BE5F;
+  --nodrek-ivory: #EEF5F1;
+  --nodrek-ivory-alt: #E2EFE7;
+  --nodrek-hero-end: #F5F8F6;
   --nodrek-white: #ffffff;
-  --nodrek-muted: #e2e8f0;
-  --nodrek-gold-rim: rgba(216,168,78, 0.2);
+  --nodrek-muted: #E2ECE5;
+  --nodrek-gold-rim: rgba(216, 166, 73, 0.25);
   --brand-50: var(--nodrek-white);
   --brand-100: var(--nodrek-sage);
-  --brand-200: var(--nodrek-border);
+  --brand-200: var(--nodrek-mint-border);
   --brand-500: var(--nodrek-base);
   --brand-600: var(--nodrek-surface);
   --brand-700: var(--nodrek-base);
@@ -75,7 +83,7 @@
   --brand-accent-light: var(--nodrek-sage);
   --surface-canvas: var(--nodrek-ivory);
   --surface-card: #ffffff;
-  --surface-border: var(--nodrek-gold-rim);
+  --surface-border: var(--nodrek-mint-border);
   --background: var(--surface-canvas);
   --surface-subtle: var(--surface-canvas);
   --surface-muted: var(--brand-50);
@@ -139,17 +147,17 @@ html[data-locale='en'] [data-language-copy='en'] {
 
 .nodrek-orbit {
   background-image:
-    radial-gradient(circle at 88% 22%, transparent 0 84px, rgba(216,168,78, 0.18) 85px 86px, transparent 87px 128px, rgba(178,205,188, 0.34) 129px 130px, transparent 131px),
-    linear-gradient(90deg, rgba(229,192,110, 0.055) 1px, transparent 1px),
-    linear-gradient(rgba(229,192,110, 0.055) 1px, transparent 1px);
+    radial-gradient(circle at 88% 22%, transparent 0 84px, rgba(216,166,73, 0.18) 85px 86px, transparent 87px 128px, rgba(167,194,177, 0.34) 129px 130px, transparent 131px),
+    linear-gradient(90deg, rgba(232,190,95, 0.055) 1px, transparent 1px),
+    linear-gradient(rgba(232,190,95, 0.055) 1px, transparent 1px);
   background-size: auto, 48px 48px, 48px 48px;
   mask-image: linear-gradient(to left, black, transparent 72%);
 }
 
 .nodrek-hero-grid {
   background-image:
-    linear-gradient(rgba(229,192,110, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(229,192,110, 0.055) 1px, transparent 1px);
+    linear-gradient(rgba(232,190,95, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,190,95, 0.055) 1px, transparent 1px);
   background-position: center;
   background-size: 44px 44px;
   mask-image: linear-gradient(to bottom, black, transparent 88%);
