@@ -26,6 +26,9 @@ export const siteConfig = {
     banner: '/brand/nodrek-banner.jpeg',
     bannerWidth: 1126,
     bannerHeight: 496,
+    officialArtwork: '/brand/nodrek-official.jpeg',
+    officialArtworkWidth: 1126,
+    officialArtworkHeight: 496,
   },
   whatsapp: {
     number: SUPPORT_NUMBER,

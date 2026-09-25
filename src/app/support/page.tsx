@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -10,6 +9,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { LanguageToggle } from '@/components/i18n/language-provider';
+import { NodrekLogo } from '@/components/brand/NodrekLogo';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { SiteFooter } from '@/components/landing/SiteFooter';
 import { SocialLinks } from '@/components/social/SocialLinks';
@@ -67,24 +67,7 @@ export default function PublicSupportPage() {
 
       <header className="sticky top-3 z-50 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-18 w-full items-center justify-between gap-3 rounded-full border border-brand-mint-border/60 bg-white/90 px-3 shadow-sm backdrop-blur-md transition-all duration-300 sm:px-4">
-          <Link
-            aria-label="Nodrek Learning Hub home"
-            className="flex min-h-11 min-w-0 items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30"
-            href={siteConfig.routes.home}
-          >
-            <Image
-              alt="Nodrek Learning Hub official crest"
-              className="size-11 shrink-0 object-contain"
-              height={44}
-              priority
-              src={siteConfig.brand.logo}
-              width={44}
-            />
-            <span className="min-w-0 leading-tight">
-              <span className="block truncate text-sm font-black text-brand-base">{siteConfig.name}</span>
-              <span className="block truncate font-arabic text-[11px] font-bold text-brand-base" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
-            </span>
-          </Link>
+          <NodrekLogo size="md" />
 
           <div className="flex shrink-0 items-center gap-2">
             <Link

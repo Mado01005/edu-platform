@@ -84,7 +84,7 @@ export function FloatingNavbar() {
         className={`w-full border border-brand-mint-border/60 bg-white/90 px-3 py-2 shadow-sm backdrop-blur-md transition-all duration-300 sm:px-4 ${menuOpen ? 'rounded-[1.4rem]' : 'rounded-full'}`}
       >
         <div className="flex min-h-12 items-center justify-between gap-2">
-          <NodrekLogo size="md" showWordmark />
+          <NodrekLogo size="md" />
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-0.5 lg:flex">
             {landingContent.navigation.map((item) => (

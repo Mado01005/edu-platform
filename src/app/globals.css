@@ -212,29 +212,6 @@ html[data-locale='en'] [data-language-copy='en'] {
   animation: nodrek-badge-float 4.5s ease-in-out infinite;
 }
 
-@keyframes nodrekFloat {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, -5px, 0); }
-}
-
-@keyframes starGlow {
-  0%, 100% { opacity: 0.55; transform: translate3d(0, 0, 0) scale(0.85); }
-  50% { opacity: 0.95; transform: translate3d(0, 0, 0) scale(1.15); }
-}
-
-.nodrek-logo-link {
-  transition-duration: 300ms !important;
-  transition-property: transform, translate, scale !important;
-}
-
-.animate-nodrek-float {
-  animation: nodrekFloat 4s ease-in-out infinite;
-}
-
-.animate-star-glow {
-  animation: starGlow 3s ease-in-out infinite;
-}
-
 body {
   min-height: 100dvh;
   overflow-x: hidden;
@@ -254,10 +231,6 @@ body {
   }
 
   .nodrek-auto-hide-navbar {
-    transition-duration: 0.01ms !important;
-  }
-
-  .nodrek-logo-link {
     transition-duration: 0.01ms !important;
   }
 

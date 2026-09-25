@@ -37,8 +37,8 @@ The hero blends `#E2EFE7` through `#EEF5F1` to `#F5F8F6`. White card surfaces re
 
 ## Artwork
 
-- `public/brand/nodrek-banner.jpeg` is the supplied Nodrek artwork, unchanged (1126 × 496).
-- `public/brand/nodrek-emblem.png` is the transparent header emblem (512 × 512); `public/brand/nodrek-logo.png` is the square app icon (512 × 512), with matching 192- and 512-pixel PWA icons.
+- `public/brand/nodrek-official.jpeg` is a byte-for-byte copy of the supplied Nodrek artwork (1126 × 496), shown in the public header, hero, and footer without image optimization or cropping. The earlier `public/brand/nodrek-banner.jpeg` contains the same original bytes.
+- `public/brand/nodrek-emblem.png` is a transparent decorative emblem (512 × 512); `public/brand/nodrek-logo.png` is the square app icon (512 × 512), with matching 192- and 512-pixel PWA icons.
 - The app icon was created with the built-in imagegen tool from the supplied artwork. Prompt: isolate the existing book, scholar, graduation cap, leaves, and gold star; preserve their design, proportions, colors, and shading; remove lettering and the lower diacritic; center on pale sage with safe margins, no additional objects, border, or corner clipping. The header emblem was edited from that icon with the built-in imagegen tool to remove the sage background and preserve transparent alpha. These are adaptations, not pixel-identical crops.
 - Service-worker cache version 10 replaces cached legacy app icons.
 
