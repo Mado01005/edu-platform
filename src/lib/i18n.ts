@@ -1,6 +1,6 @@
 import type { Locale } from '@/lib/landing/types';
 
-export const DEFAULT_LOCALE: Locale = 'ar';
+export const DEFAULT_LOCALE: Locale = 'en';
 export const LANGUAGE_PREFERENCE_KEY = 'oqool-locale-v1';
 
 export function resolveLocale(

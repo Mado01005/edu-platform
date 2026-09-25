@@ -3,14 +3,13 @@
 import Link from 'next/link';
 import { ClipboardCheck, Menu, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { NodrekEmblem } from '@/components/branding/NodrekBrand';
+import { NodrekLogo } from '@/components/brand/NodrekLogo';
 import { DiagnosticAssessmentLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { useLanguage } from '@/components/i18n/language-provider';
 import { SocialLinks } from '@/components/social/SocialLinks';
 import { trackLandingEvent } from '@/lib/landing/analytics';
 import { landingContent } from '@/lib/landing/content';
-import { siteConfig } from '@/lib/siteConfig';
 
 const contactUsLabel = {
   en: 'Contact Us',
@@ -85,17 +84,7 @@ export function FloatingNavbar() {
         className={`w-full border border-brand-mint-border/60 bg-white/90 px-3 py-2 shadow-sm backdrop-blur-md transition-all duration-300 sm:px-4 ${menuOpen ? 'rounded-[1.4rem]' : 'rounded-full'}`}
       >
         <div className="flex min-h-12 items-center justify-between gap-2">
-          <Link
-            aria-label={siteConfig.title}
-            className="flex min-h-11 min-w-11 shrink-0 items-center gap-2 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30"
-            href={siteConfig.routes.home}
-          >
-            <NodrekEmblem className="size-12" preload sizes="48px" />
-            <span className="min-w-0 leading-tight">
-              <span className="block text-sm font-black text-brand-base">{siteConfig.name}</span>
-              <span className="block font-arabic text-[11px] font-bold text-brand-base" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
-            </span>
-          </Link>
+          <NodrekLogo size="md" showWordmark />
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-0.5 lg:flex">
             {landingContent.navigation.map((item) => (
@@ -122,7 +111,7 @@ export function FloatingNavbar() {
               onClick={changeLanguage}
               type="button"
             >
-              {locale === 'en' ? 'العربية' : 'EN'}
+              {locale === 'en' ? 'العربية' : 'English'}
             </button>
             <DiagnosticAssessmentLink
               before={<ClipboardCheck aria-hidden="true" className="size-4 shrink-0" />}

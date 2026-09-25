@@ -2,6 +2,7 @@ import { ArrowUpRight, Check, MessageCircle, Sparkles } from 'lucide-react';
 import { ConversionLink, DiagnosticAssessmentLink, WhatsAppLink } from '@/components/landing/ConversionLink';
 import { HeroLearningMockup } from '@/components/landing/HeroLearningMockup';
 import { LandingCopy } from '@/components/landing/LandingCopy';
+import { NodrekLogo } from '@/components/brand/NodrekLogo';
 import { siteConfig } from '@/lib/siteConfig';
 import { landingContent } from '@/lib/landing/content';
 
@@ -18,6 +19,7 @@ export function HeroSection() {
             <LandingCopy>{landingContent.hero.eyebrow}</LandingCopy>
           </div>
 
+          <NodrekLogo className="mx-auto mt-4 lg:mx-0" size="lg" />
           <LandingCopy as="p" className="mt-5 text-xs font-bold tracking-[0.2em] text-brand-base">{siteConfig.tagline}</LandingCopy>
           <h1 className="mt-4 text-balance text-[2.55rem] font-black leading-[1.02] tracking-[-0.045em] text-brand-base sm:text-6xl lg:text-[4.25rem]">
             <LandingCopy>{landingContent.hero.title}</LandingCopy>

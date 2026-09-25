@@ -23,7 +23,7 @@ export const landingContent = {
   hero: {
     eyebrow: text('Managed learning for Grades 1–12', 'تعلم مُدار للصفوف من الأول إلى الثاني عشر'),
     title: text(
-      'More Than Tutoring. A Learning Journey Built Around Your Child.',
+      'Managed Online Education & Diagnostic Assessments',
       'أكثر من مجرد دروس خصوصية… رحلة تعلم متكاملة مصممة حول احتياجات ابنك.',
     ),
     description: text(

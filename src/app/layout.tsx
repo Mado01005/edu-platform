@@ -51,8 +51,8 @@ export const metadata: Metadata = {
         alt: 'Nodrek Learning Hub — LEARN • GROW • ACHIEVE',
       },
     ],
-    locale: 'ar_SA',
-    alternateLocale: ['en_US'],
+    locale: 'en_US',
+    alternateLocale: ['ar_SA'],
     type: 'website',
   },
   twitter: {

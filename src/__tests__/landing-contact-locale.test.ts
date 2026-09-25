@@ -6,12 +6,13 @@ import {
 } from '@/lib/siteConfig';
 
 describe('landing locale and contact configuration', () => {
-  test('defaults first visits and invalid preferences to Arabic', () => {
-    expect(DEFAULT_LOCALE).toBe('ar');
-    expect(resolveLocale(undefined)).toBe('ar');
-    expect(resolveLocale(null)).toBe('ar');
-    expect(resolveLocale('unsupported')).toBe('ar');
+  test('defaults first visits and invalid preferences to English while preserving Arabic choices', () => {
+    expect(DEFAULT_LOCALE).toBe('en');
+    expect(resolveLocale(undefined)).toBe('en');
+    expect(resolveLocale(null)).toBe('en');
+    expect(resolveLocale('unsupported')).toBe('en');
     expect(resolveLocale('en')).toBe('en');
+    expect(resolveLocale('ar')).toBe('ar');
   });
 
   test.each(['en', 'ar'] as const)(
