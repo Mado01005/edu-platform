@@ -46,10 +46,11 @@ export async function sendSupportInquiryEmail(
   const apiKey = process.env.RESEND_API_KEY?.trim();
 
   if (!apiKey) {
-    console.warn('[SUPPORT_EMAIL_NOT_CONFIGURED]', {
-      reason: 'missing_resend_api_key',
-      reference: input.reference,
-    });
+    console.error(
+      '[SUPPORT_INQUIRY_DISPATCH_ERROR]',
+      new Error('RESEND_API_KEY is missing'),
+      { reference: input.reference },
+    );
     return { status: 'not_configured' };
   }
 
@@ -65,24 +66,23 @@ export async function sendSupportInquiryEmail(
           { name: 'locale', value: input.locale },
         ],
         text: supportEmailText(input),
-        to: [siteConfig.support.email],
+        to: [process.env.SUPPORT_INBOX_EMAIL?.trim() || siteConfig.support.email],
       },
       { idempotencyKey: `support-inquiry/${input.inquiryId}` },
     );
 
     if (error || !data?.id) {
-      console.warn('[SUPPORT_EMAIL_DISPATCH_PENDING]', {
-        code: error?.name,
-        reason: error ? 'provider_rejected' : 'missing_provider_message_id',
-        reference: input.reference,
-      });
+      console.error(
+        '[SUPPORT_INQUIRY_DISPATCH_ERROR]',
+        error || new Error('Resend returned no message ID'),
+        { reference: input.reference },
+      );
       return { status: 'failed' };
     }
 
     return { providerMessageId: data.id, status: 'sent' };
-  } catch {
-    console.warn('[SUPPORT_EMAIL_DISPATCH_PENDING]', {
-      reason: 'provider_exception',
+  } catch (error) {
+    console.error('[SUPPORT_INQUIRY_DISPATCH_ERROR]', error, {
       reference: input.reference,
     });
     return { status: 'failed' };

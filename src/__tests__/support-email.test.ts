@@ -22,18 +22,20 @@ const emailInput = {
 describe('support inquiry email delivery', () => {
   const originalApiKey = process.env.RESEND_API_KEY;
   const originalFrom = process.env.SUPPORT_EMAIL_FROM;
-  let consoleWarn: jest.SpiedFunction<typeof console.warn>;
+  const originalInbox = process.env.SUPPORT_INBOX_EMAIL;
+  let consoleError: jest.SpiedFunction<typeof console.error>;
 
   beforeEach(() => {
     delete process.env.RESEND_API_KEY;
     delete process.env.SUPPORT_EMAIL_FROM;
+    delete process.env.SUPPORT_INBOX_EMAIL;
     mockResendConstructor.mockClear();
     mockResendSend.mockReset();
-    consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
-    consoleWarn.mockRestore();
+    consoleError.mockRestore();
   });
 
   afterAll(() => {
@@ -42,20 +44,21 @@ describe('support inquiry email delivery', () => {
 
     if (originalFrom === undefined) delete process.env.SUPPORT_EMAIL_FROM;
     else process.env.SUPPORT_EMAIL_FROM = originalFrom;
+
+    if (originalInbox === undefined) delete process.env.SUPPORT_INBOX_EMAIL;
+    else process.env.SUPPORT_INBOX_EMAIL = originalInbox;
   });
 
-  it('logs a non-PII fallback and reports pending when Resend is not configured', async () => {
+  it('logs the missing credential and reports pending when Resend is not configured', async () => {
     await expect(sendSupportInquiryEmail(emailInput)).resolves.toEqual({
       status: 'not_configured',
     });
 
     expect(mockResendConstructor).not.toHaveBeenCalled();
-    expect(consoleWarn).toHaveBeenCalledWith(
-      '[SUPPORT_EMAIL_NOT_CONFIGURED]',
-      {
-        reason: 'missing_resend_api_key',
-        reference: 'ABCDEFGH',
-      },
+    expect(consoleError).toHaveBeenCalledWith(
+      '[SUPPORT_INQUIRY_DISPATCH_ERROR]',
+      expect.objectContaining({ message: 'RESEND_API_KEY is missing' }),
+      { reference: 'ABCDEFGH' },
     );
   });
 
@@ -74,11 +77,11 @@ describe('support inquiry email delivery', () => {
     expect(mockResendConstructor).toHaveBeenCalledWith('re_test_key');
     expect(mockResendSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: 'Nodrek Support <Support@nodrekhub.com>',
+        from: 'Nodrek Support <support@nodrekhub.com>',
         replyTo: 'parent@example.com',
         subject: 'New Nodrek support inquiry — ABCDEFGH',
         text: expect.stringContaining('Phone: +201554225979'),
-        to: ['Support@nodrekhub.com'],
+        to: ['support@nodrekhub.com'],
       }),
       { idempotencyKey: 'support-inquiry/cm12345678ABCDEFGH' },
     );
@@ -99,17 +102,37 @@ describe('support inquiry email delivery', () => {
     await expect(sendSupportInquiryEmail(emailInput)).resolves.toEqual({
       status: 'failed',
     });
-    expect(consoleWarn).toHaveBeenCalledWith(
-      '[SUPPORT_EMAIL_DISPATCH_PENDING]',
-      {
-        code: 'validation_error',
-        reason: 'provider_rejected',
-        reference: 'ABCDEFGH',
-      },
+    expect(consoleError).toHaveBeenCalledWith(
+      '[SUPPORT_INQUIRY_DISPATCH_ERROR]',
+      { message: 'Domain is not verified.', name: 'validation_error' },
+      { reference: 'ABCDEFGH' },
     );
-    const serializedWarnings = JSON.stringify(consoleWarn.mock.calls);
-    expect(serializedWarnings).not.toContain(emailInput.email);
-    expect(serializedWarnings).not.toContain(emailInput.message);
-    expect(serializedWarnings).not.toContain(emailInput.phone);
+  });
+
+  it('honors an explicitly configured support inbox', async () => {
+    process.env.RESEND_API_KEY = 're_test_key';
+    process.env.SUPPORT_INBOX_EMAIL = 'other-inbox@example.com';
+    mockResendSend.mockResolvedValue({ data: { id: 'email_123' }, error: null });
+
+    await sendSupportInquiryEmail(emailInput);
+
+    expect(mockResendSend.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ to: ['other-inbox@example.com'] }),
+    );
+  });
+
+  it('logs the exact provider exception and reports pending', async () => {
+    process.env.RESEND_API_KEY = 're_test_key';
+    const failure = new Error('SMTP auth failure');
+    mockResendSend.mockRejectedValue(failure);
+
+    await expect(sendSupportInquiryEmail(emailInput)).resolves.toEqual({
+      status: 'failed',
+    });
+    expect(consoleError).toHaveBeenCalledWith(
+      '[SUPPORT_INQUIRY_DISPATCH_ERROR]',
+      failure,
+      { reference: 'ABCDEFGH' },
+    );
   });
 });

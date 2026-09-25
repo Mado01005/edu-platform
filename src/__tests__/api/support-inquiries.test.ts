@@ -41,7 +41,10 @@ function supportRequest(
 }
 
 describe('public support inquiry API', () => {
+  let consoleLog: jest.SpiedFunction<typeof console.log>;
+
   beforeEach(() => {
+    consoleLog = jest.spyOn(console, 'log').mockImplementation(() => undefined);
     mockSupportInquiryCreate.mockReset();
     mockSupportInquiryCreate.mockResolvedValue({ id: 'cm12345678ABCDEFGH' });
     mockSendSupportInquiryEmail.mockReset();
@@ -49,6 +52,10 @@ describe('public support inquiry API', () => {
       providerMessageId: 'email_123',
       status: 'sent',
     });
+  });
+
+  afterEach(() => {
+    consoleLog.mockRestore();
   });
 
   it('validates, normalizes, and stores a same-origin inquiry', async () => {
@@ -81,6 +88,17 @@ describe('public support inquiry API', () => {
       phone: '+201554225979',
       reference: 'ABCDEFGH',
     });
+    expect(consoleLog).toHaveBeenCalledWith('[SUPPORT_INQUIRY_RECEIVED]', {
+      reference: 'ABCDEFGH',
+      name: 'Amina Hassan',
+      email: 'parent@example.com',
+      phone: '+201554225979',
+      message: validBody.message,
+    });
+    expect(consoleLog).toHaveBeenCalledWith(
+      '[SUPPORT_INQUIRY_DISPATCH_ACCEPTED]',
+      { reference: 'ABCDEFGH', providerMessageId: 'email_123' },
+    );
   });
 
   it('keeps the stored inquiry successful while reporting pending email delivery', async () => {
@@ -97,6 +115,10 @@ describe('public support inquiry API', () => {
       reference: 'ABCDEFGH',
     });
     expect(mockSupportInquiryCreate).toHaveBeenCalledTimes(1);
+    expect(consoleLog).toHaveBeenCalledWith(
+      '[SUPPORT_INQUIRY_RECEIVED]',
+      expect.objectContaining({ reference: 'ABCDEFGH', message: validBody.message }),
+    );
   });
 
   it('keeps the stored inquiry successful when Resend rejects the sender', async () => {

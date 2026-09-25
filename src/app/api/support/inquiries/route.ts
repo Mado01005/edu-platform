@@ -53,6 +53,13 @@ export async function POST(request: Request) {
   try {
     const inquiry = await createPublicSupportInquiry(parsed.data);
     const reference = inquiry.id.slice(-8).toUpperCase();
+    console.log('[SUPPORT_INQUIRY_RECEIVED]', {
+      reference,
+      name: `${parsed.data.firstName} ${parsed.data.lastName}`,
+      email: parsed.data.email,
+      phone: parsed.data.phone,
+      message: parsed.data.message,
+    });
     const emailDelivery = await sendSupportInquiryEmail({
       email: parsed.data.email,
       firstName: parsed.data.firstName,
@@ -64,6 +71,12 @@ export async function POST(request: Request) {
       reference,
     });
     const emailWasSent = emailDelivery.status === 'sent';
+    if (emailWasSent) {
+      console.log('[SUPPORT_INQUIRY_DISPATCH_ACCEPTED]', {
+        reference,
+        providerMessageId: emailDelivery.providerMessageId,
+      });
+    }
 
     return noStoreJson(
       {
