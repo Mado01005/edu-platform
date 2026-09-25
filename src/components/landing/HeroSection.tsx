@@ -1,5 +1,5 @@
 import { ArrowUpRight, Check, MessageCircle, Sparkles } from 'lucide-react';
-import { ConversionLink, WhatsAppLink } from '@/components/landing/ConversionLink';
+import { ConversionLink, DiagnosticAssessmentLink, WhatsAppLink } from '@/components/landing/ConversionLink';
 import { HeroLearningMockup } from '@/components/landing/HeroLearningMockup';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { siteConfig } from '@/lib/siteConfig';
@@ -27,9 +27,9 @@ export function HeroSection() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-start">
-            <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand-gold px-6 text-sm font-bold text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(232,190,95,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" intent="diagnostic" label="hero_diagnostic">
+            <DiagnosticAssessmentLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand-gold px-6 text-sm font-bold text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(232,190,95,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" label="hero_diagnostic">
               {landingContent.hero.primary}
-            </WhatsAppLink>
+            </DiagnosticAssessmentLink>
             <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-base bg-white px-6 text-sm font-bold text-brand-base shadow-sm outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-brand-base/5 hover:shadow-md focus-visible:ring-4 focus-visible:ring-brand-gold/25" eventName="hero_free_lesson_click" intent="freeLesson" label="hero_free_lesson">
               {landingContent.hero.secondary}
             </WhatsAppLink>

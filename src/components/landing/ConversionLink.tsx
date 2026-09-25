@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { MouseEvent, ReactNode } from 'react';
+import { DIAGNOSTIC_ASSESSMENT_URL } from '@/config/links';
 import {
   currentUtmAttribution,
   trackLandingEvent,
@@ -68,6 +69,35 @@ export function ConversionLink({
   );
 }
 
+type LocalizedConversionLinkProps = {
+  before?: ReactNode;
+  children: LocalizedText;
+  className: string;
+  eventName: LandingEventName;
+  label: string;
+};
+
+export function DiagnosticAssessmentLink({
+  before,
+  children,
+  className,
+  eventName,
+  label,
+}: LocalizedConversionLinkProps) {
+  return (
+    <ConversionLink
+      className={className}
+      eventName={eventName}
+      href={DIAGNOSTIC_ASSESSMENT_URL}
+      label={label}
+      newTab
+    >
+      {before}
+      <LandingCopy>{children}</LandingCopy>
+    </ConversionLink>
+  );
+}
+
 export function WhatsAppLink({
   before,
   children,
@@ -75,13 +105,8 @@ export function WhatsAppLink({
   eventName,
   intent,
   label,
-}: {
-  before?: ReactNode;
-  children: LocalizedText;
-  className: string;
-  eventName: LandingEventName;
+}: LocalizedConversionLinkProps & {
   intent: WhatsAppIntent;
-  label: string;
 }) {
   const { locale } = useLanguage();
 

@@ -1,5 +1,6 @@
 import { ArrowRight, CheckCircle2, ClipboardList, Eye, RefreshCw } from 'lucide-react';
 import { WhatsAppLink } from '@/components/landing/ConversionLink';
+import { NodrekEmblem } from '@/components/branding/NodrekBrand';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { landingContent, verifiedTestimonials } from '@/lib/landing/content';
 
@@ -23,9 +24,10 @@ export function OutcomesSection() {
             ))}
           </div>
         ) : (
-          <div className="mt-12 overflow-hidden rounded-3xl border border-brand-mint-border bg-white p-5 text-brand-base shadow-sm backdrop-blur-md sm:p-8">
-            <div className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-2xl bg-brand-gold/15 text-brand-base"><Eye aria-hidden="true" className="size-5" /></span><LandingCopy as="h3" className="font-black text-brand-base">{landingContent.outcomes.sampleLabel}</LandingCopy></div>
-            <ol className="mt-8 grid gap-3 md:grid-cols-5">
+          <div className="relative isolate mt-12 overflow-hidden rounded-3xl border border-brand-mint-border bg-white p-5 text-brand-base shadow-sm backdrop-blur-md sm:p-8">
+            <NodrekEmblem className="pointer-events-none absolute end-5 top-3 size-44 opacity-[0.07] sm:end-8" decorative sizes="176px" />
+            <div className="relative flex items-center gap-3"><span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-gold/15 text-brand-base"><Eye aria-hidden="true" className="size-5" /></span><LandingCopy as="h3" className="font-black text-brand-base">{landingContent.outcomes.sampleLabel}</LandingCopy></div>
+            <ol className="relative mt-8 grid gap-3 md:grid-cols-5">
               {landingContent.outcomes.sequence.map((item, index) => (
                 <li className="landing-card relative flex min-h-28 flex-col justify-between rounded-2xl border border-brand-base/10 bg-brand-ivory-alt p-4 shadow-lg shadow-brand-base/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45" key={item.en}>
                   <span className="text-xs font-black tabular-nums text-brand-gold">0{index + 1}</span>
@@ -34,6 +36,13 @@ export function OutcomesSection() {
                 </li>
               ))}
             </ol>
+            <div className="relative mt-6 flex items-center justify-end gap-2 border-t border-brand-gold/25 pt-4">
+              <NodrekEmblem className="size-10" decorative />
+              <LandingCopy className="text-xs font-bold text-brand-base">{{
+                en: 'Nodrek Academic Standard',
+                ar: 'معيار نُدرك الأكاديمي',
+              }}</LandingCopy>
+            </div>
           </div>
         )}
 

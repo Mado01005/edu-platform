@@ -1,7 +1,8 @@
-import { CheckCircle2 } from 'lucide-react';
-import { WhatsAppLink } from '@/components/landing/ConversionLink';
+import { NodrekEmblem } from '@/components/branding/NodrekBrand';
+import { DiagnosticAssessmentLink, WhatsAppLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { landingContent } from '@/lib/landing/content';
+import { siteConfig } from '@/lib/siteConfig';
 
 export function FinalCTASection() {
   return (
@@ -10,14 +11,19 @@ export function FinalCTASection() {
       <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center overflow-hidden rounded-3xl border border-brand-rim bg-brand-surface px-5 py-14 text-center shadow-2xl shadow-black/30 backdrop-blur-md sm:px-10 sm:py-20">
         <div aria-hidden="true" className="absolute -left-20 -top-20 size-64 rounded-full border-[52px] border-brand-border/35" />
         <div aria-hidden="true" className="absolute -bottom-24 -right-20 size-72 rounded-full border-[42px] border-brand-gold/10" />
-        <CheckCircle2 aria-hidden="true" className="relative size-10 text-brand-gold" />
+        <NodrekEmblem className="relative size-36 sm:size-44" sizes="(min-width: 640px) 176px, 144px" />
+        <p className="relative mt-3 flex max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-bold text-brand-gold" dir="ltr">
+          <span className="tracking-[0.12em]" lang="en">{siteConfig.tagline.en}</span>
+          <span aria-hidden="true">|</span>
+          <span className="font-arabic" dir="rtl" lang="ar">{siteConfig.tagline.ar}</span>
+        </p>
         <LandingCopy className="relative mt-5 text-xs font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.finalCta.eyebrow}</LandingCopy>
         <LandingCopy as="h2" className="relative mt-4 max-w-4xl text-balance text-3xl font-black tracking-tight sm:text-5xl">{landingContent.finalCta.title}</LandingCopy>
         <LandingCopy as="p" className="relative mt-5 max-w-2xl text-sm leading-7 text-brand-muted/80 sm:text-base">{landingContent.finalCta.description}</LandingCopy>
         <div className="relative mt-8 flex w-full max-w-xl flex-col justify-center gap-3 sm:flex-row">
-          <WhatsAppLink className="landing-cta inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-brand-gold px-6 text-sm font-black text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(232,190,95,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="final_diagnostic_click" intent="diagnostic" label="final_diagnostic">
+          <DiagnosticAssessmentLink className="landing-cta inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-brand-gold px-6 text-sm font-black text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(232,190,95,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="final_diagnostic_click" label="final_diagnostic">
             {landingContent.finalCta.primary}
-          </WhatsAppLink>
+          </DiagnosticAssessmentLink>
           <WhatsAppLink className="landing-cta inline-flex min-h-12 flex-1 items-center justify-center rounded-full border border-brand-gold bg-brand-base px-6 text-sm font-black text-brand-white shadow-lg shadow-black/20 ring-1 ring-brand-rim outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:text-brand-gold-hover hover:shadow-[0_0_28px_rgba(232,190,95,0.16)] focus-visible:ring-4 focus-visible:ring-brand-gold/30" eventName="hero_free_lesson_click" intent="freeLesson" label="final_free_lesson">
             {landingContent.finalCta.secondary}
           </WhatsAppLink>

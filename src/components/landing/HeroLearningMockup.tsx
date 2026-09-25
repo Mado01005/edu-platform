@@ -1,11 +1,11 @@
 import {
   BookOpenCheck,
   CalendarClock,
-  ChartNoAxesColumnIncreasing,
   ClipboardCheck,
   MessageSquareText,
   Target,
 } from 'lucide-react';
+import { NodrekEmblem } from '@/components/branding/NodrekBrand';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 
 const cards = [
@@ -23,8 +23,12 @@ export function HeroLearningMockup() {
           <div>
             <LandingCopy as="p" className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-gold">{{ en: 'Sample Progress View', ar: 'نموذج توضيحي للتقدم' }}</LandingCopy>
             <LandingCopy as="p" className="mt-1 text-sm font-black sm:text-base">{{ en: 'Your child’s learning journey', ar: 'رحلة تعلم ابنك' }}</LandingCopy>
+            <LandingCopy as="p" className="mt-2 text-[10px] font-bold leading-5 text-brand-gold">{{
+              en: 'Verified Assessment • Nodrek Learning Hub',
+              ar: 'تقييم موثّق • نُدرك للتعليم المتكامل',
+            }}</LandingCopy>
           </div>
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-surface text-brand-gold"><ChartNoAxesColumnIncreasing aria-hidden="true" className="size-5" /></span>
+          <NodrekEmblem className="size-14" decorative sizes="56px" />
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-3">

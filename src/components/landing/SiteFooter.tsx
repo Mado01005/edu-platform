@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Mail } from 'lucide-react';
+import { NodrekEmblem } from '@/components/branding/NodrekBrand';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { SocialLinks } from '@/components/social/SocialLinks';
 import { landingContent } from '@/lib/landing/content';
@@ -11,11 +11,11 @@ export function SiteFooter() {
     <footer className="bg-brand-base pb-24 text-brand-white md:pb-0" id="site-footer">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.35fr_0.65fr_0.65fr] lg:px-8">
         <div>
-          <div className="flex items-center gap-4">
-            <Image alt="Nodrek Learning Hub official crest" className="size-16 rounded-2xl bg-white p-1 object-contain" height={64} loading="lazy" sizes="64px" src={siteConfig.brand.logo} width={64} />
-            <span>
-              <span className="block text-lg font-black">{siteConfig.name}</span>
-              <span className="mt-1 block font-arabic text-sm font-bold text-brand-gold" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4 md:flex-col md:items-start lg:flex-row lg:items-center">
+            <NodrekEmblem className="size-28" sizes="112px" />
+            <span className="min-w-0">
+              <span className="block text-xl font-black">{siteConfig.name}</span>
+              <span className="mt-2 block font-arabic text-base font-bold text-brand-gold" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
             </span>
           </div>
           <LandingCopy as="p" className="mt-4 text-xs font-bold tracking-widest text-brand-gold">{siteConfig.tagline}</LandingCopy>

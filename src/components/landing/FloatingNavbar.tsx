@@ -1,16 +1,16 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, MessageCircle, X } from 'lucide-react';
+import { ClipboardCheck, Menu, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { ConversionLink } from '@/components/landing/ConversionLink';
+import { NodrekEmblem } from '@/components/branding/NodrekBrand';
+import { DiagnosticAssessmentLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { useLanguage } from '@/components/i18n/language-provider';
 import { SocialLinks } from '@/components/social/SocialLinks';
 import { trackLandingEvent } from '@/lib/landing/analytics';
 import { landingContent } from '@/lib/landing/content';
-import { getWhatsAppUrl, siteConfig } from '@/lib/siteConfig';
+import { siteConfig } from '@/lib/siteConfig';
 
 const contactUsLabel = {
   en: 'Contact Us',
@@ -90,14 +90,7 @@ export function FloatingNavbar() {
             className="flex min-h-11 min-w-11 shrink-0 items-center gap-2 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30"
             href={siteConfig.routes.home}
           >
-            <Image
-              alt="Nodrek Learning Hub official crest"
-              className="size-10 object-contain"
-              height={48}
-              priority
-              src={siteConfig.brand.logo}
-              width={48}
-            />
+            <NodrekEmblem className="size-12" preload sizes="48px" />
             <span className="min-w-0 leading-tight">
               <span className="block text-sm font-black text-brand-base">{siteConfig.name}</span>
               <span className="block font-arabic text-[11px] font-bold text-brand-base" dir="rtl" lang="ar">{siteConfig.arabicName}</span>
@@ -131,17 +124,14 @@ export function FloatingNavbar() {
             >
               {locale === 'en' ? 'العربية' : 'EN'}
             </button>
-            <ConversionLink
+            <DiagnosticAssessmentLink
+              before={<ClipboardCheck aria-hidden="true" className="size-4 shrink-0" />}
               className="landing-cta hidden min-h-11 items-center justify-center gap-2 rounded-full bg-brand-gold px-4 text-xs font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(232,190,95,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:inline-flex"
               eventName="navbar_diagnostic_click"
-              href={getWhatsAppUrl('diagnostic', locale)}
               label="navbar"
-              newTab
-              whatsapp
             >
-              <MessageCircle aria-hidden="true" className="size-4" />
-              <LandingCopy>{landingContent.hero.primary}</LandingCopy>
-            </ConversionLink>
+              {landingContent.hero.primary}
+            </DiagnosticAssessmentLink>
             <button
               aria-controls="landing-mobile-menu"
               aria-expanded={menuOpen}
@@ -178,17 +168,14 @@ export function FloatingNavbar() {
             >
               <LandingCopy>{contactUsLabel}</LandingCopy>
             </Link>
-            <ConversionLink
+            <DiagnosticAssessmentLink
+              before={<ClipboardCheck aria-hidden="true" className="size-4 shrink-0" />}
               className="landing-cta mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-gold px-4 text-sm font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(232,190,95,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:hidden"
               eventName="navbar_diagnostic_click"
-              href={getWhatsAppUrl('diagnostic', locale)}
               label="mobile_menu"
-              newTab
-              whatsapp
             >
-              <MessageCircle aria-hidden="true" className="size-4" />
-              <LandingCopy>{landingContent.hero.primary}</LandingCopy>
-            </ConversionLink>
+              {landingContent.hero.primary}
+            </DiagnosticAssessmentLink>
             <div className="mt-3 border-t border-brand-base/10 pt-3">
               <LandingCopy className="block text-center text-[10px] font-black uppercase tracking-[0.16em] text-brand-surface/60">{{
                 en: 'Follow Nodrek Learning Hub',

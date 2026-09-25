@@ -5,20 +5,26 @@ import { cn } from '@/lib/utils';
 interface NodrekEmblemProps {
   className?: string;
   decorative?: boolean;
+  preload?: boolean;
+  sizes?: string;
 }
 
 export function NodrekEmblem({
   className,
   decorative = false,
+  preload = false,
+  sizes = '40px',
 }: NodrekEmblemProps) {
   return (
     <Image
       alt={decorative ? '' : `${siteConfig.name} emblem`}
       aria-hidden={decorative || undefined}
       className={cn('size-10 shrink-0 object-contain', className)}
-      height={64}
+      height={512}
+      preload={preload}
+      sizes={sizes}
       src={siteConfig.brand.logo}
-      width={64}
+      width={512}
     />
   );
 }
