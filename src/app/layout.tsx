@@ -10,14 +10,14 @@ import 'katex/dist/katex.min.css';
 import { auth } from '@/auth';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { LanguageProvider } from '@/components/i18n/language-provider';
+import { SOCIAL_LINKS } from '@/config/socials';
 import { siteConfig } from '@/lib/siteConfig';
 import { LANGUAGE_PREFERENCE_KEY, resolveLocale } from '@/lib/i18n';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-english' });
 const cairo = Cairo({ subsets: ['arabic'], display: 'swap', variable: '--font-arabic' });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
-  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : siteConfig.url);
+const SITE_URL = siteConfig.url;
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -70,6 +70,19 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: '#052F26' };
 
+const educationalOrganization = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  name: siteConfig.name,
+  alternateName: siteConfig.arabicName,
+  url: siteConfig.url,
+  logo: `${siteConfig.url}${siteConfig.brand.logo}`,
+  description: siteConfig.description,
+  telephone: siteConfig.whatsapp.supportLines[1].displayNumber,
+  email: siteConfig.support.email,
+  sameAs: SOCIAL_LINKS.map(({ url }) => url),
+};
+
 export default async function RootLayout({
   children,
 }: {
@@ -92,6 +105,12 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className={`${inter.className} ${inter.variable} ${cairo.variable} overflow-x-hidden bg-surface-canvas text-brand-700 antialiased`}>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(educationalOrganization).replace(/</g, '\\u003c'),
+          }}
+          type="application/ld+json"
+        />
         <LanguageProvider initialLocale={initialLocale}>
           <Providers session={session}>
             <div className="flex min-h-dvh w-full min-w-0">

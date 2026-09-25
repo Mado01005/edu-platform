@@ -46,29 +46,12 @@ export const metadata: Metadata = {
   },
 };
 
-const educationalOrganization = {
-  '@context': 'https://schema.org',
-  '@type': 'EducationalOrganization',
-  name: siteConfig.name,
-  alternateName: siteConfig.arabicName,
-  url: siteConfig.url,
-  logo: `${siteConfig.url}${siteConfig.brand.logo}`,
-  description,
-  areaServed: ['Saudi Arabia', 'United Arab Emirates'],
-};
-
 export default function RootPage() {
   return (
     <div className="min-h-dvh w-full min-w-0 max-w-full overflow-x-clip bg-brand-ivory text-brand-base">
       <a className="sr-only z-[100] rounded-lg bg-brand-gold px-4 py-3 font-bold text-brand-base focus:not-sr-only focus:fixed focus:left-4 focus:top-4" href="#main-content">
         Skip to main content
       </a>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(educationalOrganization).replace(/</g, '\\u003c'),
-        }}
-        type="application/ld+json"
-      />
       <LandingAnalytics />
       <FloatingNavbar />
       <main id="main-content">

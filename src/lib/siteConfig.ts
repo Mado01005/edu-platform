@@ -19,7 +19,7 @@ export const siteConfig = {
   description: 'Managed learning, diagnostic assessments, and personalized education for grades 1–12.',
   tagline: { en: 'LEARN • GROW • ACHIEVE', ar: 'نتعلم • ننمو • ننجز' },
   copyright: '© 2026 Nodrek Learning Hub | نُدرك للتعليم المتكامل. All rights reserved.',
-  url: 'https://oqoolacademy.com',
+  url: 'https://www.oqoolacademy.com',
   routes: {
     home: '/',
     privacy: '/privacy',

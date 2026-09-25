@@ -1,14 +1,20 @@
 import { MetadataRoute } from 'next';
+import { siteConfig } from '@/lib/siteConfig';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.edu-platform.me';
+  const publicRules = {
+    allow: '/',
+    disallow: ['/admin/', '/api/admin/'],
+  };
 
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/admin/', '/api/admin/'], // Hide admin routes from Google
-    },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    rules: [
+      { userAgent: '*', ...publicRules },
+      {
+        userAgent: ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'PerplexityBot', 'Perplexity-User'],
+        ...publicRules,
+      },
+    ],
+    sitemap: `${siteConfig.url}/sitemap.xml`,
   };
 }

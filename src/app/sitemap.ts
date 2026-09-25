@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { siteConfig } from '@/lib/siteConfig';
 
 const publicRoutes = [
   { path: '/', changeFrequency: 'daily', priority: 1 },
@@ -15,11 +16,10 @@ const publicRoutes = [
 }>;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.edu-platform.me';
   const lastModified = new Date();
 
   return publicRoutes.map(({ changeFrequency, path, priority }) => ({
-    url: new URL(path, baseUrl).toString(),
+    url: new URL(path, siteConfig.url).toString(),
     lastModified,
     changeFrequency,
     priority,
