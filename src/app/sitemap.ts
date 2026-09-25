@@ -2,13 +2,8 @@ import { MetadataRoute } from 'next';
 import { siteConfig } from '@/lib/siteConfig';
 
 const publicRoutes = [
-  { path: '/', changeFrequency: 'daily', priority: 1 },
-  { path: '/catalog', changeFrequency: 'daily', priority: 0.9 },
-  { path: '/preview', changeFrequency: 'daily', priority: 0.8 },
-  { path: '/support', changeFrequency: 'monthly', priority: 0.7 },
-  { path: '/lms/login', changeFrequency: 'monthly', priority: 0.7 },
-  { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
-  { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
+  { path: '/', changeFrequency: 'weekly', priority: 1 },
+  { path: '/support', changeFrequency: 'monthly', priority: 0.8 },
 ] as const satisfies ReadonlyArray<{
   path: `/${string}`;
   changeFrequency: NonNullable<MetadataRoute.Sitemap[number]['changeFrequency']>;

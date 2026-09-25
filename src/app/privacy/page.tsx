@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { LegalPageShell, type LegalSection } from '@/components/legal/legal-page-shell';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Nodrek Learning Hub',
+  title: 'Privacy Policy',
   description: 'How Nodrek Learning Hub collects, uses, protects, and shares student and account information.',
 };
 

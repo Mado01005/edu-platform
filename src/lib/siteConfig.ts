@@ -1,16 +1,6 @@
 import type { Locale } from '@/lib/landing/types';
 
-const FALLBACK_WHATSAPP_NUMBER = '966596899362';
-
-function digitsOnly(value: string) {
-  return value.replace(/\D/g, '');
-}
-
-const configuredWhatsAppNumber = digitsOnly(
-  process.env.NEXT_PUBLIC_NODREK_WHATSAPP_NUMBER
-    ?? process.env.NEXT_PUBLIC_OQOOL_WHATSAPP_NUMBER
-    ?? FALLBACK_WHATSAPP_NUMBER,
-);
+const SUPPORT_NUMBER = '201554225979';
 
 export const siteConfig = {
   name: 'Nodrek Learning Hub',
@@ -19,7 +9,7 @@ export const siteConfig = {
   description: 'Managed learning, diagnostic assessments, and personalized education for grades 1–12.',
   tagline: { en: 'LEARN • GROW • ACHIEVE', ar: 'نتعلم • ننمو • ننجز' },
   copyright: '© 2026 Nodrek Learning Hub | نُدرك للتعليم المتكامل. All rights reserved.',
-  url: 'https://www.oqoolacademy.com',
+  url: 'https://www.nodrekhub.com',
   routes: {
     home: '/',
     privacy: '/privacy',
@@ -38,17 +28,11 @@ export const siteConfig = {
     bannerHeight: 496,
   },
   whatsapp: {
-    number: configuredWhatsAppNumber || FALLBACK_WHATSAPP_NUMBER,
+    number: SUPPORT_NUMBER,
     supportLines: [
       {
-        id: 'saudi',
-        number: '966596899362',
-        displayNumber: '+966 59 689 9362',
-        label: { en: 'Saudi Arabia Support', ar: 'الدعم في السعودية' },
-      },
-      {
         id: 'egypt-primary',
-        number: '201554225979',
+        number: SUPPORT_NUMBER,
         displayNumber: '+20 155 422 5979',
         internationalNumber: '00201554225979',
         label: { en: 'Egypt Support', ar: 'خط دعم مصر' },

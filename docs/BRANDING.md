@@ -7,13 +7,12 @@ The motto is **LEARN • GROW • ACHIEVE** / **نتعلم • ننمو • نن
 
 ## Support
 
-1. Saudi Arabia Support: **+966 59 689 9362**, WhatsApp `https://wa.me/966596899362`.
-2. Egypt Support: **+20 155 422 5979** (international dialing **00201554225979**), WhatsApp `https://wa.me/201554225979`.
-3. Email: **Support@nodrekhub.com**.
+1. WhatsApp support: **+20 155 422 5979** (international dialing **00201554225979**), `https://wa.me/201554225979`.
+2. Email: **Support@nodrekhub.com**.
 
 Support inquiry notifications default to `Nodrek Support <Support@nodrekhub.com>`. An explicit server-side `SUPPORT_EMAIL_FROM` overrides that default. The sender domain must be verified in Resend and the support mailbox must accept incoming mail. Changing the displayed contact or default sender does not configure DNS or provision a mailbox. Inquiries remain stored if email dispatch is pending.
 
-`NEXT_PUBLIC_NODREK_WHATSAPP_NUMBER` can override the main conversion-button destination. The previous environment key remains accepted for compatibility; direct switchboard links always use the two configured support lines.
+All public WhatsApp links use the single support number in `src/lib/siteConfig.ts`.
 
 ## Palette
 

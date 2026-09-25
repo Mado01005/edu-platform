@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { LegalPageShell, type LegalSection } from '@/components/legal/legal-page-shell';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Nodrek Learning Hub',
+  title: 'Terms of Service',
   description: 'The terms governing accounts, learning services, course materials, payments, and conduct at Nodrek Learning Hub.',
 };
 

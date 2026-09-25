@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!lesson) return { title: 'Lesson Not Found' };
   
   return {
-    title: `${lesson.title} - Nodrek Learning Hub`,
+    title: lesson.title,
     description: `Study ${lesson.title} on Nodrek Learning Hub. Includes video lessons, PDF materials, and interactive content.`,
     openGraph: {
       title: `${lesson.title} — Learning Module`,

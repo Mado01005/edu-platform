@@ -20,7 +20,10 @@ const cairo = Cairo({ subsets: ['arabic'], display: 'swap', variable: '--font-ar
 const SITE_URL = siteConfig.url;
 
 export const metadata: Metadata = {
-  title: siteConfig.title,
+  title: {
+    default: siteConfig.title,
+    template: `%s | ${siteConfig.title}`,
+  },
   description: siteConfig.description,
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
@@ -70,16 +73,25 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: '#052F26' };
 
-const educationalOrganization = {
+const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'EducationalOrganization',
+  '@id': `${siteConfig.url}/#organization`,
   name: siteConfig.name,
-  alternateName: siteConfig.arabicName,
+  alternateName: [siteConfig.arabicName, 'نُدرك', 'Nodrek Hub'],
   url: siteConfig.url,
   logo: `${siteConfig.url}${siteConfig.brand.logo}`,
-  description: siteConfig.description,
-  telephone: siteConfig.whatsapp.supportLines[1].displayNumber,
+  description: 'Nodrek Learning Hub provides managed online education, diagnostic assessments, and personalized learning journeys for students in grades 1 through 12 across Egypt, Saudi Arabia, and the GCC.',
+  slogan: `${siteConfig.tagline.en} | ${siteConfig.tagline.ar}`,
+  telephone: `+${siteConfig.whatsapp.number}`,
   email: siteConfig.support.email,
+  contactPoint: [{
+    '@type': 'ContactPoint',
+    telephone: '+20-155-422-5979',
+    contactType: 'customer service',
+    availableLanguage: ['Arabic', 'English'],
+    contactOption: 'WhatsApp',
+  }],
   sameAs: SOCIAL_LINKS.map(({ url }) => url),
 };
 
@@ -107,7 +119,7 @@ export default async function RootLayout({
       <body className={`${inter.className} ${inter.variable} ${cairo.variable} overflow-x-hidden bg-surface-canvas text-brand-700 antialiased`}>
         <script
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(educationalOrganization).replace(/</g, '\\u003c'),
+            __html: JSON.stringify(organizationSchema).replace(/</g, '\\u003c'),
           }}
           type="application/ld+json"
         />

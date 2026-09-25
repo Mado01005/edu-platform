@@ -39,6 +39,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async redirects() {
+    return ['oqoolacademy.com', 'www.oqoolacademy.com'].map((host) => ({
+      source: '/:path*',
+      has: [{ type: 'host' as const, value: host }],
+      destination: 'https://www.nodrekhub.com/:path*',
+      statusCode: 301,
+    }));
+  },
   images: {
     remotePatterns: [
       {

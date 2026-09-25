@@ -6,12 +6,7 @@ describe('public storefront sitemap', () => {
   it('advertises only the public conversion routes', () => {
     expect(sitemap().map(({ url }) => url)).toEqual([
       `${siteConfig.url}/`,
-      `${siteConfig.url}/catalog`,
-      `${siteConfig.url}/preview`,
       `${siteConfig.url}/support`,
-      `${siteConfig.url}/lms/login`,
-      `${siteConfig.url}/privacy`,
-      `${siteConfig.url}/terms`,
     ]);
   });
 
@@ -20,11 +15,22 @@ describe('public storefront sitemap', () => {
 
     expect(output.sitemap).toBe(`${siteConfig.url}/sitemap.xml`);
     expect(output.rules).toEqual([
-      { userAgent: '*', allow: '/', disallow: ['/admin/', '/api/admin/'] },
       {
-        userAgent: ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'PerplexityBot', 'Perplexity-User'],
+        userAgent: [
+          'Googlebot',
+          'Bingbot',
+          'GPTBot',
+          'OAI-SearchBot',
+          'ChatGPT-User',
+          'PerplexityBot',
+          'Perplexity-User',
+          'ClaudeBot',
+          'Google-Extended',
+          'Applebot',
+          '*',
+        ],
         allow: '/',
-        disallow: ['/admin/', '/api/admin/'],
+        disallow: ['/api/', '/admin/'],
       },
     ]);
   });

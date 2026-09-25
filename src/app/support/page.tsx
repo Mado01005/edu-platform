@@ -21,7 +21,7 @@ const description =
   'Contact Nodrek Learning Hub support through WhatsApp, email, or a secure in-page support form.';
 
 export const metadata: Metadata = {
-  title: 'Support Center | Nodrek Learning Hub',
+  title: 'Support Center',
   description,
   alternates: { canonical: `${siteConfig.url}${siteConfig.routes.support}` },
   openGraph: {
@@ -106,14 +106,14 @@ export default function PublicSupportPage() {
             <div className="min-w-0">
               <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-brand-rim bg-brand-surface px-4 text-xs font-black uppercase tracking-[0.14em] text-brand-gold">
                 <Headphones aria-hidden="true" className="size-4" />
-                <LandingCopy>{{ en: 'Human support, two direct lines', ar: 'دعم مباشر عبر خطين' }}</LandingCopy>
+                <LandingCopy>{{ en: 'Human support on WhatsApp', ar: 'دعم مباشر عبر واتساب' }}</LandingCopy>
               </p>
               <h1 className="mt-6 max-w-3xl text-5xl font-black leading-[0.98] tracking-[-0.045em] text-brand-white sm:text-6xl lg:text-7xl">
                 <LandingCopy>{{ en: 'Support Center', ar: 'مركز الدعم' }}</LandingCopy>
               </h1>
               <LandingCopy as="p" className="mt-6 max-w-2xl text-base leading-8 text-brand-muted/80 sm:text-lg">{{
-                en: 'Choose a direct WhatsApp line for a quick conversation, or send a detailed message through the secure form below. Our team will follow up using the contact details you provide.',
-                ar: 'اختر أحد خطوط واتساب للتواصل السريع، أو أرسل رسالة مفصلة عبر النموذج الآمن أدناه. سيتابع فريقنا معك باستخدام بيانات الاتصال التي تقدمها.',
+                en: 'Start a WhatsApp conversation, or send a detailed message through the secure form below. Our team will follow up using the contact details you provide.',
+                ar: 'ابدأ محادثة عبر واتساب، أو أرسل رسالة مفصلة عبر النموذج الآمن أدناه. سيتابع فريقنا معك باستخدام بيانات الاتصال التي تقدمها.',
               }}</LandingCopy>
             </div>
 
@@ -140,10 +140,10 @@ export default function PublicSupportPage() {
           <div className="mb-8 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gold">
-                <LandingCopy>{{ en: 'Direct support switchboard', ar: 'خطوط الدعم المباشر' }}</LandingCopy>
+                <LandingCopy>{{ en: 'Direct WhatsApp support', ar: 'دعم واتساب المباشر' }}</LandingCopy>
               </p>
               <h2 className="mt-2 text-3xl font-black tracking-tight text-brand-white sm:text-4xl" id="whatsapp-support-title">
-                <LandingCopy>{{ en: 'Choose the line that suits you.', ar: 'اختر خط التواصل المناسب لك.' }}</LandingCopy>
+                <LandingCopy>{{ en: 'Speak with our team.', ar: 'تواصل مع فريقنا.' }}</LandingCopy>
               </h2>
             </div>
             <p className="inline-flex items-center gap-2 text-sm font-bold text-brand-muted/70">
