@@ -8,7 +8,7 @@ interface NodrekLogoProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const logoWidths = { sm: 'w-24 sm:w-28', md: 'w-28 sm:w-32', lg: 'w-40 sm:w-52' } as const;
+const logoHeights = { sm: 'h-9 sm:h-10', md: 'h-10 sm:h-12', lg: 'h-14 sm:h-16' } as const;
 
 export function NodrekLogo({
   className,
@@ -19,14 +19,13 @@ export function NodrekLogo({
       aria-label={`${siteConfig.name} Home`}
       className={cn(
         'inline-flex min-h-11 shrink-0 items-center outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30',
-        logoWidths[size],
         className,
       )}
       href={siteConfig.routes.home}
     >
       <Image
         alt={`${siteConfig.name} - ${siteConfig.arabicName}`}
-        className="block h-auto w-full max-w-full object-contain"
+        className={cn('block w-auto max-w-full object-contain', logoHeights[size])}
         height={siteConfig.brand.officialArtworkHeight}
         loading="eager"
         src={siteConfig.brand.officialArtwork}

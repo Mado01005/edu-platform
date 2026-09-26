@@ -11,15 +11,23 @@ export function SiteFooter() {
     <footer className="bg-brand-base pb-24 text-brand-white md:pb-0" id="site-footer">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.35fr_0.65fr_0.65fr] lg:px-8">
         <div>
-          <Image
-            alt={`${siteConfig.name} - ${siteConfig.arabicName}`}
-            className="block h-auto w-full max-w-full object-contain"
-            height={siteConfig.brand.officialArtworkHeight}
-            sizes="(max-width: 640px) calc(100vw - 32px), 448px"
-            src={siteConfig.brand.officialArtwork}
-            unoptimized
-            width={siteConfig.brand.officialArtworkWidth}
-          />
+          <Link className="group inline-flex min-h-12 max-w-full items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-brand-gold" href={siteConfig.routes.home}>
+            <Image
+              alt=""
+              className="h-12 w-12 shrink-0 object-contain transition-transform duration-300 group-hover:scale-105"
+              height={48}
+              src={siteConfig.brand.logo}
+              width={48}
+            />
+            <span className="flex min-w-0 flex-col">
+              <span className="text-xl font-bold tracking-tight text-brand-white transition-colors group-hover:text-brand-gold">
+                {siteConfig.name}
+              </span>
+              <span className="font-arabic text-xs font-medium text-brand-sage" dir="rtl">
+                {siteConfig.arabicName}
+              </span>
+            </span>
+          </Link>
           <LandingCopy as="p" className="mt-5 max-w-md text-sm leading-7 text-brand-muted/70">{landingContent.footer.description}</LandingCopy>
           <SocialLinks className="mt-5" />
           <a
@@ -41,7 +49,6 @@ export function SiteFooter() {
 
         <nav aria-label="Nodrek access and legal" className="flex flex-col items-start text-sm text-brand-muted/75">
           <LandingCopy className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.footer.access}</LandingCopy>
-          <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold" href="/#curriculum"><LandingCopy>{{ en: 'Curriculum', ar: 'المناهج' }}</LandingCopy></Link>
           <Link
             className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold"
             href={siteConfig.routes.support}

@@ -1,13 +1,13 @@
-import { ArrowUpRight, Check, MessageCircle, Sparkles } from 'lucide-react';
+import { Check, MessageCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import { ConversionLink, DiagnosticAssessmentLink, WhatsAppLink } from '@/components/landing/ConversionLink';
+import { DiagnosticAssessmentLink, WhatsAppLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { siteConfig } from '@/lib/siteConfig';
 import { landingContent } from '@/lib/landing/content';
 
 export function HeroSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-gradient-to-b from-brand-ivory-alt via-brand-ivory to-brand-hero-end py-20 text-brand-base md:py-28" id="top">
+    <section className="relative isolate overflow-hidden bg-gradient-to-b from-[#E7EFEA] via-[#F0F5F2] to-[#F7FAF8] py-20 text-brand-base md:py-28" id="top">
       <div aria-hidden="true" className="nodrek-hero-grid absolute inset-0 -z-30" />
       <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_16%_24%,rgba(167,194,177,0.12),transparent_34%),radial-gradient(circle_at_84%_34%,rgba(216,166,73,0.16),transparent_30%)]" />
 
@@ -33,10 +33,6 @@ export function HeroSection() {
             <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-base bg-white px-6 text-sm font-bold text-brand-base shadow-sm outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-brand-base/5 hover:shadow-md focus-visible:ring-4 focus-visible:ring-brand-gold/25" eventName="hero_free_lesson_click" intent="freeLesson" label="hero_free_lesson">
               {landingContent.hero.secondary}
             </WhatsAppLink>
-            <ConversionLink className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-black text-brand-base underline decoration-brand-gold decoration-2 underline-offset-4 outline-none hover:text-brand-surface focus-visible:ring-4 focus-visible:ring-brand-gold/25" eventName="curriculum_anchor_click" href="#curriculum" label="hero">
-              <LandingCopy>{landingContent.hero.tertiary}</LandingCopy>
-              <ArrowUpRight aria-hidden="true" className="size-4 rtl:-scale-x-100" />
-            </ConversionLink>
           </div>
 
           <div className="mt-8 flex items-start gap-3 rounded-2xl border border-brand-base/10 bg-white/85 p-4 text-start shadow-lg shadow-brand-base/10 backdrop-blur-md">
@@ -45,17 +41,20 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-brand-mint-border bg-brand-ivory p-2 shadow-lg shadow-brand-base/5 sm:p-3">
-          <Image
-            alt={`${siteConfig.name} - ${siteConfig.arabicName}`}
-            className="block h-auto w-full max-w-full object-contain"
-            height={siteConfig.brand.officialArtworkHeight}
-            loading="eager"
-            sizes="(max-width: 1024px) calc(100vw - 32px), 672px"
-            src={siteConfig.brand.officialArtwork}
-            unoptimized
-            width={siteConfig.brand.officialArtworkWidth}
-          />
+        <div className="relative isolate mx-auto flex w-full max-w-xl items-center justify-center lg:max-w-none">
+          <div aria-hidden="true" className="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-tr from-brand-gold/20 via-brand-leaf/15 to-brand-sage/30 opacity-70 blur-2xl" />
+          <div className="relative w-full overflow-hidden rounded-2xl bg-brand-sage/20 p-1.5 shadow-xl shadow-brand-base/10 ring-1 ring-brand-sage-deep/30">
+            <Image
+              alt={`${siteConfig.name} - ${siteConfig.arabicName}`}
+              className="block h-auto w-full rounded-xl object-contain transition-transform duration-500 hover:scale-[1.01]"
+              height={siteConfig.brand.officialArtworkHeight}
+              loading="eager"
+              sizes="(max-width: 1024px) calc(100vw - 32px), 672px"
+              src={siteConfig.brand.officialArtwork}
+              unoptimized
+              width={siteConfig.brand.officialArtworkWidth}
+            />
+          </div>
         </div>
       </div>
 

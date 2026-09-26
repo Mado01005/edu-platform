@@ -16,7 +16,6 @@ export const landingContent = {
   navigation: [
     { href: '#how-it-works', label: text('How It Works', 'كيف نعمل') },
     { href: '#programs', label: text('Programs', 'البرامج') },
-    { href: '#curriculum', label: text('Curriculum', 'المناهج') },
     { href: '#progress', label: text('Progress', 'متابعة التقدم') },
     { href: '#faq', label: text('FAQ', 'الأسئلة الشائعة') },
   ],
@@ -36,7 +35,6 @@ export const landingContent = {
     ),
     primary: text('Book Your FREE Diagnostic Assessment', 'احجز تقييمك التشخيصي المجاني'),
     secondary: text('Try Your First Lesson FREE', 'جرّب الحصة الأولى مجانًا'),
-    tertiary: text('Explore Curriculum', 'استكشف المناهج'),
   },
   ticker: [
     text('Live Online Learning', 'تعلم مباشر عبر الإنترنت'),
