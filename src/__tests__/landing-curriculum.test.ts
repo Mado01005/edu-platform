@@ -16,12 +16,12 @@ describe('landing curriculum availability', () => {
 
   test('presents national and international tabs while preserving curriculum data branches', () => {
     expect(curriculumAvailability.saudi.label).toEqual({
-      en: 'Egyptian National Curriculum',
-      ar: 'المنهج المصري الوطني',
+      en: 'National Curricula',
+      ar: 'المناهج الوطنية',
     });
     expect(curriculumAvailability.american.label).toEqual({
-      en: 'American / British Curricula',
-      ar: 'المنهجان الأمريكي والبريطاني',
+      en: 'International Curricula',
+      ar: 'المناهج الدولية',
     });
   });
 

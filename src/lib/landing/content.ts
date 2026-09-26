@@ -9,8 +9,8 @@ const text = (en: string, ar: string): LocalizedText => ({ en, ar });
 
 const curriculumLabels = {
   combined: text('National & International Curricula', 'المناهج الوطنية والدولية'),
-  national: text('Egyptian National Curriculum', 'المنهج المصري الوطني'),
-  international: text('American / British Curricula', 'المنهجان الأمريكي والبريطاني'),
+  national: text('National Curricula', 'المناهج الوطنية'),
+  international: text('International Curricula', 'المناهج الدولية'),
 } as const;
 
 export const landingContent = {
