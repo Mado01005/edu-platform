@@ -7,6 +7,7 @@ export const siteConfig = {
   arabicName: 'نُدرك للتعليم المتكامل',
   title: 'Nodrek Learning Hub | نُدرك للتعليم المتكامل',
   description: 'Managed learning, diagnostic assessments, and personalized education for grades 1–12.',
+  serviceRegion: { en: 'GULF Countries', ar: 'دول الخليج العربي' },
   tagline: { en: 'LEARN • GROW • ACHIEVE', ar: 'نتعلم • ننمو • ننجز' },
   copyright: '© 2026 Nodrek Learning Hub | نُدرك للتعليم المتكامل. All rights reserved.',
   url: 'https://www.nodrekhub.com',

@@ -3,6 +3,7 @@ import type {
   LandingTestimonial,
   LocalizedText,
 } from '@/lib/landing/types';
+import { siteConfig } from '@/lib/siteConfig';
 
 const text = (en: string, ar: string): LocalizedText => ({ en, ar });
 
@@ -30,8 +31,8 @@ export const landingContent = {
       'نحدد الفجوات التعليمية، ونبني خطة تعلم مخصصة، ونختار المعلم المناسب، ثم نتابع التقدم الأكاديمي باستمرار.',
     ),
     qualifier: text(
-      `Grades 1–12 • ${curriculumLabels.combined.en} • Live Online Classes • KSA & UAE`,
-      `الصفوف 1–12 • ${curriculumLabels.combined.ar} • حصص مباشرة عبر الإنترنت • السعودية والإمارات`,
+      `Grades 1–12 • ${curriculumLabels.combined.en} • Live Online Classes • ${siteConfig.serviceRegion.en}`,
+      `الصفوف 1–12 • ${curriculumLabels.combined.ar} • حصص مباشرة عبر الإنترنت • ${siteConfig.serviceRegion.ar}`,
     ),
     primary: text('Book Your FREE Diagnostic Assessment', 'احجز تقييمك التشخيصي المجاني'),
     secondary: text('Try Your First Lesson FREE', 'جرّب الحصة الأولى مجانًا'),
@@ -51,7 +52,7 @@ export const landingContent = {
       text('Personalized Learning Plans', 'خطط تعلم مخصصة'),
       text('Parent Progress Visibility', 'رؤية واضحة لتقدم الطالب'),
       curriculumLabels.combined,
-      text('KSA + UAE', 'السعودية والإمارات'),
+      siteConfig.serviceRegion,
     ],
   },
   problem: {

@@ -81,7 +81,11 @@ const organizationSchema = {
   alternateName: [siteConfig.arabicName, 'نُدرك', 'Nodrek Hub'],
   url: siteConfig.url,
   logo: `${siteConfig.url}${siteConfig.brand.logo}`,
-  description: 'Nodrek Learning Hub provides managed online education, diagnostic assessments, and personalized learning journeys for students in grades 1 through 12 across Egypt, Saudi Arabia, and the GCC.',
+  description: `Nodrek Learning Hub provides managed online education, diagnostic assessments, and personalized learning journeys for students in grades 1 through 12 across Egypt and the ${siteConfig.serviceRegion.en}.`,
+  areaServed: [
+    { '@type': 'Country', name: 'Egypt' },
+    { '@type': 'AdministrativeArea', name: siteConfig.serviceRegion.en },
+  ],
   slogan: `${siteConfig.tagline.en} | ${siteConfig.tagline.ar}`,
   telephone: `+${siteConfig.whatsapp.number}`,
   email: siteConfig.support.email,
