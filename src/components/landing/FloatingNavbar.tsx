@@ -1,15 +1,16 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { ClipboardCheck, Menu, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { NodrekLogo } from '@/components/brand/NodrekLogo';
 import { DiagnosticAssessmentLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { useLanguage } from '@/components/i18n/language-provider';
 import { SocialLinks } from '@/components/social/SocialLinks';
 import { trackLandingEvent } from '@/lib/landing/analytics';
 import { landingContent } from '@/lib/landing/content';
+import { siteConfig } from '@/lib/siteConfig';
 
 const contactUsLabel = {
   en: 'Contact Us',
@@ -84,7 +85,35 @@ export function FloatingNavbar() {
         className={`w-full border border-brand-mint-border/60 bg-white/90 px-3 py-2 shadow-sm backdrop-blur-md transition-all duration-300 sm:px-4 ${menuOpen ? 'rounded-[1.4rem]' : 'rounded-full'}`}
       >
         <div className="flex min-h-12 items-center justify-between gap-2">
-          <NodrekLogo size="md" />
+          <Link
+            aria-label={`${siteConfig.name} Home`}
+            className="group inline-flex min-h-11 shrink-0 items-center gap-2.5 outline-none transition-transform duration-200 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-brand-gold/30"
+            href={siteConfig.routes.home}
+          >
+            <span className="relative size-9 shrink-0 sm:size-10">
+              <Image
+                alt="Nodrek Emblem"
+                className="object-contain drop-shadow-sm transition-transform duration-300 group-hover:rotate-1"
+                fill
+                preload
+                sizes="40px"
+                src={siteConfig.brand.logo}
+              />
+            </span>
+            <span className="flex flex-col leading-none">
+              <span className="flex items-center gap-1.5">
+                <span className="text-lg font-extrabold tracking-tight text-brand-base transition-colors group-hover:text-brand-leaf sm:text-xl">
+                  NODREK
+                </span>
+                <span className="font-arabic text-base font-bold text-brand-base sm:text-lg" dir="rtl">
+                  نُدرك
+                </span>
+              </span>
+              <span className="text-[10px] font-medium tracking-wide text-brand-surface/75 sm:text-[11px]">
+                Learning Hub
+              </span>
+            </span>
+          </Link>
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-0.5 lg:flex">
             {landingContent.navigation.map((item) => (
