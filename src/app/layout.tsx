@@ -25,17 +25,17 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.title}`,
   },
   description: siteConfig.description,
+  keywords: ['nodrekhub', 'Nodrek Hub', 'Nodrek Learning Hub', 'نُدرك', 'نُدرك للتعليم المتكامل', 'منصة نُدرك'],
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: siteConfig.brand.appIcon, sizes: '512x512', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: siteConfig.brand.logo, sizes: '512x512', type: 'image/png' },
     ],
-    shortcut: [
-      { url: siteConfig.brand.appIcon, sizes: '512x512', type: 'image/png' },
-    ],
+    shortcut: [{ url: '/favicon.ico', sizes: 'any' }],
     apple: [
-      { url: siteConfig.brand.appIcon, sizes: '512x512', type: 'image/png' },
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -78,7 +78,7 @@ const organizationSchema = {
   '@type': 'EducationalOrganization',
   '@id': `${siteConfig.url}/#organization`,
   name: siteConfig.name,
-  alternateName: [siteConfig.arabicName, 'نُدرك', 'Nodrek Hub'],
+  alternateName: ['nodrekhub', 'nodrekhub.com', 'Nodrek Hub', siteConfig.arabicName, 'نُدرك'],
   url: siteConfig.url,
   logo: `${siteConfig.url}${siteConfig.brand.logo}`,
   description: `Nodrek Learning Hub provides managed online education, diagnostic assessments, and personalized learning journeys for students in grades 1 through 12 across Egypt and the ${siteConfig.serviceRegion.en}.`,
@@ -97,6 +97,16 @@ const organizationSchema = {
     contactOption: 'WhatsApp',
   }],
   sameAs: SOCIAL_LINKS.map(({ url }) => url),
+};
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteConfig.url}/#website`,
+  name: siteConfig.name,
+  alternateName: ['nodrekhub', 'nodrekhub.com', 'Nodrek Hub', siteConfig.arabicName, 'نُدرك'],
+  url: siteConfig.url,
+  publisher: { '@id': `${siteConfig.url}/#organization` },
 };
 
 export default async function RootLayout({
@@ -123,7 +133,7 @@ export default async function RootLayout({
       <body className={`${inter.className} ${inter.variable} ${cairo.variable} overflow-x-hidden bg-surface-canvas text-brand-700 antialiased`}>
         <script
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationSchema).replace(/</g, '\\u003c'),
+            __html: JSON.stringify({ '@context': 'https://schema.org', '@graph': [organizationSchema, websiteSchema] }).replace(/</g, '\\u003c'),
           }}
           type="application/ld+json"
         />

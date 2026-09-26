@@ -57,6 +57,13 @@ export function CurriculumExplorer() {
 
             <div className="mt-5 rounded-2xl border border-brand-border bg-brand-base p-4 backdrop-blur-md sm:p-5">
               <div className="flex items-center gap-2 text-brand-gold"><BookOpen aria-hidden="true" className="size-4" /><LandingCopy className="text-[10px] font-black uppercase tracking-[0.16em]">{landingContent.curriculum.subjectsLabel}</LandingCopy></div>
+              {selectedGrade.subjects.some((subject) => subject.en === 'Social Studies') ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-brand-muted/75">
+                  <span>{locale === 'ar' ? 'الدراسات الاجتماعية' : 'Social Studies'}</span>
+                  <span className="rounded-full border border-brand-border px-2.5 py-1">{locale === 'ar' ? 'مادة أساسية' : 'Core Subject'}</span>
+                  <span className="rounded-full border border-brand-border px-2.5 py-1">{locale === 'ar' ? 'مناهج وطنية ودولية' : 'National & International'}</span>
+                </div>
+              ) : null}
               <div className="mt-4 flex flex-wrap gap-2">
                 {selectedGrade.subjects.map((subject) => (
                   <button className="landing-card inline-flex min-h-11 items-center rounded-full border border-brand-border bg-brand-surface px-4 text-xs font-bold text-brand-white outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold hover:text-brand-gold-hover focus-visible:ring-4 focus-visible:ring-brand-gold/30" key={subject.en} onClick={() => trackLandingEvent('subject_select', { curriculum: curriculumId, grade: selectedGrade.id, subject: subject.en })} type="button">

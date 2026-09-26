@@ -21,6 +21,7 @@ const validBody = {
   lastName: 'Hassan',
   locale: 'ar',
   message: 'I need help choosing the right learning plan.',
+  operatingSystem: 'iOS',
   phone: '+20 155 422 5979',
   website: '',
 };
@@ -85,6 +86,7 @@ describe('public support inquiry API', () => {
       lastName: 'Hassan',
       locale: 'ar',
       message: 'I need help choosing the right learning plan.',
+      operatingSystem: 'iOS',
       phone: '+201554225979',
       reference: 'ABCDEFGH',
     });
@@ -94,6 +96,7 @@ describe('public support inquiry API', () => {
       email: 'parent@example.com',
       phone: '+201554225979',
       message: validBody.message,
+      operatingSystem: 'iOS',
     });
     expect(consoleLog).toHaveBeenCalledWith(
       '[SUPPORT_INQUIRY_DISPATCH_ACCEPTED]',

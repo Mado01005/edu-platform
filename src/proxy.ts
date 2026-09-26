@@ -47,6 +47,7 @@ const PUBLIC_PATHS = [
 ];
 
 const PUBLIC_ASSET_PATHS = new Set([
+  '/icon.png',
   '/file.svg',
   '/globe.svg',
   '/next.svg',

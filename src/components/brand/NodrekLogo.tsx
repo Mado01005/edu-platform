@@ -8,7 +8,7 @@ interface NodrekLogoProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const logoHeights = { sm: 'h-9 sm:h-10', md: 'h-10 sm:h-12', lg: 'h-14 sm:h-16' } as const;
+const logoHeights = { sm: 'size-9 sm:size-10', md: 'size-9 sm:size-10', lg: 'size-12 sm:size-14' } as const;
 
 export function NodrekLogo({
   className,
@@ -18,20 +18,21 @@ export function NodrekLogo({
     <Link
       aria-label={`${siteConfig.name} Home`}
       className={cn(
-        'inline-flex min-h-11 shrink-0 items-center outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30',
+        'group inline-flex min-h-11 shrink-0 items-center gap-2.5 outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30',
         className,
       )}
       href={siteConfig.routes.home}
     >
-      <Image
-        alt={`${siteConfig.name} - ${siteConfig.arabicName}`}
-        className={cn('block w-auto max-w-full object-contain', logoHeights[size])}
-        height={siteConfig.brand.officialArtworkHeight}
-        loading="eager"
-        src={siteConfig.brand.officialArtwork}
-        unoptimized
-        width={siteConfig.brand.officialArtworkWidth}
-      />
+      <span className={cn('relative shrink-0', logoHeights[size])}>
+        <Image alt="Nodrek Emblem" className="object-contain" fill preload sizes="56px" src={siteConfig.brand.logo} />
+      </span>
+      <span className="flex flex-col leading-none">
+        <span className="flex items-center gap-1.5">
+          <span className="text-lg font-extrabold tracking-tight text-brand-base sm:text-xl">NODREK</span>
+          <span className="font-arabic text-base font-bold text-brand-base sm:text-lg" dir="rtl">نُدرك</span>
+        </span>
+        <span className="text-[10px] font-medium tracking-wide text-brand-surface/75 sm:text-[11px]">Learning Hub</span>
+      </span>
     </Link>
   );
 }

@@ -15,6 +15,7 @@ const emailInput = {
   lastName: 'Hassan',
   locale: 'ar' as const,
   message: 'I need help choosing the right learning plan.',
+  operatingSystem: 'iOS' as const,
   phone: '+201554225979',
   reference: 'ABCDEFGH',
 };

@@ -24,6 +24,9 @@ function fillValidSupportForm() {
   fireEvent.change(screen.getByLabelText(/Email/), {
     target: { value: 'support-qa@example.com' },
   });
+  fireEvent.change(screen.getByLabelText(/Device \/ operating system/), {
+    target: { value: 'iOS' },
+  });
   fireEvent.change(screen.getByLabelText(/Message or questions/), {
     target: { value: 'Please help with this support question.' },
   });
@@ -53,6 +56,7 @@ describe('SupportContactForm', () => {
     expect(screen.getByText('Last name is required.')).toBeTruthy();
     expect(screen.getByText('Email is required.')).toBeTruthy();
     expect(screen.getByText('Phone number is required.')).toBeTruthy();
+    expect(screen.getByText('Choose your device or operating system.')).toBeTruthy();
     expect(screen.getByText('Message or questions is required.')).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -128,6 +132,7 @@ describe('SupportContactForm', () => {
       email: 'support-qa@example.com',
       firstName: 'Nodrek',
       lastName: 'Support',
+      operatingSystem: 'iOS',
       message: 'Please help with this support question.',
       phone: '+201554225979',
     });

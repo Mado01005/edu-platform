@@ -9,8 +9,8 @@ const text = (en: string, ar: string): LocalizedText => ({ en, ar });
 
 const curriculumLabels = {
   combined: text('National & International Curricula', 'المناهج الوطنية والدولية'),
-  national: text('National Curriculum', 'المنهج الوطني'),
-  international: text('International Curriculum', 'المنهج الدولي'),
+  national: text('Egyptian National Curriculum', 'المنهج المصري الوطني'),
+  international: text('American / British Curricula', 'المنهجان الأمريكي والبريطاني'),
 } as const;
 
 export const landingContent = {
@@ -230,6 +230,7 @@ export const landingContent = {
 } as const;
 
 const arabicSubject = text('Arabic', 'اللغة العربية');
+const socialStudiesSubject = text('Social Studies', 'الدراسات الاجتماعية');
 
 export const curriculumAvailability = {
   saudi: {
@@ -237,8 +238,8 @@ export const curriculumAvailability = {
     label: curriculumLabels.national,
     grades: [
       { id: 'saudi-1-3', label: text('Grades 1–3', 'الصفوف 1–3'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
-      { id: 'saudi-4-6', label: text('Grades 4–6', 'الصفوف 4–6'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
-      { id: 'saudi-7-9', label: text('Grades 7–9', 'الصفوف 7–9'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
+      { id: 'saudi-4-6', label: text('Grades 4–6', 'الصفوف 4–6'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject, socialStudiesSubject] },
+      { id: 'saudi-7-9', label: text('Grades 7–9', 'الصفوف 7–9'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject, socialStudiesSubject] },
       { id: 'saudi-secondary-1', label: text('1st Secondary', 'الأول الثانوي'), subjects: [text('Math', 'الرياضيات'), text('Physics', 'الفيزياء'), text('Chemistry', 'الكيمياء'), text('Biology', 'الأحياء'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
       { id: 'saudi-secondary-2', label: text('2nd Secondary', 'الثاني الثانوي'), subjects: [text('Math', 'الرياضيات'), text('Physics', 'الفيزياء'), text('Chemistry', 'الكيمياء'), text('Biology', 'الأحياء'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
       { id: 'saudi-secondary-3', label: text('3rd Secondary', 'الثالث الثانوي'), subjects: [text('Math', 'الرياضيات'), text('Physics', 'الفيزياء'), text('Chemistry', 'الكيمياء'), text('Biology', 'الأحياء'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
@@ -248,9 +249,9 @@ export const curriculumAvailability = {
     id: 'american',
     label: curriculumLabels.international,
     grades: [
-      { id: 'american-1-3', label: text('Grades 1–3', 'الصفوف 1–3'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
-      { id: 'american-4-6', label: text('Grades 4–6', 'الصفوف 4–6'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
-      { id: 'american-7-9', label: text('Grades 7–9', 'الصفوف 7–9'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
+      { id: 'american-1-3', label: text('Grades 1–3', 'الصفوف 1–3'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject, socialStudiesSubject] },
+      { id: 'american-4-6', label: text('Grades 4–6', 'الصفوف 4–6'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject, socialStudiesSubject] },
+      { id: 'american-7-9', label: text('Grades 7–9', 'الصفوف 7–9'), subjects: [text('Math', 'الرياضيات'), text('Science', 'العلوم'), text('English', 'اللغة الإنجليزية'), arabicSubject, socialStudiesSubject] },
       { id: 'american-10', label: text('Grade 10', 'الصف العاشر'), subjects: [text('Math', 'الرياضيات'), text('Physics', 'الفيزياء'), text('Chemistry', 'الكيمياء'), text('Biology', 'الأحياء'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
       { id: 'american-11', label: text('Grade 11', 'الصف الحادي عشر'), subjects: [text('Math', 'الرياضيات'), text('Physics', 'الفيزياء'), text('Chemistry', 'الكيمياء'), text('Biology', 'الأحياء'), text('English', 'اللغة الإنجليزية'), arabicSubject] },
       { id: 'american-12', label: text('Grade 12', 'الصف الثاني عشر'), subjects: [text('Math', 'الرياضيات'), text('Physics', 'الفيزياء'), text('Chemistry', 'الكيمياء'), text('Biology', 'الأحياء'), text('English', 'اللغة الإنجليزية'), arabicSubject] },

@@ -16,12 +16,12 @@ describe('landing curriculum availability', () => {
 
   test('presents national and international tabs while preserving curriculum data branches', () => {
     expect(curriculumAvailability.saudi.label).toEqual({
-      en: 'National Curriculum',
-      ar: 'المنهج الوطني',
+      en: 'Egyptian National Curriculum',
+      ar: 'المنهج المصري الوطني',
     });
     expect(curriculumAvailability.american.label).toEqual({
-      en: 'International Curriculum',
-      ar: 'المنهج الدولي',
+      en: 'American / British Curricula',
+      ar: 'المنهجان الأمريكي والبريطاني',
     });
   });
 
@@ -37,5 +37,15 @@ describe('landing curriculum availability', () => {
       en: 'Arabic',
       ar: 'اللغة العربية',
     });
+  });
+
+  test.each([
+    ['saudi', ['saudi-4-6', 'saudi-7-9']],
+    ['american', ['american-1-3', 'american-4-6', 'american-7-9']],
+  ] as const)('shows Social Studies at the requested grades for %s', (curriculum, gradeIds) => {
+    for (const grade of curriculumAvailability[curriculum].grades) {
+      expect(grade.subjects.some((subject) => subject.en === 'Social Studies' && subject.ar === 'الدراسات الاجتماعية'))
+        .toBe(new Set<string>(gradeIds).has(grade.id));
+    }
   });
 });

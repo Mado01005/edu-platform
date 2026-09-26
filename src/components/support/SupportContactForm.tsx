@@ -19,7 +19,7 @@ import {
   type CountryCode,
 } from 'libphonenumber-js/min';
 
-type FieldName = 'firstName' | 'lastName' | 'phone' | 'email' | 'message';
+type FieldName = 'firstName' | 'lastName' | 'phone' | 'email' | 'operatingSystem' | 'message';
 type FormValues = Record<FieldName, string>;
 type FormErrors = Partial<Record<FieldName, string>>;
 type SubmissionReceipt = {
@@ -38,6 +38,7 @@ const initialValues: FormValues = {
   firstName: '',
   lastName: '',
   message: '',
+  operatingSystem: '',
   phone: '',
 };
 
@@ -109,6 +110,8 @@ const copy = {
     en: 'No countries found.',
     ar: 'لم يتم العثور على دول.',
   },
+  operatingSystem: { en: 'Device / operating system', ar: 'الجهاز / نظام التشغيل' },
+  operatingSystemRequired: { en: 'Choose your device or operating system.', ar: 'اختر جهازك أو نظام التشغيل.' },
   phone: { en: 'Phone', ar: 'رقم الهاتف' },
   phoneRequired: {
     en: 'Phone number is required.',
@@ -172,6 +175,9 @@ function validate(
     errors.phone = text(locale, copy.phoneRequired);
   } else if (!normalizePhoneNumber(values.phone, country)) {
     errors.phone = text(locale, copy.phoneInvalid);
+  }
+  if (!values.operatingSystem) {
+    errors.operatingSystem = text(locale, copy.operatingSystemRequired);
   }
   if (!values.message.trim()) {
     errors.message = text(locale, copy.messageRequired);
@@ -302,7 +308,7 @@ export function SupportContactForm() {
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
       const firstInvalidField = (
-        ['firstName', 'lastName', 'email', 'phone', 'message'] as const
+        ['firstName', 'lastName', 'phone', 'email', 'operatingSystem', 'message'] as const
       ).find((field) => nextErrors[field]);
       if (firstInvalidField) {
         requestAnimationFrame(() => {
@@ -428,26 +434,6 @@ export function SupportContactForm() {
             value={values.lastName}
           />
           <FieldError id="support-last-name-error" message={errors.lastName} />
-        </label>
-
-        <label className="min-w-0 text-sm font-black text-brand-white sm:col-span-2">
-          <RequiredLabel>{text(locale, copy.email)}</RequiredLabel>
-          <input
-            aria-describedby={errors.email ? 'support-email-error' : undefined}
-            aria-invalid={Boolean(errors.email)}
-            autoComplete="email"
-            className={inputClass(Boolean(errors.email))}
-            dir="ltr"
-            id="email"
-            inputMode="email"
-            maxLength={254}
-            name="email"
-            onChange={(event) => updateField('email', event.target.value)}
-            required
-            type="email"
-            value={values.email}
-          />
-          <FieldError id="support-email-error" message={errors.email} />
         </label>
 
         <div className="min-w-0 text-sm font-black text-brand-white sm:col-span-2">
@@ -580,6 +566,47 @@ export function SupportContactForm() {
           </div>
           <FieldError id="support-phone-error" message={errors.phone} />
         </div>
+
+        <label className="min-w-0 text-sm font-black text-brand-white">
+          <RequiredLabel>{text(locale, copy.operatingSystem)}</RequiredLabel>
+          <select
+            aria-describedby={errors.operatingSystem ? 'support-operating-system-error' : undefined}
+            aria-invalid={Boolean(errors.operatingSystem)}
+            className={inputClass(Boolean(errors.operatingSystem))}
+            id="operatingSystem"
+            name="operatingSystem"
+            onChange={(event) => updateField('operatingSystem', event.target.value)}
+            required
+            value={values.operatingSystem}
+          >
+            <option value="">{locale === 'ar' ? 'اختر نظام التشغيل' : 'Choose a device / OS'}</option>
+            <option value="iOS">iOS (iPhone / iPad)</option>
+            <option value="macOS">macOS (Mac)</option>
+            <option value="Windows">Windows</option>
+            <option value="Android">Android</option>
+          </select>
+          <FieldError id="support-operating-system-error" message={errors.operatingSystem} />
+        </label>
+
+        <label className="min-w-0 text-sm font-black text-brand-white">
+          <RequiredLabel>{text(locale, copy.email)}</RequiredLabel>
+          <input
+            aria-describedby={errors.email ? 'support-email-error' : undefined}
+            aria-invalid={Boolean(errors.email)}
+            autoComplete="email"
+            className={inputClass(Boolean(errors.email))}
+            dir="ltr"
+            id="email"
+            inputMode="email"
+            maxLength={254}
+            name="email"
+            onChange={(event) => updateField('email', event.target.value)}
+            required
+            type="email"
+            value={values.email}
+          />
+          <FieldError id="support-email-error" message={errors.email} />
+        </label>
 
         <label className="min-w-0 text-sm font-black text-brand-white sm:col-span-2">
           <RequiredLabel>{text(locale, copy.message)}</RequiredLabel>

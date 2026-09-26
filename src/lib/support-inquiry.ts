@@ -29,6 +29,7 @@ export const publicSupportInquirySchema = z.object({
   lastName: z.string().trim().min(2).max(80),
   locale: z.enum(['en', 'ar']),
   message: z.string().trim().min(10).max(4_000),
+  operatingSystem: z.enum(['iOS', 'macOS', 'Windows', 'Android']),
   phone: normalizedPhoneSchema,
   website: z.string().max(200).optional().default(''),
 });
