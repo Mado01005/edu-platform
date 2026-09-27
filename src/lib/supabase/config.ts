@@ -1,8 +1,8 @@
-export const PRODUCTION_SITE_URL = 'https://edu-platform.me';
+export const PRODUCTION_SITE_URL = 'https://www.nodrekhub.com';
 
 export const PRODUCTION_AUTH_CALLBACK_URLS = [
-  'https://edu-platform.me/auth/callback',
-  'https://www.edu-platform.me/auth/callback',
+  'https://www.nodrekhub.com/auth/callback',
+  'https://nodrekhub.com/auth/callback',
 ] as const;
 
 const GOOGLE_PROVIDER_CALLBACK_PATH = '/auth/v1/callback';

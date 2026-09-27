@@ -63,7 +63,7 @@ describe('Supabase SSR session rotation', () => {
     );
 
     const context = await getSupabaseRequestContext(
-      new NextRequest('https://www.edu-platform.me/settings', {
+      new NextRequest('https://www.nodrekhub.com/settings', {
         headers: { cookie: 'sb-auth-token=expired-token' },
       }),
     );
@@ -118,7 +118,7 @@ describe('Supabase SSR session rotation', () => {
     );
 
     const context = await getSupabaseRequestContext(
-      new NextRequest('https://www.edu-platform.me/settings'),
+      new NextRequest('https://www.nodrekhub.com/settings'),
     );
 
     await context.supabase!.auth.signOut({ scope: 'local' });

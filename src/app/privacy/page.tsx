@@ -15,7 +15,7 @@ const sections: readonly LegalSection[] = [
     content: (
       <>
         <p>Nodrek Learning Hub provides structured online learning, live classes, assignments, course resources, and student-support services. This policy explains how we handle personal information when students, parents, instructors, and administrators use our websites and learning platform.</p>
-        <p>“Nodrek Learning Hub,” “we,” and “our” refer to the academy service operating through <strong>edu-platform.me</strong>. Questions can be sent to <a href={`mailto:${brandConfig.support.email}`}>{brandConfig.support.email}</a>.</p>
+        <p>“Nodrek Learning Hub,” “we,” and “our” refer to the academy service operating through <strong>nodrekhub.com</strong>. Questions can be sent to <a href={`mailto:${brandConfig.support.email}`}>{brandConfig.support.email}</a>.</p>
       </>
     ),
   },

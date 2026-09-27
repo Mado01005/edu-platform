@@ -29,7 +29,7 @@ describe('requireApiAuth', () => {
 
   it('rejects a request without a bearer token by default', async () => {
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/example'),
+      new Request('https://www.nodrekhub.com/api/example'),
     );
 
     expect(result.ok).toBe(false);
@@ -49,7 +49,7 @@ describe('requireApiAuth', () => {
     });
 
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/example', {
+      new Request('https://www.nodrekhub.com/api/example', {
         headers: { authorization: 'Bearer access.jwt.token' },
       }),
     );
@@ -73,7 +73,7 @@ describe('requireApiAuth', () => {
     });
 
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/example', {
+      new Request('https://www.nodrekhub.com/api/example', {
         headers: { authorization: 'Bearer proxy.jwt.token' },
       }),
       { bearerClientFactory },
@@ -92,7 +92,7 @@ describe('requireApiAuth', () => {
     });
 
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/example', {
+      new Request('https://www.nodrekhub.com/api/example', {
         headers: { authorization: 'Bearer invalid.jwt.token' },
       }),
     );
@@ -107,7 +107,7 @@ describe('requireApiAuth', () => {
 
   it('does not downgrade a malformed Authorization header to cookie auth', async () => {
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/example', {
+      new Request('https://www.nodrekhub.com/api/example', {
         headers: { authorization: 'Basic credentials' },
       }),
       { allowCookieAuth: true },
@@ -125,7 +125,7 @@ describe('requireApiAuth', () => {
     });
 
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/example'),
+      new Request('https://www.nodrekhub.com/api/example'),
       { allowCookieAuth: true },
     );
 
@@ -148,7 +148,7 @@ describe('requireApiAuth', () => {
     });
 
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/courses'),
+      new Request('https://www.nodrekhub.com/api/courses'),
       { allowCookieAuth: true, allowedRoles: ['ADMIN', 'TEACHER'] },
     );
 
@@ -168,7 +168,7 @@ describe('requireApiAuth', () => {
     });
 
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/courses'),
+      new Request('https://www.nodrekhub.com/api/courses'),
       { allowCookieAuth: true, allowedRoles: ['TEACHER'] },
     );
 
@@ -185,7 +185,7 @@ describe('requireApiAuth', () => {
     });
 
     const result = await requireApiAuth(
-      new Request('https://www.edu-platform.me/api/courses'),
+      new Request('https://www.nodrekhub.com/api/courses'),
       { allowCookieAuth: true, allowedRoles: ['ADMIN', 'TEACHER'] },
     );
 

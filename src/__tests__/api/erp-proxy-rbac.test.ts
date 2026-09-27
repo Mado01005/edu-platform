@@ -40,12 +40,12 @@ describe('ERP proxy role redirects', () => {
       );
 
       const response = await proxy(
-        new NextRequest('https://www.edu-platform.me/accounting'),
+        new NextRequest('https://www.nodrekhub.com/accounting'),
       );
 
       expect(response.status).toBe(307);
       expect(response.headers.get('location')).toBe(
-        'https://www.edu-platform.me/dashboard?notice=accounting-required',
+        'https://www.nodrekhub.com/dashboard?notice=accounting-required',
       );
     },
   );
@@ -63,12 +63,12 @@ describe('ERP proxy role redirects', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/teacher/courses'),
+      new NextRequest('https://www.nodrekhub.com/teacher/courses'),
     );
 
     expect(response.status).toBe(307);
     expect(response.headers.get('location')).toBe(
-      'https://www.edu-platform.me/auth/sync?next=%2Fteacher%2Fcourses',
+      'https://www.nodrekhub.com/auth/sync?next=%2Fteacher%2Fcourses',
     );
   });
 });

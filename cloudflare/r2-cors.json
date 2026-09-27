@@ -4,8 +4,8 @@
       "allowed": {
         "origins": [
           "http://localhost:3000",
-          "https://edu-platform.me",
-          "https://www.edu-platform.me"
+          "https://nodrekhub.com",
+          "https://www.nodrekhub.com"
         ],
         "methods": [
           "PUT"

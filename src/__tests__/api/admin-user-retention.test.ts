@@ -41,7 +41,7 @@ describe('admin user permanent deletion', () => {
 
   it('supports a bulk array of Prisma user IDs', async () => {
     const response = await DELETE(
-      new Request('https://www.edu-platform.me/api/admin/users', {
+      new Request('https://www.nodrekhub.com/api/admin/users', {
         body: JSON.stringify({ userIds: ['staff-1', 'staff-2'] }),
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE',
@@ -61,7 +61,7 @@ describe('admin user permanent deletion', () => {
 
   it('supports a single legacy team email', async () => {
     const response = await DELETE(
-      new Request('https://www.edu-platform.me/api/admin/users', {
+      new Request('https://www.nodrekhub.com/api/admin/users', {
         body: JSON.stringify({ email: 'legacy@example.com' }),
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE',

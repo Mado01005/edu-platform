@@ -124,7 +124,7 @@ describe('Supabase OAuth callback', () => {
   it('handles provider error parameters without attempting code exchange', async () => {
     const response = await GET(
       new NextRequest(
-        'https://www.edu-platform.me/auth/callback?error=access_denied&error_description=cancelled&next=%2Fteacher',
+        'https://www.nodrekhub.com/auth/callback?error=access_denied&error_description=cancelled&next=%2Fteacher',
       ),
     );
     const location = new URL(response.headers.get('location')!);
@@ -140,21 +140,21 @@ describe('Supabase OAuth callback', () => {
 
   it('replaces network-path and backslash redirect targets with dashboard', async () => {
     for (const next of ['//evil.example/path', '/\\evil.example/path']) {
-      const url = new URL('https://www.edu-platform.me/auth/callback');
+      const url = new URL('https://www.nodrekhub.com/auth/callback');
       url.searchParams.set('error', 'access_denied');
       url.searchParams.set('next', next);
 
       const response = await GET(new NextRequest(url));
       const location = new URL(response.headers.get('location')!);
 
-      expect(location.origin).toBe('https://www.edu-platform.me');
+      expect(location.origin).toBe('https://www.nodrekhub.com');
       expect(location.searchParams.get('next')).toBe('/dashboard');
     }
   });
 
   it('handles a missing authorization code as a safe login error', async () => {
     const response = await GET(
-      new NextRequest('https://www.edu-platform.me/auth/callback'),
+      new NextRequest('https://www.nodrekhub.com/auth/callback'),
     );
     const location = new URL(response.headers.get('location')!);
 
@@ -171,7 +171,7 @@ describe('Supabase OAuth callback', () => {
 
     const response = await GET(
       new NextRequest(
-        'https://www.edu-platform.me/auth/callback?code=single-use-code&next=%2Fsettings',
+        'https://www.nodrekhub.com/auth/callback?code=single-use-code&next=%2Fsettings',
       ),
     );
     const location = new URL(response.headers.get('location')!);
@@ -203,7 +203,7 @@ describe('Supabase OAuth callback', () => {
 
     const response = await GET(
       new NextRequest(
-        'https://www.edu-platform.me/auth/callback?code=single-use-code&next=%2Fadmin',
+        'https://www.nodrekhub.com/auth/callback?code=single-use-code&next=%2Fadmin',
         { headers: { cookie: 'sb-code-verifier=pkce-verifier' } },
       ),
     );

@@ -48,7 +48,7 @@ describe('global API proxy security', () => {
 
   it('returns 401 before an ordinary API route runs without a valid session', async () => {
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/messages'),
+      new NextRequest('https://www.nodrekhub.com/api/messages'),
     );
 
     expect(response.status).toBe(401);
@@ -58,7 +58,7 @@ describe('global API proxy security', () => {
   it('serves public image assets without invoking authentication', async () => {
     const response = await proxy(
       new NextRequest(
-        'https://www.edu-platform.me/images/catalog-learning-hero.png',
+        'https://www.nodrekhub.com/images/catalog-learning-hero.png',
       ),
     );
 
@@ -69,16 +69,16 @@ describe('global API proxy security', () => {
 
   it('keeps the public support page anonymous while protecting support operations', async () => {
     const publicResponse = await proxy(
-      new NextRequest('https://www.edu-platform.me/support'),
+      new NextRequest('https://www.nodrekhub.com/support'),
     );
     const operationsResponse = await proxy(
-      new NextRequest('https://www.edu-platform.me/support/operations'),
+      new NextRequest('https://www.nodrekhub.com/support/operations'),
     );
 
     expect(publicResponse.status).toBe(200);
     expect(operationsResponse.status).toBe(307);
     expect(operationsResponse.headers.get('location')).toBe(
-      'https://www.edu-platform.me/lms/login?next=%2Fsupport%2Foperations',
+      'https://www.nodrekhub.com/lms/login?next=%2Fsupport%2Foperations',
     );
   });
 
@@ -91,7 +91,7 @@ describe('global API proxy security', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/messages', {
+      new NextRequest('https://www.nodrekhub.com/api/messages', {
         headers: { authorization: 'Bearer valid.jwt' },
       }),
     );
@@ -117,7 +117,7 @@ describe('global API proxy security', () => {
     mockAuth.mockResolvedValue({ user: { id: 'legacy-user' } });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/messages', {
+      new NextRequest('https://www.nodrekhub.com/api/messages', {
         headers: { authorization: 'Bearer invalid.jwt' },
       }),
     );
@@ -135,7 +135,7 @@ describe('global API proxy security', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/messages'),
+      new NextRequest('https://www.nodrekhub.com/api/messages'),
     );
 
     expect(response.status).toBe(200);
@@ -146,7 +146,7 @@ describe('global API proxy security', () => {
     mockAuth.mockResolvedValue({ user: { id: 'legacy-user' } });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/messages'),
+      new NextRequest('https://www.nodrekhub.com/api/messages'),
     );
 
     expect(response.status).toBe(200);
@@ -156,7 +156,7 @@ describe('global API proxy security', () => {
     mockAuth.mockResolvedValue({ user: { id: 'legacy-user' } });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/lms/session'),
+      new NextRequest('https://www.nodrekhub.com/api/lms/session'),
     );
 
     expect(response.status).toBe(401);
@@ -165,7 +165,7 @@ describe('global API proxy security', () => {
 
   it('rejects an unsafe cross-origin request with 403 before authentication', async () => {
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/messages', {
+      new NextRequest('https://www.nodrekhub.com/api/messages', {
         method: 'POST',
         headers: { origin: 'https://phishing.example' },
       }),
@@ -178,15 +178,15 @@ describe('global API proxy security', () => {
 
   it('answers a same-origin CORS preflight without invoking a route', async () => {
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/messages', {
+      new NextRequest('https://www.nodrekhub.com/api/messages', {
         method: 'OPTIONS',
-        headers: { origin: 'https://www.edu-platform.me' },
+        headers: { origin: 'https://www.nodrekhub.com' },
       }),
     );
 
     expect(response.status).toBe(204);
     expect(response.headers.get('access-control-allow-origin')).toBe(
-      'https://www.edu-platform.me',
+      'https://www.nodrekhub.com',
     );
     expect(mockGetSupabaseRequestContext).not.toHaveBeenCalled();
   });
@@ -198,11 +198,11 @@ describe('global API proxy security', () => {
     ['POST', '/api/cron/student-health'],
   ])('narrowly exempts %s %s from user JWT auth', async (method, pathname) => {
     const response = await proxy(
-      new NextRequest(`https://www.edu-platform.me${pathname}`, {
+      new NextRequest(`https://www.nodrekhub.com${pathname}`, {
         method,
         headers:
           method === 'POST'
-            ? { origin: 'https://www.edu-platform.me' }
+            ? { origin: 'https://www.nodrekhub.com' }
             : undefined,
       }),
     );
@@ -221,11 +221,11 @@ describe('global API proxy security', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/mps/login', {
+      new NextRequest('https://www.nodrekhub.com/api/mps/login', {
         method: 'POST',
         headers: {
           authorization: 'Bearer invalid.jwt',
-          origin: 'https://www.edu-platform.me',
+          origin: 'https://www.nodrekhub.com',
         },
       }),
     );
@@ -237,7 +237,7 @@ describe('global API proxy security', () => {
   it('leaves CRON_SECRET Bearer validation to the cron route itself', async () => {
     const response = await proxy(
       new NextRequest(
-        'https://www.edu-platform.me/api/cron/student-health',
+        'https://www.nodrekhub.com/api/cron/student-health',
         { headers: { authorization: 'Bearer cron-secret' } },
       ),
     );
@@ -248,9 +248,9 @@ describe('global API proxy security', () => {
 
   it('requires a live custom MPS session for parent logout', async () => {
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/mps/logout', {
+      new NextRequest('https://www.nodrekhub.com/api/mps/logout', {
         method: 'POST',
-        headers: { origin: 'https://www.edu-platform.me' },
+        headers: { origin: 'https://www.nodrekhub.com' },
       }),
     );
 
@@ -270,11 +270,11 @@ describe('global API proxy security', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/mps/logout', {
+      new NextRequest('https://www.nodrekhub.com/api/mps/logout', {
         method: 'POST',
         headers: {
           authorization: 'Bearer valid.jwt',
-          origin: 'https://www.edu-platform.me',
+          origin: 'https://www.nodrekhub.com',
         },
       }),
     );
@@ -292,11 +292,11 @@ describe('global API proxy security', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/mps/logout', {
+      new NextRequest('https://www.nodrekhub.com/api/mps/logout', {
         method: 'POST',
         headers: {
           cookie: `wayground_mps_session=${'a'.repeat(43)}`,
-          origin: 'https://www.edu-platform.me',
+          origin: 'https://www.nodrekhub.com',
         },
       }),
     );
@@ -322,12 +322,12 @@ describe('global API proxy security', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/mps/logout', {
+      new NextRequest('https://www.nodrekhub.com/api/mps/logout', {
         method: 'POST',
         headers: {
           authorization: 'Bearer expired.jwt',
           cookie: `wayground_mps_session=${'a'.repeat(43)}`,
-          origin: 'https://www.edu-platform.me',
+          origin: 'https://www.nodrekhub.com',
         },
       }),
     );
@@ -338,7 +338,7 @@ describe('global API proxy security', () => {
 
   it('does not broaden exact login exemptions to nested API paths', async () => {
     const response = await proxy(
-      new NextRequest('https://www.edu-platform.me/api/mps/login/extra'),
+      new NextRequest('https://www.nodrekhub.com/api/mps/login/extra'),
     );
 
     expect(response.status).toBe(401);
@@ -349,10 +349,10 @@ describe('global API proxy security', () => {
 
     for (let attempt = 0; attempt < 11; attempt += 1) {
       response = await proxy(
-        new NextRequest('https://www.edu-platform.me/api/mps/login', {
+        new NextRequest('https://www.nodrekhub.com/api/mps/login', {
           method: 'POST',
           headers: {
-            origin: 'https://www.edu-platform.me',
+            origin: 'https://www.nodrekhub.com',
             'x-forwarded-for': '203.0.113.8',
           },
         }),
@@ -369,11 +369,11 @@ describe('global API proxy security', () => {
     for (let attempt = 0; attempt < 6; attempt += 1) {
       response = await proxy(
         new NextRequest(
-          'https://www.edu-platform.me/api/support/inquiries',
+          'https://www.nodrekhub.com/api/support/inquiries',
           {
             method: 'POST',
             headers: {
-              origin: 'https://www.edu-platform.me',
+              origin: 'https://www.nodrekhub.com',
               'x-forwarded-for': '203.0.113.44',
             },
           },
@@ -396,11 +396,11 @@ describe('global API proxy security', () => {
 
     for (let attempt = 0; attempt < 31; attempt += 1) {
       response = await proxy(
-        new NextRequest('https://www.edu-platform.me/api/mps/logout', {
+        new NextRequest('https://www.nodrekhub.com/api/mps/logout', {
           method: 'POST',
           headers: {
             cookie: `wayground_mps_session=${'a'.repeat(43)}`,
-            origin: 'https://www.edu-platform.me',
+            origin: 'https://www.nodrekhub.com',
             'x-forwarded-for': '203.0.113.9',
           },
         }),
@@ -422,11 +422,11 @@ describe('global API proxy security', () => {
 
     for (let attempt = 0; attempt < 6; attempt += 1) {
       response = await proxy(
-        new NextRequest('https://www.edu-platform.me/api/settings/password', {
+        new NextRequest('https://www.nodrekhub.com/api/settings/password', {
           method: 'POST',
           headers: {
             authorization: 'Bearer valid.jwt',
-            origin: 'https://www.edu-platform.me',
+            origin: 'https://www.nodrekhub.com',
             'x-forwarded-for': `203.0.113.${20 + attempt}`,
           },
         }),
@@ -440,10 +440,10 @@ describe('global API proxy security', () => {
   it('protects the canonical presigned upload endpoint', async () => {
     const response = await proxy(
       new NextRequest(
-        'https://www.edu-platform.me/api/storage/presigned',
+        'https://www.nodrekhub.com/api/storage/presigned',
         {
           method: 'POST',
-          headers: { origin: 'https://www.edu-platform.me' },
+          headers: { origin: 'https://www.nodrekhub.com' },
         },
       ),
     );

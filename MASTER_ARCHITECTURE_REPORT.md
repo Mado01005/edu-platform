@@ -31,7 +31,7 @@
 ```env
 # Authentication
 AUTH_SECRET="f7h3j9k2l8m4n5p6q7r8s9t0u1v2w3x4y5z6A7B8C9"
-NEXTAUTH_URL="https://www.edu-platform.me"
+NEXTAUTH_URL="https://www.nodrekhub.com"
 NEXT_PUBLIC_SUPABASE_URL="https://cqvmeucgatkjozkgzcql.supabase.com"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="sb_publishable_..."
 SUPABASE_SERVICE_ROLE_KEY="<redacted: configure in deployment environment>"
@@ -641,7 +641,7 @@ Realtime Subscription → LiveActivityFeed (admin dashboard)
 ## Current Deployment State (Vercel)
 
 ### Production Configuration
-- **URL**: `https://www.edu-platform.me`
+- **URL**: `https://www.nodrekhub.com`
 - **Build Command**: `node scripts/generate-metadata.mjs && next build`
 - **Output**: `.next` (standard Next.js)
 - **Node Version**: Compatible with Vercel defaults
@@ -650,8 +650,8 @@ Realtime Subscription → LiveActivityFeed (admin dashboard)
 
 | Aspect | Local | Production (Vercel) |
 |--------|-------|---------------------|
-| URL | `localhost:3000` | `www.edu-platform.me` |
-| NextAuth URL | Not set | `NEXTAUTH_URL=https://www.edu-platform.me` |
+| URL | `localhost:3000` | `www.nodrekhub.com` |
+| NextAuth URL | Not set | `NEXTAUTH_URL=https://www.nodrekhub.com` |
 | Debug Mode | Enabled | Disabled |
 | Turbopack | Enabled | Enabled |
 | Static Content | File system | Vercel CDN |
