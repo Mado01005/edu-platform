@@ -15,7 +15,7 @@ const emailInput = {
   lastName: 'Hassan',
   locale: 'ar' as const,
   message: 'I need help choosing the right learning plan.',
-  operatingSystem: 'iOS' as const,
+  deviceOS: 'iOS',
   phone: '+201554225979',
   reference: 'ABCDEFGH',
 };
@@ -90,6 +90,7 @@ describe('support inquiry email delivery', () => {
     expect(payload?.text).toContain('First name: Amina');
     expect(payload?.text).toContain('Last name: Hassan');
     expect(payload?.text).toContain('Email: parent@example.com');
+    expect(payload?.text).toContain('Device / OS: iOS');
     expect(payload?.text).toContain(emailInput.message);
   });
 

@@ -29,7 +29,10 @@ export const publicSupportInquirySchema = z.object({
   lastName: z.string().trim().min(2).max(80),
   locale: z.enum(['en', 'ar']),
   message: z.string().trim().min(10).max(4_000),
-  operatingSystem: z.enum(['iOS', 'macOS', 'Windows', 'Android']),
+  deviceOS: z
+    .enum(['iOS', 'macOS', 'Windows', 'Android', 'Linux', 'Unknown', 'Other / Unknown', 'Auto-detected'])
+    .optional()
+    .default('Auto-detected'),
   phone: normalizedPhoneSchema,
   website: z.string().max(200).optional().default(''),
 });

@@ -21,7 +21,7 @@ const validBody = {
   lastName: 'Hassan',
   locale: 'ar',
   message: 'I need help choosing the right learning plan.',
-  operatingSystem: 'iOS',
+  deviceOS: 'iOS',
   phone: '+20 155 422 5979',
   website: '',
 };
@@ -86,7 +86,7 @@ describe('public support inquiry API', () => {
       lastName: 'Hassan',
       locale: 'ar',
       message: 'I need help choosing the right learning plan.',
-      operatingSystem: 'iOS',
+      deviceOS: 'iOS',
       phone: '+201554225979',
       reference: 'ABCDEFGH',
     });
@@ -96,11 +96,21 @@ describe('public support inquiry API', () => {
       email: 'parent@example.com',
       phone: '+201554225979',
       message: validBody.message,
-      operatingSystem: 'iOS',
+      deviceOS: 'iOS',
     });
     expect(consoleLog).toHaveBeenCalledWith(
       '[SUPPORT_INQUIRY_DISPATCH_ACCEPTED]',
       { reference: 'ABCDEFGH', providerMessageId: 'email_123' },
+    );
+  });
+
+  it('accepts an inquiry without OS detection and labels the email fallback', async () => {
+    const { deviceOS: _deviceOS, ...bodyWithoutDeviceOS } = validBody;
+    const response = await POST(supportRequest(bodyWithoutDeviceOS));
+
+    expect(response.status).toBe(201);
+    expect(mockSendSupportInquiryEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ deviceOS: 'Auto-detected' }),
     );
   });
 

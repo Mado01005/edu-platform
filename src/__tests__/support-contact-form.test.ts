@@ -24,19 +24,23 @@ function fillValidSupportForm() {
   fireEvent.change(screen.getByLabelText(/Email/), {
     target: { value: 'support-qa@example.com' },
   });
-  fireEvent.change(screen.getByLabelText(/Device \/ operating system/), {
-    target: { value: 'iOS' },
-  });
   fireEvent.change(screen.getByLabelText(/Message or questions/), {
     target: { value: 'Please help with this support question.' },
   });
 }
 
 describe('SupportContactForm', () => {
+  let userAgentSpy: jest.SpyInstance;
+
   beforeEach(() => {
     fetchMock.mockReset();
     global.fetch = fetchMock;
+    userAgentSpy = jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue(
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
+    );
   });
+
+  afterEach(() => userAgentSpy.mockRestore());
 
   afterAll(() => {
     global.fetch = originalFetch;
@@ -56,9 +60,26 @@ describe('SupportContactForm', () => {
     expect(screen.getByText('Last name is required.')).toBeTruthy();
     expect(screen.getByText('Email is required.')).toBeTruthy();
     expect(screen.getByText('Phone number is required.')).toBeTruthy();
-    expect(screen.getByText('Choose your device or operating system.')).toBeTruthy();
+    expect(screen.queryByLabelText(/Device \/ operating system/)).toBeNull();
     expect(screen.getByText('Message or questions is required.')).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('exposes standard personal data autofill attributes', () => {
+    render(createElement(SupportContactForm));
+
+    for (const [id, name, autocomplete, type, inputMode] of [
+      ['firstName', 'firstName', 'given-name', 'text', null],
+      ['lastName', 'lastName', 'family-name', 'text', null],
+      ['phone', 'phone', 'tel', 'tel', 'tel'],
+      ['email', 'email', 'email', 'email', 'email'],
+    ] as const) {
+      const input = document.getElementById(id);
+      expect(input?.getAttribute('name')).toBe(name);
+      expect(input?.getAttribute('autocomplete')).toBe(autocomplete);
+      expect(input?.getAttribute('type')).toBe(type);
+      expect(input?.getAttribute('inputmode')).toBe(inputMode);
+    }
   });
 
   it('searches worldwide calling codes and updates the grouped prefix and flag', () => {
@@ -132,7 +153,7 @@ describe('SupportContactForm', () => {
       email: 'support-qa@example.com',
       firstName: 'Nodrek',
       lastName: 'Support',
-      operatingSystem: 'iOS',
+      deviceOS: 'iOS',
       message: 'Please help with this support question.',
       phone: '+201554225979',
     });

@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       email: parsed.data.email,
       phone: parsed.data.phone,
       message: parsed.data.message,
-      operatingSystem: parsed.data.operatingSystem,
+      deviceOS: parsed.data.deviceOS,
     });
     const emailDelivery = await sendSupportInquiryEmail({
       email: parsed.data.email,
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       lastName: parsed.data.lastName,
       locale: parsed.data.locale,
       message: parsed.data.message,
-      operatingSystem: parsed.data.operatingSystem,
+      deviceOS: parsed.data.deviceOS,
       phone: parsed.data.phone,
       reference,
     });

@@ -16,7 +16,7 @@ export type SupportEmailInput = {
   lastName: string;
   locale: Locale;
   message: string;
-  operatingSystem: 'iOS' | 'macOS' | 'Windows' | 'Android';
+  deviceOS: string;
   phone: string;
   reference: string;
 };
@@ -33,7 +33,7 @@ function supportEmailText(input: SupportEmailInput) {
     `Last name: ${input.lastName}`,
     `Phone: ${input.phone}`,
     `Email: ${input.email}`,
-    `Device / operating system: ${input.operatingSystem}`,
+    `Device / OS: ${input.deviceOS}`,
     '',
     'Message:',
     input.message,
