@@ -78,9 +78,9 @@ describe('support inquiry email delivery', () => {
     expect(mockResendConstructor).toHaveBeenCalledWith('re_test_key');
     expect(mockResendSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: 'Nodrek Support <support@nodrekhub.com>',
+        from: 'Nudrek Support <support@nodrekhub.com>',
         replyTo: 'parent@example.com',
-        subject: 'New Nodrek support inquiry — ABCDEFGH',
+        subject: 'New Nudrek support inquiry — ABCDEFGH',
         text: expect.stringContaining('Phone: +201554225979'),
         to: ['support@nodrekhub.com'],
       }),

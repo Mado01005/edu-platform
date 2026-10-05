@@ -61,7 +61,7 @@ function gradeLabel(grade: GradeLevel | null) {
 }
 
 function instructorInitials(name: string | null) {
-  const value = name?.trim() || 'Nodrek Learning Hub';
+  const value = name?.trim() || 'Nudrek Learning Hub';
   return value
     .split(/\s+/)
     .filter(Boolean)

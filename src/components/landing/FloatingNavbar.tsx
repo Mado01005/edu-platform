@@ -167,7 +167,7 @@ export function FloatingNavbar() {
             </DiagnosticAssessmentLink>
             <div className="mt-3 border-t border-brand-base/10 pt-3">
               <LandingCopy className="block text-center text-[10px] font-black uppercase tracking-[0.16em] text-brand-surface/60">{{
-                en: 'Follow Nodrek Learning Hub',
+                en: 'Follow Nudrek Learning Hub',
                 ar: 'تابع نُدرك للتعليم المتكامل',
               }}</LandingCopy>
               <SocialLinks className="mt-2 justify-center" />

@@ -68,7 +68,7 @@ function SocialIcon({ icon }: SocialIconProps) {
 
 export function SocialLinks({ className }: SocialLinksProps) {
   return (
-    <ul aria-label="Nodrek Learning Hub social media" className={cn('flex flex-wrap items-center gap-3', className)}>
+    <ul aria-label="Nudrek Learning Hub social media" className={cn('flex flex-wrap items-center gap-3', className)}>
       {SOCIAL_LINKS.map((social) => (
         <li className="flex" key={social.name}>
           <a

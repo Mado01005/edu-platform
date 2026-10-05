@@ -55,7 +55,7 @@ export function LmsHeader({ user }: LmsHeaderProps) {
         <div className="mx-auto flex h-full w-full max-w-7xl min-w-0 items-center justify-between gap-4">
           {/* Left zone: brand */}
           <Link
-            aria-label="Nodrek Learning Hub catalog"
+            aria-label="Nudrek Learning Hub catalog"
             className="group flex min-w-max shrink-0 items-center gap-3 font-bold"
             href="/catalog"
           >

@@ -10,14 +10,14 @@ import { SupportContactForm } from '@/components/support/SupportContactForm';
 import { siteConfig } from '@/lib/siteConfig';
 
 const description =
-  'Contact Nodrek Learning Hub support through WhatsApp, email, or a secure in-page support form.';
+  'Contact Nudrek Learning Hub support through WhatsApp, email, or a secure in-page support form.';
 
 export const metadata: Metadata = {
   title: 'Support Center',
   description,
   alternates: { canonical: `${siteConfig.url}${siteConfig.routes.support}` },
   openGraph: {
-    title: 'Support Center | مركز الدعم — Nodrek Learning Hub',
+    title: 'Support Center | مركز الدعم — Nudrek Learning Hub',
     description,
     locale: 'ar_SA',
     alternateLocale: ['en_US'],
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 const contactPageSchema = {
   '@context': 'https://schema.org',
   '@type': 'ContactPage',
-  name: 'Nodrek Learning Hub Support Center',
+  name: 'Nudrek Learning Hub Support Center',
   url: `${siteConfig.url}${siteConfig.routes.support}`,
   mainEntity: {
     '@type': 'EducationalOrganization',
@@ -98,7 +98,7 @@ export default function PublicSupportPage() {
         </section>
 
         <div className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 text-center sm:flex-row sm:items-center sm:justify-between sm:text-start">
-          <LandingCopy as="p" className="text-sm font-bold text-brand-muted/75">{{ en: 'Follow the Nodrek community', ar: 'تابع مجتمع نُدرك' }}</LandingCopy>
+          <LandingCopy as="p" className="text-sm font-bold text-brand-muted/75">{{ en: 'Follow the Nudrek community', ar: 'تابع مجتمع نُدرك' }}</LandingCopy>
           <SocialLinks className="justify-center" />
         </div>
       </main>

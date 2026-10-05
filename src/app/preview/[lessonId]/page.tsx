@@ -76,7 +76,7 @@ export default async function GuestLessonPreviewPage({
           </Link>
           <div className="flex items-center gap-2">
             <LanguageToggle className="hidden sm:inline-flex" />
-            <Link className="inline-flex min-h-10 items-center rounded-xl bg-[#052F26] px-4 text-xs font-extrabold text-white hover:bg-[#093F33]" href="/lms/login?mode=signup">Join Nodrek Learning Hub</Link>
+            <Link className="inline-flex min-h-10 items-center rounded-xl bg-[#052F26] px-4 text-xs font-extrabold text-white hover:bg-[#093F33]" href="/lms/login?mode=signup">Join Nudrek Learning Hub</Link>
           </div>
         </div>
       </header>
@@ -96,7 +96,7 @@ export default async function GuestLessonPreviewPage({
             preferredQuality="AUTO"
             qualitySources={qualitySources}
             title={lesson.title}
-            watermark="Nodrek Learning Hub — Guest Preview"
+            watermark="Nudrek Learning Hub — Guest Preview"
           />
         </div>
         {lesson.contentType === 'TEXT' && lesson.textContent ? <article className="mt-6 whitespace-pre-wrap rounded-2xl border border-emerald-950/10 bg-white p-5 text-sm leading-7 text-slate-700">{lesson.textContent}</article> : null}

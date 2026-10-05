@@ -247,7 +247,7 @@ export default function ChatTutor() {
       <div className="px-6 py-4 border-b border-white/10 bg-white/5 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]'}`} />
-          <h2 className="text-sm font-bold text-white tracking-widest uppercase">Nodrek Learning Hub AI Tutor</h2>
+          <h2 className="text-sm font-bold text-white tracking-widest uppercase">Nudrek Learning Hub AI Tutor</h2>
         </div>
         <div className="flex items-center gap-3">
           {isLoading && (

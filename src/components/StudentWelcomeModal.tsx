@@ -91,7 +91,7 @@ export default function StudentWelcomeModal({ open, userEmail, userName }: Stude
             </div>
             
             <h2 className="mb-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Welcome to Nodrek Learning Hub, {userName.split(' ')[0]}!
+              Welcome to Nudrek Learning Hub, {userName.split(' ')[0]}!
             </h2>
             <p className="text-lg font-medium text-slate-600">Your account <strong className="text-[#052F26]">{userEmail}</strong> has been successfully registered.</p>
           </div>

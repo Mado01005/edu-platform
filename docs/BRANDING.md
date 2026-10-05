@@ -1,6 +1,6 @@
-# Nodrek Learning Hub brand and support
+# Nudrek Learning Hub brand and support
 
-The English name is **Nodrek Learning Hub** (short name **Nodrek**); the Arabic name is **نُدرك للتعليم المتكامل** (short name **نُدرك**).
+The English name is **Nudrek Learning Hub** (short name **Nudrek**); the Arabic name is **نُدرك للتعليم المتكامل** (short name **نُدرك**).
 The motto is **LEARN • GROW • ACHIEVE** / **نتعلم • ننمو • ننجز**.
 
 `src/lib/siteConfig.ts` owns the public brand, metadata description, assets, copyright, and contacts. `src/config/site.ts` derives the LMS brand and contact values from it.
@@ -10,7 +10,7 @@ The motto is **LEARN • GROW • ACHIEVE** / **نتعلم • ننمو • نن
 1. WhatsApp support: **+20 155 422 5979** (international dialing **00201554225979**), `https://wa.me/201554225979`.
 2. Email: **Support@nodrekhub.com**.
 
-Support inquiry notifications default to `Nodrek Support <Support@nodrekhub.com>`. An explicit server-side `SUPPORT_EMAIL_FROM` overrides that default. The sender domain must be verified in Resend and the support mailbox must accept incoming mail. Changing the displayed contact or default sender does not configure DNS or provision a mailbox. Inquiries remain stored if email dispatch is pending.
+Support inquiry notifications default to `Nudrek Support <Support@nodrekhub.com>`. An explicit server-side `SUPPORT_EMAIL_FROM` overrides that default. The sender domain must be verified in Resend and the support mailbox must accept incoming mail. Changing the displayed contact or default sender does not configure DNS or provision a mailbox. Inquiries remain stored if email dispatch is pending.
 
 All public WhatsApp links use the single support number in `src/lib/siteConfig.ts`.
 
@@ -37,10 +37,11 @@ The hero blends `#E2EFE7` through `#EEF5F1` to `#F5F8F6`. White card surfaces re
 
 ## Artwork
 
-- `public/brand/nodrek-official.jpeg` is a byte-for-byte copy of the supplied Nodrek artwork (1126 × 496), shown in the public header, hero, and footer without image optimization or cropping. The earlier `public/brand/nodrek-banner.jpeg` contains the same original bytes.
-- `public/brand/nodrek-emblem.png` is a transparent decorative emblem (512 × 512); `public/brand/nodrek-logo.png` is the square app icon (512 × 512), with matching 192- and 512-pixel PWA icons.
-- The app icon was created with the built-in imagegen tool from the supplied artwork. Prompt: isolate the existing book, scholar, graduation cap, leaves, and gold star; preserve their design, proportions, colors, and shading; remove lettering and the lower diacritic; center on pale sage with safe margins, no additional objects, border, or corner clipping. The header emblem was edited from that icon with the built-in imagegen tool to remove the sage background and preserve transparent alpha. These are adaptations, not pixel-identical crops.
-- Service-worker cache version 10 replaces cached legacy app icons.
+- `public/brand/nudrek-rec.png` is a byte-for-byte copy of the supplied rectangular Nudrek artwork (1889 × 832), used in the hero and social previews without cropping.
+- `public/brand/nudrek-round.png` is a byte-for-byte copy of the supplied circular badge (1254 × 1254), used in shared header, footer, and LMS emblem placements. Its original opaque black background is preserved.
+- `src/app/icon.png` (512 × 512), `src/app/apple-icon.png` (180 × 180), and the public PWA icons (192 and 512 pixels) are proportional resizes of the supplied circular badge. `public/favicon.ico` contains 16-, 32-, and 48-pixel versions of that badge.
+- Service-worker cache version 11 replaces cached legacy app icons.
+- Structured data names the service Nudrek Learning Hub and retains Nodrek and Nodrek Hub as alternate names. The live domain and support email remain unchanged.
 
 ## Compatibility boundaries
 

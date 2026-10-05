@@ -182,7 +182,7 @@ export function DocumentViewer({
   fileType,
   title,
   url,
-  watermark = 'Nodrek Learning Hub — Guest Preview',
+  watermark = 'Nudrek Learning Hub — Guest Preview',
 }: {
   downloadHref?: string;
   fileType: string;

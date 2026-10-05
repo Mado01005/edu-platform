@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   return {
     title: subject.title,
-    description: `Explore the ${subject.title} curriculum on Nodrek Learning Hub featuring ${subject.lessons.length} active modules.`,
+    description: `Explore the ${subject.title} curriculum on Nudrek Learning Hub featuring ${subject.lessons.length} active modules.`,
     openGraph: {
       title: `${subject.title} Curriculum`,
       description: `Access specialized content for ${subject.title}.`,

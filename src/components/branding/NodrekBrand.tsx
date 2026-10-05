@@ -17,7 +17,7 @@ export function NodrekEmblem({
 }: NodrekEmblemProps) {
   return (
     <Image
-      alt={decorative ? '' : `${siteConfig.name} emblem`}
+      alt={decorative ? '' : siteConfig.name}
       aria-hidden={decorative || undefined}
       className={cn('size-10 shrink-0 object-contain', className)}
       height={512}

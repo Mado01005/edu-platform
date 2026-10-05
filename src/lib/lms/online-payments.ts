@@ -359,7 +359,7 @@ export async function approveOnlinePayment(paymentId: string, reviewerId: string
     if (phones.length) {
       await tx.whatsAppDispatch.createMany({
         data: phones.map((phoneNumber) => ({
-          message: `Nodrek Learning Hub: ${payment.student.name ?? 'Student'} now has access to ${targetTitle}. Payment ${invoiceNumber} was approved.`,
+          message: `Nudrek Learning Hub: ${payment.student.name ?? 'Student'} now has access to ${targetTitle}. Payment ${invoiceNumber} was approved.`,
           paymentId: payment.id,
           phoneNumber,
           studentId: payment.studentId,

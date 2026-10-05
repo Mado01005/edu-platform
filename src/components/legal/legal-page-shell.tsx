@@ -33,7 +33,7 @@ export function LegalPageShell({
       <header className="border-b border-emerald-950/10 bg-white">
         <div className="mx-auto flex min-h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link
-            aria-label="Nodrek Learning Hub course catalog"
+            aria-label="Nudrek Learning Hub course catalog"
             className="flex min-w-0 items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"
             href="/catalog"
           >
@@ -64,7 +64,7 @@ export function LegalPageShell({
             <div className="w-full max-w-sm rounded-2xl border border-[#D8A649]/25 bg-white/5 p-5 backdrop-blur-sm">
               <div className="flex items-center gap-3 text-[#D8A649]">
                 <ShieldCheck aria-hidden="true" className="size-6" />
-                <p className="text-sm font-extrabold">Nodrek trust record</p>
+                <p className="text-sm font-extrabold">Nudrek trust record</p>
               </div>
               <div className="mt-4 flex items-center gap-2 text-xs text-emerald-100/70">
                 <CalendarDays aria-hidden="true" className="size-4" />

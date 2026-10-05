@@ -11,8 +11,8 @@ export default function ShareButton({ title }: ShareButtonProps) {
 
   const handleShare = async () => {
     const shareData = {
-      title: `${title} - Nodrek Learning Hub`,
-      text: `Check out this lesson on Nodrek Learning Hub: ${title}`,
+      title: `${title} - Nudrek Learning Hub`,
+      text: `Check out this lesson on Nudrek Learning Hub: ${title}`,
       url: window.location.href,
     };
 

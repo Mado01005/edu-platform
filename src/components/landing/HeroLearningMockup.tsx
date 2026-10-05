@@ -24,7 +24,7 @@ export function HeroLearningMockup() {
             <LandingCopy as="p" className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-gold">{{ en: 'Sample Progress View', ar: 'نموذج توضيحي للتقدم' }}</LandingCopy>
             <LandingCopy as="p" className="mt-1 text-sm font-black sm:text-base">{{ en: 'Your child’s learning journey', ar: 'رحلة تعلم ابنك' }}</LandingCopy>
             <LandingCopy as="p" className="mt-2 text-[10px] font-bold leading-5 text-brand-gold">{{
-              en: 'Verified Assessment • Nodrek Learning Hub',
+              en: 'Verified Assessment • Nudrek Learning Hub',
               ar: 'تقييم موثّق • نُدرك للتعليم المتكامل',
             }}</LandingCopy>
           </div>

@@ -32,7 +32,7 @@ export function VerifiedCertificate({
           <NodrekEmblem className="size-20 rounded-2xl" />
         </div>
         <p className="mt-1 text-xs font-black uppercase tracking-[0.24em] text-brand-gold">
-          Nodrek Learning Hub
+          Nudrek Learning Hub
         </p>
         <h3 className="mx-auto mt-5 max-w-2xl font-serif text-2xl font-semibold leading-tight text-brand-white md:text-3xl">
           <span className="block font-sans text-xl font-extrabold" dir="rtl" lang="ar">

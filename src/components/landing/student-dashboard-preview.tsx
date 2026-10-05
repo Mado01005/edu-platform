@@ -22,7 +22,7 @@ export function StudentDashboardPreview() {
       <div aria-hidden="true" className="absolute bottom-8 left-3 size-24 rounded-full border border-brand-border bg-brand-base/60 sm:left-8" />
 
       <div aria-hidden="true" className="absolute inset-x-5 top-6 z-0 h-44 -rotate-3 overflow-hidden rounded-[2rem] border border-brand-gold/25 bg-brand-base opacity-35 shadow-lg sm:inset-x-10 sm:top-8">
-        <Image alt="" className="object-cover" fill sizes="(max-width: 1024px) 90vw, 38rem" src="/brand/nodrek-banner.jpeg" />
+        <Image alt="" className="object-cover" fill sizes="(max-width: 1024px) 90vw, 38rem" src="/brand/nudrek-rec.png" />
       </div>
 
       <div className="landing-float relative z-10 min-w-0 rounded-[2rem] border border-brand-rim bg-brand-surface p-4 shadow-[0_28px_80px_rgba(0,0,0,0.28)] sm:p-6">

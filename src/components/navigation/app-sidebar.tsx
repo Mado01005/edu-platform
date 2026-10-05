@@ -299,7 +299,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
             <SheetTitle className="flex items-center gap-3 text-left">
               <NodrekEmblem className="size-9" decorative />
               <NodrekWordmark />
-              <span className="sr-only">Nodrek Learning Hub navigation</span>
+              <span className="sr-only">Nudrek Learning Hub navigation</span>
             </SheetTitle>
             <SheetDescription>
               Only the tools available to your role are shown.

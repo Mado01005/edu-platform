@@ -29,7 +29,7 @@ export const metadata: Metadata = {
         url: `${siteConfig.url}${siteConfig.brand.banner}`,
         width: siteConfig.brand.bannerWidth,
         height: siteConfig.brand.bannerHeight,
-        alt: 'Nodrek Learning Hub official banner',
+        alt: 'Nudrek Learning Hub official banner',
       },
     ],
     locale: 'en_US',

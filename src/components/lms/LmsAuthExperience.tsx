@@ -634,7 +634,7 @@ export function LmsAuthExperience({
             <GraduationCap className="size-6" aria-hidden="true" />
           </span>
           <span>
-            <span className="block text-base font-black">Nodrek Learning Hub</span>
+            <span className="block text-base font-black">Nudrek Learning Hub</span>
             <span className="block text-[9px] font-bold uppercase tracking-[0.24em] text-[#052F26]">
               LEARN • GROW • ACHIEVE
             </span>
@@ -783,7 +783,7 @@ export function LmsAuthExperience({
                           ? 'Reset your password.'
                           : mode === 'recovery'
                             ? 'Secure your account.'
-                            : 'Sign in to Nodrek Learning Hub.'}
+                            : 'Sign in to Nudrek Learning Hub.'}
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   {mode === 'signup'

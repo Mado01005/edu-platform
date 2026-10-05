@@ -25,7 +25,7 @@ const DEFAULT_SUPPORT_FROM = siteConfig.support.sender;
 
 function supportEmailText(input: SupportEmailInput) {
   return [
-    'A new support inquiry was submitted through Nodrek Learning Hub.',
+    'A new support inquiry was submitted through Nudrek Learning Hub.',
     '',
     `Reference: ${input.reference}`,
     `Submitted language: ${input.locale}`,
@@ -62,7 +62,7 @@ export async function sendSupportInquiryEmail(
       {
         from: process.env.SUPPORT_EMAIL_FROM?.trim() || DEFAULT_SUPPORT_FROM,
         replyTo: input.email,
-        subject: `New Nodrek support inquiry — ${input.reference}`,
+        subject: `New Nudrek support inquiry — ${input.reference}`,
         tags: [
           { name: 'source', value: 'public-support-form' },
           { name: 'locale', value: input.locale },

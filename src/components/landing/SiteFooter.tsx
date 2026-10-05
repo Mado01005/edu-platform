@@ -13,7 +13,7 @@ export function SiteFooter() {
         <div>
           <Link className="group inline-flex min-h-12 max-w-full items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-brand-gold" href={siteConfig.routes.home}>
             <Image
-              alt=""
+              alt={siteConfig.name}
               className="h-12 w-12 shrink-0 object-contain transition-transform duration-300 group-hover:scale-105"
               height={48}
               src={siteConfig.brand.logo}
@@ -21,7 +21,7 @@ export function SiteFooter() {
             />
             <span className="flex min-w-0 flex-col">
               <span className="text-xl font-bold tracking-tight text-brand-white transition-colors group-hover:text-brand-gold">
-                {siteConfig.name}
+                NUDREK Learning Hub
               </span>
               <span className="font-arabic text-xs font-medium text-brand-sage" dir="rtl">
                 {siteConfig.arabicName}
@@ -42,12 +42,12 @@ export function SiteFooter() {
           </a>
         </div>
 
-        <nav aria-label="Explore Nodrek" className="flex flex-col items-start text-sm text-brand-muted/75">
+        <nav aria-label="Explore Nudrek" className="flex flex-col items-start text-sm text-brand-muted/75">
           <LandingCopy className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.footer.explore}</LandingCopy>
           {landingContent.navigation.map((item) => <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold" href={`/${item.href}`} key={item.href}><LandingCopy>{item.label}</LandingCopy></Link>)}
         </nav>
 
-        <nav aria-label="Nodrek access and legal" className="flex flex-col items-start text-sm text-brand-muted/75">
+        <nav aria-label="Nudrek access and legal" className="flex flex-col items-start text-sm text-brand-muted/75">
           <LandingCopy className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.footer.access}</LandingCopy>
           <Link
             className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold"
@@ -61,7 +61,7 @@ export function SiteFooter() {
             rel="noopener noreferrer"
             target="_blank"
           >
-            <LandingCopy>{{ en: 'Teach with Nodrek', ar: 'انضم إلينا كمعلم' }}</LandingCopy>
+            <LandingCopy>{{ en: 'Teach with Nudrek', ar: 'انضم إلينا كمعلم' }}</LandingCopy>
           </a>
           <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold" href={siteConfig.routes.privacy}><LandingCopy>{{ en: 'Privacy', ar: 'الخصوصية' }}</LandingCopy></Link>
           <Link className="inline-flex min-h-11 items-center rounded-lg outline-none hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold" href={siteConfig.routes.terms}><LandingCopy>{{ en: 'Terms', ar: 'الشروط' }}</LandingCopy></Link>

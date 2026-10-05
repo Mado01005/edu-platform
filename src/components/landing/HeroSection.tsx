@@ -59,7 +59,7 @@ export function HeroSection() {
       </div>
 
       <div className="mt-12 w-full bg-brand-base px-4 py-4 sm:px-6 lg:px-8">
-        <div className="nodrek-feature-ticker mx-auto max-w-7xl overflow-hidden rounded-3xl border border-brand-border bg-brand-base p-2 sm:p-3 lg:rounded-full" aria-label="Nodrek learning services">
+        <div className="nodrek-feature-ticker mx-auto max-w-7xl overflow-hidden rounded-3xl border border-brand-border bg-brand-base p-2 sm:p-3 lg:rounded-full" aria-label="Nudrek learning services">
           <div className="nodrek-feature-ticker-track flex w-max text-[10px] font-black uppercase tracking-[0.1em] text-brand-white lg:text-[11px]" dir="ltr">
             {[false, true].map((duplicate) => (
               <ul

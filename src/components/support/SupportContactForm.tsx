@@ -131,11 +131,11 @@ const copy = {
   send: { en: 'Send message', ar: 'إرسال الرسالة' },
   sending: { en: 'Sending securely…', ar: 'جارٍ الإرسال بأمان…' },
   successBody: {
-    en: 'Your message was saved and emailed to the Nodrek support team. We will respond using the contact details you provided.',
+    en: 'Your message was saved and emailed to the Nudrek support team. We will respond using the contact details you provided.',
     ar: 'تم حفظ رسالتك وإرسالها بالبريد الإلكتروني إلى فريق دعم نُدرك. سنتواصل معك عبر بيانات الاتصال التي أرسلتها.',
   },
   successBodyPending: {
-    en: 'Your request is saved, but the email notification is temporarily pending. The Nodrek support team can still review it in the support portal.',
+    en: 'Your request is saved, but the email notification is temporarily pending. The Nudrek support team can still review it in the support portal.',
     ar: 'تم حفظ طلبك، لكن إشعار البريد الإلكتروني قيد الانتظار مؤقتًا. لا يزال بإمكان فريق دعم نُدرك مراجعته في بوابة الدعم.',
   },
   successTitle: { en: 'Message received', ar: 'تم استلام رسالتك' },

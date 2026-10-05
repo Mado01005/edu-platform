@@ -51,7 +51,7 @@ export default async function AccountingReceiptPage({
             </span>
           </div>
           <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#805C1D]">
-            Nodrek Learning Hub
+            Nudrek Learning Hub
           </p>
           <h1 className="mt-2 break-words text-3xl font-black">
             Digital receipt

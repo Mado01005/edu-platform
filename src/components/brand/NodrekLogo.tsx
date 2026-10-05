@@ -16,7 +16,7 @@ export function NodrekLogo({
 }: NodrekLogoProps) {
   return (
     <Link
-      aria-label={`${siteConfig.name} Home`}
+      aria-label={siteConfig.name}
       className={cn(
         'group inline-flex min-h-11 shrink-0 items-center gap-2.5 outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30',
         className,
@@ -24,11 +24,11 @@ export function NodrekLogo({
       href={siteConfig.routes.home}
     >
       <span className={cn('relative shrink-0', logoHeights[size])}>
-        <Image alt="Nodrek Emblem" className="object-contain" fill preload sizes="56px" src={siteConfig.brand.logo} />
+        <Image alt={siteConfig.name} className="object-contain" fill preload sizes="56px" src={siteConfig.brand.logo} />
       </span>
       <span className="flex flex-col leading-none">
         <span className="flex items-center gap-1.5">
-          <span className="text-lg font-extrabold tracking-tight text-brand-base sm:text-xl">NODREK</span>
+          <span className="text-lg font-extrabold tracking-tight text-brand-base sm:text-xl">NUDREK</span>
           <span className="font-arabic text-base font-bold text-brand-base sm:text-lg" dir="rtl">نُدرك</span>
         </span>
         <span className="text-[10px] font-medium tracking-wide text-brand-surface/75 sm:text-[11px]">Learning Hub</span>

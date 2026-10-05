@@ -4,7 +4,7 @@ import { LegalPageShell, type LegalSection } from '@/components/legal/legal-page
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'How Nodrek Learning Hub collects, uses, protects, and shares student and account information.',
+  description: 'How Nudrek Learning Hub collects, uses, protects, and shares student and account information.',
 };
 
 const sections: readonly LegalSection[] = [
@@ -14,8 +14,8 @@ const sections: readonly LegalSection[] = [
     titleAr: 'نطاق سياسة الخصوصية',
     content: (
       <>
-        <p>Nodrek Learning Hub provides structured online learning, live classes, assignments, course resources, and student-support services. This policy explains how we handle personal information when students, parents, instructors, and administrators use our websites and learning platform.</p>
-        <p>“Nodrek Learning Hub,” “we,” and “our” refer to the academy service operating through <strong>nodrekhub.com</strong>. Questions can be sent to <a href={`mailto:${brandConfig.support.email}`}>{brandConfig.support.email}</a>.</p>
+        <p>Nudrek Learning Hub provides structured online learning, live classes, assignments, course resources, and student-support services. This policy explains how we handle personal information when students, parents, instructors, and administrators use our websites and learning platform.</p>
+        <p>“Nudrek Learning Hub,” “we,” and “our” refer to the academy service operating through <strong>nodrekhub.com</strong>. Questions can be sent to <a href={`mailto:${brandConfig.support.email}`}>{brandConfig.support.email}</a>.</p>
       </>
     ),
   },
@@ -44,7 +44,7 @@ const sections: readonly LegalSection[] = [
       <>
         <p>When a user chooses Google sign-in, we request basic identity scopes such as <strong>openid</strong>, email address, and profile information. We use that data to authenticate the user, match or create the correct academy account, display the user’s profile, and protect the session.</p>
         <p>We do not use Google account information for advertising, sell it, or permit unrelated third parties to use it for their own marketing. Our handling of information received from Google APIs follows the Google API Services User Data Policy, including its Limited Use requirements.</p>
-        <p>You can review or revoke Nodrek Learning Hub access from your Google Account permissions. Revocation stops future Google sign-in access but does not automatically erase records we must retain for learning history, security, accounting, or legal obligations.</p>
+        <p>You can review or revoke Nudrek Learning Hub access from your Google Account permissions. Revocation stops future Google sign-in access but does not automatically erase records we must retain for learning history, security, accounting, or legal obligations.</p>
       </>
     ),
   },
@@ -71,7 +71,7 @@ const sections: readonly LegalSection[] = [
       <>
         <p>We share personal information only when necessary to deliver the service, follow a user’s direction, or meet a legal obligation. This may include vetted providers that supply authentication, hosting, storage, communications, live-class, analytics, or payment infrastructure.</p>
         <p>Providers receive only the information needed for their function and must handle it under contractual, technical, and legal safeguards. We may also share information with a parent or guardian where the account relationship, student safety, law, or academy service requires it.</p>
-        <p>If Nodrek Learning Hub is reorganized or transferred, relevant records may move with the service subject to this policy and applicable law. We do not sell personal information.</p>
+        <p>If Nudrek Learning Hub is reorganized or transferred, relevant records may move with the service subject to this policy and applicable law. We do not sell personal information.</p>
       </>
     ),
   },
@@ -92,7 +92,7 @@ const sections: readonly LegalSection[] = [
     titleAr: 'الطلاب وأولياء الأمور',
     content: (
       <>
-        <p>Nodrek Learning Hub serves school-age learners. A parent or legal guardian should review the service and this policy when local law requires consent for a minor. Guardians should help students provide accurate information and use live classes, messages, and shared resources safely.</p>
+        <p>Nudrek Learning Hub serves school-age learners. A parent or legal guardian should review the service and this policy when local law requires consent for a minor. Guardians should help students provide accurate information and use live classes, messages, and shared resources safely.</p>
         <p>If you believe a child’s information was provided without required authorization, contact us so we can review the account and take appropriate action.</p>
       </>
     ),
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
     <LegalPageShell
       effectiveDate="August 22, 2026"
       eyebrow="Privacy · Student trust"
-      intro={<p>Clear learning begins with clear expectations. This policy describes what information enters Nodrek Learning Hub, why it is needed, and the choices available to students and families.</p>}
+      intro={<p>Clear learning begins with clear expectations. This policy describes what information enters Nudrek Learning Hub, why it is needed, and the choices available to students and families.</p>}
       sections={sections}
       title="Privacy Policy"
       titleAr="سياسة الخصوصية"

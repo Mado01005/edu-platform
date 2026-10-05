@@ -275,7 +275,7 @@ export default async function LessonPlayerPage({
               preferredQuality={user.defaultVideoQuality}
               qualitySources={qualitySources}
               title={lesson.title}
-              watermark={`${user.name ?? 'Nodrek Student'} — ${user.email}`}
+              watermark={`${user.name ?? 'Nudrek Student'} — ${user.email}`}
             />
           </div> : null}
 
@@ -339,7 +339,7 @@ export default async function LessonPlayerPage({
 
           <LessonResources
             materials={resourceMaterials}
-            watermark={`${user.name ?? 'Nodrek Student'} — ${user.email}`}
+            watermark={`${user.name ?? 'Nudrek Student'} — ${user.email}`}
           />
 
           {lesson.contentType === 'QUIZ' && lesson.assignment && user.role === 'STUDENT' && !isPreview ? (

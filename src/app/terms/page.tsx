@@ -4,7 +4,7 @@ import { LegalPageShell, type LegalSection } from '@/components/legal/legal-page
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'The terms governing accounts, learning services, course materials, payments, and conduct at Nodrek Learning Hub.',
+  description: 'The terms governing accounts, learning services, course materials, payments, and conduct at Nudrek Learning Hub.',
 };
 
 const sections: readonly LegalSection[] = [
@@ -14,7 +14,7 @@ const sections: readonly LegalSection[] = [
     titleAr: 'الموافقة على الشروط',
     content: (
       <>
-        <p>These Terms of Service govern access to Nodrek Learning Hub websites, accounts, courses, live classes, assignments, resources, certificates, and support services. By creating an account, enrolling, paying for a course, or using the platform, you agree to these terms and the <a href="/privacy">Privacy Policy</a>.</p>
+        <p>These Terms of Service govern access to Nudrek Learning Hub websites, accounts, courses, live classes, assignments, resources, certificates, and support services. By creating an account, enrolling, paying for a course, or using the platform, you agree to these terms and the <a href="/privacy">Privacy Policy</a>.</p>
         <p>If the learner is not legally able to accept these terms independently, a parent or legal guardian must review and accept them on the learner’s behalf.</p>
       </>
     ),
@@ -49,7 +49,7 @@ const sections: readonly LegalSection[] = [
     titleAr: 'المحتوى وحقوق الاستخدام',
     content: (
       <>
-        <p>Nodrek Learning Hub and its instructors retain their rights in videos, lessons, documents, assignments, graphics, recordings, software, and other materials. A valid enrollment gives the registered student a limited, personal, non-transferable right to use those materials for learning during the permitted access period.</p>
+        <p>Nudrek Learning Hub and its instructors retain their rights in videos, lessons, documents, assignments, graphics, recordings, software, and other materials. A valid enrollment gives the registered student a limited, personal, non-transferable right to use those materials for learning during the permitted access period.</p>
         <p>Users may not redistribute, sell, publish, scrape, record, remove protections from, share account access to, or create unauthorized derivative products from academy materials. A download option does not transfer ownership or permit public distribution.</p>
       </>
     ),
@@ -100,7 +100,7 @@ const sections: readonly LegalSection[] = [
     content: (
       <>
         <p>We work to keep the academy reliable, but maintenance, internet conditions, provider incidents, security events, and circumstances beyond reasonable control can interrupt access. We may change or replace infrastructure while preserving active learning access where reasonably possible.</p>
-        <p>Features may rely on third-party authentication, hosting, storage, live-class, communication, or payment services. Those services may have additional terms and privacy practices. Nodrek Learning Hub is not responsible for a third party’s independent service outside our reasonable control.</p>
+        <p>Features may rely on third-party authentication, hosting, storage, live-class, communication, or payment services. Those services may have additional terms and privacy practices. Nudrek Learning Hub is not responsible for a third party’s independent service outside our reasonable control.</p>
       </>
     ),
   },
@@ -121,7 +121,7 @@ const sections: readonly LegalSection[] = [
     titleAr: 'المسؤولية والقانون المطبق',
     content: (
       <>
-        <p>The service is provided with reasonable professional care. To the extent permitted by law, Nodrek Learning Hub is not liable for indirect or unforeseeable losses, external examination decisions, third-party outages, or losses caused by a user’s device, connection, credentials, or unauthorized conduct.</p>
+        <p>The service is provided with reasonable professional care. To the extent permitted by law, Nudrek Learning Hub is not liable for indirect or unforeseeable losses, external examination decisions, third-party outages, or losses caused by a user’s device, connection, credentials, or unauthorized conduct.</p>
         <p>Nothing in these terms excludes rights or responsibilities that cannot legally be excluded. These terms are governed by the applicable laws of Egypt, without removing mandatory consumer or data-protection rights that apply in a user’s location.</p>
       </>
     ),

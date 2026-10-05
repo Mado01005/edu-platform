@@ -39,7 +39,7 @@ export function OutcomesSection() {
             <div className="relative mt-6 flex items-center justify-end gap-2 border-t border-brand-gold/25 pt-4">
               <NodrekEmblem className="size-10" decorative />
               <LandingCopy className="text-xs font-bold text-brand-base">{{
-                en: 'Nodrek Academic Standard',
+                en: 'Nudrek Academic Standard',
                 ar: 'معيار نُدرك الأكاديمي',
               }}</LandingCopy>
             </div>

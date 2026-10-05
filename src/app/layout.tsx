@@ -25,13 +25,13 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.title}`,
   },
   description: siteConfig.description,
-  keywords: ['nodrekhub', 'Nodrek Hub', 'Nodrek Learning Hub', 'نُدرك', 'نُدرك للتعليم المتكامل', 'منصة نُدرك'],
+  keywords: ['Nudrek', 'nudrekhub', 'nodrekhub', 'Nudrek Hub', 'Nudrek Learning Hub', 'نُدرك', 'نُدرك للتعليم المتكامل', 'منصة نُدرك'],
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
-      { url: siteConfig.brand.logo, sizes: '512x512', type: 'image/png' },
+      { url: siteConfig.brand.appIcon, sizes: '512x512', type: 'image/png' },
     ],
     shortcut: [{ url: '/favicon.ico', sizes: 'any' }],
     apple: [
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
         url: siteConfig.brand.banner,
         width: siteConfig.brand.bannerWidth,
         height: siteConfig.brand.bannerHeight,
-        alt: 'Nodrek Learning Hub — LEARN • GROW • ACHIEVE',
+        alt: 'Nudrek Learning Hub — LEARN • GROW • ACHIEVE',
       },
     ],
     locale: 'en_US',
@@ -78,10 +78,10 @@ const organizationSchema = {
   '@type': 'EducationalOrganization',
   '@id': `${siteConfig.url}/#organization`,
   name: siteConfig.name,
-  alternateName: ['nodrekhub', 'nodrekhub.com', 'Nodrek Hub', siteConfig.arabicName, 'نُدرك'],
+  alternateName: ['Nudrek', 'Nudrek Hub', 'nudrekhub', 'Nodrek', 'Nodrek Hub', siteConfig.arabicName, 'نُدرك'],
   url: siteConfig.url,
   logo: `${siteConfig.url}${siteConfig.brand.logo}`,
-  description: `Nodrek Learning Hub provides managed online education, diagnostic assessments, and personalized learning journeys for students in grades 1 through 12 across Egypt and the ${siteConfig.serviceRegion.en}.`,
+  description: `Nudrek Learning Hub provides managed online education, diagnostic assessments, and personalized learning journeys for students in grades 1 through 12 across Egypt and the ${siteConfig.serviceRegion.en}.`,
   areaServed: [
     { '@type': 'Country', name: 'Egypt' },
     { '@type': 'AdministrativeArea', name: siteConfig.serviceRegion.en },
@@ -104,7 +104,7 @@ const websiteSchema = {
   '@type': 'WebSite',
   '@id': `${siteConfig.url}/#website`,
   name: siteConfig.name,
-  alternateName: ['nodrekhub', 'nodrekhub.com', 'Nodrek Hub', siteConfig.arabicName, 'نُدرك'],
+  alternateName: ['Nudrek', 'Nudrek Hub', 'nudrekhub', 'Nodrek', 'Nodrek Hub', siteConfig.arabicName, 'نُدرك'],
   url: siteConfig.url,
   publisher: { '@id': `${siteConfig.url}/#organization` },
 };
