@@ -39,8 +39,9 @@ The hero blends `#E2EFE7` through `#EEF5F1` to `#F5F8F6`. White card surfaces re
 
 - `public/brand/nudrek-rec.png` is a byte-for-byte copy of the supplied rectangular Nudrek artwork (1889 × 832), used in the hero and social previews without cropping.
 - `public/brand/nudrek-round.png` is a byte-for-byte copy of the supplied circular badge (1254 × 1254), used in shared header, footer, and LMS emblem placements. Its original opaque black background is preserved.
-- `src/app/icon.png` (512 × 512), `src/app/apple-icon.png` (180 × 180), and the public PWA icons (192 and 512 pixels) are proportional resizes of the supplied circular badge. `public/favicon.ico` contains 16-, 32-, and 48-pixel versions of that badge.
-- Service-worker cache version 11 replaces cached legacy app icons.
+- The navbar and footer clip the supplied badge inside circular wrappers with a subtle brand-gold ring and a 5% image scale to hide its black outer corners.
+- `src/app/icon.png` (512 × 512), `src/app/apple-icon.png` (180 × 180), and the public PWA icons (192 and 512 pixels) are proportional resizes of the supplied circular badge with transparent pixels outside its gold border. `public/favicon.ico` contains 16-, 32-, and 48-pixel versions of that badge.
+- Service-worker cache version 12 replaces cached app icons with the circular versions.
 - Structured data names the service Nudrek Learning Hub and retains Nodrek and Nodrek Hub as alternate names. The live domain and support email remain unchanged.
 
 ## Compatibility boundaries

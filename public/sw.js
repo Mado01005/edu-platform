@@ -1,5 +1,5 @@
-const CACHE_NAME = 'nodrek-pwa-v11';
-const STATIC_ASSETS_CACHE = 'nodrek-static-v11';
+const CACHE_NAME = 'nodrek-pwa-v12';
+const STATIC_ASSETS_CACHE = 'nodrek-static-v12';
 
 const PRECACHE_ASSETS = [
   '/manifest.json',

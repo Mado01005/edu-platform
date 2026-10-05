@@ -12,13 +12,15 @@ export function SiteFooter() {
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.35fr_0.65fr_0.65fr] lg:px-8">
         <div>
           <Link className="group inline-flex min-h-12 max-w-full items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-brand-gold" href={siteConfig.routes.home}>
-            <Image
-              alt={siteConfig.name}
-              className="h-12 w-12 shrink-0 object-contain transition-transform duration-300 group-hover:scale-105"
-              height={48}
-              src={siteConfig.brand.logo}
-              width={48}
-            />
+            <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-brand-gold/40">
+              <Image
+                alt={siteConfig.name}
+                className="scale-105 object-cover transition-transform duration-300 group-hover:rotate-2"
+                fill
+                sizes="48px"
+                src={siteConfig.brand.logo}
+              />
+            </span>
             <span className="flex min-w-0 flex-col">
               <span className="text-xl font-bold tracking-tight text-brand-white transition-colors group-hover:text-brand-gold">
                 NUDREK Learning Hub

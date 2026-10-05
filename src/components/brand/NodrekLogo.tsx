@@ -16,15 +16,15 @@ export function NodrekLogo({
 }: NodrekLogoProps) {
   return (
     <Link
-      aria-label={siteConfig.name}
+      aria-label={`${siteConfig.name} Home`}
       className={cn(
         'group inline-flex min-h-11 shrink-0 items-center gap-2.5 outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30',
         className,
       )}
       href={siteConfig.routes.home}
     >
-      <span className={cn('relative shrink-0', logoHeights[size])}>
-        <Image alt={siteConfig.name} className="object-contain" fill preload sizes="56px" src={siteConfig.brand.logo} />
+      <span className={cn('relative shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-brand-gold/40 transition-transform duration-300 group-hover:rotate-2', logoHeights[size])}>
+        <Image alt={siteConfig.name} className="scale-105 object-cover" fill preload sizes="56px" src={siteConfig.brand.logo} />
       </span>
       <span className="flex flex-col leading-none">
         <span className="flex items-center gap-1.5">
