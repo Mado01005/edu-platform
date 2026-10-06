@@ -8,9 +8,9 @@ The motto is **LEARN • GROW • ACHIEVE** / **نتعلم • ننمو • نن
 ## Support
 
 1. WhatsApp support: **+20 155 422 5979** (international dialing **00201554225979**), `https://wa.me/201554225979`.
-2. Email: **Support@nodrekhub.com**.
+2. Email: **support@nudrek.com**.
 
-Support inquiry notifications default to `Nudrek Support <Support@nodrekhub.com>`. An explicit server-side `SUPPORT_EMAIL_FROM` overrides that default. The sender domain must be verified in Resend and the support mailbox must accept incoming mail. Changing the displayed contact or default sender does not configure DNS or provision a mailbox. Inquiries remain stored if email dispatch is pending.
+Support inquiry notifications default to `Nudrek Support <support@nudrek.com>`. An explicit server-side `SUPPORT_EMAIL_FROM` overrides that default. The sender domain must be verified in Resend and the support mailbox must accept incoming mail. Changing the displayed contact or default sender does not configure DNS or provision a mailbox. Inquiries remain stored if email dispatch is pending.
 
 All public WhatsApp links use the single support number in `src/lib/siteConfig.ts`.
 

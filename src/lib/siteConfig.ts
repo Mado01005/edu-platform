@@ -18,7 +18,7 @@ export const siteConfig = {
     terms: '/terms',
   },
   support: {
-    email: 'support@nodrekhub.com',
+    email: 'support@nudrek.com',
     sender: 'Nudrek Support <support@nudrek.com>',
   },
   brand: {

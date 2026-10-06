@@ -82,7 +82,7 @@ describe('support inquiry email delivery', () => {
         replyTo: 'parent@example.com',
         subject: 'New Nudrek support inquiry — ABCDEFGH',
         text: expect.stringContaining('Phone: +201554225979'),
-        to: ['support@nodrekhub.com'],
+        to: ['support@nudrek.com'],
       }),
       { idempotencyKey: 'support-inquiry/cm12345678ABCDEFGH' },
     );
