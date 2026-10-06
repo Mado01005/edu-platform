@@ -19,7 +19,7 @@ export const siteConfig = {
   },
   support: {
     email: 'support@nodrekhub.com',
-    sender: 'Nudrek Support <support@nodrekhub.com>',
+    sender: 'Nudrek Support <support@nudrek.com>',
   },
   brand: {
     logo: '/brand/nudrek-round.png',

@@ -15,7 +15,7 @@ export function SiteFooter() {
             <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-brand-gold/40">
               <Image
                 alt={siteConfig.name}
-                className="scale-105 object-cover transition-transform duration-300 group-hover:rotate-2"
+                className="object-cover w-full h-full transition-transform duration-300 group-hover:rotate-2"
                 fill
                 sizes="48px"
                 src={siteConfig.brand.logo}

@@ -16,16 +16,18 @@ export function NodrekEmblem({
   sizes = '40px',
 }: NodrekEmblemProps) {
   return (
-    <Image
-      alt={decorative ? '' : siteConfig.name}
-      aria-hidden={decorative || undefined}
-      className={cn('size-10 shrink-0 object-contain', className)}
-      height={512}
-      preload={preload}
-      sizes={sizes}
-      src={siteConfig.brand.logo}
-      width={512}
-    />
+    <span className={cn('relative block size-10 shrink-0', className, 'rounded-full overflow-hidden ring-1 ring-brand-gold/40 shadow-sm')}>
+      <Image
+        alt={decorative ? '' : siteConfig.name}
+        aria-hidden={decorative || undefined}
+        className="object-cover w-full h-full"
+        height={512}
+        preload={preload}
+        sizes={sizes}
+        src={siteConfig.brand.logo}
+        width={512}
+      />
+    </span>
   );
 }
 

@@ -24,7 +24,7 @@ export function NodrekLogo({
       href={siteConfig.routes.home}
     >
       <span className={cn('relative shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-brand-gold/40 transition-transform duration-300 group-hover:rotate-2', logoHeights[size])}>
-        <Image alt={siteConfig.name} className="scale-105 object-cover" fill preload sizes="56px" src={siteConfig.brand.logo} />
+        <Image alt={siteConfig.name} className="object-cover w-full h-full" fill preload sizes="56px" src={siteConfig.brand.logo} />
       </span>
       <span className="flex flex-col leading-none">
         <span className="flex items-center gap-1.5">
