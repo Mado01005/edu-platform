@@ -6,7 +6,7 @@ export const siteConfig = {
   name: 'Nudrek Learning Hub',
   arabicName: 'نُدرك للتعليم المتكامل',
   title: 'Nudrek Learning Hub | نُدرك للتعليم المتكامل',
-  description: 'Managed learning, diagnostic assessments, and personalized education for grades 1–12.',
+  description: 'Online tutoring for grades 1–12 in Egypt and the GULF Countries: National and International Curricula, live classes, and a free diagnostic assessment.',
   serviceRegion: { en: 'GULF Countries', ar: 'دول الخليج العربي' },
   tagline: { en: 'LEARN • GROW • ACHIEVE', ar: 'نتعلم • ننمو • ننجز' },
   copyright: '© 2026 Nudrek Learning Hub | نُدرك للتعليم المتكامل. All rights reserved.',
