@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { ClipboardCheck, Menu, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { DiagnosticAssessmentLink } from '@/components/landing/ConversionLink';
@@ -9,6 +10,7 @@ import { useLanguage } from '@/components/i18n/language-provider';
 import { SocialLinks } from '@/components/social/SocialLinks';
 import { NodrekLogo } from '@/components/brand/NodrekLogo';
 import { trackLandingEvent } from '@/lib/landing/analytics';
+import { landingLocaleForPath, landingPath } from '@/lib/i18n';
 import { landingContent } from '@/lib/landing/content';
 
 const contactUsLabel = {
@@ -21,6 +23,8 @@ const DIRECTION_SCROLL_THRESHOLD = 8;
 
 export function FloatingNavbar() {
   const { locale, setLocale } = useLanguage();
+  const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [navbarVisible, setNavbarVisible] = useState(true);
   const lastScrollYRef = useRef(0);
@@ -74,6 +78,10 @@ export function FloatingNavbar() {
     const nextLocale = locale === 'en' ? 'ar' : 'en';
     setLocale(nextLocale);
     trackLandingEvent('language_toggle', { locale: nextLocale });
+    // On the landing pages each language has its own URL; keep the address in sync.
+    if (landingLocaleForPath(pathname) !== null) {
+      router.replace(`${landingPath(nextLocale)}${window.location.hash}`, { scroll: false });
+    }
   };
 
   return (

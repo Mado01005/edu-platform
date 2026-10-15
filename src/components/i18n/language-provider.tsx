@@ -29,9 +29,12 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 export function LanguageProvider({
   children,
   initialLocale = DEFAULT_LOCALE,
+  lockLocale = false,
 }: {
   children: ReactNode;
   initialLocale?: Locale;
+  /** True when the URL fixes the language, so the saved preference must not override it. */
+  lockLocale?: boolean;
 }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
@@ -46,13 +49,13 @@ export function LanguageProvider({
   }, []);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(LANGUAGE_PREFERENCE_KEY);
+    const saved = lockLocale ? initialLocale : window.localStorage.getItem(LANGUAGE_PREFERENCE_KEY);
     const timer = window.setTimeout(
       () => setLocale(resolveLocale(saved, initialLocale)),
       0,
     );
     return () => window.clearTimeout(timer);
-  }, [initialLocale, setLocale]);
+  }, [initialLocale, lockLocale, setLocale]);
 
   const value = useMemo<LanguageContextValue>(
     () => ({

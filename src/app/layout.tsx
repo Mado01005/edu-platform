@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Cairo, Inter } from 'next/font/google';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import Script from 'next/script';
 import Providers from '@/components/Providers';
 import { WorkspaceEnhancements } from '@/components/WorkspaceEnhancements';
@@ -12,7 +12,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { LanguageProvider } from '@/components/i18n/language-provider';
 import { SOCIAL_LINKS } from '@/config/socials';
 import { siteConfig } from '@/lib/siteConfig';
-import { LANGUAGE_PREFERENCE_KEY, resolveLocale } from '@/lib/i18n';
+import { LANGUAGE_PREFERENCE_KEY, ROUTE_LOCALE_HEADER, resolveLocale } from '@/lib/i18n';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-english' });
 const cairo = Cairo({ subsets: ['arabic'], display: 'swap', variable: '--font-arabic' });
@@ -110,9 +110,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [session, cookieStore] = await Promise.all([auth(), cookies()]);
+  const [session, cookieStore, headerStore] = await Promise.all([auth(), cookies(), headers()]);
+  // A URL that fixes its language (/ for English, /ar for Arabic) wins over the
+  // saved preference so crawlers and shared links always get the same page.
+  const routeLocale = headerStore.get(ROUTE_LOCALE_HEADER);
   const initialLocale = resolveLocale(
-    cookieStore.get(LANGUAGE_PREFERENCE_KEY)?.value,
+    routeLocale ?? cookieStore.get(LANGUAGE_PREFERENCE_KEY)?.value,
   );
   const spotifyToken = session?.user?.spotifyAccessToken;
   const spotifyRefreshToken = session?.user?.spotifyRefreshToken;
@@ -133,7 +136,7 @@ export default async function RootLayout({
           }}
           type="application/ld+json"
         />
-        <LanguageProvider initialLocale={initialLocale}>
+        <LanguageProvider initialLocale={initialLocale} lockLocale={routeLocale !== null}>
           <Providers session={session}>
             <div className="flex min-h-dvh w-full min-w-0">
               <div className="min-w-0 flex-1">{children}</div>
