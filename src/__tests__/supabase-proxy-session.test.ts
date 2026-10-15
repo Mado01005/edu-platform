@@ -63,7 +63,7 @@ describe('Supabase SSR session rotation', () => {
     );
 
     const context = await getSupabaseRequestContext(
-      new NextRequest('https://www.nodrekhub.com/settings', {
+      new NextRequest('https://www.nudrek.com/settings', {
         headers: { cookie: 'sb-auth-token=expired-token' },
       }),
     );
@@ -118,7 +118,7 @@ describe('Supabase SSR session rotation', () => {
     );
 
     const context = await getSupabaseRequestContext(
-      new NextRequest('https://www.nodrekhub.com/settings'),
+      new NextRequest('https://www.nudrek.com/settings'),
     );
 
     await context.supabase!.auth.signOut({ scope: 'local' });

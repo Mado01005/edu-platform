@@ -40,12 +40,12 @@ describe('ERP proxy role redirects', () => {
       );
 
       const response = await proxy(
-        new NextRequest('https://www.nodrekhub.com/accounting'),
+        new NextRequest('https://www.nudrek.com/accounting'),
       );
 
       expect(response.status).toBe(307);
       expect(response.headers.get('location')).toBe(
-        'https://www.nodrekhub.com/dashboard?notice=accounting-required',
+        'https://www.nudrek.com/dashboard?notice=accounting-required',
       );
     },
   );
@@ -63,12 +63,12 @@ describe('ERP proxy role redirects', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.nodrekhub.com/teacher/courses'),
+      new NextRequest('https://www.nudrek.com/teacher/courses'),
     );
 
     expect(response.status).toBe(307);
     expect(response.headers.get('location')).toBe(
-      'https://www.nodrekhub.com/auth/sync?next=%2Fteacher%2Fcourses',
+      'https://www.nudrek.com/auth/sync?next=%2Fteacher%2Fcourses',
     );
   });
 });

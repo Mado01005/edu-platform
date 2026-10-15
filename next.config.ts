@@ -40,10 +40,10 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   async redirects() {
-    return ['oqoolacademy.com', 'www.oqoolacademy.com'].map((host) => ({
+    return ['oqoolacademy.com', 'www.oqoolacademy.com', 'nodrekhub.com', 'www.nodrekhub.com'].map((host) => ({
       source: '/:path*',
       has: [{ type: 'host' as const, value: host }],
-      destination: 'https://www.nodrekhub.com/:path*',
+      destination: 'https://www.nudrek.com/:path*',
       statusCode: 301,
     }));
   },

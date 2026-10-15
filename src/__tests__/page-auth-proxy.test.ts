@@ -69,10 +69,10 @@ describe('Supabase page auth proxy', () => {
 
   it('keeps the storefront, free preview, and official brand assets public', async () => {
     const urls = [
-      'https://www.nodrekhub.com/',
-      'https://www.nodrekhub.com/preview',
-      'https://www.nodrekhub.com/brand/nodrek-logo.png',
-      'https://www.nodrekhub.com/brand/nodrek-banner.jpeg',
+      'https://www.nudrek.com/',
+      'https://www.nudrek.com/preview',
+      'https://www.nudrek.com/brand/nodrek-logo.png',
+      'https://www.nudrek.com/brand/nodrek-banner.jpeg',
     ];
 
     for (const url of urls) {
@@ -94,7 +94,7 @@ describe('Supabase page auth proxy', () => {
     );
 
     const response = await proxy(
-      new NextRequest('https://www.nodrekhub.com/admin'),
+      new NextRequest('https://www.nudrek.com/admin'),
     );
 
     expect(response.status).toBe(200);
@@ -105,7 +105,7 @@ describe('Supabase page auth proxy', () => {
     mockAuth.mockResolvedValue({ user: { id: 'legacy-admin' } });
 
     const response = await proxy(
-      new NextRequest('https://www.nodrekhub.com/admin'),
+      new NextRequest('https://www.nudrek.com/admin'),
     );
 
     expect(response.status).toBe(200);
@@ -116,7 +116,7 @@ describe('Supabase page auth proxy', () => {
     mockAuth.mockResolvedValue({ user: { id: 'legacy-admin' } });
 
     const response = await proxy(
-      new NextRequest('https://www.nodrekhub.com/admin/users'),
+      new NextRequest('https://www.nudrek.com/admin/users'),
     );
     const location = new URL(response.headers.get('location')!);
 
@@ -133,7 +133,7 @@ describe('Supabase page auth proxy', () => {
     });
 
     const response = await proxy(
-      new NextRequest('https://www.nodrekhub.com/settings'),
+      new NextRequest('https://www.nudrek.com/settings'),
     );
     const location = new URL(response.headers.get('location')!);
 
@@ -160,7 +160,7 @@ describe('Supabase page auth proxy', () => {
     );
 
     const response = await proxy(
-      new NextRequest('https://www.nodrekhub.com/lms/login'),
+      new NextRequest('https://www.nudrek.com/lms/login'),
     );
     const location = new URL(response.headers.get('location')!);
 
@@ -185,7 +185,7 @@ describe('Supabase page auth proxy', () => {
     );
 
     const response = await proxy(
-      new NextRequest('https://www.nodrekhub.com/admin/storage'),
+      new NextRequest('https://www.nudrek.com/admin/storage'),
     );
     const location = new URL(response.headers.get('location')!);
 

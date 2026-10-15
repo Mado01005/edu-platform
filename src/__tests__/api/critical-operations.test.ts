@@ -36,9 +36,9 @@ import { POST as createCourse } from '@/app/api/courses/route';
 import { PATCH as manualVerifyPhone, POST as verifyPhoneOtp } from '@/app/api/auth/phone/route';
 
 function jsonRequest(path: string, body: Record<string, unknown>, method = 'POST') {
-  return new Request(`https://www.nodrekhub.com${path}`, {
+  return new Request(`https://www.nudrek.com${path}`, {
     body: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json', Origin: 'https://www.nodrekhub.com' },
+    headers: { 'Content-Type': 'application/json', Origin: 'https://www.nudrek.com' },
     method,
   });
 }
