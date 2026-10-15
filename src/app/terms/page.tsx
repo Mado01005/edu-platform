@@ -5,6 +5,7 @@ import { LegalPageShell, type LegalSection } from '@/components/legal/legal-page
 export const metadata: Metadata = {
   title: 'Terms of Service',
   description: 'The terms governing accounts, learning services, course materials, payments, and conduct at Nudrek Learning Hub.',
+  alternates: { canonical: `${brandConfig.url}${brandConfig.routes.terms}` },
 };
 
 const sections: readonly LegalSection[] = [

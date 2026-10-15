@@ -13,6 +13,7 @@ import { ProblemSection } from '@/components/landing/ProblemSection';
 import { SiteFooter } from '@/components/landing/SiteFooter';
 import { SolutionFramework } from '@/components/landing/SolutionFramework';
 import { TrustBar } from '@/components/landing/TrustBar';
+import { landingContent } from '@/lib/landing/content';
 import { siteConfig } from '@/lib/siteConfig';
 
 const description = siteConfig.description;
@@ -46,12 +47,27 @@ export const metadata: Metadata = {
   },
 };
 
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': `${siteConfig.url}/#faq`,
+  mainEntity: landingContent.faq.items.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question.en,
+    acceptedAnswer: { '@type': 'Answer', text: answer.en },
+  })),
+};
+
 export default function RootPage() {
   return (
     <div className="min-h-dvh w-full min-w-0 max-w-full overflow-x-clip bg-brand-ivory text-brand-base">
       <a className="sr-only z-[100] rounded-lg bg-brand-gold px-4 py-3 font-bold text-brand-base focus:not-sr-only focus:fixed focus:left-4 focus:top-4" href="#main-content">
         Skip to main content
       </a>
+      <script
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, '\\u003c') }}
+        type="application/ld+json"
+      />
       <LandingAnalytics />
       <FloatingNavbar />
       <main id="main-content">

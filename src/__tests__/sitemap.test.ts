@@ -7,6 +7,8 @@ describe('public storefront sitemap', () => {
     expect(sitemap().map(({ url }) => url)).toEqual([
       `${siteConfig.url}/`,
       `${siteConfig.url}/support`,
+      `${siteConfig.url}/privacy`,
+      `${siteConfig.url}/terms`,
     ]);
   });
 
