@@ -18,11 +18,11 @@ describe('Supabase OAuth URL configuration', () => {
   it('builds the application PKCE callback on the active origin', () => {
     expect(
       getApplicationOAuthCallbackUrl(
-        'https://www.nodrekhub.com/login',
+        'https://www.nudrek.com/login',
         '/teacher/courses',
       ),
     ).toBe(
-      'https://www.nodrekhub.com/auth/callback?next=%2Fteacher%2Fcourses',
+      'https://www.nudrek.com/auth/callback?next=%2Fteacher%2Fcourses',
     );
   });
 

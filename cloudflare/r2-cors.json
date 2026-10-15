@@ -5,7 +5,9 @@
         "origins": [
           "http://localhost:3000",
           "https://nodrekhub.com",
-          "https://www.nodrekhub.com"
+          "https://www.nodrekhub.com",
+          "https://nudrek.com",
+          "https://www.nudrek.com"
         ],
         "methods": [
           "PUT"

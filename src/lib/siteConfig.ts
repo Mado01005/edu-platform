@@ -10,7 +10,7 @@ export const siteConfig = {
   serviceRegion: { en: 'GULF Countries', ar: 'دول الخليج العربي' },
   tagline: { en: 'LEARN • GROW • ACHIEVE', ar: 'نتعلم • ننمو • ننجز' },
   copyright: '© 2026 Nudrek Learning Hub | نُدرك للتعليم المتكامل. All rights reserved.',
-  url: 'https://www.nodrekhub.com',
+  url: 'https://www.nudrek.com',
   routes: {
     home: '/',
     privacy: '/privacy',

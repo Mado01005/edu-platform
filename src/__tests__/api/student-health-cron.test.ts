@@ -21,7 +21,7 @@ describe('student health cron route', () => {
 
   it('rejects a request without the Vercel cron bearer secret', async () => {
     const response = await GET(
-      new Request('https://www.nodrekhub.com/api/cron/student-health'),
+      new Request('https://www.nudrek.com/api/cron/student-health'),
     );
 
     expect(response.status).toBe(401);
@@ -37,7 +37,7 @@ describe('student health cron route', () => {
     });
 
     const response = await GET(
-      new Request('https://www.nodrekhub.com/api/cron/student-health', {
+      new Request('https://www.nudrek.com/api/cron/student-health', {
         headers: { authorization: 'Bearer cron-secret' },
       }),
     );
