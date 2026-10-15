@@ -27,10 +27,12 @@ import {
   PARENT_PORTAL_SESSION_COOKIE,
   validateParentPortalSessionToken,
 } from '@/lib/lms/parent-session';
+import { ROUTE_LOCALE_HEADER, landingLocaleForPath } from '@/lib/i18n';
 import { getSupabaseRequestContext } from '@/lib/supabase/proxy';
 
 const PUBLIC_PATHS = [
   '/',
+  '/ar',
   '/login',
   '/signup',
   '/lms/login',
@@ -339,6 +341,12 @@ export async function proxy(request: NextRequest) {
     pathname === '/manifest.json' ||
     pathname.startsWith('/icon-')
   ) {
+    const routeLocale = landingLocaleForPath(pathname);
+    if (routeLocale) {
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set(ROUTE_LOCALE_HEADER, routeLocale);
+      return NextResponse.next({ request: { headers: requestHeaders } });
+    }
     return NextResponse.next();
   }
 

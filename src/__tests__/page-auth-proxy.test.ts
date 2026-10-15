@@ -84,6 +84,18 @@ describe('Supabase page auth proxy', () => {
     expect(mockGetSupabaseRequestContext).not.toHaveBeenCalled();
   });
 
+  it('serves the Arabic landing page publicly and fixes the language of each landing URL', async () => {
+    const arabic = await proxy(new NextRequest('https://www.nudrek.com/ar'));
+    const english = await proxy(new NextRequest('https://www.nudrek.com/'));
+    const support = await proxy(new NextRequest('https://www.nudrek.com/support'));
+
+    expect(arabic.status).toBe(200);
+    expect(arabic.headers.get('x-middleware-request-x-nudrek-route-locale')).toBe('ar');
+    expect(english.headers.get('x-middleware-request-x-nudrek-route-locale')).toBe('en');
+    expect(support.headers.get('x-middleware-request-x-nudrek-route-locale')).toBeNull();
+    expect(mockAuth).not.toHaveBeenCalled();
+  });
+
   it('authorizes the admin landing page with the Supabase LMS role', async () => {
     mockGetSupabaseRequestContext.mockResolvedValue(
       supabasePageContext({

@@ -1,8 +1,10 @@
 import { MetadataRoute } from 'next';
+import { landingAlternates, landingLocaleForPath } from '@/lib/i18n';
 import { siteConfig } from '@/lib/siteConfig';
 
 const publicRoutes = [
   { path: '/', changeFrequency: 'weekly', priority: 1 },
+  { path: '/ar', changeFrequency: 'weekly', priority: 1 },
   { path: '/support', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
   { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
@@ -20,5 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified,
     changeFrequency,
     priority,
+    ...(landingLocaleForPath(path) !== null && {
+      alternates: { languages: { ...landingAlternates } },
+    }),
   }));
 }

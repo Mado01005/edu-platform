@@ -37,8 +37,17 @@ export class NextResponse extends Response {
     });
   }
 
-  static next() {
-    return new NextResponse(null, { status: 200 });
+  static next(init?: { request?: { headers?: Headers } }) {
+    const response = new NextResponse(null, { status: 200 });
+    // Mirror Next.js: forwarded request headers travel as x-middleware-request-* headers.
+    const requestHeaders = init?.request?.headers;
+    if (requestHeaders) {
+      response.headers.set('x-middleware-override-headers', [...requestHeaders.keys()].join(','));
+      requestHeaders.forEach((value, key) => {
+        response.headers.set(`x-middleware-request-${key}`, value);
+      });
+    }
+    return response;
   }
 }
 
