@@ -86,6 +86,45 @@ export const landingContent = {
       text('Change teacher if needed', 'تغيير المعلم عند الحاجة'),
     ],
   },
+  story: {
+    eyebrow: text('Our Story', 'حكاية نُدرك'),
+    title: text(
+      'It started with a question every family asks: how do we know learning time is making a difference?',
+      'بدأت نُدرك من سؤال يهم كل أسرة: كيف نعرف أن وقت التعلّم يصنع فرقًا؟',
+    ),
+    paragraphs: [
+      text(
+        'Behind that question is a student trying, and a family investing time, effort and hope. Yet lessons may continue while a difficulty remains unspoken, or a small learning gap makes each new topic harder. We believed the starting point was understanding: where does the student get stuck, and what approach gives them the confidence to try again?',
+        'وراء هذا السؤال طالب يحاول، وأسرة تبذل وقتها وجهدها أملًا في أن تراه يفهم ويتقدّم ويثق بنفسه. لكن قد تتكرر الحصص وتبقى صعوبة لا يعبّر عنها الطالب، أو فجوة صغيرة تجعل كل ما يأتي بعدها أكثر تعقيدًا. آمنّا أن البداية هي الفهم: أين يتوقف الطالب، وأي أسلوب يمنحه الثقة ليسأل ويحاول من جديد؟',
+      ),
+      text(
+        'That is why we chose Nudrek, an Arabic name expressing understanding and awareness. We understand a student’s needs before planning the next step, see an incorrect answer as a chance to explore their thinking, and make progress visible. We hope to see it in meaningful moments: a once-hesitant student raising their hand, explaining an idea in their own words, and beginning to recognize their ability to learn.',
+        'ولهذا اخترنا اسم «نُدرك»، ليعبّر عن مسؤولية نبدأ بها كل رحلة: أن نُدرك احتياج الطالب قبل أن نرسم خطوته التالية، وأن نرى في الإجابة الخاطئة فرصة لفهم طريقة تفكيره، وأن نجعل تقدّمه واضحًا. وما نطمح إليه يظهر في تفاصيل حقيقية: طالب يرفع يده بعدما كان يتردد، ويشرح فكرة بكلماته، ويبدأ في رؤية قدرته على التعلّم.',
+      ),
+    ],
+    quote: text(
+      'We understand their needs, so they can discover their potential.',
+      'نُدرِك احتياجه، ليُدرِك قدراته',
+    ),
+    vision: {
+      label: text('Our Vision', 'رؤيتنا'),
+      body: text(
+        'To become a leading destination for integrated digital learning in the Arab world, where every learner can access education that fits their needs, builds confidence and abilities, and supports measurable academic progress.',
+        'أن تصبح نُدرك وجهة رائدة للتعلّم الرقمي المتكامل في العالم العربي، تتيح لكل طالب تعليمًا يناسبه، وينمّي قدراته وثقته، ويدعم تقدّمًا أكاديميًا قابلًا للقياس.',
+      ),
+    },
+    mission: {
+      label: text('Our Mission', 'رسالتنا'),
+      body: text(
+        'To create a complete learning journey shaped around each student’s personality, needs and pace, bringing together the right teacher, interactive teaching, ongoing assessment, technology and family involvement.',
+        'نبني رحلة تعليمية متكاملة تراعي شخصية الطالب واحتياجاته ووتيرة تعلّمه؛ تجمع المعلم المناسب، والتدريس التفاعلي، والتقييم المستمر، والتقنية، ومشاركة الأسرة، لدعم تطوّره خطوة بخطوة.',
+      ),
+    },
+    closing: text(
+      'Every learner is unique. Their learning journey should be too.',
+      'نؤمن بالفروق الفردية… ولكل طالب رحلة تناسبه.',
+    ),
+  },
   solution: {
     eyebrow: text('The learning journey', 'رحلة الطالب'),
     title: text('Five clear steps from your first message.', 'خمس خطوات واضحة من أول رسالة.'),

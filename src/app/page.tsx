@@ -11,6 +11,7 @@ import { LearningExperienceBento } from '@/components/landing/LearningExperience
 import { MobileConversionBar } from '@/components/landing/MobileConversionBar';
 import { PackagesSection } from '@/components/landing/PackagesSection';
 import { SiteFooter } from '@/components/landing/SiteFooter';
+import { StorySection } from '@/components/landing/StorySection';
 import { SolutionFramework } from '@/components/landing/SolutionFramework';
 import { TrustBar } from '@/components/landing/TrustBar';
 import { siteConfig } from '@/lib/siteConfig';
@@ -57,6 +58,7 @@ export default function RootPage() {
       <main id="main-content">
         <HeroSection />
         <TrustBar />
+        <StorySection />
         <SolutionFramework />
         <LearningExperienceBento />
         <CurriculumExplorer />
