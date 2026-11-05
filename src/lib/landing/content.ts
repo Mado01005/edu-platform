@@ -146,7 +146,7 @@ export const landingContent = {
   },
   features: {
     eyebrow: text('Why Nudrek', 'لماذا نُدرك'),
-    title: text('Four things every family cares about.', 'أربعة أشياء تهمّ كل أسرة.'),
+    title: text('Three things every family cares about.', 'ثلاثة أشياء تهمّ كل أسرة.'),
     items: [
       {
         id: 'teacher',
@@ -165,12 +165,6 @@ export const landingContent = {
         title: text('The lesson ends. Resources stay.', 'الحصة تنتهي، والمصادر تبقى'),
         description: text('Lesson recordings, teaching materials, homework and questions to the teacher.', 'تسجيلات الحصص والمواد التعليمية والواجبات وإرسال الأسئلة للمعلم.'),
         detail: text('Questions can be sent through the platform at any time. Replies follow the agreed communication hours.', 'يمكن إرسال الأسئلة عبر المنصة في أي وقت، ويكون الرد وفق مواعيد التواصل المتفق عليها.'),
-      },
-      {
-        id: 'package',
-        title: text('One flexible package of hours', 'باقة ساعات واحدة ومرنة'),
-        description: text('Share your package hours across available subjects.', 'وزّع ساعات الباقة بين المواد المتاحة.'),
-        detail: text('Needs change during the year. Your hours can follow your child’s academic priorities.', 'تتغير احتياجات الطالب خلال العام، وتتبعها ساعات الباقة حسب أولوياته الدراسية.'),
       },
     ],
   },

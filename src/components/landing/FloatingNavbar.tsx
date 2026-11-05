@@ -33,7 +33,7 @@ export function FloatingNavbar() {
       animationFrameRef.current = null;
       const currentScrollY = Math.max(window.scrollY, 0);
 
-      if (currentScrollY < TOP_SCROLL_THRESHOLD) {
+      if (window.matchMedia('(max-width: 1023px)').matches || currentScrollY < TOP_SCROLL_THRESHOLD) {
         setNavbarVisible(true);
         lastScrollYRef.current = currentScrollY;
         return;

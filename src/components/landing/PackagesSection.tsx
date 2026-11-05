@@ -25,7 +25,7 @@ export function PackagesSection() {
           <article className="landing-card flex min-w-0 flex-col rounded-3xl border border-brand-gold/35 bg-white p-6 shadow-sm sm:p-8">
             <LandingCopy as="h3" className="text-xl font-black text-brand-base">{content.sizingTitle}</LandingCopy>
             <LandingCopy as="p" className="mt-4 text-sm leading-7 text-brand-surface/80">{content.sizingBody}</LandingCopy>
-            <WhatsAppLink className="landing-cta mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-brand-gold px-5 text-sm font-black text-brand-base shadow-lg shadow-black/25 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="whatsapp_click" intent="recommendation" label="packages_section">
+            <WhatsAppLink className="landing-cta inline-flex min-h-11 items-center font-black text-brand-base underline decoration-brand-gold decoration-2 underline-offset-4 outline-none hover:text-brand-gold-bronze focus-visible:ring-4 focus-visible:ring-brand-gold/30 rounded-md mt-6 self-start" eventName="whatsapp_click" intent="recommendation" label="packages_section">
               {content.cta}
             </WhatsAppLink>
           </article>

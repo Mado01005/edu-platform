@@ -30,7 +30,7 @@ export function HeroSection() {
             <DiagnosticAssessmentLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand-gold px-6 text-sm font-bold text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(222,182,94,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" label="hero_diagnostic">
               {landingContent.hero.primary}
             </DiagnosticAssessmentLink>
-            <a className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-surface bg-brand-surface px-6 text-sm font-bold text-brand-ivory shadow-sm outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-base hover:border-brand-base hover:shadow-md focus-visible:ring-4 focus-visible:ring-brand-gold/25" href="#how-it-works"><LandingCopy>{landingContent.hero.secondary}</LandingCopy></a>
+            <a className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-surface bg-brand-surface px-6 text-sm font-bold text-brand-ivory shadow-sm outline-none transition-all duration-300 hover:bg-brand-base hover:border-brand-base hover:shadow-md focus-visible:ring-4 focus-visible:ring-brand-gold/25" href="#how-it-works"><LandingCopy>{landingContent.hero.secondary}</LandingCopy></a>
           </div>
 
           <div className="mt-8 flex items-start gap-3 rounded-2xl border border-brand-base/10 bg-white/85 p-4 text-start shadow-lg shadow-brand-base/10 backdrop-blur-md">
