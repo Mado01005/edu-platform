@@ -26,14 +26,14 @@ export function CurriculumExplorer() {
   };
 
   return (
-    <section className="scroll-mt-28 bg-brand-base py-20 text-brand-white md:py-28" id="curriculum">
+    <section className="scroll-mt-28 bg-brand-mint-light py-20 text-brand-base md:py-28" id="curriculum">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-9 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
           <div className="max-w-xl">
             <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-gold text-brand-base"><GraduationCap aria-hidden="true" className="size-5" /></span>
-            <LandingCopy className="mt-6 block text-xs font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.curriculum.eyebrow}</LandingCopy>
-            <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-brand-white sm:text-5xl">{landingContent.curriculum.title}</LandingCopy>
-            <LandingCopy as="p" className="mt-5 text-sm leading-7 text-brand-muted/80 sm:text-base">{landingContent.curriculum.description}</LandingCopy>
+            <LandingCopy className="mt-6 block text-xs font-black uppercase tracking-[0.18em] text-brand-surface">{landingContent.curriculum.eyebrow}</LandingCopy>
+            <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-brand-base sm:text-5xl">{landingContent.curriculum.title}</LandingCopy>
+            <LandingCopy as="p" className="mt-5 text-sm leading-7 text-brand-surface/85 sm:text-base">{landingContent.curriculum.description}</LandingCopy>
           </div>
 
           <div className="min-w-0 rounded-3xl border border-brand-rim bg-brand-surface p-4 text-brand-white shadow-2xl shadow-black/30 backdrop-blur-md sm:p-6">
