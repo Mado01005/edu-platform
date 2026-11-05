@@ -31,7 +31,7 @@ export function CurriculumExplorer() {
         <div className="grid gap-9 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
           <div className="max-w-xl">
             <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-gold text-brand-base"><GraduationCap aria-hidden="true" className="size-5" /></span>
-            <LandingCopy className="mt-6 block text-xs font-black uppercase tracking-[0.18em] text-brand-surface">{landingContent.curriculum.eyebrow}</LandingCopy>
+            <LandingCopy className="mt-6 block text-sm font-extrabold tracking-normal text-brand-surface">{landingContent.curriculum.eyebrow}</LandingCopy>
             <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-brand-base sm:text-5xl">{landingContent.curriculum.title}</LandingCopy>
             <LandingCopy as="p" className="mt-5 text-sm leading-7 text-brand-surface/85 sm:text-base">{landingContent.curriculum.description}</LandingCopy>
           </div>
@@ -47,7 +47,7 @@ export function CurriculumExplorer() {
             </div>
 
             <LandingCopy className="mt-7 block text-[10px] font-black uppercase tracking-[0.16em] text-brand-muted">{landingContent.curriculum.gradesLabel}</LandingCopy>
-            <div className="mt-3 flex max-w-full gap-2 overflow-x-auto pb-2 [scrollbar-width:thin] [scrollbar-color:var(--nodrek-sage)_transparent]" aria-label={locale === 'ar' ? 'الصفوف الدراسية' : 'Grade levels'}>
+            <div className="-mx-4 mt-3 flex max-w-[calc(100%+2rem)] gap-2 overflow-x-auto px-4 pb-2 [mask-image:linear-gradient(to_right,transparent,#000_1rem,#000_calc(100%-1.5rem),transparent)] [scrollbar-width:thin] [scrollbar-color:var(--nodrek-sage)_transparent]" aria-label={locale === 'ar' ? 'الصفوف الدراسية' : 'Grade levels'}>
               {curriculum.grades.map((grade) => (
                 <button aria-pressed={selectedGrade.id === grade.id} className={`landing-card min-h-11 shrink-0 rounded-full border px-4 text-xs font-black outline-none transition-all duration-300 focus-visible:ring-4 focus-visible:ring-brand-gold/30 ${selectedGrade.id === grade.id ? 'border-brand-gold bg-brand-gold text-brand-base shadow-lg shadow-black/20' : 'border-brand-border bg-brand-sage-deep text-brand-base hover:-translate-y-1 hover:border-brand-gold/70 hover:bg-brand-sage'}`} key={grade.id} onClick={() => { setGradeId(grade.id); trackLandingEvent('grade_select', { curriculum: curriculumId, grade: grade.id }); }} type="button">
                   <LandingCopy>{grade.label}</LandingCopy>

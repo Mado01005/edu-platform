@@ -17,7 +17,7 @@ export function FinalCTASection() {
           <span aria-hidden="true">|</span>
           <span className="font-arabic" dir="rtl" lang="ar">{siteConfig.tagline.ar}</span>
         </p>
-        <LandingCopy className="relative mt-5 text-xs font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.finalCta.eyebrow}</LandingCopy>
+        <LandingCopy className="relative mt-5 text-sm font-extrabold tracking-normal text-brand-gold">{landingContent.finalCta.eyebrow}</LandingCopy>
         <LandingCopy as="h2" className="relative mt-4 max-w-4xl text-balance text-3xl font-black tracking-tight sm:text-5xl">{landingContent.finalCta.title}</LandingCopy>
         <LandingCopy as="p" className="relative mt-5 max-w-2xl text-sm leading-7 text-brand-muted/80 sm:text-base">{landingContent.finalCta.description}</LandingCopy>
         <div className="relative mt-8 flex w-full max-w-xl flex-col justify-center gap-3 sm:flex-row">

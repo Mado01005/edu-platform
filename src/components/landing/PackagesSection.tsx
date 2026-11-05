@@ -9,7 +9,7 @@ export function PackagesSection() {
     <section className="scroll-mt-28 bg-brand-ivory py-20 text-brand-base md:py-28" id="packages">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          <LandingCopy className="border-s-2 border-brand-gold ps-3 text-xs font-black uppercase tracking-[0.18em] text-brand-base">{content.eyebrow}</LandingCopy>
+          <LandingCopy className="border-s-2 border-brand-gold ps-3 text-sm font-extrabold tracking-normal text-brand-base">{content.eyebrow}</LandingCopy>
           <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight text-brand-base sm:text-5xl">{content.title}</LandingCopy>
         </div>
         <div className="mt-12 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">

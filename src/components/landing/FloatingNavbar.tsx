@@ -89,7 +89,7 @@ export function FloatingNavbar() {
           <nav aria-label="Primary navigation" className="hidden items-center gap-0.5 lg:flex">
             {landingContent.navigation.map((item) => (
               <a
-                className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-brand-ivory outline-none hover:bg-white/10 hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
+                className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-2 text-xs font-extrabold xl:px-3 text-brand-ivory outline-none hover:bg-white/10 hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
                 href={item.href}
                 key={item.href}
               >
@@ -97,7 +97,7 @@ export function FloatingNavbar() {
               </a>
             ))}
             <Link
-              className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-extrabold text-brand-ivory outline-none hover:bg-white/10 hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
+              className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-2 text-xs font-extrabold xl:px-3 text-brand-ivory outline-none hover:bg-white/10 hover:text-brand-gold focus-visible:ring-4 focus-visible:ring-brand-gold/25"
               href="/support"
             >
               <LandingCopy>{contactUsLabel}</LandingCopy>
@@ -115,7 +115,7 @@ export function FloatingNavbar() {
             </button>
             <DiagnosticAssessmentLink
               before={<ClipboardCheck aria-hidden="true" className="size-4 shrink-0" />}
-              className="landing-cta hidden min-h-11 items-center justify-center gap-2 rounded-full bg-brand-gold px-4 text-xs font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(222,182,94,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:inline-flex"
+              className="landing-cta hidden min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-gold px-3 xl:px-4 text-xs font-black text-brand-base shadow-lg shadow-black/25 ring-1 ring-brand-gold-hover/40 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_28px_rgba(222,182,94,0.24)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35 md:inline-flex"
               eventName="navbar_diagnostic_click"
               label="navbar"
             >
