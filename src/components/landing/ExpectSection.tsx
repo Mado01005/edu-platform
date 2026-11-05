@@ -12,9 +12,9 @@ export function ExpectSection() {
         </div>
         <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {content.facts.map(([figure, text]) => (
-            <li className="landing-card min-w-0 rounded-3xl border border-brand-border bg-brand-surface p-6 text-brand-white shadow-sm" key={text.en}>
-              <span className="block text-3xl font-black text-brand-gold" dir="ltr">{figure}</span>
-              <LandingCopy as="p" className="mt-3 text-sm leading-7 text-brand-muted/80">{text}</LandingCopy>
+            <li className="landing-card min-w-0 rounded-3xl border border-brand-mint-border bg-white p-6 text-brand-base shadow-sm" key={text.en}>
+              <span className="block text-3xl font-black text-brand-gold-bronze" dir="ltr">{figure}</span>
+              <LandingCopy as="p" className="mt-3 text-sm leading-7 text-brand-surface/85">{text}</LandingCopy>
             </li>
           ))}
         </ul>
