@@ -17,7 +17,7 @@ export function PackagesSection() {
             <LandingCopy as="h3" className="text-xl font-black text-brand-base">{content.exampleTitle}</LandingCopy>
             <div className="mt-5 flex flex-wrap items-center gap-3 text-sm font-black text-brand-base">
               <LandingCopy className="rounded-full bg-brand-ivory-alt px-4 py-2">{content.from}</LandingCopy>
-              <ArrowRight aria-hidden="true" className="size-5 text-brand-gold rtl:rotate-180" />
+              <ArrowRight aria-hidden="true" className="size-5 text-brand-gold-bronze rtl:rotate-180" />
               <LandingCopy className="rounded-full bg-brand-ivory-alt px-4 py-2">{content.to}</LandingCopy>
             </div>
             <LandingCopy as="p" className="mt-5 text-sm leading-7 text-brand-surface/80">{content.exampleBody}</LandingCopy>

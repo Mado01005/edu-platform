@@ -8,18 +8,21 @@ import { siteConfig } from '@/lib/siteConfig';
 
 export function SiteFooter() {
   return (
-    <footer className="bg-brand-base pb-24 text-brand-white md:pb-0" id="site-footer">
+    <footer className="bg-brand-surface pb-24 text-brand-white md:pb-0" id="site-footer">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.35fr_0.65fr_0.65fr] lg:px-8">
         <div>
           <Link className="group inline-flex min-h-12 max-w-full items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-brand-gold" href={siteConfig.routes.home}>
-            <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-brand-gold/40">
-              <Image
-                alt={siteConfig.name}
-                className="object-cover w-full h-full transition-transform duration-300 group-hover:rotate-2"
-                fill
-                sizes="48px"
-                src={siteConfig.brand.logo}
-              />
+            {/* Mint plate keeps the opaque logo image from showing as a mismatched box on the forest footer. */}
+            <span className="shrink-0 rounded-2xl bg-brand-mint-light p-1">
+              <span className="relative block h-12 w-12 overflow-hidden rounded-full shadow-sm ring-1 ring-brand-gold/40">
+                <Image
+                  alt={siteConfig.name}
+                  className="object-cover w-full h-full transition-transform duration-300 group-hover:rotate-2"
+                  fill
+                  sizes="48px"
+                  src={siteConfig.brand.logo}
+                />
+              </span>
             </span>
             <span className="flex min-w-0 flex-col">
               <span className="text-xl font-bold tracking-tight text-brand-white transition-colors group-hover:text-brand-gold">
@@ -47,7 +50,7 @@ export function SiteFooter() {
             </p>
           </div>
           <a
-            className="mt-5 inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-brand-border bg-brand-surface px-3.5 py-2 text-sm text-brand-muted outline-none hover:border-brand-gold hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold"
+            className="mt-5 inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-brand-border bg-brand-base px-3.5 py-2 text-sm text-brand-muted outline-none hover:border-brand-gold hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold"
             href={`mailto:${siteConfig.support.email}`}
           >
             <Mail aria-hidden="true" className="size-4 shrink-0 text-brand-gold" />
@@ -83,7 +86,7 @@ export function SiteFooter() {
           <Link className="inline-flex min-h-11 min-w-11 items-center rounded-lg outline-none hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold" href={siteConfig.routes.terms}><LandingCopy>{{ en: 'Terms', ar: 'الشروط' }}</LandingCopy></Link>
         </nav>
       </div>
-      <div className="border-t border-brand-border px-4 py-5 text-center text-xs text-brand-muted/55">
+      <div className="border-t border-brand-border px-4 py-5 text-center text-xs text-brand-muted/75">
         {siteConfig.copyright}
       </div>
     </footer>

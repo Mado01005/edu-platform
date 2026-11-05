@@ -71,7 +71,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { themeColor: '#052F26' };
+export const viewport: Viewport = { themeColor: '#0B3F29' };
 
 const organizationSchema = {
   '@context': 'https://schema.org',

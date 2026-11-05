@@ -11,7 +11,7 @@ export function SolutionFramework() {
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-14">
           <div className="lg:sticky lg:top-32 lg:self-start">
-            <NodrekEmblem className="mb-4 size-28" sizes="112px" />
+            <span className="mb-4 inline-block rounded-2xl bg-brand-mint-light p-1.5"><NodrekEmblem className="size-28" sizes="112px" /></span>
             <LandingCopy className="text-xs font-black uppercase tracking-[0.18em] text-brand-gold">{landingContent.solution.eyebrow}</LandingCopy>
             <LandingCopy as="h2" className="mt-4 text-balance text-3xl font-black tracking-tight sm:text-5xl">{landingContent.solution.title}</LandingCopy>
             <LandingCopy as="p" className="mt-5 text-base leading-8 text-brand-muted/75">{landingContent.solution.description}</LandingCopy>

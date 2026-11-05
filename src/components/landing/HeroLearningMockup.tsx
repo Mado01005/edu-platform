@@ -17,7 +17,7 @@ const cards = [
 export function HeroLearningMockup() {
   return (
     <div className="relative mx-auto w-full max-w-[42rem]" aria-label="Sample progress view">
-      <div aria-hidden="true" className="absolute -inset-8 -z-10 rounded-[3rem] bg-[radial-gradient(circle,rgba(167,194,177,0.16),rgba(216,166,73,0.14)_38%,transparent_68%)] blur-2xl" />
+      <div aria-hidden="true" className="absolute -inset-8 -z-10 rounded-[3rem] bg-[radial-gradient(circle,rgba(162,205,159,0.16),rgba(213,168,72,0.14)_38%,transparent_68%)] blur-2xl" />
       <div className="overflow-hidden rounded-3xl border border-brand-mint-border bg-white p-3 shadow-xl ring-1 ring-brand-mint-border/50 sm:p-5">
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-brand-border bg-brand-base px-4 py-3 text-brand-white shadow-lg shadow-black/20 backdrop-blur-md sm:px-5">
           <div>
@@ -67,7 +67,7 @@ export function HeroLearningMockup() {
               <div className="mt-3 flex items-center gap-2">
                 <span aria-hidden="true" className="relative flex size-2.5 shrink-0">
                   <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-gold-hover opacity-60" />
-                  <span className="relative inline-flex size-2.5 rounded-full bg-brand-gold shadow-[0_0_12px_rgba(232,190,95,0.9)]" />
+                  <span className="relative inline-flex size-2.5 rounded-full bg-brand-gold shadow-[0_0_12px_rgba(222,182,94,0.9)]" />
                 </span>
                 <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.12em] text-brand-surface/60">{{ en: 'Next live lesson', ar: 'الحصة المباشرة القادمة' }}</LandingCopy>
               </div>

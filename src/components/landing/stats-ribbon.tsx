@@ -47,7 +47,7 @@ export function StatsRibbon() {
       className="relative overflow-hidden rounded-2xl border-y border-brand-gold/30 bg-brand-base px-6 py-10 text-brand-white shadow-xl"
       style={{
         backgroundImage:
-          'radial-gradient(circle at 50% 0%, rgba(14, 70, 50, 0.86), transparent 58%)',
+          'radial-gradient(circle at 50% 0%, rgba(11,63,41, 0.86), transparent 58%)',
       }}
     >
       <div
