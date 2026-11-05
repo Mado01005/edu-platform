@@ -50,13 +50,13 @@ export function SiteFooter() {
             </p>
           </div>
           <a
-            className="mt-5 inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-brand-border bg-brand-base px-3.5 py-2 text-sm text-brand-muted outline-none hover:border-brand-gold hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold"
+            className="mt-5 inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-brand-border bg-brand-sage-deep px-3.5 py-2 text-sm text-brand-base outline-none hover:border-brand-gold hover:bg-brand-sage focus-visible:ring-2 focus-visible:ring-brand-gold"
             href={`mailto:${siteConfig.support.email}`}
           >
-            <Mail aria-hidden="true" className="size-4 shrink-0 text-brand-gold" />
+            <Mail aria-hidden="true" className="size-4 shrink-0 text-brand-surface" />
             <span className="min-w-0">
-              <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.14em] text-brand-muted/55">{{ en: 'Support email', ar: 'البريد الإلكتروني للدعم' }}</LandingCopy>
-              <span className="block break-all font-bold text-brand-white" dir="ltr">{siteConfig.support.email}</span>
+              <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.14em] text-brand-surface">{{ en: 'Support email', ar: 'البريد الإلكتروني للدعم' }}</LandingCopy>
+              <span className="block break-all font-bold text-brand-base" dir="ltr">{siteConfig.support.email}</span>
             </span>
           </a>
         </div>

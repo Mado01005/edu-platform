@@ -37,28 +37,28 @@ export function CurriculumExplorer() {
           </div>
 
           <div className="min-w-0 rounded-3xl border border-brand-rim bg-brand-surface p-4 text-brand-white shadow-2xl shadow-black/30 backdrop-blur-md sm:p-6">
-            <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.16em] text-brand-muted/65">{landingContent.curriculum.tracksLabel}</LandingCopy>
-            <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl border border-brand-border bg-brand-base p-1.5 backdrop-blur-md" role="tablist" aria-label={locale === 'ar' ? 'اختر المنهج' : 'Choose curriculum'}>
+            <LandingCopy className="block text-[10px] font-black uppercase tracking-[0.16em] text-brand-muted">{landingContent.curriculum.tracksLabel}</LandingCopy>
+            <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl border border-brand-border bg-brand-sage-deep p-1.5 backdrop-blur-md" role="tablist" aria-label={locale === 'ar' ? 'اختر المنهج' : 'Choose curriculum'}>
               {(Object.keys(curriculumAvailability) as CurriculumId[]).map((id) => (
-                <button aria-selected={curriculumId === id} className={`landing-card min-h-12 min-w-0 rounded-xl px-3 py-2 text-xs font-black leading-5 outline-none transition-all duration-300 focus-visible:ring-4 focus-visible:ring-brand-gold/30 sm:text-sm ${curriculumId === id ? 'bg-brand-gold text-brand-base shadow-lg shadow-black/20' : 'text-brand-muted/75 hover:-translate-y-1 hover:bg-brand-surface hover:text-brand-gold-hover'}`} key={id} onClick={() => selectCurriculum(id)} role="tab" type="button">
+                <button aria-selected={curriculumId === id} className={`landing-card min-h-12 min-w-0 rounded-xl px-3 py-2 text-xs font-black leading-5 outline-none transition-all duration-300 focus-visible:ring-4 focus-visible:ring-brand-gold/30 sm:text-sm ${curriculumId === id ? 'bg-brand-gold text-brand-base shadow-lg shadow-black/20' : 'text-brand-base hover:-translate-y-1 hover:bg-brand-surface hover:text-brand-gold-hover'}`} key={id} onClick={() => selectCurriculum(id)} role="tab" type="button">
                   <LandingCopy>{curriculumAvailability[id].label}</LandingCopy>
                 </button>
               ))}
             </div>
 
-            <LandingCopy className="mt-7 block text-[10px] font-black uppercase tracking-[0.16em] text-brand-muted/65">{landingContent.curriculum.gradesLabel}</LandingCopy>
-            <div className="mt-3 flex max-w-full gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]" aria-label={locale === 'ar' ? 'الصفوف الدراسية' : 'Grade levels'}>
+            <LandingCopy className="mt-7 block text-[10px] font-black uppercase tracking-[0.16em] text-brand-muted">{landingContent.curriculum.gradesLabel}</LandingCopy>
+            <div className="mt-3 flex max-w-full gap-2 overflow-x-auto pb-2 [scrollbar-width:thin] [scrollbar-color:var(--nodrek-sage)_transparent]" aria-label={locale === 'ar' ? 'الصفوف الدراسية' : 'Grade levels'}>
               {curriculum.grades.map((grade) => (
-                <button aria-pressed={selectedGrade.id === grade.id} className={`landing-card min-h-11 shrink-0 rounded-full border px-4 text-xs font-black outline-none transition-all duration-300 focus-visible:ring-4 focus-visible:ring-brand-gold/30 ${selectedGrade.id === grade.id ? 'border-brand-gold bg-brand-gold text-brand-base shadow-lg shadow-black/20' : 'border-brand-border bg-brand-base text-brand-muted hover:-translate-y-1 hover:border-brand-gold/70 hover:text-brand-gold-hover'}`} key={grade.id} onClick={() => { setGradeId(grade.id); trackLandingEvent('grade_select', { curriculum: curriculumId, grade: grade.id }); }} type="button">
+                <button aria-pressed={selectedGrade.id === grade.id} className={`landing-card min-h-11 shrink-0 rounded-full border px-4 text-xs font-black outline-none transition-all duration-300 focus-visible:ring-4 focus-visible:ring-brand-gold/30 ${selectedGrade.id === grade.id ? 'border-brand-gold bg-brand-gold text-brand-base shadow-lg shadow-black/20' : 'border-brand-border bg-brand-sage-deep text-brand-base hover:-translate-y-1 hover:border-brand-gold/70 hover:bg-brand-sage'}`} key={grade.id} onClick={() => { setGradeId(grade.id); trackLandingEvent('grade_select', { curriculum: curriculumId, grade: grade.id }); }} type="button">
                   <LandingCopy>{grade.label}</LandingCopy>
                 </button>
               ))}
             </div>
 
-            <div className="mt-5 rounded-2xl border border-brand-border bg-brand-base p-4 backdrop-blur-md sm:p-5">
-              <div className="flex items-center gap-2 text-brand-gold"><BookOpen aria-hidden="true" className="size-4" /><LandingCopy className="text-[10px] font-black uppercase tracking-[0.16em]">{landingContent.curriculum.subjectsLabel}</LandingCopy></div>
+            <div className="mt-5 rounded-2xl border border-brand-border bg-brand-sage-deep p-4 backdrop-blur-md sm:p-5">
+              <div className="flex items-center gap-2 text-brand-base"><BookOpen aria-hidden="true" className="size-4" /><LandingCopy className="text-[10px] font-black uppercase tracking-[0.16em]">{landingContent.curriculum.subjectsLabel}</LandingCopy></div>
               {selectedGrade.subjects.some((subject) => subject.en === 'Social Studies') ? (
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-brand-muted/75">
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-brand-base">
                   <span>{locale === 'ar' ? 'الدراسات الاجتماعية' : 'Social Studies'}</span>
                   <span className="rounded-full border border-brand-border px-2.5 py-1">{locale === 'ar' ? 'مادة أساسية' : 'Core Subject'}</span>
                   <span className="rounded-full border border-brand-border px-2.5 py-1">{locale === 'ar' ? 'مناهج وطنية ودولية' : 'National & International'}</span>

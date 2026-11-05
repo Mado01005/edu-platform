@@ -28,7 +28,7 @@ export function LearningExperienceBento() {
                 <div aria-hidden="true" className={`absolute -end-12 -top-12 size-40 rounded-full border-[24px] ${dark ? 'border-brand-base/5' : 'border-brand-gold/10'}`} />
                 <div className="relative flex h-full min-w-0 flex-col">
                   <div className="flex items-center justify-between gap-4">
-                    <span className={`flex size-12 items-center justify-center rounded-2xl ${dark ? 'bg-brand-base text-brand-gold' : 'bg-brand-gold/15 text-brand-base'}`}><Icon aria-hidden="true" className="size-5" /></span>
+                    <span className={`flex size-12 items-center justify-center rounded-2xl ${dark ? 'bg-brand-sage-deep text-brand-surface' : 'bg-brand-gold/15 text-brand-base'}`}><Icon aria-hidden="true" className="size-5" /></span>
                   </div>
                   <LandingCopy as="h3" className="mt-8 text-2xl font-black text-brand-base">{item.title}</LandingCopy>
                   <LandingCopy as="p" className="mt-2 text-base font-black text-brand-surface">{item.description}</LandingCopy>

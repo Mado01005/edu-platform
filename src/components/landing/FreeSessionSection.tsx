@@ -26,7 +26,7 @@ export function FreeSessionSection() {
           <div className="grid gap-3">
             <LandingCopy as="p" className="rounded-3xl bg-brand-gold p-6 text-xl font-black text-brand-base">{content.highlight}</LandingCopy>
             {content.points.map((point) => (
-              <LandingCopy as="p" className="rounded-3xl bg-brand-base p-6 text-sm leading-7 text-brand-white" key={point.en}>{point}</LandingCopy>
+              <LandingCopy as="p" className="rounded-3xl bg-brand-sage-deep p-6 text-sm leading-7 text-brand-base" key={point.en}>{point}</LandingCopy>
             ))}
             <WhatsAppLink className="landing-cta mt-2 inline-flex min-h-12 items-center justify-center rounded-full bg-brand-gold px-6 text-sm font-black text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_free_lesson_click" intent="freeLesson" label="free_session_section">
               {landingContent.finalCta.primary}
