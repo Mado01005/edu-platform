@@ -52,8 +52,8 @@ export const siteConfig = {
     ],
     messages: {
       diagnostic: {
-        en: 'Hello Nudrek Learning Hub, I would like to book my child’s free first session.',
-        ar: 'مرحبًا نُدرك للتعليم المتكامل، أود حجز أول حصة مجانية لابني.',
+        en: 'Hello Nudrek Learning Hub, I would like to speak with an education advisor about my child’s learning needs.',
+        ar: 'مرحبًا نُدرك للتعليم المتكامل، أود التحدث مع مستشار تعليمي بخصوص احتياجات ابني الدراسية.',
       },
       freeLesson: {
         en: "Hello Nudrek Learning Hub, I would like to arrange my child’s free first lesson.",
