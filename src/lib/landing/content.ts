@@ -35,7 +35,7 @@ export const landingContent = {
       `Your first session is free. Your child meets the teacher and tries their style, and you decide with confidence. Grades 1–12 • ${curriculumLabels.combined.en} • ${siteConfig.serviceRegion.en}`,
       `أول حصة تجريبية مجانية: يتعرّف ابنك على المعلم ويجرّب طريقة الشرح، وتقرر أنت بثقة. الصفوف 1–12 • ${curriculumLabels.combined.ar} • ${siteConfig.serviceRegion.ar}`,
     ),
-    primary: text('Book Your Free First Session', 'احجز أول حصة مجانية'),
+    primary: text('Contact an Education Advisor', 'تواصل مع مستشار تعليمي'),
     secondary: text('See How It Works', 'تعرّف على طريقة العمل'),
   },
   booking: {
