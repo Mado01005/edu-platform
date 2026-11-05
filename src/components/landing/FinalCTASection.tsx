@@ -24,7 +24,7 @@ export function FinalCTASection() {
           <DiagnosticAssessmentLink className="landing-cta inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-brand-gold px-6 text-sm font-black text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(232,190,95,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="final_diagnostic_click" label="final_diagnostic">
             {landingContent.finalCta.primary}
           </DiagnosticAssessmentLink>
-          <WhatsAppLink className="landing-cta inline-flex min-h-12 flex-1 items-center justify-center rounded-full border border-brand-gold bg-brand-base px-6 text-sm font-black text-brand-white shadow-lg shadow-black/20 ring-1 ring-brand-rim outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:text-brand-gold-hover hover:shadow-[0_0_28px_rgba(232,190,95,0.16)] focus-visible:ring-4 focus-visible:ring-brand-gold/30" eventName="hero_free_lesson_click" intent="freeLesson" label="final_free_lesson">
+          <WhatsAppLink className="landing-cta inline-flex min-h-12 flex-1 items-center justify-center rounded-full border border-brand-gold bg-brand-base px-6 text-sm font-black text-brand-white shadow-lg shadow-black/20 ring-1 ring-brand-rim outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:text-brand-gold-hover hover:shadow-[0_0_28px_rgba(232,190,95,0.16)] focus-visible:ring-4 focus-visible:ring-brand-gold/30" eventName="contact_whatsapp_click" intent="support" label="final_support">
             {landingContent.finalCta.secondary}
           </WhatsAppLink>
         </div>

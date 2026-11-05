@@ -1,6 +1,6 @@
 import type { Locale } from '@/lib/landing/types';
 
-const SUPPORT_NUMBER = '201554225979';
+const SUPPORT_NUMBER = '201035916360';
 
 export const siteConfig = {
   name: 'Nudrek Learning Hub',
@@ -16,6 +16,14 @@ export const siteConfig = {
     privacy: '/privacy',
     support: '/support',
     terms: '/terms',
+  },
+  company: {
+    legalName: {
+      en: 'Nudrek for Training, Qualification and Integrated Education',
+      ar: 'ندرك للتدريب والتأهيل والتعليم المتكامل',
+    },
+    commercialRegistration: '36173',
+    taxRegistration: '423-035-784',
   },
   support: {
     email: 'support@nudrek.com',
@@ -37,15 +45,15 @@ export const siteConfig = {
       {
         id: 'egypt-primary',
         number: SUPPORT_NUMBER,
-        displayNumber: '+20 155 422 5979',
-        internationalNumber: '00201554225979',
+        displayNumber: '+20 1035 916 360',
+        internationalNumber: '00201035916360',
         label: { en: 'Egypt Support', ar: 'خط دعم مصر' },
       },
     ],
     messages: {
       diagnostic: {
-        en: 'Hello Nudrek Team, I would like to book a FREE Diagnostic Assessment',
-        ar: 'مرحبًا نُدرك للتعليم المتكامل، أود حجز تقييم تشخيصي مجاني لابني.',
+        en: 'Hello Nudrek Learning Hub, I would like to book my child’s free first session.',
+        ar: 'مرحبًا نُدرك للتعليم المتكامل، أود حجز أول حصة مجانية لابني.',
       },
       freeLesson: {
         en: "Hello Nudrek Learning Hub, I would like to arrange my child’s free first lesson.",

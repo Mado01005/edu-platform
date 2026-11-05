@@ -1,9 +1,9 @@
-import { BarChart3, BookOpenCheck, ClipboardCheck, FileText, GraduationCap, Route, Search, SlidersHorizontal } from 'lucide-react';
+import { BookOpenCheck, ClipboardCheck, Route, Search, SlidersHorizontal } from 'lucide-react';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { NodrekEmblem } from '@/components/branding/NodrekBrand';
 import { landingContent } from '@/lib/landing/content';
 
-const icons = [Search, Route, GraduationCap, BookOpenCheck, ClipboardCheck, BarChart3, FileText, SlidersHorizontal] as const;
+const icons = [Search, Route, BookOpenCheck, ClipboardCheck, SlidersHorizontal] as const;
 
 export function SolutionFramework() {
   return (
@@ -21,7 +21,7 @@ export function SolutionFramework() {
             {landingContent.solution.steps.map(([title, description], index) => {
               const Icon = icons[index];
               return (
-                <li className="landing-card group rounded-3xl border border-brand-border bg-brand-surface p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 sm:p-6" key={title.en}>
+                <li className="landing-card group rounded-3xl sm:last:col-span-2 border border-brand-border bg-brand-surface p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold/45 sm:p-6" key={title.en}>
                   <div className="flex items-center justify-between gap-4"><span className="flex size-11 items-center justify-center rounded-2xl bg-brand-base text-brand-gold"><Icon aria-hidden="true" className="size-5" /></span><span className="rounded-full bg-brand-gold px-2.5 py-1 text-[10px] font-black tabular-nums text-brand-base">{String(index + 1).padStart(2, '0')}</span></div>
                   <LandingCopy as="h3" className="mt-6 text-lg font-black">{title}</LandingCopy>
                   <LandingCopy as="p" className="mt-2 text-sm leading-6 text-brand-muted/65">{description}</LandingCopy>

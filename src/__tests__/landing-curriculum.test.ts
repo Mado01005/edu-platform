@@ -10,7 +10,6 @@ describe('landing curriculum availability', () => {
     expect(landingContent.hero.qualifier.en).toContain(combinedCurriculumLabel.en);
     expect(landingContent.hero.qualifier.ar).toContain(combinedCurriculumLabel.ar);
     expect(landingContent.ticker).toContainEqual(combinedCurriculumLabel);
-    expect(landingContent.trust.items).toContainEqual(combinedCurriculumLabel);
     expect(landingContent.curriculum.tracksLabel).toEqual(combinedCurriculumLabel);
   });
 

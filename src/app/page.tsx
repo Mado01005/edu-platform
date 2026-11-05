@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
 import { CurriculumExplorer } from '@/components/landing/CurriculumExplorer';
 import { FAQSection } from '@/components/landing/FaqSection';
+import { ExpectSection } from '@/components/landing/ExpectSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
 import { FloatingNavbar } from '@/components/landing/FloatingNavbar';
 import { HeroSection } from '@/components/landing/HeroSection';
-import { HowItWorks } from '@/components/landing/HowItWorks';
+import { FreeSessionSection } from '@/components/landing/FreeSessionSection';
 import { LandingAnalytics } from '@/components/landing/LandingAnalytics';
 import { LearningExperienceBento } from '@/components/landing/LearningExperienceBento';
 import { MobileConversionBar } from '@/components/landing/MobileConversionBar';
-import { OutcomesSection } from '@/components/landing/OutcomesSection';
-import { ProblemSection } from '@/components/landing/ProblemSection';
+import { PackagesSection } from '@/components/landing/PackagesSection';
 import { SiteFooter } from '@/components/landing/SiteFooter';
 import { SolutionFramework } from '@/components/landing/SolutionFramework';
 import { TrustBar } from '@/components/landing/TrustBar';
@@ -57,12 +57,12 @@ export default function RootPage() {
       <main id="main-content">
         <HeroSection />
         <TrustBar />
-        <ProblemSection />
         <SolutionFramework />
         <LearningExperienceBento />
-        <HowItWorks />
         <CurriculumExplorer />
-        <OutcomesSection />
+        <FreeSessionSection />
+        <PackagesSection />
+        <ExpectSection />
         <FAQSection />
         <FinalCTASection />
       </main>

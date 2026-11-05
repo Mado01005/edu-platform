@@ -29,8 +29,8 @@ describe('landing locale and contact configuration', () => {
   );
 
   test('provides the single support number with localized messages', () => {
-    expect(siteConfig.whatsapp.number).toBe('201554225979');
-    expect(siteConfig.whatsapp.supportLines.map((line) => line.number)).toEqual(['201554225979']);
+    expect(siteConfig.whatsapp.number).toBe('201035916360');
+    expect(siteConfig.whatsapp.supportLines.map((line) => line.number)).toEqual(['201035916360']);
 
     for (const line of siteConfig.whatsapp.supportLines) {
       for (const locale of ['en', 'ar'] as const) {

@@ -32,6 +32,20 @@ export function SiteFooter() {
           </Link>
           <LandingCopy as="p" className="mt-5 max-w-md text-sm leading-7 text-brand-muted/70">{landingContent.footer.description}</LandingCopy>
           <SocialLinks className="mt-5" />
+          <div className="mt-6 max-w-md text-xs leading-6 text-brand-muted/65">
+            <LandingCopy as="p" className="font-black text-brand-gold">{landingContent.footer.companyTitle}</LandingCopy>
+            <LandingCopy as="p" className="mt-1">{landingContent.footer.companyBody}</LandingCopy>
+            <p className="mt-1">
+              <LandingCopy>{landingContent.footer.commercialRegistration}</LandingCopy>
+              <span>: </span>
+              <span className="font-bold text-brand-white" dir="ltr">{siteConfig.company.commercialRegistration}</span>
+            </p>
+            <p>
+              <LandingCopy>{landingContent.footer.taxRegistration}</LandingCopy>
+              <span>: </span>
+              <span className="font-bold text-brand-white" dir="ltr">{siteConfig.company.taxRegistration}</span>
+            </p>
+          </div>
           <a
             className="mt-5 inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-brand-border bg-brand-surface px-3.5 py-2 text-sm text-brand-muted outline-none hover:border-brand-gold hover:text-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold"
             href={`mailto:${siteConfig.support.email}`}

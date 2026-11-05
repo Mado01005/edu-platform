@@ -1,6 +1,6 @@
-import { Check, MessageCircle, Sparkles } from 'lucide-react';
-import Image from 'next/image';
-import { DiagnosticAssessmentLink, WhatsAppLink } from '@/components/landing/ConversionLink';
+import { Check, Sparkles } from 'lucide-react';
+import { BookingCard } from '@/components/landing/BookingCard';
+import { DiagnosticAssessmentLink } from '@/components/landing/ConversionLink';
 import { LandingCopy } from '@/components/landing/LandingCopy';
 import { siteConfig } from '@/lib/siteConfig';
 import { landingContent } from '@/lib/landing/content';
@@ -19,7 +19,7 @@ export function HeroSection() {
           </div>
 
           <LandingCopy as="p" className="mt-5 text-xs font-bold tracking-[0.2em] text-brand-base">{siteConfig.tagline}</LandingCopy>
-          <h1 className="mt-4 text-balance text-[2.55rem] font-black leading-[1.02] tracking-[-0.045em] text-brand-base sm:text-6xl lg:text-[4.25rem]">
+          <h1 className="mt-4 text-balance text-[2.55rem] font-black leading-[1.02] tracking-[-0.045em] text-brand-base sm:text-5xl lg:text-[3.5rem]">
             <LandingCopy>{landingContent.hero.title}</LandingCopy>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-pretty text-base leading-8 text-brand-surface/80 sm:text-lg lg:mx-0">
@@ -30,9 +30,7 @@ export function HeroSection() {
             <DiagnosticAssessmentLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand-gold px-6 text-sm font-bold text-brand-base shadow-md shadow-brand-gold/20 outline-none transition-all duration-300 hover:-translate-y-1 hover:bg-brand-gold-hover hover:shadow-[0_0_32px_rgba(232,190,95,0.26)] focus-visible:ring-4 focus-visible:ring-brand-gold-hover/35" eventName="hero_diagnostic_click" label="hero_diagnostic">
               {landingContent.hero.primary}
             </DiagnosticAssessmentLink>
-            <WhatsAppLink className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-base bg-white px-6 text-sm font-bold text-brand-base shadow-sm outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-brand-base/5 hover:shadow-md focus-visible:ring-4 focus-visible:ring-brand-gold/25" eventName="hero_free_lesson_click" intent="freeLesson" label="hero_free_lesson">
-              {landingContent.hero.secondary}
-            </WhatsAppLink>
+            <a className="landing-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-base bg-white px-6 text-sm font-bold text-brand-base shadow-sm outline-none backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-brand-base/5 hover:shadow-md focus-visible:ring-4 focus-visible:ring-brand-gold/25" href="#how-it-works"><LandingCopy>{landingContent.hero.secondary}</LandingCopy></a>
           </div>
 
           <div className="mt-8 flex items-start gap-3 rounded-2xl border border-brand-base/10 bg-white/85 p-4 text-start shadow-lg shadow-brand-base/10 backdrop-blur-md">
@@ -41,42 +39,8 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="relative isolate mx-auto flex w-full max-w-xl items-center justify-center lg:max-w-none">
-          <div aria-hidden="true" className="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-tr from-brand-gold/20 via-brand-leaf/15 to-brand-sage/30 opacity-70 blur-2xl" />
-          <div className="relative w-full overflow-hidden rounded-2xl bg-brand-sage/20 p-1.5 shadow-xl shadow-brand-base/10 ring-1 ring-brand-sage-deep/30">
-            <Image
-              alt={`${siteConfig.name} - ${siteConfig.arabicName}`}
-              className="block h-auto w-full rounded-xl object-contain transition-transform duration-500 hover:scale-[1.01]"
-              height={siteConfig.brand.officialArtworkHeight}
-              loading="eager"
-              sizes="(max-width: 1024px) calc(100vw - 32px), 672px"
-              src={siteConfig.brand.officialArtwork}
-              unoptimized
-              width={siteConfig.brand.officialArtworkWidth}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-12 w-full bg-brand-base px-4 py-4 sm:px-6 lg:px-8">
-        <div className="nodrek-feature-ticker mx-auto max-w-7xl overflow-hidden rounded-3xl border border-brand-border bg-brand-base p-2 sm:p-3 lg:rounded-full" aria-label="Nudrek learning services">
-          <div className="nodrek-feature-ticker-track flex w-max text-[10px] font-black uppercase tracking-[0.1em] text-brand-white lg:text-[11px]" dir="ltr">
-            {[false, true].map((duplicate) => (
-              <ul
-                aria-hidden={duplicate || undefined}
-                className={`nodrek-feature-ticker-sequence flex shrink-0 items-center gap-2 pe-2 ${duplicate ? 'nodrek-feature-ticker-copy' : ''}`}
-                key={duplicate ? 'duplicate' : 'primary'}
-                role="list"
-              >
-                {landingContent.ticker.map((item) => (
-                  <li className="flex min-h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-surface px-4 py-2 text-center leading-4" key={item.en}>
-                    <MessageCircle aria-hidden="true" className="size-3.5 shrink-0 text-brand-gold" />
-                    <LandingCopy>{item}</LandingCopy>
-                  </li>
-                ))}
-              </ul>
-            ))}
-          </div>
+        <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
+          <BookingCard />
         </div>
       </div>
     </section>
