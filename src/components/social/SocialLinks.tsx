@@ -73,7 +73,7 @@ export function SocialLinks({ className }: SocialLinksProps) {
         <li className="flex" key={social.name}>
           <a
             aria-label={social.ariaLabel}
-            className="relative flex h-9 w-9 items-center justify-center rounded-full border border-brand-border bg-brand-surface text-white/80 transition-all duration-200 before:absolute before:-inset-1 before:content-[''] hover:scale-110 hover:border-brand-gold hover:text-brand-gold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30 motion-reduce:transform-none motion-reduce:transition-none"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full border border-brand-border bg-brand-surface text-white/80 transition-all duration-200 before:absolute before:-inset-[5px] before:content-[''] hover:scale-110 hover:border-brand-gold hover:text-brand-gold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/30 motion-reduce:transform-none motion-reduce:transition-none"
             href={social.url}
             rel="noopener noreferrer"
             style={{ transitionProperty: 'all' }}

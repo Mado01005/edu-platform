@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import type { MouseEvent, ReactNode } from 'react';
-import { DIAGNOSTIC_ASSESSMENT_URL } from '@/config/links';
 import {
   currentUtmAttribution,
   trackLandingEvent,
@@ -84,11 +83,13 @@ export function DiagnosticAssessmentLink({
   eventName,
   label,
 }: LocalizedConversionLinkProps) {
+  const { locale } = useLanguage();
+
   return (
     <ConversionLink
       className={className}
       eventName={eventName}
-      href={DIAGNOSTIC_ASSESSMENT_URL}
+      href={getWhatsAppUrl('diagnostic', locale)}
       label={label}
       newTab
     >
