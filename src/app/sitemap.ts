@@ -4,6 +4,8 @@ import { siteConfig } from '@/lib/siteConfig';
 const publicRoutes = [
   { path: '/', changeFrequency: 'weekly', priority: 1 },
   { path: '/support', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
+  { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
 ] as const satisfies ReadonlyArray<{
   path: `/${string}`;
   changeFrequency: NonNullable<MetadataRoute.Sitemap[number]['changeFrequency']>;

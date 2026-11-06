@@ -5,6 +5,7 @@ import { LegalPageShell, type LegalSection } from '@/components/legal/legal-page
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'How Nudrek Learning Hub collects, uses, protects, and shares student and account information.',
+  alternates: { canonical: `${brandConfig.url}${brandConfig.routes.privacy}` },
 };
 
 const sections: readonly LegalSection[] = [

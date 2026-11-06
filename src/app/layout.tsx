@@ -41,7 +41,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: siteConfig.title,
     description: siteConfig.description,
-    url: SITE_URL,
     siteName: siteConfig.name,
     images: [
       {
@@ -60,9 +59,6 @@ export const metadata: Metadata = {
     title: siteConfig.title,
     description: siteConfig.description,
     images: [siteConfig.brand.banner],
-  },
-  alternates: {
-    canonical: '/',
   },
   appleWebApp: {
     capable: true,
