@@ -33,19 +33,19 @@ export function LegalPageShell({
       <header className="border-b border-emerald-950/10 bg-white">
         <div className="mx-auto flex min-h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link
-            aria-label="Nudrek Learning Hub course catalog"
+            aria-label="Nudrek Learning Hub home"
             className="flex min-w-0 items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"
-            href="/catalog"
+            href="/"
           >
             <NodrekEmblem className="size-11" />
             <NodrekWordmark className="hidden sm:block" />
           </Link>
           <Link
             className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-950/15 bg-white px-4 text-sm font-extrabold text-[#052F26] shadow-sm outline-none hover:border-[#052F26] hover:bg-emerald-50 focus-visible:ring-4 focus-visible:ring-emerald-200"
-            href="/catalog"
+            href="/"
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
-            Back to academy
+            Back to home
           </Link>
         </div>
       </header>

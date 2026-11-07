@@ -629,7 +629,7 @@ export function LmsAuthExperience({
     <main className="grid min-h-dvh w-full grid-cols-1 overflow-x-hidden bg-white text-slate-900 lg:grid-cols-2">
       <section className="relative hidden min-w-0 overflow-hidden border-r border-emerald-950/10 bg-emerald-50 p-10 lg:flex lg:flex-col lg:justify-between xl:p-16">
 
-        <Link className="relative flex w-fit items-center gap-3" href="/catalog">
+        <Link className="relative flex w-fit items-center gap-3" href="/">
           <span className="flex size-11 items-center justify-center rounded-2xl bg-[#052F26] text-white shadow-sm">
             <GraduationCap className="size-6" aria-hidden="true" />
           </span>
@@ -688,10 +688,10 @@ export function LmsAuthExperience({
         <div className="relative flex w-full max-w-md min-w-0 flex-col">
           <Link
             className="mb-8 flex w-fit items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-[#052F26] lg:hidden"
-            href="/catalog"
+            href="/"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-            Back to catalog
+            Back to home
           </Link>
 
           {verificationEmail ? (
